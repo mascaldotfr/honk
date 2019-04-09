@@ -1,0 +1,14 @@
+<div class="honk {{ if eq .Honk.What "tonked" }} tonk {{ end }}">
+{{ with .Honk }}
+<div class="title"><img alt="avatar" src="/a?a={{ .Honker}}"><p><a href="{{ .Honker }}" rel=noreferrer>{{ .Username }}</a> <span class="clip">{{ .What }} {{ .Date.Format "02 Jan 2006 15:04" }} <a href="{{ .URL }}" rel=noreferrer>{{ .URL }}</a></span></div>
+<div class="noise"><p>{{ .HTML }}</div>
+{{ range .Donks }}
+<p><a href="/d/{{ .XID }}"><img src="/d/{{ .XID }}" title="{{ .URL }}"></a>
+{{ end }}
+{{ end }}
+{{ if .Bonk }}
+<p>
+<button onclick="bonk('{{ .Honk.XID }}'); return false;"><a href="/bonk">bonk</a></button>
+<button style="margin-left: 4em;" onclick="showhonkform('{{ .Honk.XID }}', '{{ .Honk.Username }}'); return false;"><a href="/newhonk">tonk</a></button>
+{{ end }}
+</div>

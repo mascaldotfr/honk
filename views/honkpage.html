@@ -1,0 +1,24 @@
+{{ template "header.html" . }}
+<div class="center">
+{{ if .Name }}
+<div class="info">
+<p>{{ .Name }} <span style="margin-left:1em;"><a href="/u/{{ .Name }}/rss">rss</a></span>
+{{ if .HonkCSRF }}
+<div>
+<form id="aboutform" action="/saveuser" method="POST">
+<input type="hidden" name="CSRF" value="{{ .UserCSRF }}">
+<textarea name="whatabout">{{ .RawWhatAbout }}</textarea>
+<p>
+<input type="submit" value="update">
+</form>
+</div>
+{{ else }}
+<p>{{ .WhatAbout }}
+{{ end }}
+</div>
+{{ end }}
+<div>
+{{ range .Honks }}
+{{ template "honk.html" map "Honk" . }}
+{{ end }}
+</div>

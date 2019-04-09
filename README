@@ -1,0 +1,38 @@
+honk honk
+
+-- features
+
+Take control of your honks and join the federation in the fight against the
+evil empire.
+
+Send honks. Receive honks. And not just honks.
+Bonk, donk, tonk, all your favorite activities are here.
+
+Purple color scheme.
+
+The button to submit a new honk says "it's gonna be honked".
+
+Ein Honk is a stupid person auf deutsch.
+
+-- requirements
+
+github.com/gorilla/mux
+golang.org/x/crypto
+golang.org/x/net
+golang.org/x/text
+humungus.tedunangst.com/r/go-sqlite3
+
+It should be sufficient to type make after unpacking a release under go/src.
+Mind your gopath.
+
+Even on a fast machine, building from source can take several seconds.
+
+Busy honk instances may require megabytes of memory.
+
+-- setup
+
+./honk init
+
+./honk
+
+honk expects to be fronted by a TLS terminating reverse proxy.

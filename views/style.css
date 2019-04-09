@@ -1,0 +1,146 @@
+body {
+	background: #305;
+	color: #dde;
+	font-size: 1em;
+	word-wrap: break-word;
+}
+a {
+	color: #dde;
+}
+form {
+	font-family: monospace;
+}
+p {
+	margin-top 1em;
+	margin-bottom: 1em;
+}
+input {
+	font-family: monospace;
+	background: #305;
+	color: #dde;
+	font-size: 1.0em;
+	line-height: 1.2em;
+	padding: 0.5em;
+}
+.header {
+	max-width: 1200px;
+	margin: 1em auto;
+	font-size: 1.5em;
+	text-align: right;
+}
+.header span {
+	margin-right: 2em;
+}
+.center {
+	max-width: 1200px;
+	margin: auto;
+	font-size: 1.5em;
+}
+.info {
+	background: #002;
+	border: 2px solid #dde;
+	margin-bottom: 1em;
+	padding: 0em 1em 0em 1em;
+}
+.info div {
+	margin-top 1em;
+	margin-bottom: 1em;
+}
+button, form input[type=submit] {
+	font-size: 0.8em;
+	font-family: monospace;
+	color: #dde;
+	background: #305;
+	border: 1px solid #dde;
+	padding: 0.5em;
+}
+button a {
+	text-decoration: none;
+}
+.info form {
+	margin-top: 1em;
+}
+.info textarea {
+	padding: 0.5em;
+	font-size: 1em;
+	background: #305;
+	color: #dde;
+	width: 700px;
+	height: 8em;
+	margin-bottom: 0.5em;
+	box-sizing: border-box;
+}
+@media screen and (max-width: 1024px) {
+	.info textarea {
+		width: 500px;
+	}
+}
+.info input[type="checkbox"] {
+	position: fixed;
+	top: -9999px;
+}
+.info input[type="checkbox"] + span:after {
+	content: "no";
+}
+.info input[type="checkbox"]:checked + span:after {
+	content: "yes";
+}
+.info input[type="checkbox"]:focus + span:after {
+	outline: 1px solid #dde;
+}
+.info input[type=file] {
+	display: none;
+}
+.info label {
+	border: 1px solid #dde;
+	font-size: 0.8em;
+	padding: 0.5em;
+	font-size: 0.8em;
+	background: #305;
+}
+
+.honk {
+	width: 90%;
+	margin: auto;
+	background: #002;
+	border: 2px solid #dde;
+	border-radius: 1em;
+	margin-bottom: 1em;
+	padding-left: 1em;
+	padding-right: 1em;
+	padding-top: 0;
+}
+.tonk {
+}
+.tonk .noise {
+	color: #aab;
+	font-size: 0.8em;
+}
+.tonk .noise a {
+	color: #aab;
+}
+.honk a {
+	color: #dde;
+}
+.honk .title .clip a {
+	color: #88a;
+}
+.honk .title {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 0.8em;
+	margin-top: 1em;
+}
+.honk .title img {
+	float: left;
+	margin-right: 1em;
+	width: 64px;
+	height: 64px;
+}
+.honk .title p {
+	margin-top: 0px;
+}
+img {
+	max-width: 100%
+}

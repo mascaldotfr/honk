@@ -1,0 +1,30 @@
+<p>
+<button onclick="showhonkform(); return false"><a href="/newhonk">it's honking time</a></button>
+<form id="honkform" action="/honk" method="POST" enctype="multipart/form-data" style="display: none">
+<p></p>
+<input type="hidden" name="rid" value="">
+<input type="hidden" name="CSRF" value="{{ .HonkCSRF }}">
+<textarea name="noise" id="honknoise"></textarea>
+<p>
+<input type="submit" value="it's gonna be honked">
+<label id="donker" style="margin-left:4em;">attach: <input onchange="updatedonker();" type="file" name="donk"><span></span></label>
+</form>
+<script>
+function showhonkform(rid, hname) {
+	var el = document.getElementById("honkform")
+	el.style = "display: block"
+	if (rid) {
+		el.children[0].innerHTML = "tonking " + rid
+		el.children[1].value = rid
+		el.children[3].value = "@" + hname
+	} else {
+		el.children[0].innerHTML = ""
+		el.children[1].value = ""
+	}
+	el.scrollIntoView()
+}
+function updatedonker() {
+	var el = document.getElementById("donker")
+	el.children[1].textContent = el.children[0].value
+}
+</script>

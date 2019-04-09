@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+<title>honk</title>
+<link href="/style.css{{ .StyleParam }}" rel="stylesheet">
+<link href="/icon.png" rel="icon">
+</head>
+<body>
+<div class="header">
+<span><a href="/">honk</a></span>
+{{ if .ShowRSS }}
+<span><a href="/rss">rss</a></span>
+{{ end }}
+{{ if .UserInfo }}
+<span><a href="/u/{{ .UserInfo.Username }}">{{ .UserInfo.Username }}</a></span>
+<span><a href="/honkers">honkers</a></span>
+<span><a href="/logout?CSRF={{ .LogoutCSRF }}">logout</a></span>
+{{ else }}
+<span><a href="/login">login</a></span>
+{{ end }}
+</div>
