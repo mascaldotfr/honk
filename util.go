@@ -29,6 +29,7 @@ import (
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/crypto/ssh/terminal"
 	_ "humungus.tedunangst.com/r/go-sqlite3"
 )
 
@@ -71,11 +72,11 @@ func initdb() {
 	signal.Notify(c, os.Interrupt)
 	go func() {
 		<-c
-		fmt.Printf("\x1b[?12;25h\x1b[0m")
 		fmt.Printf("\n")
 		os.Remove(dbname)
 		os.Exit(1)
 	}()
+
 	for _, line := range strings.Split(string(schema), ";") {
 		_, err = db.Exec(line)
 		if err != nil {
@@ -96,14 +97,14 @@ func initdb() {
 		log.Print("that's way too short")
 		return
 	}
-	fmt.Printf("password: \x1b[?25l\x1b[%d;%dm                 \x1b[16D", 30, 40)
-	pass, err := r.ReadString('\n')
-	fmt.Printf("\x1b[0m\x1b[?12;25h")
+	fmt.Printf("password: ")
+	passbytes, err := terminal.ReadPassword(1)
+	fmt.Printf("\n")
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return
 	}
-	pass = pass[:len(pass)-1]
+	pass := string(passbytes)
 	if len(pass) < 6 {
 		log.Print("that's way too short")
 		return
