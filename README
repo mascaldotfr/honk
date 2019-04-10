@@ -31,8 +31,19 @@ Busy honk instances may require megabytes of memory.
 
 -- setup
 
+honk expects to be fronted by a TLS terminating reverse proxy.
+
+First, create the database.
+
 ./honk init
+
+This will ask four questions.
+username: (the username you want)
+password: (the password you want)
+listenaddr: (tcp or unix: localhost:31337, /var/www/honk.sock, etc.)
+servername: (public DNS name: honk.example.com)
+
+Then run honk.
 
 ./honk
 
-honk expects to be fronted by a TLS terminating reverse proxy.
