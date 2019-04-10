@@ -172,11 +172,27 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		return honks[i].Date.After(honks[j].Date)
 	})
 	reverbolate(honks)
+
+	var modtime time.Time
+	if len(honks) > 0 {
+		modtime = honks[0].Date
+	}
+	imh := r.Header.Get("If-Modified-Since")
+	if imh != "" && !modtime.IsZero() {
+		ifmod, err := time.Parse(http.TimeFormat, imh)
+		if err == nil && !modtime.After(ifmod) {
+			w.WriteHeader(http.StatusNotModified)
+			return
+		}
+	}
+
 	msg := "Things happen."
 	getconfig("servermsg", &msg)
 	templinfo["Honks"] = honks
 	templinfo["ShowRSS"] = true
 	templinfo["ServerMessage"] = msg
+	w.Header().Set("Cache-Control", "max-age=0")
+	w.Header().Set("Last-Modified", modtime.Format(http.TimeFormat))
 	err := readviews.ExecuteTemplate(w, "homepage.html", templinfo)
 	if err != nil {
 		log.Print(err)
