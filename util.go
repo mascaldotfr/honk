@@ -15,6 +15,23 @@
 
 package main
 
+/*
+#include <termios.h>
+
+void
+termecho(int on)
+{
+	struct termios t;
+	tcgetattr(1, &t);
+	if (on)
+		t.c_lflag |= ECHO;
+	else
+		t.c_lflag &= ~ECHO;
+	tcsetattr(1, TCSADRAIN, &t);
+}
+*/
+import "C"
+
 import (
 	"bufio"
 	"crypto/rand"
@@ -29,7 +46,6 @@ import (
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
-	"golang.org/x/crypto/ssh/terminal"
 	_ "humungus.tedunangst.com/r/go-sqlite3"
 )
 
@@ -72,6 +88,7 @@ func initdb() {
 	signal.Notify(c, os.Interrupt)
 	go func() {
 		<-c
+		C.termecho(1)
 		fmt.Printf("\n")
 		os.Remove(dbname)
 		os.Exit(1)
@@ -97,14 +114,16 @@ func initdb() {
 		log.Print("that's way too short")
 		return
 	}
+	C.termecho(0)
 	fmt.Printf("password: ")
-	passbytes, err := terminal.ReadPassword(1)
+	pass, err := r.ReadString('\n')
+	C.termecho(1)
 	fmt.Printf("\n")
 	if err != nil {
 		log.Print(err)
 		return
 	}
-	pass := string(passbytes)
+	pass = pass[:len(pass)-1]
 	if len(pass) < 6 {
 		log.Print("that's way too short")
 		return
