@@ -82,8 +82,8 @@ func PostJunk(keyname string, key *rsa.PrivateKey, url string, j map[string]inte
 	if err != nil {
 		return err
 	}
-	zig(keyname, key, req, buf.Bytes())
 	req.Header.Set("Content-Type", theonetruename)
+	zig(keyname, key, req, buf.Bytes())
 	resp, err := client.Do(req)
 	if err != nil {
 		return err

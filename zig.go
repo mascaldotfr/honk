@@ -28,7 +28,6 @@ import (
 	"io"
 	"net/http"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -54,7 +53,7 @@ func sb64sha256(content []byte) string {
 }
 
 func zig(keyname string, key *rsa.PrivateKey, req *http.Request, content []byte) {
-	headers := []string{"(request-target)", "date", "host", "content-length", "digest"}
+	headers := []string{"(request-target)", "date", "host", "content-type", "digest"}
 	var stuff []string
 	for _, h := range headers {
 		var s string
@@ -73,13 +72,8 @@ func zig(keyname string, key *rsa.PrivateKey, req *http.Request, content []byte)
 				s = req.URL.Hostname()
 				req.Header.Set(h, s)
 			}
-		case "content-length":
+		case "content-type":
 			s = req.Header.Get(h)
-			if s == "" {
-				s = strconv.Itoa(len(content))
-				req.Header.Set(h, s)
-				req.ContentLength = int64(len(content))
-			}
 		case "digest":
 			s = req.Header.Get(h)
 			if s == "" {
