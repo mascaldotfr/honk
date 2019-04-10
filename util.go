@@ -163,6 +163,7 @@ func initdb() {
 		log.Print(err)
 		return
 	}
+	prepareStatements(db)
 	db.Close()
 	fmt.Printf("done.\n")
 	os.Exit(0)
