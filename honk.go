@@ -75,7 +75,7 @@ func ziggy(user *WhatAbout) (keyname string, key *rsa.PrivateKey) {
 
 func zaggy(keyname string) (key *rsa.PublicKey) {
 	db := opendatabase()
-	row := db.QueryRow("select pubkey from honkers where xid = ?", keyname)
+	row := db.QueryRow("select pubkey from honkers where flavor = 'key' and xid = ?", keyname)
 	var data string
 	err := row.Scan(&data)
 	savekey := false
