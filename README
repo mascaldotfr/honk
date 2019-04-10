@@ -14,20 +14,23 @@ The button to submit a new honk says "it's gonna be honked".
 
 Ein Honk is a stupid person auf deutsch.
 
--- requirements
+-- build
 
-github.com/gorilla/mux
-golang.org/x/crypto
-golang.org/x/net
-golang.org/x/text
-humungus.tedunangst.com/r/go-sqlite3
-
-It should be sufficient to type make after unpacking a release under go/src.
-Mind your gopath.
+It should be sufficient to type make after unpacking a release.
+You'll need a go compiler version 1.11 or later.
 
 Even on a fast machine, building from source can take several seconds.
 
-Busy honk instances may require megabytes of memory.
+-- requirements
+
+libsqlite3 (you probably already have it)
+
+go modules included in vendor:
+github.com/gorilla/mux
+golang.org/x/crypto
+golang.org/x/net
+golang.org/x/sys
+humungus.tedunangst.com/r/go-sqlite3
 
 -- setup
 
@@ -47,3 +50,4 @@ Then run honk.
 
 ./honk
 
+Busy honk instances may use megabytes of memory.
