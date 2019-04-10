@@ -163,7 +163,6 @@ func initdb() {
 		log.Print(err)
 		return
 	}
-	db.Exec("insert into config (key, value) values (?, ?)", "debug", 1)
 	db.Close()
 	fmt.Printf("done.\n")
 	os.Exit(0)
