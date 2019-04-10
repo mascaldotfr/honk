@@ -1,0 +1,38 @@
+
+Some notes on the database schema.
+
+We don't use null, only empty strings. This is easier to work with on the go
+side.
+
+The main table is honks. This stores both locally created honks and incoming
+ActivityPub notes converted to honks. It is important to differentiate the two
+cases so that we don't accidentally publish external honks in the public web
+view. (Previously this was accomplished via separate tables. That made some
+queries more difficult, but I think it's possible to workaround this. It would
+be considerably safer.) The honker column will be empty for local honks.
+
+The what column further refines the type of honk. If a reply, tonk. If
+deleted, zonk. If shared, bonk. In particular for the case of bonk, there
+aren't enough columns to store original honker and bonker. This seems to work
+out okay though.
+
+The honkers table is used to manage follows and followers. The flavor column
+describes what. 'sub' is a follow. We have subscribed to their newsletter.
+'dub' is a follower. They get dubbed whenever we honk. We also use this table
+to store public keys for anyone we interact with. This is regrettable.
+
+The xid column generally corresponds to ActivityPub id. For local honks, it
+will be a short string, not a complete URL.
+
+Such explanation would be less necessary were the tables not misused for
+multiple purposes. Will probably split them apart again soon.
+
+Note that some logical seeming joins won't work. The honker column of honks
+does not have a correspondng entry in the honkers table, since we frequently
+receive messages from people we don't follow. Should we track everybody whose
+identity crosses our path? This seems unnecessary. The honkers table is more
+like a mapping of active relationships, not a directory of all peoples.
+
+Some deduping of honks is performed. Known shortcoming: only the first bonk is
+recorded. Subsequent bonks, even by different actors, are ignored. Bonus
+shortcoming: we download such bonks every time.
