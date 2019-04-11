@@ -2,7 +2,7 @@
 <button onclick="showhonkform(); return false"><a href="/newhonk">it's honking time</a></button>
 <form id="honkform" action="/honk" method="POST" enctype="multipart/form-data" style="display: none">
 <p></p>
-<input type="hidden" name="rid" value="">
+ly: <input type="text" name="rid" value="">
 <input type="hidden" name="CSRF" value="{{ .HonkCSRF }}">
 <textarea name="noise" id="honknoise"></textarea>
 <p>

@@ -177,8 +177,10 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	if len(honks) > 0 {
 		modtime = honks[0].Date
 	}
+	debug := false
+	getconfig("debug", &debug)
 	imh := r.Header.Get("If-Modified-Since")
-	if imh != "" && !modtime.IsZero() {
+	if !debug && imh != "" && !modtime.IsZero() {
 		ifmod, err := time.Parse(http.TimeFormat, imh)
 		if err == nil && !modtime.After(ifmod) {
 			w.WriteHeader(http.StatusNotModified)
