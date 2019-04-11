@@ -356,15 +356,13 @@ func newphone(a []string, obj map[string]interface{}) []string {
 func oneofakind(a []string) []string {
 	var x []string
 	for n, s := range a {
-		for i := n + 1; i < len(a); i++ {
-			if a[i] == s {
-				a[i] = ""
-			}
-		}
-	}
-	for _, s := range a {
 		if s != "" {
 			x = append(x, s)
+			for i := n + 1; i < len(a); i++ {
+				if a[i] == s {
+					a[i] = ""
+				}
+			}
 		}
 	}
 	return x
