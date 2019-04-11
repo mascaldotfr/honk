@@ -868,7 +868,9 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	}
 	if rid != "" {
 		xonk := getxonk("", rid)
-		honk.Audience = append(honk.Audience, xonk.Audience...)
+		if xonk != nil {
+			honk.Audience = append(honk.Audience, xonk.Audience...)
+		}
 	}
 	honk.Audience = oneofakind(honk.Audience)
 	noise = obfusbreak(noise)
