@@ -29,7 +29,6 @@ go modules included in vendor:
 github.com/gorilla/mux
 golang.org/x/crypto
 golang.org/x/net
-golang.org/x/sys
 humungus.tedunangst.com/r/go-sqlite3
 
 -- setup
