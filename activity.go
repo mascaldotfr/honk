@@ -327,6 +327,15 @@ func peeppeep() {
 	}
 }
 
+func whosthere(xid string) []string {
+	obj, err := GetJunk(xid)
+	if err != nil {
+		log.Printf("error getting remote xonk: %s", err)
+		return nil
+	}
+	return newphone(nil, obj)
+}
+
 func newphone(a []string, obj map[string]interface{}) []string {
 	for _, addr := range []string{"to", "cc", "attributedTo"} {
 		who, _ := jsongetstring(obj, addr)

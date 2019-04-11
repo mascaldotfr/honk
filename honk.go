@@ -870,6 +870,9 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		xonk := getxonk("", rid)
 		if xonk != nil {
 			honk.Audience = append(honk.Audience, xonk.Audience...)
+		} else {
+			xonkaud := whosthere(rid)
+			honk.Audience = append(honk.Audience, xonkaud...)
 		}
 	}
 	honk.Audience = oneofakind(honk.Audience)
