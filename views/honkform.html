@@ -1,9 +1,10 @@
 <p>
 <button onclick="showhonkform(); return false"><a href="/newhonk">it's honking time</a></button>
 <form id="honkform" action="/honk" method="POST" enctype="multipart/form-data" style="display: none">
-<p></p>
-ly: <input type="text" name="rid" value="">
+<p>
+in reply to: <input type="text" name="rid" id="ridinput" value="">
 <input type="hidden" name="CSRF" value="{{ .HonkCSRF }}">
+<p>
 <textarea name="noise" id="honknoise"></textarea>
 <p>
 <input type="submit" value="it's gonna be honked">
@@ -11,17 +12,18 @@ ly: <input type="text" name="rid" value="">
 </form>
 <script>
 function showhonkform(rid, hname) {
-	var el = document.getElementById("honkform")
-	el.style = "display: block"
+	var form = document.getElementById("honkform")
+	form.style = "display: block"
+	var ridinput = document.getElementById("ridinput")
+	var honknoise = document.getElementById("honknoise")
 	if (rid) {
-		el.children[0].innerHTML = "tonking " + rid
-		el.children[1].value = rid
-		el.children[3].value = "@" + hname + " "
+		ridinput.value = rid
+		honknoise.value = "@" + hname + " "
 	} else {
-		el.children[0].innerHTML = ""
-		el.children[1].value = ""
+		ridinput.value = ""
+		honknoise.value = ""
 	}
-	el.scrollIntoView()
+	document.getElementById("infobox").scrollIntoView()
 }
 function updatedonker() {
 	var el = document.getElementById("donker")

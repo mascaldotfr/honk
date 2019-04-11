@@ -1,6 +1,6 @@
 {{ template "header.html" . }}
 <div class="center">
-<div class="info">
+<div class="info" id="infobox">
 <p>{{ .ServerMessage }}
 {{ if .HonkCSRF }}
 {{ template "honkform.html" . }}
