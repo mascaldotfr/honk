@@ -1,3 +1,10 @@
+honk spec
+
+-- references
+
+See security.txt for some notes on security.
+
+-- schema
 
 Some notes on the database schema. Mostly for development, but maybe useful
 for administration as well.
