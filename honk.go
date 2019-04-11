@@ -131,7 +131,7 @@ func honkerhandle(h string) string {
 	if len(m) > 2 {
 		return fmt.Sprintf("%s@%s", m[2], m[1])
 	}
-	return ""
+	return h
 }
 
 func reverbolate(honks []*Honk) {
