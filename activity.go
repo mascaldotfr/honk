@@ -433,6 +433,20 @@ func xonkxonk(item interface{}) *Honk {
 				}
 			}
 		}
+		tags, _ := jsongetarray(obj, "tag")
+		for _, tag := range tags {
+			tt, _ := jsongetstring(tag, "type")
+			name, _ := jsongetstring(tag, "name")
+			if tt == "Emoji" {
+				icon, _ := jsongetmap(tag, "icon")
+				mt, _ := jsongetstring(icon, "mediaType")
+				u, _ := jsongetstring(icon, "url")
+				donk := savedonk(u, name, mt)
+				if donk != nil {
+					xonk.Donks = append(xonk.Donks, donk)
+				}
+			}
+		}
 	}
 	audience = append(audience, who)
 
@@ -534,16 +548,29 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 			jo["cc"] = h.Audience[1:]
 		}
 		jo["content"] = h.Noise
+		var tags []interface{}
 		g := bunchofgrapes(h.Noise)
-		if len(g) > 0 {
-			var tags []interface{}
-			for _, m := range g {
-				t := NewJunk()
-				t["type"] = "Mention"
-				t["name"] = m.who
-				t["href"] = m.where
-				tags = append(tags, t)
-			}
+		for _, m := range g {
+			t := NewJunk()
+			t["type"] = "Mention"
+			t["name"] = m.who
+			t["href"] = m.where
+			tags = append(tags, t)
+		}
+		herd := herdofemus(h.Noise)
+		for _, e := range herd {
+			t := NewJunk()
+			t["id"] = e.ID
+			t["type"] = "Emoji"
+			t["name"] = e.Name
+			i := NewJunk()
+			i["type"] = "Image"
+			i["mediaType"] = "image/png"
+			i["url"] = e.ID
+			t["icon"] = i
+			tags = append(tags, t)
+		}
+		if len(tags) > 0 {
 			jo["tag"] = tags
 		}
 		var atts []interface{}

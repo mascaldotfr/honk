@@ -156,7 +156,23 @@ func reverbolate(honks []*Honk) {
 				h.URL = h.XID
 			}
 		}
+		zap := make(map[*Donk]bool)
 		h.HTML = cleanstring(h.Noise)
+		emuxifier := func(e string) string {
+			for _, d := range h.Donks {
+				if d.Name == e {
+					zap[d] = true
+					return fmt.Sprintf(`<img class="emu" title="%s" src="/d/%s">`, d.Name, d.XID)
+				}
+			}
+			return e
+		}
+		h.HTML = template.HTML(re_emus.ReplaceAllStringFunc(string(h.HTML), emuxifier))
+		for i := 0; i < len(h.Donks); i++ {
+			if zap[h.Donks[i]] {
+				h.Donks = append(h.Donks[0:i], h.Donks[i+1:]...)
+			}
+		}
 	}
 }
 
@@ -798,7 +814,24 @@ func bunchofgrapes(s string) []Mention {
 	return mentions
 }
 
+type Emu struct {
+	ID   string
+	Name string
+}
+
 var re_link = regexp.MustCompile(`https?://[^\s"]+[\w/)]`)
+var re_emus = regexp.MustCompile(`:[[:alnum:]_]+:`)
+
+func herdofemus(noise string) []Emu {
+	m := re_emus.FindAllString(noise, -1)
+	var emus []Emu
+	for _, e := range m {
+		fname := e[1 : len(e)-1]
+		url := fmt.Sprintf("https://%s/emu/%s.png", serverName, fname)
+		emus = append(emus, Emu{ID: url, Name: e})
+	}
+	return emus
+}
 
 func obfusbreak(s string) string {
 	s = strings.TrimSpace(s)
@@ -1074,7 +1107,7 @@ func savehonker(w http.ResponseWriter, r *http.Request) {
 func avatate(w http.ResponseWriter, r *http.Request) {
 	n := r.FormValue("a")
 	a := avatar(n)
-	w.Header().Set("Cache-Control", "max-age=76000")
+	w.Header().Set("Cache-Control", "max-age=432000")
 	w.Write(a)
 }
 
@@ -1088,6 +1121,11 @@ func servehtml(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Print(err)
 	}
+}
+func serveemu(w http.ResponseWriter, r *http.Request) {
+	xid := mux.Vars(r)["xid"]
+	w.Header().Set("Cache-Control", "max-age=432000")
+	http.ServeFile(w, r, "emus/"+xid)
 }
 
 func servefile(w http.ResponseWriter, r *http.Request) {
@@ -1145,6 +1183,7 @@ func serve() {
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}/outbox", outbox)
 	getters.HandleFunc("/a", avatate)
 	getters.HandleFunc("/d/{xid:[[:alnum:].]+}", servefile)
+	getters.HandleFunc("/emu/{xid:[[:alnum:].]+}", serveemu)
 	getters.HandleFunc("/h/{name:[[:alnum:]]+}", viewhonker)
 	getters.HandleFunc("/.well-known/webfinger", fingerlicker)
 
