@@ -4,6 +4,8 @@ honk spec
 
 See security.txt for some notes on security.
 
+See ping.txt for a proposed Ping extension to ActivityPub.
+
 -- schema
 
 Some notes on the database schema. Mostly for development, but maybe useful
