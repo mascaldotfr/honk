@@ -1,6 +1,8 @@
 
 A Ping extension for ActivityPub
 
+This is merely a draft.
+
 -- rationale
 
 Diagnosing communication failures between federated servers often requires
