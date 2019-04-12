@@ -998,6 +998,13 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		d.URL = url
 		honk.Donks = append(honk.Donks, &d)
 	}
+	herd := herdofemus(honk.Noise)
+	for _, e := range herd {
+		donk := savedonk(e.ID, e.Name, "image/png")
+		if donk != nil {
+			honk.Donks = append(honk.Donks, donk)
+		}
+	}
 
 	aud := strings.Join(honk.Audience, " ")
 	res, err := stmtSaveHonk.Exec(userinfo.UserID, what, "", xid, rid,
