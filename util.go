@@ -49,15 +49,19 @@ import (
 	_ "humungus.tedunangst.com/r/go-sqlite3"
 )
 
-var savedstyleparam string
+var savedstyleparams = make(map[string]string)
 
-func getstyleparam() string {
-	if savedstyleparam != "" {
-		return savedstyleparam
+func getstyleparam(file string) string {
+	if p, ok := savedstyleparams[file]; ok {
+		return p
 	}
-	data, _ := ioutil.ReadFile("views/style.css")
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		return ""
+	}
 	hasher := sha512.New()
 	hasher.Write(data)
+
 	return fmt.Sprintf("?v=%.8x", hasher.Sum(nil))
 }
 

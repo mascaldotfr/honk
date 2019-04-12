@@ -116,7 +116,8 @@ func keymatch(keyname string, actor string) bool {
 
 func getInfo(r *http.Request) map[string]interface{} {
 	templinfo := make(map[string]interface{})
-	templinfo["StyleParam"] = getstyleparam()
+	templinfo["StyleParam"] = getstyleparam("views/style.css")
+	templinfo["LocalStyleParam"] = getstyleparam("views/local.css")
 	templinfo["ServerName"] = serverName
 	templinfo["IconName"] = iconName
 	templinfo["UserInfo"] = GetUserInfo(r)
@@ -1123,7 +1124,10 @@ func serve() {
 		"views/header.html",
 	)
 	if !debug {
-		savedstyleparam = getstyleparam()
+		s := "views/style.css"
+		savedstyleparams[s] = getstyleparam(s)
+		s = "views/local.css"
+		savedstyleparams[s] = getstyleparam(s)
 	}
 
 	mux := mux.NewRouter()
@@ -1145,6 +1149,7 @@ func serve() {
 	getters.HandleFunc("/.well-known/webfinger", fingerlicker)
 
 	getters.HandleFunc("/style.css", servecss)
+	getters.HandleFunc("/local.css", servecss)
 	getters.HandleFunc("/login", servehtml)
 	posters.HandleFunc("/dologin", dologin)
 	getters.HandleFunc("/logout", dologout)

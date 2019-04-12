@@ -3,6 +3,9 @@
 <head>
 <title>honk</title>
 <link href="/style.css{{ .StyleParam }}" rel="stylesheet">
+{{ if .LocalStyleParam }}
+<link href="/local.css{{ .LocalStyleParam }}" rel="stylesheet">
+{{ end }}
 <link href="/icon.png" rel="icon">
 </head>
 <body>
