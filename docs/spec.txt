@@ -14,8 +14,6 @@ for administration as well.
 The config table contains settings, some of which may not be editable via the
 normal interface.
 
-The welcome message on the first page is stored as servermsg.
-
 For development purposes, adding a config value (debug, 1) to the database
 will disable caching and hot reload templates. It's not meant to be
 harmful in production, just less efficient.

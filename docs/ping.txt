@@ -84,4 +84,3 @@ Specific problem solving instructions are not provided here.
 
 It may be helpful to have a variant of Ping that does perform retries to test
 recovery after disconnect.
-

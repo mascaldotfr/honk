@@ -1,0 +1,17 @@
+
+Instructions for running of the honk.
+
+-- css
+
+Custom CSS may be provided by creating a views/local.css file.
+
+-- message
+
+A custom server message may be set adding a ('servermsg', 'message') entry to
+the config table using sqlite3.
+
+-- emus
+
+Custom emus may be provided by creating and populating the emus directory.
+emus may be referenced when composing a honk via colon wrapping. How pleasant.
+This :example: will be replaced by emus/example.png.
