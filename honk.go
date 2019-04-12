@@ -1183,7 +1183,7 @@ func serve() {
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}/outbox", outbox)
 	getters.HandleFunc("/a", avatate)
 	getters.HandleFunc("/d/{xid:[[:alnum:].]+}", servefile)
-	getters.HandleFunc("/emu/{xid:[[:alnum:].]+}", serveemu)
+	getters.HandleFunc("/emu/{xid:[[:alnum:]_.]+}", serveemu)
 	getters.HandleFunc("/h/{name:[[:alnum:]]+}", viewhonker)
 	getters.HandleFunc("/.well-known/webfinger", fingerlicker)
 
