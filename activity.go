@@ -383,7 +383,7 @@ func xonkxonk(item interface{}) *Honk {
 			audience = newphone(audience, obj)
 			xid, _ = jsongetstring(obj, "id")
 			content, _ = jsongetstring(obj, "content")
-			summary, _ := jsongetstring(obj, "content")
+			summary, _ := jsongetstring(obj, "summary")
 			if summary != "" {
 				content = "<p>summary: " + summary + content
 			}
