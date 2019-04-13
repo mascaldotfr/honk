@@ -575,6 +575,9 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 		}
 		var atts []interface{}
 		for _, d := range h.Donks {
+			if re_emus.MatchString(d.Name) {
+				continue
+			}
 			jd := NewJunk()
 			jd["mediaType"] = d.Media
 			jd["name"] = d.Name

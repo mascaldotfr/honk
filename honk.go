@@ -170,7 +170,9 @@ func reverbolate(honks []*Honk) {
 		h.HTML = template.HTML(re_emus.ReplaceAllStringFunc(string(h.HTML), emuxifier))
 		for i := 0; i < len(h.Donks); i++ {
 			if zap[h.Donks[i]] {
-				h.Donks = append(h.Donks[0:i], h.Donks[i+1:]...)
+				copy(h.Donks[i:], h.Donks[i+1:])
+				h.Donks = h.Donks[:len(h.Donks)-1]
+				i--
 			}
 		}
 	}
@@ -824,6 +826,7 @@ var re_emus = regexp.MustCompile(`:[[:alnum:]_]+:`)
 
 func herdofemus(noise string) []Emu {
 	m := re_emus.FindAllString(noise, -1)
+	m = oneofakind(m)
 	var emus []Emu
 	for _, e := range m {
 		fname := e[1 : len(e)-1]
