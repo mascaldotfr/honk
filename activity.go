@@ -353,23 +353,7 @@ func newphone(a []string, obj map[string]interface{}) []string {
 	return a
 }
 
-func oneofakind(a []string) []string {
-	var x []string
-	for n, s := range a {
-		if s != "" {
-			x = append(x, s)
-			for i := n + 1; i < len(a); i++ {
-				if a[i] == s {
-					a[i] = ""
-				}
-			}
-		}
-	}
-	return x
-}
-
 func xonkxonk(item interface{}) *Honk {
-
 	// id, _ := jsongetstring(item, "id")
 	what, _ := jsongetstring(item, "type")
 	dt, _ := jsongetstring(item, "published")
@@ -498,7 +482,6 @@ func rubadubdub(user *WhatAbout, req map[string]interface{}) {
 }
 
 func subsub(user *WhatAbout, xid string) {
-
 	j := NewJunk()
 	j["@context"] = itiswhatitis
 	j["id"] = user.URL + "/sub/" + xid
@@ -643,7 +626,7 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 }
 
 func asjonker(user *WhatAbout) map[string]interface{} {
-	whatabout := obfusbreak(user.About)
+	about := obfusbreak(user.About)
 
 	j := NewJunk()
 	j["@context"] = itiswhatitis
@@ -653,7 +636,7 @@ func asjonker(user *WhatAbout) map[string]interface{} {
 	j["outbox"] = user.URL + "/outbox"
 	j["name"] = user.Display
 	j["preferredUsername"] = user.Name
-	j["summary"] = whatabout
+	j["summary"] = about
 	j["url"] = user.URL
 	a := NewJunk()
 	a["type"] = "icon"
