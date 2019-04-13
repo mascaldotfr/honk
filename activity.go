@@ -19,7 +19,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"crypto/rsa"
-	"crypto/sha256"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -178,13 +177,6 @@ func jsongetarray(j interface{}, key string) ([]interface{}, bool) {
 }
 func jsongetmap(j interface{}, key string) (map[string]interface{}, bool) {
 	return jsonfindmap(j, []string{key})
-}
-
-func sha256string(s string) string {
-	hasher := sha256.New()
-	io.WriteString(hasher, s)
-	sum := hasher.Sum(nil)
-	return fmt.Sprintf("%x", sum)
 }
 
 func savedonk(url string, name, media string) *Donk {
