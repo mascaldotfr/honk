@@ -25,6 +25,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"sync"
 )
 
 func reverbolate(honks []*Honk) {
@@ -217,17 +218,26 @@ func oneofakind(a []string) []string {
 	return x
 }
 
-func ziggy(user *WhatAbout) (keyname string, key *rsa.PrivateKey) {
-	db := opendatabase()
-	row := db.QueryRow("select seckey from users where userid = ?", user.ID)
-	var data string
-	row.Scan(&data)
-	var err error
-	key, _, err = pez(data)
-	if err != nil {
-		log.Printf("error loading %s seckey: %s", user.Name, err)
+var ziggies = make(map[string]*rsa.PrivateKey)
+var ziggylock sync.Mutex
+
+func ziggy(username string) (keyname string, key *rsa.PrivateKey) {
+	ziggylock.Lock()
+	defer ziggylock.Unlock()
+	key = ziggies[username]
+	if key == nil {
+		db := opendatabase()
+		row := db.QueryRow("select seckey from users where username = ?", username)
+		var data string
+		row.Scan(&data)
+		var err error
+		key, _, err = pez(data)
+		if err != nil {
+			log.Printf("error loading %s seckey: %s", username, err)
+			return
+		}
 	}
-	keyname = user.URL + "#key"
+	keyname = fmt.Sprintf("https://%s/u/%s#key", serverName, username)
 	return
 }
 

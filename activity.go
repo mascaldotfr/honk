@@ -74,15 +74,19 @@ func friendorfoe(ct string) bool {
 }
 
 func PostJunk(keyname string, key *rsa.PrivateKey, url string, j map[string]interface{}) error {
-	client := http.DefaultClient
 	var buf bytes.Buffer
 	WriteJunk(&buf, j)
-	req, err := http.NewRequest("POST", url, &buf)
+	return PostMsg(keyname, key, url, buf.Bytes())
+}
+
+func PostMsg(keyname string, key *rsa.PrivateKey, url string, msg []byte) error {
+	client := http.DefaultClient
+	req, err := http.NewRequest("POST", url, bytes.NewReader(msg))
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Content-Type", theonetruename)
-	zig(keyname, key, req, buf.Bytes())
+	zig(keyname, key, req, msg)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -464,7 +468,7 @@ func rubadubdub(user *WhatAbout, req map[string]interface{}) {
 		log.Printf("can't get dub box: %s", err)
 		return
 	}
-	keyname, key := ziggy(user)
+	keyname, key := ziggy(user.Name)
 	err = PostJunk(keyname, key, inbox, j)
 	if err != nil {
 		log.Printf("can't rub a dub: %s", err)
@@ -489,7 +493,7 @@ func subsub(user *WhatAbout, xid string) {
 		return
 	}
 	WriteJunk(os.Stdout, j)
-	keyname, key := ziggy(user)
+	keyname, key := ziggy(user.Name)
 	err = PostJunk(keyname, key, inbox, j)
 	if err != nil {
 		log.Printf("failed to subsub: %s", err)
@@ -576,43 +580,38 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 	return j, jo
 }
 
+func deliverate(username string, rcpt string, msg []byte) {
+	keyname, key := ziggy(username)
+	inbox, _, err := getboxes(rcpt)
+	if err != nil {
+		log.Printf("error getting inbox %s: %s", rcpt, err)
+		return
+	}
+	err = PostMsg(keyname, key, inbox, msg)
+	if err != nil {
+		log.Printf("failed to post json to %s: %s", inbox, err)
+	}
+}
+
 func honkworldwide(user *WhatAbout, honk *Honk) {
-	aud := append([]string{}, honk.Audience...)
-	for i, a := range aud {
-		if a == thewholeworld || a == user.URL {
-			aud[i] = ""
+	rcpts := make(map[string]bool)
+	for _, a := range honk.Audience {
+		if a != thewholeworld && a != user.URL {
+			rcpts[a] = true
 		}
 	}
-	keyname, key := ziggy(user)
 	jonk, _ := jonkjonk(user, honk)
 	jonk["@context"] = itiswhatitis
+	var buf bytes.Buffer
+	WriteJunk(&buf, jonk)
+	msg := buf.Bytes()
 	for _, f := range getdubs(user.ID) {
-		inbox, _, err := getboxes(f.XID)
-		if err != nil {
-			log.Printf("error getting inbox %s: %s", f.XID, err)
-			continue
-		}
-		err = PostJunk(keyname, key, inbox, jonk)
-		if err != nil {
-			log.Printf("failed to post json to %s: %s", inbox, err)
-		}
-		for i, a := range aud {
-			if a == f.XID {
-				aud[i] = ""
-			}
-		}
+		deliverate(user.Name, f.XID, msg)
+		delete(rcpts, f.XID)
 	}
-	for _, a := range aud {
-		if a != "" && !strings.HasSuffix(a, "/followers") {
-			inbox, _, err := getboxes(a)
-			if err != nil {
-				log.Printf("error getting inbox %s: %s", a, err)
-				continue
-			}
-			err = PostJunk(keyname, key, inbox, jonk)
-			if err != nil {
-				log.Printf("failed to post json to %s: %s", inbox, err)
-			}
+	for a := range rcpts {
+		if !strings.HasSuffix(a, "/followers") {
+			deliverate(user.Name, a, msg)
 		}
 	}
 }
