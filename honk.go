@@ -1014,7 +1014,7 @@ func prepareStatements(db *sql.DB) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	stmtFindXonk, err = db.Prepare("select honkid from honks where userid = ? and xid = ? and what = ?")
+	stmtFindXonk, err = db.Prepare("select honkid from honks where userid = ? and xid = ?")
 	if err != nil {
 		log.Fatal(err)
 	}

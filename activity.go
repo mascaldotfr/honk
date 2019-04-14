@@ -218,7 +218,7 @@ func savedonk(url string, name, media string) *Donk {
 }
 
 func needxonk(userid int64, x *Honk) bool {
-	row := stmtFindXonk.QueryRow(userid, x.XID, x.What)
+	row := stmtFindXonk.QueryRow(userid, x.XID)
 	err := row.Scan(&x.ID)
 	if err == nil {
 		return false
