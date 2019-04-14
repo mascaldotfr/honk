@@ -566,7 +566,8 @@ func gethonksbyuser(name string) []*Honk {
 	return getsomehonks(rows, err)
 }
 func gethonksforuser(userid int64) []*Honk {
-	rows, err := stmtHonksForUser.Query(userid)
+	dt := time.Now().UTC().Add(-2 * 24 * time.Hour)
+	rows, err := stmtHonksForUser.Query(userid, dt.Format(dbtimeformat))
 	return getsomehonks(rows, err)
 }
 func gethonksbyhonker(userid int64, honker string) []*Honk {
@@ -997,7 +998,7 @@ func prepareStatements(db *sql.DB) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	stmtHonksForUser, err = db.Prepare("select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid where honks.userid = ? order by honkid desc limit 50")
+	stmtHonksForUser, err = db.Prepare("select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid where honks.userid = ? and dt > ? order by honkid desc limit 250")
 	if err != nil {
 		log.Fatal(err)
 	}
