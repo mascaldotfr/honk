@@ -1,6 +1,19 @@
 
 Instructions for running of the honk.
 
+-- following
+
+In order to follow somebody, you need to enter one of two identifiers.
+
+The easiest is probably their handle, the thing that resembles an email.
+@name@example.com for example.
+
+Alternatively, one may directly enter the actor ID, which is a URL that looks
+like https://example.com/users/name. Note that the commonly seen URL with
+@name in it is not their actor ID and won't work.
+
+Selecting just peeping won't actually follow them. (Incomplete feature.)
+
 -- css
 
 Custom CSS may be provided by creating a views/local.css file.
