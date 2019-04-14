@@ -976,72 +976,31 @@ var stmtHonksForUser, stmtDeleteHonk, stmtSaveDub *sql.Stmt
 var stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
 var stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
 
+func preparetodie(db *sql.DB, s string) *sql.Stmt {
+	stmt, err := db.Prepare(s)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return stmt
+}
+
 func prepareStatements(db *sql.DB) {
-	var err error
-	stmtHonkers, err = db.Prepare("select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'sub' or flavor = 'peep'")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtDubbers, err = db.Prepare("select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtOneXonk, err = db.Prepare("select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid where xid = ?")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtHonks, err = db.Prepare("select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid where honker = '' order by honkid desc limit 50")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtUserHonks, err = db.Prepare("select honkid, honks.userid, username, what, honker, xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid where honker = '' and username = ? order by honkid desc limit 50")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtHonksForUser, err = db.Prepare("select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid where honks.userid = ? and dt > ? order by honkid desc limit 250")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtHonksByHonker, err = db.Prepare("select honkid, honks.userid, users.username, what, honker, honks.xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.name = ? order by honkid desc limit 50")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtSaveHonk, err = db.Prepare("insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise) values (?, ?, ?, ?, ?, ?, ?, ?, ?)")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtFileData, err = db.Prepare("select content from files where xid = ?")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtFindXonk, err = db.Prepare("select honkid from honks where userid = ? and xid = ?")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtSaveDonk, err = db.Prepare("insert into donks (honkid, fileid) values (?, ?)")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtDeleteHonk, err = db.Prepare("update honks set what = 'zonk' where xid = ? and honker = ?")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtFindFile, err = db.Prepare("select fileid from files where url = ?")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtSaveFile, err = db.Prepare("insert into files (xid, name, url, media, content) values (?, ?, ?, ?, ?)")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtWhatAbout, err = db.Prepare("select userid, username, displayname, about, pubkey from users where username = ?")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtSaveDub, err = db.Prepare("insert into honkers (userid, name, xid, flavor) values (?, ?, ?, ?)")
-	if err != nil {
-		log.Fatal(err)
-	}
+	stmtHonkers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'sub' or flavor = 'peep'")
+	stmtDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
+	stmtOneXonk = preparetodie(db, "select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid where xid = ?")
+	stmtHonks = preparetodie(db, "select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid where honker = '' order by honkid desc limit 50")
+	stmtUserHonks = preparetodie(db, "select honkid, honks.userid, username, what, honker, xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid where honker = '' and username = ? order by honkid desc limit 50")
+	stmtHonksForUser = preparetodie(db, "select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid where honks.userid = ? and dt > ? order by honkid desc limit 250")
+	stmtHonksByHonker = preparetodie(db, "select honkid, honks.userid, users.username, what, honker, honks.xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.name = ? order by honkid desc limit 50")
+	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise) values (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	stmtFileData = preparetodie(db, "select content from files where xid = ?")
+	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
+	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")
+	stmtDeleteHonk = preparetodie(db, "update honks set what = 'zonk' where xid = ? and honker = ?")
+	stmtFindFile = preparetodie(db, "select fileid from files where url = ?")
+	stmtSaveFile = preparetodie(db, "insert into files (xid, name, url, media, content) values (?, ?, ?, ?, ?)")
+	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey from users where username = ?")
+	stmtSaveDub = preparetodie(db, "insert into honkers (userid, name, xid, flavor) values (?, ?, ?, ?)")
 }
 
 func ElaborateUnitTests() {
