@@ -218,7 +218,7 @@ func savedonk(url string, name, media string) *Donk {
 }
 
 func needxonk(user *WhatAbout, x *Honk) bool {
-	if strings.HasPrefix(x.XID, user.URL + "/h/") {
+	if strings.HasPrefix(x.XID, user.URL+"/h/") {
 		return false
 	}
 	if x.What == "eradicate" {
@@ -584,19 +584,6 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 	return j, jo
 }
 
-func deliverate(username string, rcpt string, msg []byte) {
-	keyname, key := ziggy(username)
-	inbox, _, err := getboxes(rcpt)
-	if err != nil {
-		log.Printf("error getting inbox %s: %s", rcpt, err)
-		return
-	}
-	err = PostMsg(keyname, key, inbox, msg)
-	if err != nil {
-		log.Printf("failed to post json to %s: %s", inbox, err)
-	}
-}
-
 func honkworldwide(user *WhatAbout, honk *Honk) {
 	rcpts := make(map[string]bool)
 	for _, a := range honk.Audience {
@@ -610,12 +597,12 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 	WriteJunk(&buf, jonk)
 	msg := buf.Bytes()
 	for _, f := range getdubs(user.ID) {
-		deliverate(user.Name, f.XID, msg)
+		deliverate(0, user.Name, f.XID, msg)
 		delete(rcpts, f.XID)
 	}
 	for a := range rcpts {
 		if !strings.HasSuffix(a, "/followers") {
-			deliverate(user.Name, a, msg)
+			deliverate(0, user.Name, a, msg)
 		}
 	}
 }
