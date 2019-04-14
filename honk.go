@@ -103,12 +103,13 @@ func getInfo(r *http.Request) map[string]interface{} {
 
 func homepage(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
-	honks := gethonks("")
 	u := GetUserInfo(r)
+	var honks []*Honk
 	if u != nil {
-		morehonks := gethonksforuser(u.UserID)
-		honks = append(honks, morehonks...)
+		honks = gethonksforuser(u.UserID)
 		templinfo["HonkCSRF"] = GetCSRF("honkhonk", r)
+	} else {
+		honks = gethonks()
 	}
 	sort.Slice(honks, func(i, j int) bool {
 		return honks[i].Date.After(honks[j].Date)
@@ -146,7 +147,12 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 func showrss(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 
-	honks := gethonks(name)
+	var honks []*Honk
+	if name != "" {
+		honks = gethonksbyuser(name)
+	} else {
+		honks = gethonks()
+	}
 	sort.Slice(honks, func(i, j int) bool {
 		return honks[i].Date.After(honks[j].Date)
 	})
@@ -343,7 +349,7 @@ func outbox(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	honks := gethonks(name)
+	honks := gethonksbyuser(name)
 
 	var jonks []map[string]interface{}
 	for _, h := range honks {
@@ -375,7 +381,7 @@ func viewuser(w http.ResponseWriter, r *http.Request) {
 		WriteJunk(w, j)
 		return
 	}
-	honks := gethonks(name)
+	honks := gethonksbyuser(name)
 	u := GetUserInfo(r)
 	honkpage(w, r, u, user, honks)
 }
@@ -531,21 +537,6 @@ func getdubs(userid int64) []*Honker {
 	return honkers
 }
 
-func gethonk(honkid int64) *Honk {
-	var h Honk
-	var dt, aud string
-	row := stmtOneHonk.QueryRow(honkid)
-	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.XID, &h.RID,
-		&dt, &h.URL, &aud, &h.Noise)
-	if err != nil {
-		log.Printf("error scanning honk: %s", err)
-		return nil
-	}
-	h.Date, _ = time.Parse(dbtimeformat, dt)
-	h.Audience = strings.Split(aud, " ")
-	return &h
-}
-
 func getxonk(name, xid string) *Honk {
 	var h Honk
 	var dt, aud string
@@ -566,29 +557,24 @@ func getxonk(name, xid string) *Honk {
 	return &h
 }
 
-func gethonks(username string) []*Honk {
-	return getsomehonks(username, 0, "")
+func gethonks() []*Honk {
+	rows, err := stmtHonks.Query()
+	return getsomehonks(rows, err)
 }
-
+func gethonksbyuser(name string) []*Honk {
+	rows, err := stmtUserHonks.Query(name)
+	return getsomehonks(rows, err)
+}
 func gethonksforuser(userid int64) []*Honk {
-	return getsomehonks("", userid, "")
+	rows, err := stmtHonksForUser.Query(userid)
+	return getsomehonks(rows, err)
 }
 func gethonksbyhonker(userid int64, honker string) []*Honk {
-	return getsomehonks("", userid, honker)
+	rows, err := stmtHonksByHonker.Query(userid, honker)
+	return getsomehonks(rows, err)
 }
 
-func getsomehonks(username string, userid int64, honkername string) []*Honk {
-	var rows *sql.Rows
-	var err error
-	if username != "" {
-		rows, err = stmtUserHonks.Query(username)
-	} else if honkername != "" {
-		rows, err = stmtHonksByHonker.Query(userid, honkername)
-	} else if userid > 0 {
-		rows, err = stmtHonksForUser.Query(userid)
-	} else {
-		rows, err = stmtHonks.Query()
-	}
+func getsomehonks(rows *sql.Rows, err error) []*Honk {
 	if err != nil {
 		log.Printf("error querying honks: %s", err)
 		return nil
@@ -616,8 +602,10 @@ func getsomehonks(username string, userid int64, honkername string) []*Honk {
 func donksforhonks(honks []*Honk) {
 	db := opendatabase()
 	var ids []string
+	hmap := make(map[int64]*Honk)
 	for _, h := range honks {
 		ids = append(ids, fmt.Sprintf("%d", h.ID))
+		hmap[h.ID] = h
 	}
 	q := fmt.Sprintf("select honkid, donks.fileid, xid, name, url, media from donks join files on donks.fileid = files.fileid where honkid in (%s)", strings.Join(ids, ","))
 	rows, err := db.Query(q)
@@ -634,11 +622,8 @@ func donksforhonks(honks []*Honk) {
 			log.Printf("error scanning donk: %s", err)
 			continue
 		}
-		for _, h := range honks {
-			if h.ID == hid {
-				h.Donks = append(h.Donks, &d)
-			}
-		}
+		h := hmap[hid]
+		h.Donks = append(h.Donks, &d)
 	}
 }
 
@@ -985,7 +970,7 @@ func serve() {
 	}
 }
 
-var stmtHonkers, stmtDubbers, stmtOneHonk, stmtOneXonk, stmtHonks, stmtUserHonks *sql.Stmt
+var stmtHonkers, stmtDubbers, stmtOneXonk, stmtHonks, stmtUserHonks *sql.Stmt
 var stmtHonksForUser, stmtDeleteHonk, stmtSaveDub *sql.Stmt
 var stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
 var stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
@@ -997,10 +982,6 @@ func prepareStatements(db *sql.DB) {
 		log.Fatal(err)
 	}
 	stmtDubbers, err = db.Prepare("select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
-	if err != nil {
-		log.Fatal(err)
-	}
-	stmtOneHonk, err = db.Prepare("select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid where honkid = ? limit 50")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -1016,7 +997,7 @@ func prepareStatements(db *sql.DB) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	stmtHonksForUser, err = db.Prepare("select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid where honks.userid = ? and honker <> '' and what <> 'zonk' order by honkid desc limit 150")
+	stmtHonksForUser, err = db.Prepare("select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid where honks.userid = ? order by honkid desc limit 50")
 	if err != nil {
 		log.Fatal(err)
 	}
