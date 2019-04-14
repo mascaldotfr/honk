@@ -70,6 +70,7 @@ var dbtimeformat = "2006-01-02 15:04:05"
 var alreadyopendb *sql.DB
 var dbname = "honk.db"
 var stmtConfig *sql.Stmt
+var myVersion = 1
 
 func initdb() {
 	schema, err := ioutil.ReadFile("schema.sql")
@@ -178,6 +179,11 @@ func initdb() {
 	rand.Read(randbytes[:])
 	key := fmt.Sprintf("%x", randbytes)
 	_, err = db.Exec("insert into config (key, value) values (?, ?)", "csrfkey", key)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	_, err = db.Exec("insert into config (key, value) values (?, ?)", "dbversion", myVersion)
 	if err != nil {
 		log.Print(err)
 		return

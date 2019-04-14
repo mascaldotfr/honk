@@ -1073,11 +1073,20 @@ func main() {
 	if len(os.Args) > 1 {
 		cmd = os.Args[1]
 	}
-	if cmd != "init" {
-		db := opendatabase()
-		prepareStatements(db)
-		getconfig("servername", &serverName)
+	switch cmd {
+	case "init":
+		initdb()
+	case "upgrade":
+		upgradedb()
 	}
+	db := opendatabase()
+	dbversion := 0
+	getconfig("dbversion", &dbversion)
+	if dbversion != myVersion {
+		log.Fatal("incorrect database version. run upgrade.")
+	}
+	getconfig("servername", &serverName)
+	prepareStatements(db)
 	switch cmd {
 	case "ping":
 		if len(os.Args) < 4 {
@@ -1094,8 +1103,6 @@ func main() {
 		ping(user, targ)
 	case "peep":
 		peeppeep()
-	case "init":
-		initdb()
 	case "run":
 		serve()
 	case "test":
