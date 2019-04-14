@@ -219,12 +219,13 @@ func oneofakind(a []string) []string {
 }
 
 var ziggies = make(map[string]*rsa.PrivateKey)
+var zaggies = make(map[string]*rsa.PublicKey)
 var ziggylock sync.Mutex
 
 func ziggy(username string) (keyname string, key *rsa.PrivateKey) {
 	ziggylock.Lock()
-	defer ziggylock.Unlock()
 	key = ziggies[username]
+	ziggylock.Unlock()
 	if key == nil {
 		db := opendatabase()
 		row := db.QueryRow("select seckey from users where username = ?", username)
@@ -233,22 +234,31 @@ func ziggy(username string) (keyname string, key *rsa.PrivateKey) {
 		var err error
 		key, _, err = pez(data)
 		if err != nil {
-			log.Printf("error loading %s seckey: %s", username, err)
+			log.Printf("error decoding %s seckey: %s", username, err)
 			return
 		}
+		ziggylock.Lock()
+		ziggies[username] = key
+		ziggylock.Unlock()
 	}
 	keyname = fmt.Sprintf("https://%s/u/%s#key", serverName, username)
 	return
 }
 
 func zaggy(keyname string) (key *rsa.PublicKey) {
+	ziggylock.Lock()
+	key = zaggies[keyname]
+	ziggylock.Unlock()
+	if key != nil {
+		return
+	}
 	db := opendatabase()
 	row := db.QueryRow("select pubkey from honkers where flavor = 'key' and xid = ?", keyname)
 	var data string
 	err := row.Scan(&data)
 	savekey := false
 	if err != nil {
-		savekey = true
+		log.Printf("hitting the webs for missing pubkey: %s", keyname)
 		j, err := GetJunk(keyname)
 		if err != nil {
 			log.Printf("error getting %s pubkey: %s", keyname, err)
@@ -265,12 +275,16 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 			log.Printf("error getting %s pubkey owner", keyname)
 			return
 		}
+		savekey = true
 	}
 	_, key, err = pez(data)
 	if err != nil {
-		log.Printf("error getting %s pubkey: %s", keyname, err)
+		log.Printf("error decoding %s pubkey: %s", keyname, err)
 		return
 	}
+	ziggylock.Lock()
+	zaggies[keyname] = key
+	ziggylock.Unlock()
 	if savekey {
 		db.Exec("insert into honkers (name, xid, flavor, pubkey) values (?, ?, ?, ?)",
 			"", keyname, "key", data)
