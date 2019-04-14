@@ -217,8 +217,11 @@ func savedonk(url string, name, media string) *Donk {
 	return &donk
 }
 
-func needxonk(userid int64, x *Honk) bool {
-	row := stmtFindXonk.QueryRow(userid, x.XID)
+func needxonk(user *WhatAbout, x *Honk) bool {
+	if strings.HasPrefix(x.XID, user.URL + "/h/") {
+		return false
+	}
+	row := stmtFindXonk.QueryRow(user.ID, x.XID)
 	err := row.Scan(&x.ID)
 	if err == nil {
 		return false
@@ -314,7 +317,7 @@ func peeppeep() {
 
 			for _, item := range items {
 				xonk := xonkxonk(item)
-				if xonk != nil && needxonk(user.ID, xonk) {
+				if xonk != nil && needxonk(user, xonk) {
 					xonk.UserID = user.ID
 					savexonk(xonk)
 				}

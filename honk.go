@@ -335,7 +335,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		}
 	default:
 		xonk := xonkxonk(j)
-		if xonk != nil && needxonk(user.ID, xonk) {
+		if xonk != nil && needxonk(user, xonk) {
 			xonk.UserID = user.ID
 			savexonk(xonk)
 		}
