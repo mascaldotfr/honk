@@ -221,6 +221,9 @@ func needxonk(user *WhatAbout, x *Honk) bool {
 	if strings.HasPrefix(x.XID, user.URL + "/h/") {
 		return false
 	}
+	if x.What == "eradicate" {
+		return true
+	}
 	row := stmtFindXonk.QueryRow(user.ID, x.XID)
 	err := row.Scan(&x.ID)
 	if err == nil {
