@@ -263,23 +263,21 @@ var boxlock sync.Mutex
 
 func getboxes(ident string) (string, string, error) {
 	boxlock.Lock()
-	defer boxlock.Unlock()
 	b, ok := boxofboxes[ident]
+	boxlock.Unlock()
 	if ok {
-		if b == "" {
-			return "", "", fmt.Errorf("error?")
-		}
 		m := strings.Split(b, "\n")
 		return m[0], m[1], nil
 	}
 	j, err := GetJunk(ident)
 	if err != nil {
-		boxofboxes[ident] = ""
 		return "", "", err
 	}
 	inbox, _ := jsongetstring(j, "inbox")
 	outbox, _ := jsongetstring(j, "outbox")
+	boxlock.Lock()
 	boxofboxes[ident] = inbox + "\n" + outbox
+	boxlock.Unlock()
 	return inbox, outbox, err
 }
 
