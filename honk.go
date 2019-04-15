@@ -21,6 +21,7 @@ import (
 	"crypto/rsa"
 	"database/sql"
 	"fmt"
+	"html"
 	"html/template"
 	"image"
 	_ "image/gif"
@@ -180,12 +181,15 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 		if honk.Date.Before(past) {
 			break
 		}
-		if honk.URL[0] == '/' {
-			honk.URL = "https://" + serverName + honk.URL
+		desc := string(honk.HTML)
+		for _, d := range honk.Donks {
+			desc += fmt.Sprintf(`<p><a href="%sd/%s">Attachment: %s</a>`,
+				base, d.XID, html.EscapeString(d.Name))
 		}
+
 		feed.Items = append(feed.Items, &RssItem{
 			Title:       fmt.Sprintf("%s %s %s", honk.Username, honk.What, honk.XID),
-			Description: RssCData{string(honk.HTML)},
+			Description: RssCData{desc},
 			Link:        honk.URL,
 			PubDate:     honk.Date.Format(time.RFC1123),
 		})
