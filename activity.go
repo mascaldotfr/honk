@@ -184,19 +184,19 @@ func jsongetmap(j interface{}, key string) (map[string]interface{}, bool) {
 }
 
 func savedonk(url string, name, media string) *Donk {
-	log.Printf("saving donk: %s", url)
 	var donk Donk
 	row := stmtFindFile.QueryRow(url)
 	err := row.Scan(&donk.FileID)
 	if err == nil {
 		return &donk
 	}
+	log.Printf("saving donk: %s", url)
 	if err != nil && err != sql.ErrNoRows {
-		log.Printf("err querying: %s", err)
+		log.Printf("error querying: %s", err)
 	}
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Printf("errer fetching %s: %s", url, err)
+		log.Printf("error fetching %s: %s", url, err)
 		return nil
 	}
 	defer resp.Body.Close()
