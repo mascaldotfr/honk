@@ -6,6 +6,18 @@ See security.txt for some notes on security.
 
 See ping.txt for a proposed Ping extension to ActivityPub.
 
+-- retries
+
+If a message can't be delivered, we backoff and retry.
+
+1 - five minutes later in case the servce restarted
+2 - one hour later in case the server rebooted
+3 - 12 more hours later in case the server was upgraded
+4 - 24 more hours later in case there was a catastrophe
+5 - it's dead.
+
+A random drift of up to 10% is added to each delay to avoid swarming.
+
 -- schema
 
 Some notes on the database schema. Mostly for development, but maybe useful
@@ -50,6 +62,4 @@ receive messages from people we don't follow. Should we track everybody whose
 identity crosses our path? This seems unnecessary. The honkers table is more
 like a mapping of active relationships, not a directory of all peoples.
 
-Some deduping of honks is performed. Known shortcoming: only the first bonk is
-recorded. Subsequent bonks, even by different actors, are ignored. Bonus
-shortcoming: we download such bonks every time.
+Some deduping of honks is performed. This may not be perfect.
