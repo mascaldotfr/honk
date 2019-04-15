@@ -718,7 +718,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	if noise[0] == '@' {
 		honk.Audience = append(grapevine(noise), thewholeworld)
 	} else {
-		honk.Audience = append([]string{thewholeworld}, grapevine(noise)...)
+		honk.Audience = prepend(thewholeworld, grapevine(noise))
 	}
 	if rid != "" {
 		xonk := getxonk("", rid)
