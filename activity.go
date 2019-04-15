@@ -535,6 +535,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 			jo["cc"] = h.Audience[1:]
 		}
 		jo["content"] = h.Noise
+		jo["summary"] = nil
 		var tags []interface{}
 		g := bunchofgrapes(h.Noise)
 		for _, m := range g {
