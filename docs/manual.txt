@@ -14,6 +14,13 @@ like https://example.com/users/name. Note that the commonly seen URL with
 
 Selecting just peeping won't actually follow them. (Incomplete feature.)
 
+-- zonking
+
+You can zonk anything you like (or dislike), either your own honk or
+those of others that you're tired of seeing. This reduces its visibility, but
+doesn't attempt to delete it, which is infeasible.
+It's more like disavow.
+
 -- css
 
 Custom CSS may be provided by creating a views/local.css file.

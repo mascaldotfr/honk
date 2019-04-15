@@ -23,5 +23,8 @@ function post(url, data) {
 function bonk(xid) {
 	post("/bonk", "CSRF={{ $BonkCSRF }}&xid=" + xid)
 }
+function zonkit(xid) {
+	post("/zonkit", "CSRF={{ $BonkCSRF }}&xid=" + xid)
+}
 </script>
 {{ end }}

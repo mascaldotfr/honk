@@ -611,6 +611,9 @@ func donksforhonks(honks []*Honk) {
 	var ids []string
 	hmap := make(map[int64]*Honk)
 	for _, h := range honks {
+		if h.What == "zonk" {
+			continue
+		}
 		ids = append(ids, fmt.Sprintf("%d", h.ID))
 		hmap[h.ID] = h
 	}
@@ -682,6 +685,14 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 
 	go honkworldwide(user, &bonk)
 
+}
+
+func zonkit(w http.ResponseWriter, r *http.Request) {
+	xid := r.FormValue("xid")
+
+	log.Printf("zonking %s", xid)
+	userinfo := GetUserInfo(r)
+	stmtZonkIt.Exec(userinfo.UserID, xid)
 }
 
 func savehonk(w http.ResponseWriter, r *http.Request) {
@@ -991,6 +1002,7 @@ func serve() {
 	loggedin.Use(LoginRequired)
 	loggedin.Handle("/honk", CSRFWrap("honkhonk", http.HandlerFunc(savehonk)))
 	loggedin.Handle("/bonk", CSRFWrap("honkhonk", http.HandlerFunc(savebonk)))
+	loggedin.Handle("/zonkit", CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
 	loggedin.Handle("/saveuser", CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
 	loggedin.HandleFunc("/honkers", showhonkers)
 	loggedin.Handle("/savehonker", CSRFWrap("savehonker", http.HandlerFunc(savehonker)))
@@ -1006,6 +1018,7 @@ var stmtHonksForUser, stmtDeleteHonk, stmtSaveDub *sql.Stmt
 var stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
 var stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
+var stmtZonkIt *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -1036,6 +1049,7 @@ func prepareStatements(db *sql.DB) {
 	stmtGetDoovers = preparetodie(db, "select dooverid, dt from doovers")
 	stmtLoadDoover = preparetodie(db, "select tries, username, rcpt, msg from doovers where dooverid = ?")
 	stmtZapDoover = preparetodie(db, "delete from doovers where dooverid = ?")
+	stmtZonkIt = preparetodie(db, "update honks set what = 'zonk' where userid = ? and xid = ?")
 }
 
 func ElaborateUnitTests() {

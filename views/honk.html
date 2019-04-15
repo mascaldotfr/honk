@@ -1,7 +1,8 @@
-<div class="honk {{ if eq .Honk.What "tonked" }} tonk {{ end }}">
+<div class="honk {{ .Honk.What }}">
 {{ with .Honk }}
 <div class="title"><img alt="avatar" src="/a?a={{ .Honker}}"><p><a href="{{ .Honker }}" rel=noreferrer>{{ .Username }}</a> <span class="clip">{{ .What }} {{ .Date.Format "02 Jan 2006 15:04" }} <a href="{{ .URL }}" rel=noreferrer>{{ .URL }}</a></span></div>
-<div class="noise"><p>{{ .HTML }}</div>
+<div class="noise">
+<p>{{ .HTML }}
 {{ range .Donks }}
 {{ if eq .Media "text/plain" }}
 <p><a href="/d/{{ .XID }}">Attachment: {{ .Name }}</a>
@@ -9,10 +10,12 @@
 <p><a href="/d/{{ .XID }}"><img src="/d/{{ .XID }}" title="{{ .URL }}"></a>
 {{ end }}
 {{ end }}
+</div>
 {{ end }}
-{{ if .Bonk }}
+{{ if and .Bonk (not (eq .Honk.What "zonked")) }}
 <p>
 <button onclick="bonk('{{ .Honk.XID }}'); return false;"><a href="/bonk">bonk</a></button>
-<button style="margin-left: 4em;" onclick="showhonkform('{{ .Honk.XID }}', '{{ .Honk.Username }}'); return false;"><a href="/newhonk">tonk</a></button>
+<button onclick="showhonkform('{{ .Honk.XID }}', '{{ .Honk.Username }}'); return false;"><a href="/newhonk">tonk</a></button>
+<button onclick="zonkit('{{ .Honk.XID }}'); return false;"><a href="/zonkit">zonk</a></button>
 {{ end }}
 </div>

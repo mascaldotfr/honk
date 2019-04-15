@@ -110,15 +110,6 @@ button a {
 	padding-right: 1em;
 	padding-top: 0;
 }
-.tonk {
-}
-.tonk .noise {
-	color: #aab;
-	font-size: 0.8em;
-}
-.tonk .noise a {
-	color: #aab;
-}
 .honk a {
 	color: #dde;
 }
@@ -140,6 +131,28 @@ button a {
 }
 .honk .title p {
 	margin-top: 0px;
+}
+.honk button {
+	margin-right: 6em;
+}
+.tonked {
+}
+.tonked .noise {
+	color: #aab;
+	font-size: 0.8em;
+}
+.tonked .noise a {
+	color: #aab;
+}
+.zonked {
+}
+.zonked .noise {
+	color: #a79;
+	font-size: 0.8em;
+	text-decoration: line-through;
+}
+.zonked .noise a {
+	color: #a79;
 }
 img {
 	max-width: 100%
