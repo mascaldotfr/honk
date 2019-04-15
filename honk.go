@@ -333,6 +333,8 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 				db.Exec("update honkers set flavor = 'undub' where xid = ? and flavor = 'dub'", who)
 			}
 		}
+	case "Like":
+		break
 	default:
 		xonk := xonkxonk(j)
 		if xonk != nil && needxonk(user, xonk) {
