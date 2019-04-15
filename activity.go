@@ -119,7 +119,11 @@ func GetJunk(url string) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Accept", theonetruename)
+	at := theonetruename
+	if strings.Contains(url, ".well-known/webfinger?resource") {
+		at = "application/jrd+json"
+	}
+	req.Header.Set("Accept", at)
 	req.Header.Set("Accept-Encoding", "gzip")
 	resp, err := client.Do(req)
 	if err != nil {
