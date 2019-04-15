@@ -57,7 +57,7 @@ Such explanation would be less necessary were the tables not misused for
 multiple purposes. Will probably split them apart again soon.
 
 Note that some logical seeming joins won't work. The honker column of honks
-does not have a correspondng entry in the honkers table, since we frequently
+does not have a corresponding entry in the honkers table, since we frequently
 receive messages from people we don't follow. Should we track everybody whose
 identity crosses our path? This seems unnecessary. The honkers table is more
 like a mapping of active relationships, not a directory of all peoples.

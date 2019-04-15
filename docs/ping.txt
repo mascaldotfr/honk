@@ -75,8 +75,8 @@ Servers which do not understand the Ping activity will hopefully ignore it.
 
 -- usage
 
-It is unspecified how one initiaties a ping, but it is expected to be a manual
-operation performed by a system adminstrator. This will generate traffic,
+It is unspecified how one initiates a ping, but it is expected to be a manual
+operation performed by a system administrator. This will generate traffic,
 which may then be logged. The admin reads the logs and solves the problem.
 Specific problem solving instructions are not provided here.
 
