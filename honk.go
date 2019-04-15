@@ -721,30 +721,50 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	noise = obfusbreak(noise)
 	honk.Noise = noise
 
-	file, _, err := r.FormFile("donk")
+	file, filehdr, err := r.FormFile("donk")
 	if err == nil {
 		var buf bytes.Buffer
 		io.Copy(&buf, file)
 		file.Close()
 		data := buf.Bytes()
+		xid := xfiltrate()
+		var media, name string
 		img, format, err := image.Decode(&buf)
-		if err != nil {
-			log.Printf("bad image: %s", err)
-			return
+		if err == nil {
+			data, format, err = vacuumwrap(img, format)
+			if err != nil {
+				log.Printf("can't vacuum image: %s", err)
+				return
+			}
+			media = "image/" + format
+			if format == "jpeg" {
+				format = "jpg"
+			}
+			name = xid + "." + format
+			xid = name
+		} else {
+			maxsize := 100000
+			if len(data) > maxsize {
+				log.Printf("bad image: %s too much text: %d", err, len(data))
+				http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
+				return
+			}
+			for i := 0; i < len(data); i++ {
+				if data[i] < 32 && data[i] != '\t' && data[i] != '\r' && data[i] != '\n' {
+					log.Printf("bad image: %s not text: %d", err, data[i])
+					http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
+					return
+				}
+			}
+			media = "text/plain"
+			name = filehdr.Filename
+			if name == "" {
+				name = xid + ".txt"
+			}
+			xid += ".txt"
 		}
-		data, format, err = vacuumwrap(img, format)
-		if err != nil {
-			log.Printf("can't vacuum image: %s", err)
-			return
-		}
-		name := xfiltrate()
-		media := "image/" + format
-		if format == "jpeg" {
-			format = "jpg"
-		}
-		name = name + "." + format
-		url := fmt.Sprintf("https://%s/d/%s", serverName, name)
-		res, err := stmtSaveFile.Exec(name, name, url, media, data)
+		url := fmt.Sprintf("https://%s/d/%s", serverName, xid)
+		res, err := stmtSaveFile.Exec(xid, name, url, media, data)
 		if err != nil {
 			log.Printf("unable to save image: %s", err)
 			return
@@ -897,13 +917,15 @@ func serveemu(w http.ResponseWriter, r *http.Request) {
 func servefile(w http.ResponseWriter, r *http.Request) {
 	xid := mux.Vars(r)["xid"]
 	row := stmtFileData.QueryRow(xid)
+	var media string
 	var data []byte
-	err := row.Scan(&data)
+	err := row.Scan(&media, &data)
 	if err != nil {
 		log.Printf("error loading file: %s", err)
 		http.NotFound(w, r)
 		return
 	}
+	w.Header().Set("Content-Type", media)
 	w.Header().Set("Cache-Control", "max-age=432000")
 	w.Write(data)
 }
@@ -998,7 +1020,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksForUser = preparetodie(db, "select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid where honks.userid = ? and dt > ? order by honkid desc limit 250")
 	stmtHonksByHonker = preparetodie(db, "select honkid, honks.userid, users.username, what, honker, honks.xid, rid, dt, url, audience, noise from honks join users on honks.userid = users.userid join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.name = ? order by honkid desc limit 50")
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise) values (?, ?, ?, ?, ?, ?, ?, ?, ?)")
-	stmtFileData = preparetodie(db, "select content from files where xid = ?")
+	stmtFileData = preparetodie(db, "select media, content from files where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")
 	stmtDeleteHonk = preparetodie(db, "update honks set what = 'zonk' where xid = ? and honker = ?")

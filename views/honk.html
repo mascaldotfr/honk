@@ -3,7 +3,11 @@
 <div class="title"><img alt="avatar" src="/a?a={{ .Honker}}"><p><a href="{{ .Honker }}" rel=noreferrer>{{ .Username }}</a> <span class="clip">{{ .What }} {{ .Date.Format "02 Jan 2006 15:04" }} <a href="{{ .URL }}" rel=noreferrer>{{ .URL }}</a></span></div>
 <div class="noise"><p>{{ .HTML }}</div>
 {{ range .Donks }}
+{{ if eq .Media "text/plain" }}
+<p><a href="/d/{{ .XID }}">Attachment: {{ .Name }}</a>
+{{ else }}
 <p><a href="/d/{{ .XID }}"><img src="/d/{{ .XID }}" title="{{ .URL }}"></a>
+{{ end }}
 {{ end }}
 {{ end }}
 {{ if .Bonk }}
