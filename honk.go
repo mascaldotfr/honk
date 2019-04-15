@@ -703,9 +703,6 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 
 	dt := time.Now().UTC()
 	xid := xfiltrate()
-	if xid == "" {
-		return
-	}
 	what := "honk"
 	if rid != "" {
 		what = "tonk"

@@ -88,17 +88,15 @@ func xfiltrate() string {
 			continue
 		}
 		if err != sql.ErrNoRows {
-			log.Printf("err picking xid: %s", err)
-			return ""
+			log.Panicf("err picking xid: %s", err)
 		}
-		r = db.QueryRow("select fileid from files where name = ?", s)
+		r = db.QueryRow("select fileid from files where xid = ?", s)
 		err = r.Scan(&x)
 		if err == nil {
 			continue
 		}
 		if err != sql.ErrNoRows {
-			log.Printf("err picking xid: %s", err)
-			return ""
+			log.Panicf("err picking xid: %s", err)
 		}
 		return s
 	}
