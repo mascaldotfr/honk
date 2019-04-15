@@ -3,6 +3,7 @@ CREATE TABLE honks (honkid integer primary key, userid integer, what text, honke
 CREATE TABLE donks (honkid integer, fileid integer);
 CREATE TABLE files(fileid integer primary key, xid text, name text, url text, media text, content blob);
 CREATE TABLE honkers (honkerid integer primary key, userid integer, name text, xid text, flavor text, pubkey text);
+create table doovers(dooverid integer primary key, dt text, tries integer, username text, rcpt text, msg blob);
 
 create index idx_honksxid on honks(xid);
 create index idx_honkshonker on honks(honker);

@@ -16,24 +16,32 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 )
+
+func doordie(db *sql.DB, s string) {
+	_, err := db.Exec(s)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func upgradedb() {
 	db := opendatabase()
 	dbversion := 0
 	getconfig("dbversion", &dbversion)
 
-	var err error
 	switch dbversion {
 	case 0:
-		_, err = db.Exec("insert into config (key, value) values ('dbversion', 1)")
-		if err != nil {
-			log.Fatal(err)
-		}
+		doordie(db, "insert into config (key, value) values ('dbversion', 1)")
 		fallthrough
 	case 1:
+		doordie(db, "create table doovers(dooverid integer primary key, dt text, tries integer, username text, rcpt text, msg blob)")
+		doordie(db, "update config set value = 2 where key = 'dbversion'")
+		fallthrough
+	case 2:
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
 	}

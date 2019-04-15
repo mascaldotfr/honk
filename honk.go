@@ -914,6 +914,8 @@ func serve() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	go redeliverator()
+
 	debug := false
 	getconfig("debug", &debug)
 	readviews = ParseTemplates(debug,
@@ -975,6 +977,7 @@ var stmtHonkers, stmtDubbers, stmtOneXonk, stmtHonks, stmtUserHonks *sql.Stmt
 var stmtHonksForUser, stmtDeleteHonk, stmtSaveDub *sql.Stmt
 var stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
 var stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
+var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -1001,6 +1004,10 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveFile = preparetodie(db, "insert into files (xid, name, url, media, content) values (?, ?, ?, ?, ?)")
 	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey from users where username = ?")
 	stmtSaveDub = preparetodie(db, "insert into honkers (userid, name, xid, flavor) values (?, ?, ?, ?)")
+	stmtAddDoover = preparetodie(db, "insert into doovers (dt, tries, username, rcpt, msg) values (?, ?, ?, ?, ?)")
+	stmtGetDoovers = preparetodie(db, "select dooverid, dt from doovers")
+	stmtLoadDoover = preparetodie(db, "select tries, username, rcpt, msg from doovers where dooverid = ?")
+	stmtZapDoover = preparetodie(db, "delete from doovers where dooverid = ?")
 }
 
 func ElaborateUnitTests() {

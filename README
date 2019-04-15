@@ -54,3 +54,9 @@ Then run honk.
 Refer also to the docs directory, in particular manual.txt.
 
 Busy honk instances may use megabytes of memory.
+
+-- upgrade
+
+./honk upgrade
+
+./honk

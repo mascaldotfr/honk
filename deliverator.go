@@ -21,6 +21,11 @@ import (
 	"time"
 )
 
+type Doover struct {
+	ID   int64
+	When time.Time
+}
+
 func sayitagain(goarounds int, username string, rcpt string, msg []byte) {
 	var drift time.Duration
 	switch goarounds {
@@ -36,9 +41,13 @@ func sayitagain(goarounds int, username string, rcpt string, msg []byte) {
 		log.Printf("he's dead jim: %s", rcpt)
 		return
 	}
-	drift += time.Duration(rand.Int63n(int64(drift / 16)))
+	drift += time.Duration(rand.Int63n(int64(drift / 10)))
 	when := time.Now().UTC().Add(drift)
-	log.Print(when.Format(dbtimeformat), goarounds, username, rcpt, msg)
+	stmtAddDoover.Exec(when.Format(dbtimeformat), goarounds, username, rcpt, msg)
+	select {
+	case pokechan <- 0:
+	default:
+	}
 }
 
 func deliverate(goarounds int, username string, rcpt string, msg []byte) {
@@ -53,5 +62,56 @@ func deliverate(goarounds int, username string, rcpt string, msg []byte) {
 	if err != nil {
 		log.Printf("failed to post json to %s: %s", inbox, err)
 		sayitagain(goarounds+1, username, rcpt, msg)
+		return
+	}
+}
+
+var pokechan = make(chan int)
+
+func redeliverator() {
+	sleeper := time.NewTimer(0)
+	for {
+		select {
+		case <-pokechan:
+			if !sleeper.Stop() {
+				<-sleeper.C
+			}
+			time.Sleep(1 * time.Minute)
+		case <-sleeper.C:
+		}
+
+		rows, err := stmtGetDoovers.Query()
+		if err != nil {
+			log.Printf("wat?")
+			time.Sleep(1 * time.Minute)
+			continue
+		}
+		var doovers []Doover
+		for rows.Next() {
+			var d Doover
+			var dt string
+			rows.Scan(&d.ID, &dt)
+			d.When, _ = time.Parse(dbtimeformat, dt)
+			doovers = append(doovers, d)
+		}
+		rows.Close()
+		now := time.Now().UTC()
+		nexttime := now.Add(24 * time.Hour)
+		for _, d := range doovers {
+			if d.When.Before(now) {
+				var goarounds int
+				var username, rcpt string
+				var msg []byte
+				row := stmtLoadDoover.QueryRow(d.ID)
+				row.Scan(&goarounds, &username, &rcpt, &msg)
+				stmtZapDoover.Exec(d.ID)
+				log.Printf("redeliverating %s try %d", rcpt, goarounds)
+				deliverate(goarounds, username, rcpt, msg)
+			} else if d.When.Before(nexttime) {
+				nexttime = d.When
+			}
+		}
+		dur := nexttime.Sub(now).Round(time.Second) + 1*time.Minute
+		sleeper.Reset(dur)
 	}
 }
