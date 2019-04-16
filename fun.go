@@ -181,7 +181,11 @@ func obfusbreak(s string) string {
 
 	s = strings.Replace(s, "\n", "<br>", -1)
 	s = re_mentions.ReplaceAllStringFunc(s, func(m string) string {
-		return fmt.Sprintf(`<a href="%s">%s</a>`, html.EscapeString(gofish(m)),
+		where := gofish(m)
+		if where == "" {
+			return m
+		}
+		return fmt.Sprintf(`<a href="%s">%s</a>`, html.EscapeString(where),
 			html.EscapeString(m))
 	})
 	return s
