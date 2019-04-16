@@ -56,13 +56,20 @@ func sayitagain(goarounds int, username string, rcpt string, msg []byte) {
 
 func deliverate(goarounds int, username string, rcpt string, msg []byte) {
 	keyname, key := ziggy(username)
-	inbox, _, err := getboxes(rcpt)
-	if err != nil {
-		log.Printf("error getting inbox %s: %s", rcpt, err)
-		sayitagain(goarounds+1, username, rcpt, msg)
-		return
+	var inbox string
+	// already did the box indirection
+	if rcpt[0] == '%' {
+		inbox = rcpt[1:]
+	} else {
+		box, err := getboxes(rcpt)
+		if err != nil {
+			log.Printf("error getting inbox %s: %s", rcpt, err)
+			sayitagain(goarounds+1, username, rcpt, msg)
+			return
+		}
+		inbox = box.In
 	}
-	err = PostMsg(keyname, key, inbox, msg)
+	err := PostMsg(keyname, key, inbox, msg)
 	if err != nil {
 		log.Printf("failed to post json to %s: %s", inbox, err)
 		sayitagain(goarounds+1, username, rcpt, msg)

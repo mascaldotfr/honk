@@ -227,7 +227,7 @@ func crappola(j map[string]interface{}) bool {
 }
 
 func ping(user *WhatAbout, who string) {
-	inbox, _, err := getboxes(who)
+	box, err := getboxes(who)
 	if err != nil {
 		log.Printf("no inbox for ping: %s", err)
 		return
@@ -239,7 +239,7 @@ func ping(user *WhatAbout, who string) {
 	j["actor"] = user.URL
 	j["to"] = who
 	keyname, key := ziggy(user.Name)
-	err = PostJunk(keyname, key, inbox, j)
+	err = PostJunk(keyname, key, box.In, j)
 	if err != nil {
 		log.Printf("can't send ping: %s", err)
 		return
@@ -248,7 +248,7 @@ func ping(user *WhatAbout, who string) {
 }
 
 func pong(user *WhatAbout, who string, obj string) {
-	inbox, _, err := getboxes(who)
+	box, err := getboxes(who)
 	if err != nil {
 		log.Printf("no inbox for pong %s : %s", who, err)
 		return
@@ -261,7 +261,7 @@ func pong(user *WhatAbout, who string, obj string) {
 	j["to"] = who
 	j["object"] = obj
 	keyname, key := ziggy(user.Name)
-	err = PostJunk(keyname, key, inbox, j)
+	err = PostJunk(keyname, key, box.In, j)
 	if err != nil {
 		log.Printf("can't send pong: %s", err)
 		return

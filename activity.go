@@ -265,27 +265,34 @@ func savexonk(x *Honk) {
 	}
 }
 
-var boxofboxes = make(map[string]string)
+type Box struct {
+	In string
+	Out string
+	Shared string
+}
+
+var boxofboxes = make(map[string]*Box)
 var boxlock sync.Mutex
 
-func getboxes(ident string) (string, string, error) {
+func getboxes(ident string) (*Box, error) {
 	boxlock.Lock()
 	b, ok := boxofboxes[ident]
 	boxlock.Unlock()
 	if ok {
-		m := strings.Split(b, "\n")
-		return m[0], m[1], nil
+		return b, nil
 	}
 	j, err := GetJunk(ident)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 	inbox, _ := jsongetstring(j, "inbox")
 	outbox, _ := jsongetstring(j, "outbox")
+	sbox, _ := jsongetstring(j, "sharedInbox")
+	b = &Box { In: inbox, Out: outbox, Shared: sbox }
 	boxlock.Lock()
-	boxofboxes[ident] = inbox + "\n" + outbox
+	boxofboxes[ident] = b
 	boxlock.Unlock()
-	return inbox, outbox, err
+	return b, nil
 }
 
 func peeppeep() {
@@ -296,13 +303,13 @@ func peeppeep() {
 			continue
 		}
 		log.Printf("getting updates: %s", f.XID)
-		_, outbox, err := getboxes(f.XID)
+		box, err := getboxes(f.XID)
 		if err != nil {
 			log.Printf("error getting outbox: %s", err)
 			continue
 		}
 		log.Printf("getting outbox")
-		j, err := GetJunk(outbox)
+		j, err := GetJunk(box.Out)
 		if err != nil {
 			log.Printf("err: %s", err)
 			continue
@@ -471,13 +478,13 @@ func rubadubdub(user *WhatAbout, req map[string]interface{}) {
 	WriteJunk(os.Stdout, j)
 
 	actor, _ := jsongetstring(req, "actor")
-	inbox, _, err := getboxes(actor)
+	box, err := getboxes(actor)
 	if err != nil {
 		log.Printf("can't get dub box: %s", err)
 		return
 	}
 	keyname, key := ziggy(user.Name)
-	err = PostJunk(keyname, key, inbox, j)
+	err = PostJunk(keyname, key, box.In, j)
 	if err != nil {
 		log.Printf("can't rub a dub: %s", err)
 		return
@@ -495,14 +502,14 @@ func subsub(user *WhatAbout, xid string) {
 	j["object"] = xid
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 
-	inbox, _, err := getboxes(xid)
+	box, err := getboxes(xid)
 	if err != nil {
 		log.Printf("can't send follow: %s", err)
 		return
 	}
 	WriteJunk(os.Stdout, j)
 	keyname, key := ziggy(user.Name)
-	err = PostJunk(keyname, key, inbox, j)
+	err = PostJunk(keyname, key, box.In, j)
 	if err != nil {
 		log.Printf("failed to subsub: %s", err)
 	}
@@ -611,8 +618,12 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 	WriteJunk(&buf, jonk)
 	msg := buf.Bytes()
 	for _, f := range getdubs(user.ID) {
-		deliverate(0, user.Name, f.XID, msg)
-		delete(rcpts, f.XID)
+		box, _ := getboxes(f.XID)
+		if box != nil && box.Shared != "" {
+			rcpts["%" + box.Shared] = true
+		} else {
+			rcpts[f.XID] = true
+		}
 	}
 	for a := range rcpts {
 		if !strings.HasSuffix(a, "/followers") {
