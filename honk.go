@@ -1028,7 +1028,7 @@ var stmtZonkIt *sql.Stmt
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("error %s: %s", err, s)
 	}
 	return stmt
 }
