@@ -266,8 +266,8 @@ func savexonk(x *Honk) {
 }
 
 type Box struct {
-	In string
-	Out string
+	In     string
+	Out    string
 	Shared string
 }
 
@@ -287,8 +287,8 @@ func getboxes(ident string) (*Box, error) {
 	}
 	inbox, _ := jsongetstring(j, "inbox")
 	outbox, _ := jsongetstring(j, "outbox")
-	sbox, _ := jsongetstring(j, "sharedInbox")
-	b = &Box { In: inbox, Out: outbox, Shared: sbox }
+	sbox, _ := jsonfindstring(j, []string{"endpoints", "sharedInbox"})
+	b = &Box{In: inbox, Out: outbox, Shared: sbox}
 	boxlock.Lock()
 	boxofboxes[ident] = b
 	boxlock.Unlock()
@@ -620,7 +620,7 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 	for _, f := range getdubs(user.ID) {
 		box, _ := getboxes(f.XID)
 		if box != nil && box.Shared != "" {
-			rcpts["%" + box.Shared] = true
+			rcpts["%"+box.Shared] = true
 		} else {
 			rcpts[f.XID] = true
 		}
