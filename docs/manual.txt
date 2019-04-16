@@ -21,6 +21,12 @@ those of others that you're tired of seeing. This reduces its visibility, but
 doesn't attempt to delete it, which is infeasible.
 It's more like disavow.
 
+-- privacy
+
+Honks are public. Welcome to the internet.
+
+Received messages are only visible when logged in, regardless of addressing.
+
 -- css
 
 Custom CSS may be provided by creating a views/local.css file.
