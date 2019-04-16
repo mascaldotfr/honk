@@ -38,6 +38,9 @@ func reverbolate(honks []*Honk) {
 			} else {
 				h.URL = h.XID
 			}
+			if h.RID != "" && strings.IndexByte(h.RID, '/') == -1 {
+				h.RID = h.Honker + "/h/" + h.RID
+			}
 		} else {
 			idx := strings.LastIndexByte(h.Honker, '/')
 			if idx != -1 {
