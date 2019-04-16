@@ -387,6 +387,7 @@ func xonkxonk(item interface{}) *Honk {
 		what = "honk"
 	case "Delete":
 		obj, _ = jsongetmap(item, "object")
+		rid, _ = jsongetstring(item, "object")
 		what = "eradicate"
 	default:
 		log.Printf("unknown activity: %s", what)
