@@ -29,6 +29,7 @@ import (
 	_ "image/png"
 	"io"
 	"log"
+	notrand "math/rand"
 	"net/http"
 	"os"
 	"sort"
@@ -902,10 +903,15 @@ func savehonker(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 }
 
+func somedays() string {
+	secs := 432000 + notrand.Int63n(432000)
+	return fmt.Sprintf("%d", secs)
+}
+
 func avatate(w http.ResponseWriter, r *http.Request) {
 	n := r.FormValue("a")
 	a := avatar(n)
-	w.Header().Set("Cache-Control", "max-age=432000")
+	w.Header().Set("Cache-Control", "max-age="+somedays())
 	w.Write(a)
 }
 
@@ -922,7 +928,7 @@ func servehtml(w http.ResponseWriter, r *http.Request) {
 }
 func serveemu(w http.ResponseWriter, r *http.Request) {
 	xid := mux.Vars(r)["xid"]
-	w.Header().Set("Cache-Control", "max-age=432000")
+	w.Header().Set("Cache-Control", "max-age="+somedays())
 	http.ServeFile(w, r, "emus/"+xid)
 }
 
@@ -938,7 +944,7 @@ func servefile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", media)
-	w.Header().Set("Cache-Control", "max-age=432000")
+	w.Header().Set("Cache-Control", "max-age="+somedays())
 	w.Write(data)
 }
 
