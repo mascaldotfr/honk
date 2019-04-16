@@ -185,8 +185,9 @@ func obfusbreak(s string) string {
 		if where == "" {
 			return m
 		}
-		return fmt.Sprintf(`<a class="mention" href="%s">%s</a>`, html.EscapeString(where),
-			html.EscapeString(m))
+		who := m[0:1 + strings.IndexByte(m[1:], '@')]
+		return fmt.Sprintf(`<span class="h-card"><a class="u-url mention" href="%s">%s</a></span>`,
+			html.EscapeString(where), html.EscapeString(who))
 	})
 	return s
 }
