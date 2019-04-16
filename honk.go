@@ -845,12 +845,14 @@ func gofish(name string) string {
 		return ""
 	}
 	handlock.Lock()
-	defer handlock.Unlock()
 	ref, ok := handfull[name]
+	handlock.Unlock()
 	if ok {
 		return ref
 	}
 	j, err := GetJunk(fmt.Sprintf("https://%s/.well-known/webfinger?resource=acct:%s", m[1], name))
+	handlock.Lock()
+	defer handlock.Unlock()
 	if err != nil {
 		log.Printf("failed to go fish %s: %s", name, err)
 		handfull[name] = ""
