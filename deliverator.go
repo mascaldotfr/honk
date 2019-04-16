@@ -17,9 +17,13 @@ package main
 
 import (
 	"log"
-	"math/rand"
+	notrand "math/rand"
 	"time"
 )
+
+func init() {
+	notrand.Seed(time.Now().Unix())
+}
 
 type Doover struct {
 	ID   int64
@@ -41,7 +45,7 @@ func sayitagain(goarounds int, username string, rcpt string, msg []byte) {
 		log.Printf("he's dead jim: %s", rcpt)
 		return
 	}
-	drift += time.Duration(rand.Int63n(int64(drift / 10)))
+	drift += time.Duration(notrand.Int63n(int64(drift / 10)))
 	when := time.Now().UTC().Add(drift)
 	stmtAddDoover.Exec(when.Format(dbtimeformat), goarounds, username, rcpt, msg)
 	select {
