@@ -18,6 +18,7 @@ package main
 import (
 	"log"
 	notrand "math/rand"
+	"sync"
 	"time"
 )
 
@@ -54,7 +55,31 @@ func sayitagain(goarounds int, username string, rcpt string, msg []byte) {
 	}
 }
 
+var trucksout = 0
+var maxtrucksout = 10
+var garagelock sync.Mutex
+var garagebell = sync.NewCond(&garagelock)
+
+func truckgoesout() {
+	garagelock.Lock()
+	for trucksout >= maxtrucksout {
+		garagebell.Wait()
+	}
+	trucksout++
+	garagelock.Unlock()
+}
+
+func truckcomesin() {
+	garagelock.Lock()
+	trucksout--
+	garagebell.Broadcast()
+	garagelock.Unlock()
+}
+
 func deliverate(goarounds int, username string, rcpt string, msg []byte) {
+	truckgoesout()
+	defer truckcomesin()
+
 	keyname, key := ziggy(username)
 	var inbox string
 	// already did the box indirection
