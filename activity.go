@@ -273,6 +273,7 @@ type Box struct {
 
 var boxofboxes = make(map[string]*Box)
 var boxlock sync.Mutex
+var boxinglock sync.Mutex
 
 func getboxes(ident string) (*Box, error) {
 	boxlock.Lock()
@@ -281,6 +282,17 @@ func getboxes(ident string) (*Box, error) {
 	if ok {
 		return b, nil
 	}
+
+	boxinglock.Lock()
+	defer boxinglock.Unlock()
+
+	boxlock.Lock()
+	b, ok = boxofboxes[ident]
+	boxlock.Unlock()
+	if ok {
+		return b, nil
+	}
+
 	j, err := GetJunk(ident)
 	if err != nil {
 		return nil, err
