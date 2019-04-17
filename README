@@ -19,6 +19,8 @@ The button to submit a new honk says "it's gonna be honked".
 
 Ein Honk is a stupid person auf deutsch.
 
+No keybase support.
+
 -- build
 
 It should be sufficient to type make after unpacking a release.
