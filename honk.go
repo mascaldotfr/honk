@@ -371,6 +371,7 @@ func outbox(w http.ResponseWriter, r *http.Request) {
 	j["totalItems"] = len(jonks)
 	j["orderedItems"] = jonks
 
+	w.Header().Set("Cache-Control", "max-age=60")
 	w.Header().Set("Content-Type", theonetruename)
 	WriteJunk(w, j)
 }
@@ -384,6 +385,7 @@ func viewuser(w http.ResponseWriter, r *http.Request) {
 	}
 	if friendorfoe(r.Header.Get("Accept")) {
 		j := asjonker(user)
+		w.Header().Set("Cache-Control", "max-age=600")
 		w.Header().Set("Content-Type", theonetruename)
 		WriteJunk(w, j)
 		return
@@ -444,6 +446,7 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 	links = append(links, l)
 	j["links"] = links
 
+	w.Header().Set("Cache-Control", "max-age=3600")
 	w.Header().Set("Content-Type", "application/jrd+json")
 	WriteJunk(w, j)
 }
@@ -464,6 +467,7 @@ func viewhonk(w http.ResponseWriter, r *http.Request) {
 	if friendorfoe(r.Header.Get("Accept")) {
 		_, j := jonkjonk(user, h)
 		j["@context"] = itiswhatitis
+		w.Header().Set("Cache-Control", "max-age=3600")
 		w.Header().Set("Content-Type", theonetruename)
 		WriteJunk(w, j)
 		return
@@ -477,6 +481,9 @@ func honkpage(w http.ResponseWriter, r *http.Request, u *UserInfo, user *WhatAbo
 	if u != nil && u.Username == user.Name {
 		templinfo["UserCSRF"] = GetCSRF("saveuser", r)
 		templinfo["HonkCSRF"] = GetCSRF("honkhonk", r)
+	}
+	if u == nil {
+		w.Header().Set("Cache-Control", "max-age=60")
 	}
 	if user != nil {
 		templinfo["Name"] = user.Name
