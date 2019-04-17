@@ -64,13 +64,14 @@ func reverbolate(honks []*Honk) {
 			return e
 		}
 		h.HTML = template.HTML(re_emus.ReplaceAllStringFunc(string(h.HTML), emuxifier))
+		j := 0
 		for i := 0; i < len(h.Donks); i++ {
-			if zap[h.Donks[i]] {
-				copy(h.Donks[i:], h.Donks[i+1:])
-				h.Donks = h.Donks[:len(h.Donks)-1]
-				i--
+			if !zap[h.Donks[i]] {
+				h.Donks[j] = h.Donks[i]
+				j++
 			}
 		}
+		h.Donks = h.Donks[:j]
 	}
 }
 
