@@ -607,17 +607,23 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 }
 
 func honkworldwide(user *WhatAbout, honk *Honk) {
-	rcpts := make(map[string]bool)
-	for _, a := range honk.Audience {
-		if a != thewholeworld && a != user.URL {
-			rcpts[a] = true
-		}
-	}
 	jonk, _ := jonkjonk(user, honk)
 	jonk["@context"] = itiswhatitis
 	var buf bytes.Buffer
 	WriteJunk(&buf, jonk)
 	msg := buf.Bytes()
+
+	rcpts := make(map[string]bool)
+	for _, a := range honk.Audience {
+		if a != thewholeworld && a != user.URL && !strings.HasSuffix(a, "/followers") {
+			box, _ := getboxes(a)
+			if box != nil && box.Shared != "" {
+				rcpts["%"+box.Shared] = true
+			} else {
+				rcpts[a] = true
+			}
+		}
+	}
 	for _, f := range getdubs(user.ID) {
 		box, _ := getboxes(f.XID)
 		if box != nil && box.Shared != "" {
@@ -627,9 +633,7 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 		}
 	}
 	for a := range rcpts {
-		if !strings.HasSuffix(a, "/followers") {
-			deliverate(0, user.Name, a, msg)
-		}
+		deliverate(0, user.Name, a, msg)
 	}
 }
 
