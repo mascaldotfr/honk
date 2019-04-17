@@ -116,7 +116,6 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	sort.Slice(honks, func(i, j int) bool {
 		return honks[i].Date.After(honks[j].Date)
 	})
-	reverbolate(honks)
 
 	var modtime time.Time
 	if len(honks) > 0 {
@@ -132,13 +131,18 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	reverbolate(honks)
 
 	msg := "Things happen."
 	getconfig("servermsg", &msg)
 	templinfo["Honks"] = honks
 	templinfo["ShowRSS"] = true
 	templinfo["ServerMessage"] = msg
-	w.Header().Set("Cache-Control", "max-age=0")
+	if u == nil {
+		w.Header().Set("Cache-Control", "max-age=60")
+	} else {
+		w.Header().Set("Cache-Control", "max-age=0")
+	}
 	w.Header().Set("Last-Modified", modtime.Format(http.TimeFormat))
 	err := readviews.ExecuteTemplate(w, "homepage.html", templinfo)
 	if err != nil {
