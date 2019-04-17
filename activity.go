@@ -645,7 +645,7 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 		}
 	}
 	for a := range rcpts {
-		deliverate(0, user.Name, a, msg)
+		go deliverate(0, user.Name, a, msg)
 	}
 }
 
