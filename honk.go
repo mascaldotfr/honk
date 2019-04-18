@@ -805,6 +805,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	for _, e := range herd {
 		donk := savedonk(e.ID, e.Name, "image/png")
 		if donk != nil {
+			donk.Name = e.Name
 			honk.Donks = append(honk.Donks, donk)
 		}
 	}
