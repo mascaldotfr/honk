@@ -91,8 +91,12 @@ func PostMsg(keyname string, key *rsa.PrivateKey, url string, msg []byte) error 
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != 200 && resp.StatusCode != 202 {
-		resp.Body.Close()
+	resp.Body.Close()
+	switch resp.StatusCode {
+	case 200:
+	case 201:
+	case 202:
+	default:
 		return fmt.Errorf("http post status: %d", resp.StatusCode)
 	}
 	log.Printf("successful post: %s %d", url, resp.StatusCode)
