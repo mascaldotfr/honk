@@ -303,16 +303,19 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		fd.Close()
 		return
 	}
-	fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	WriteJunk(fd, j)
-	io.WriteString(fd, "\n")
-	fd.Close()
+	what, _ := jsongetstring(j, "type")
+	if what == "Like" {
+		return
+	}
 	who, _ := jsongetstring(j, "actor")
 	if !keymatch(keyname, who) {
 		log.Printf("keyname actor mismatch: %s <> %s", keyname, who)
 		return
 	}
-	what, _ := jsongetstring(j, "type")
+	fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	WriteJunk(fd, j)
+	io.WriteString(fd, "\n")
+	fd.Close()
 	switch what {
 	case "Ping":
 		obj, _ := jsongetstring(j, "id")
@@ -342,8 +345,6 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 				db.Exec("update honkers set flavor = 'undub' where xid = ? and flavor = 'dub'", who)
 			}
 		}
-	case "Like":
-		break
 	default:
 		xonk := xonkxonk(j)
 		if xonk != nil && needxonk(user, xonk) {
