@@ -312,7 +312,7 @@ func getboxes(ident string) (*Box, error) {
 }
 
 func peeppeep() {
-	user, _ := butwhatabout("")
+	user, _ := butwhatabout("htest")
 	honkers := gethonkers(user.ID)
 	for _, f := range honkers {
 		if f.Flavor != "peep" {
@@ -354,13 +354,14 @@ func peeppeep() {
 	}
 }
 
-func whosthere(xid string) []string {
+func whosthere(xid string) ([]string, string) {
 	obj, err := GetJunk(xid)
 	if err != nil {
 		log.Printf("error getting remote xonk: %s", err)
-		return nil
+		return nil, ""
 	}
-	return newphone(nil, obj)
+	convoy, _ := jsongetstring(obj, "conversation")
+	return newphone(nil, obj), convoy
 }
 
 func newphone(a []string, obj map[string]interface{}) []string {
@@ -387,7 +388,7 @@ func xonkxonk(item interface{}) *Honk {
 
 	var audience []string
 	var err error
-	var xid, rid, url, content string
+	var xid, rid, url, content, convoy string
 	var obj map[string]interface{}
 	switch what {
 	case "Announce":
@@ -424,6 +425,7 @@ func xonkxonk(item interface{}) *Honk {
 				content = "<p>summary: " + summary + content
 			}
 			rid, _ = jsongetstring(obj, "inReplyTo")
+			convoy, _ = jsongetstring(obj, "conversation")
 			if what == "honk" && rid != "" {
 				what = "tonk"
 			}
@@ -476,6 +478,7 @@ func xonkxonk(item interface{}) *Honk {
 	xonk.URL = url
 	xonk.Noise = content
 	xonk.Audience = audience
+	xonk.Convoy = convoy
 
 	return &xonk
 }
@@ -566,6 +569,9 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 		jo["attributedTo"] = user.URL
 		if h.RID != "" {
 			jo["inReplyTo"] = h.RID
+		}
+		if h.Convoy != "" {
+			jo["conversation"] = h.Convoy
 		}
 		jo["to"] = h.Audience[0]
 		if len(h.Audience) > 1 {

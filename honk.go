@@ -663,7 +663,7 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 	if xonk.Honker == "" {
 		xonk.XID = fmt.Sprintf("https://%s/u/%s/h/%s", serverName, xonk.Username, xonk.XID)
 	}
-	convoy := ""
+	convoy := xonk.Convoy
 
 	userinfo := GetUserInfo(r)
 
@@ -676,7 +676,7 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 		XID:      xonk.XID,
 		Date:     dt,
 		Noise:    xonk.Noise,
-		Convoy: convoy,
+		Convoy:   convoy,
 		Donks:    xonk.Donks,
 		Audience: oneofakind(prepend(thewholeworld, xonk.Audience)),
 	}
@@ -723,7 +723,6 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	if rid != "" {
 		what = "tonk"
 	}
-	convoy := ""
 	honk := Honk{
 		UserID:   userinfo.UserID,
 		Username: userinfo.Username,
@@ -731,25 +730,31 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		XID:      xid,
 		RID:      rid,
 		Date:     dt,
-		Convoy: convoy,
 	}
 	if noise[0] == '@' {
 		honk.Audience = append(grapevine(noise), thewholeworld)
 	} else {
 		honk.Audience = prepend(thewholeworld, grapevine(noise))
 	}
+	var convoy string
 	if rid != "" {
 		xonk := getxonk("", rid)
 		if xonk != nil {
 			honk.Audience = append(honk.Audience, xonk.Audience...)
+			convoy = xonk.Convoy
 		} else {
-			xonkaud := whosthere(rid)
+			xonkaud, c := whosthere(rid)
 			honk.Audience = append(honk.Audience, xonkaud...)
+			convoy = c
 		}
+	}
+	if convoy == "" {
+		convoy = "data:,electrichonkytonk-" + xfiltrate()
 	}
 	honk.Audience = oneofakind(honk.Audience)
 	noise = obfusbreak(noise)
 	honk.Noise = noise
+	honk.Convoy = convoy
 
 	file, filehdr, err := r.FormFile("donk")
 	if err == nil {
