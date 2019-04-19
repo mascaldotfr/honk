@@ -360,7 +360,10 @@ func whosthere(xid string) ([]string, string) {
 		log.Printf("error getting remote xonk: %s", err)
 		return nil, ""
 	}
-	convoy, _ := jsongetstring(obj, "conversation")
+	convoy, _ := jsongetstring(obj, "context")
+	if convoy == "" {
+		convoy, _ = jsongetstring(obj, "conversation")
+	}
 	return newphone(nil, obj), convoy
 }
 
@@ -425,7 +428,10 @@ func xonkxonk(item interface{}) *Honk {
 				content = "<p>summary: " + summary + content
 			}
 			rid, _ = jsongetstring(obj, "inReplyTo")
-			convoy, _ = jsongetstring(obj, "conversation")
+			convoy, _ = jsongetstring(obj, "context")
+			if convoy == "" {
+				convoy, _ = jsongetstring(obj, "conversation")
+			}
 			if what == "honk" && rid != "" {
 				what = "tonk"
 			}
@@ -571,6 +577,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 			jo["inReplyTo"] = h.RID
 		}
 		if h.Convoy != "" {
+			jo["context"] = h.Convoy
 			jo["conversation"] = h.Convoy
 		}
 		jo["to"] = h.Audience[0]
