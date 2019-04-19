@@ -18,7 +18,6 @@ package main
 import (
 	"crypto/rand"
 	"crypto/rsa"
-	"database/sql"
 	"fmt"
 	"html"
 	"html/template"
@@ -77,31 +76,13 @@ func reverbolate(honks []*Honk) {
 
 func xfiltrate() string {
 	letters := "BCDFGHJKLMNPQRSTVWXYZbcdfghjklmnpqrstvwxyz1234567891234567891234"
-	db := opendatabase()
 	for {
-		var x int64
-		var b [16]byte
+		var b [18]byte
 		rand.Read(b[:])
 		for i, c := range b {
 			b[i] = letters[c&63]
 		}
 		s := string(b[:])
-		r := db.QueryRow("select honkid from honks where xid = ?", s)
-		err := r.Scan(&x)
-		if err == nil {
-			continue
-		}
-		if err != sql.ErrNoRows {
-			log.Panicf("err picking xid: %s", err)
-		}
-		r = db.QueryRow("select fileid from files where xid = ?", s)
-		err = r.Scan(&x)
-		if err == nil {
-			continue
-		}
-		if err != sql.ErrNoRows {
-			log.Panicf("err picking xid: %s", err)
-		}
 		return s
 	}
 }
