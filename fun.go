@@ -93,15 +93,20 @@ type Mention struct {
 }
 
 var re_mentions = regexp.MustCompile(`@[[:alnum:]]+@[[:alnum:].]+`)
+var re_urltions = regexp.MustCompile(`@https://\S+`)
 
 func grapevine(s string) []string {
-	m := re_mentions.FindAllString(s, -1)
 	var mentions []string
+	m := re_mentions.FindAllString(s, -1)
 	for i := range m {
 		where := gofish(m[i])
 		if where != "" {
 			mentions = append(mentions, where)
 		}
+	}
+	m = re_urltions.FindAllString(s, -1)
+	for i := range m {
+		mentions = append(mentions, m[i][1:])
 	}
 	return mentions
 }
@@ -115,6 +120,10 @@ func bunchofgrapes(s string) []Mention {
 			mentions = append(mentions, Mention{who: m[i], where: where})
 		}
 	}
+	m = re_urltions.FindAllString(s, -1)
+	for i := range m {
+		mentions = append(mentions, Mention{who: m[i][1:], where: m[i][1:]})
+	}
 	return mentions
 }
 
@@ -123,7 +132,7 @@ type Emu struct {
 	Name string
 }
 
-var re_link = regexp.MustCompile(`https?://[^\s"]+[\w/)]`)
+var re_link = regexp.MustCompile(`@?https?://[^\s"]+[\w/)]`)
 var re_emus = regexp.MustCompile(`:[[:alnum:]_]+:`)
 
 func herdofemus(noise string) []Emu {
@@ -143,6 +152,9 @@ func obfusbreak(s string) string {
 	s = strings.Replace(s, "\r", "", -1)
 	s = html.EscapeString(s)
 	linkfn := func(url string) string {
+		if url[0] == '@' {
+			return url
+		}
 		addparen := false
 		adddot := false
 		if strings.HasSuffix(url, ")") && strings.IndexByte(url, '(') == -1 {
@@ -173,6 +185,10 @@ func obfusbreak(s string) string {
 		who := m[0 : 1+strings.IndexByte(m[1:], '@')]
 		return fmt.Sprintf(`<span class="h-card"><a class="u-url mention" href="%s">%s</a></span>`,
 			html.EscapeString(where), html.EscapeString(who))
+	})
+	s = re_urltions.ReplaceAllStringFunc(s, func(m string) string {
+		return fmt.Sprintf(`<span class="h-card"><a class="u-url mention" href="%s">%s</a></span>`,
+			html.EscapeString(m[1:]), html.EscapeString(m))
 	})
 	return s
 }
