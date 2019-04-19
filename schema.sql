@@ -1,13 +1,19 @@
 
-create table honks (honkid integer primary key, userid integer, what text, honker text, xid text, rid text, dt text, url text, audience text, noise text);
+create table honks (honkid integer primary key, userid integer, what text, honker text, xid text, rid text, dt text, url text, audience text, noise text, convoy text);
 create table donks (honkid integer, fileid integer);
 create table files(fileid integer primary key, xid text, name text, url text, media text, content blob);
 create table honkers (honkerid integer primary key, userid integer, name text, xid text, flavor text, pubkey text);
+create table xonkers (xonkerid integer primary key, xid text, ibox text, obox text, sbox text, pubkey text);
+create table zonkers (zonkerid integer primary key, name text, wherefore text);
 create table doovers(dooverid integer primary key, dt text, tries integer, username text, rcpt text, msg blob);
 
 create index idx_honksxid on honks(xid);
+create index idx_honksconvoy on honks(convoy);
 create index idx_honkshonker on honks(honker);
 create index idx_honkerxid on honkers(xid);
+create index idx_xonkerxid on xonkers(xid);
+create index idx_xonkerxid on xonkers(xid);
+create index idx_zonkersname on zonkers(name);
 create index idx_filesxid on files(xid);
 create index idx_filesurl on files(url);
 

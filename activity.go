@@ -254,7 +254,7 @@ func savexonk(x *Honk) {
 	}
 	dt := x.Date.UTC().Format(dbtimeformat)
 	aud := strings.Join(x.Audience, " ")
-	res, err := stmtSaveHonk.Exec(x.UserID, x.What, x.Honker, x.XID, x.RID, dt, x.URL, aud, x.Noise)
+	res, err := stmtSaveHonk.Exec(x.UserID, x.What, x.Honker, x.XID, x.RID, dt, x.URL, aud, x.Noise, x.Convoy)
 	if err != nil {
 		log.Printf("err saving xonk: %s", err)
 		return

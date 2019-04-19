@@ -260,7 +260,7 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 		return
 	}
 	db := opendatabase()
-	row := db.QueryRow("select pubkey from honkers where flavor = 'key' and xid = ?", keyname)
+	row := db.QueryRow("select pubkey from xonkers where xid = ?", keyname)
 	var data string
 	err := row.Scan(&data)
 	savekey := false
@@ -293,8 +293,8 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 	zaggies[keyname] = key
 	ziggylock.Unlock()
 	if savekey {
-		db.Exec("insert into honkers (name, xid, flavor, pubkey) values (?, ?, ?, ?)",
-			"", keyname, "key", data)
+		db.Exec("insert into xonkers (xid, ibox, obox, sbox, pubkey) values (?, ?, ?, ?, ?)",
+			keyname, "", "", "", data)
 	}
 	return
 }

@@ -42,6 +42,18 @@ func upgradedb() {
 		doordie(db, "update config set value = 2 where key = 'dbversion'")
 		fallthrough
 	case 2:
+		doordie(db, "alter table honks add column convoy text")
+		doordie(db, "update honks set convoy = ''")
+		doordie(db, "create index idx_honksconvoy on honks(convoy)")
+		doordie(db, "create table xonkers (xonkerid integer primary key, xid text, ibox text, obox text, sbox text, pubkey text)")
+		doordie(db, "insert into xonkers (xid, ibox, obox, sbox, pubkey) select xid, '', '', '', pubkey from honkers where flavor = 'key'")
+		doordie(db, "delete from honkers where flavor = 'key'")
+		doordie(db, "create index idx_xonkerxid on xonkers(xid)")
+		doordie(db, "create table zonkers (zonkerid integer primary key, name text, wherefore text)")
+		doordie(db, "create index idx_zonkersname on zonkers(name)")
+		doordie(db, "update config set value = 3 where key = 'dbversion'")
+		fallthrough
+	case 3:
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
 	}
