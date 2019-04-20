@@ -584,7 +584,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 		if len(h.Audience) > 1 {
 			jo["cc"] = h.Audience[1:]
 		}
-		jo["content"] = h.Noise
+		jo["content"] = mentionize(h.Noise)
 		jo["summary"] = nil
 		var tags []interface{}
 		g := bunchofgrapes(h.Noise)

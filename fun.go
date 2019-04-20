@@ -40,6 +40,7 @@ func reverbolate(honks []*Honk) {
 			if h.RID != "" && strings.IndexByte(h.RID, '/') == -1 {
 				h.RID = h.Honker + "/h/" + h.RID
 			}
+			h.Noise = mentionize(h.Noise)
 		} else {
 			idx := strings.LastIndexByte(h.Honker, '/')
 			if idx != -1 {
@@ -177,6 +178,10 @@ func obfusbreak(s string) string {
 	s = re_link.ReplaceAllStringFunc(s, linkfn)
 
 	s = strings.Replace(s, "\n", "<br>", -1)
+	return s
+}
+
+func mentionize(s string) string {
 	s = re_mentions.ReplaceAllStringFunc(s, func(m string) string {
 		where := gofish(m)
 		if where == "" {
