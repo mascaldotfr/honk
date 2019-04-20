@@ -346,12 +346,14 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			log.Printf("unknown undo no object")
 		} else {
 			what, _ := jsongetstring(obj, "type")
-			if what != "Follow" {
-				log.Printf("unknown undo: %s", what)
-			} else {
+			switch what {
+			case "Follow":
 				log.Printf("updating honker undo: %s", who)
 				db := opendatabase()
 				db.Exec("update honkers set flavor = 'undub' where xid = ? and flavor = 'dub'", who)
+			case "Like":
+			default:
+				log.Printf("unknown undo: %s", what)
 			}
 		}
 	default:
