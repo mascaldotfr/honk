@@ -243,7 +243,7 @@ func needxonk(user *WhatAbout, x *Honk) bool {
 	return true
 }
 
-func savexonk(x *Honk) {
+func savexonk(user *WhatAbout, x *Honk) {
 	if x.What == "eradicate" {
 		log.Printf("eradicating %s by %s", x.RID, x.Honker)
 		_, err := stmtDeleteHonk.Exec(x.RID, x.Honker)
@@ -254,7 +254,12 @@ func savexonk(x *Honk) {
 	}
 	dt := x.Date.UTC().Format(dbtimeformat)
 	aud := strings.Join(x.Audience, " ")
-	res, err := stmtSaveHonk.Exec(x.UserID, x.What, x.Honker, x.XID, x.RID, dt, x.URL, aud, x.Noise, x.Convoy)
+	whofore := 0
+	if strings.Contains(aud, user.URL) {
+		whofore = 1
+	}
+	res, err := stmtSaveHonk.Exec(x.UserID, x.What, x.Honker, x.XID, x.RID, dt, x.URL, aud,
+		x.Noise, x.Convoy, whofore)
 	if err != nil {
 		log.Printf("err saving xonk: %s", err)
 		return
@@ -347,7 +352,7 @@ func peeppeep() {
 				xonk := xonkxonk(item)
 				if xonk != nil && needxonk(user, xonk) {
 					xonk.UserID = user.ID
-					savexonk(xonk)
+					savexonk(user, xonk)
 				}
 			}
 		}
