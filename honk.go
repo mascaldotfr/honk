@@ -568,7 +568,9 @@ func getxonk(name, xid string) *Honk {
 	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.XID, &h.RID,
 		&dt, &h.URL, &aud, &h.Noise, &h.Convoy)
 	if err != nil {
-		log.Printf("error scanning xonk: %s", err)
+		if err != sql.ErrNoRows {
+			log.Printf("error scanning xonk: %s", err)
+		}
 		return nil
 	}
 	if name != "" && h.Username != name {
