@@ -591,7 +591,7 @@ func gethonksbyuser(name string) []*Honk {
 }
 func gethonksforuser(userid int64) []*Honk {
 	dt := time.Now().UTC().Add(-2 * 24 * time.Hour)
-	rows, err := stmtHonksForUser.Query(userid, dt.Format(dbtimeformat))
+	rows, err := stmtHonksForUser.Query(userid, dt.Format(dbtimeformat), userid)
 	return getsomehonks(rows, err)
 }
 func gethonksbyhonker(userid int64, honker string) []*Honk {
@@ -1067,7 +1067,7 @@ func prepareStatements(db *sql.DB) {
 	stmtOneXonk = preparetodie(db, "select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise, convoy from honks join users on honks.userid = users.userid where xid = ?")
 	stmtHonks = preparetodie(db, "select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise, convoy from honks join users on honks.userid = users.userid where honker = '' order by honkid desc limit 50")
 	stmtUserHonks = preparetodie(db, "select honkid, honks.userid, username, what, honker, xid, rid, dt, url, audience, noise, convoy from honks join users on honks.userid = users.userid where honker = '' and username = ? order by honkid desc limit 50")
-	stmtHonksForUser = preparetodie(db, "select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise, convoy from honks join users on honks.userid = users.userid where honks.userid = ? and dt > ? and convoy not in (select name from zonkers where wherefore = 'zonvoy' order by zonkerid desc limit 100) order by honkid desc limit 250")
+	stmtHonksForUser = preparetodie(db, "select honkid, honks.userid, users.username, what, honker, xid, rid, dt, url, audience, noise, convoy from honks join users on honks.userid = users.userid where honks.userid = ? and dt > ? and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100) order by honkid desc limit 250")
 	stmtHonksByHonker = preparetodie(db, "select honkid, honks.userid, users.username, what, honker, honks.xid, rid, dt, url, audience, noise, convoy from honks join users on honks.userid = users.userid join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.name = ? order by honkid desc limit 50")
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	stmtFileData = preparetodie(db, "select media, content from files where xid = ?")
