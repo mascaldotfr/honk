@@ -302,14 +302,25 @@ func getboxes(ident string) (*Box, error) {
 		return b, nil
 	}
 
-	j, err := GetJunk(ident)
+	db := opendatabase()
+
+	row := db.QueryRow("select ibox, obox, sbox from xonkers where xid = ?", ident)
+	b = &Box{}
+	err := row.Scan(&b.In, &b.Out, &b.Shared)
 	if err != nil {
-		return nil, err
+		j, err := GetJunk(ident)
+		if err != nil {
+			return nil, err
+		}
+		inbox, _ := jsongetstring(j, "inbox")
+		outbox, _ := jsongetstring(j, "outbox")
+		sbox, _ := jsonfindstring(j, []string{"endpoints", "sharedInbox"})
+		b = &Box{In: inbox, Out: outbox, Shared: sbox}
+		if inbox != "" {
+			db.Exec("insert into xonkers (xid, ibox, obox, sbox, pubkey) values (?, ?, ?, ?, ?)",
+				ident, inbox, outbox, sbox, "")
+		}
 	}
-	inbox, _ := jsongetstring(j, "inbox")
-	outbox, _ := jsongetstring(j, "outbox")
-	sbox, _ := jsonfindstring(j, []string{"endpoints", "sharedInbox"})
-	b = &Box{In: inbox, Out: outbox, Shared: sbox}
 	boxlock.Lock()
 	boxofboxes[ident] = b
 	boxlock.Unlock()
