@@ -301,12 +301,17 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	keyname, err := zag(r, payload)
 	if err != nil {
 		log.Printf("inbox message failed signature: %s", err)
-		fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		io.WriteString(fd, "bad signature:\n")
-		WriteJunk(fd, j)
-		io.WriteString(fd, "\n")
-		fd.Close()
-		return
+		if keyname != "" {
+			keyname, err = makeitworksomehowwithoutregardforkeycontinuity(keyname, r, payload)
+		}
+		if err != nil {
+			fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+			io.WriteString(fd, "bad signature:\n")
+			WriteJunk(fd, j)
+			io.WriteString(fd, "\n")
+			fd.Close()
+			return
+		}
 	}
 	what, _ := jsongetstring(j, "type")
 	if what == "Like" {

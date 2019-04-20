@@ -22,6 +22,7 @@ import (
 	"html"
 	"html/template"
 	"log"
+	"net/http"
 	"regexp"
 	"strings"
 	"sync"
@@ -301,6 +302,15 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 	zaggies[keyname] = key
 	ziggylock.Unlock()
 	return
+}
+
+func makeitworksomehowwithoutregardforkeycontinuity(keyname string, r *http.Request, payload []byte) (string, error) {
+	db := opendatabase()
+	db.Exec("delete from xonkers where xid = ?", keyname)
+	ziggylock.Lock()
+	delete(zaggies, keyname)
+	ziggylock.Unlock()
+	return zag(r, payload)
 }
 
 func thoudostbitethythumb(userid int64, who string) bool {

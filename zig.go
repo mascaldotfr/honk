@@ -124,7 +124,7 @@ func zag(req *http.Request, content []byte) (string, error) {
 
 	key := zaggy(keyname)
 	if key == nil {
-		return "", fmt.Errorf("no key for %s", keyname)
+		return keyname, fmt.Errorf("no key for %s", keyname)
 	}
 	headers := strings.Split(heads, " ")
 	var stuff []string
@@ -146,7 +146,7 @@ func zag(req *http.Request, content []byte) (string, error) {
 	sig := b64s(bsig)
 	err := rsa.VerifyPKCS1v15(key, crypto.SHA256, h.Sum(nil), sig)
 	if err != nil {
-		return "", err
+		return keyname, err
 	}
 	return keyname, nil
 }
