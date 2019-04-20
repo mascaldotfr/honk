@@ -12,7 +12,6 @@ create index idx_honksconvoy on honks(convoy);
 create index idx_honkshonker on honks(honker);
 create index idx_honkerxid on honkers(xid);
 create index idx_xonkerxid on xonkers(xid);
-create index idx_xonkerxid on xonkers(xid);
 create index idx_zonkersname on zonkers(name);
 create index idx_filesxid on files(xid);
 create index idx_filesurl on files(url);
