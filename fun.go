@@ -265,7 +265,6 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 	row := db.QueryRow("select pubkey from xonkers where xid = ?", keyname)
 	var data string
 	err := row.Scan(&data)
-	savekey := false
 	if err != nil {
 		log.Printf("hitting the webs for missing pubkey: %s", keyname)
 		j, err := GetJunk(keyname)
@@ -276,28 +275,31 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 		var ok bool
 		data, ok = jsonfindstring(j, []string{"publicKey", "publicKeyPem"})
 		if !ok {
-			log.Printf("error getting %s pubkey", keyname)
+			log.Printf("error finding %s pubkey", keyname)
 			return
 		}
 		_, ok = jsonfindstring(j, []string{"publicKey", "owner"})
 		if !ok {
-			log.Printf("error getting %s pubkey owner", keyname)
+			log.Printf("error finding %s pubkey owner", keyname)
 			return
 		}
-		savekey = true
-	}
-	_, key, err = pez(data)
-	if err != nil {
-		log.Printf("error decoding %s pubkey: %s", keyname, err)
-		return
+		_, key, err = pez(data)
+		if err != nil {
+			log.Printf("error decoding %s pubkey: %s", keyname, err)
+			return
+		}
+		db.Exec("insert into xonkers (xid, ibox, obox, sbox, pubkey) values (?, ?, ?, ?, ?)",
+			keyname, "", "", "", data)
+	} else {
+		_, key, err = pez(data)
+		if err != nil {
+			log.Printf("error decoding %s pubkey: %s", keyname, err)
+			return
+		}
 	}
 	ziggylock.Lock()
 	zaggies[keyname] = key
 	ziggylock.Unlock()
-	if savekey {
-		db.Exec("insert into xonkers (xid, ibox, obox, sbox, pubkey) values (?, ?, ?, ?, ?)",
-			keyname, "", "", "", data)
-	}
 	return
 }
 
