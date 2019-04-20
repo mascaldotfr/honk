@@ -49,7 +49,7 @@ func upgradedb() {
 		doordie(db, "insert into xonkers (xid, ibox, obox, sbox, pubkey) select xid, '', '', '', pubkey from honkers where flavor = 'key'")
 		doordie(db, "delete from honkers where flavor = 'key'")
 		doordie(db, "create index idx_xonkerxid on xonkers(xid)")
-		doordie(db, "create table zonkers (zonkerid integer primary key, name text, wherefore text)")
+		doordie(db, "create table zonkers (zonkerid integer primary key, userid integer, name text, wherefore text)")
 		doordie(db, "create index idx_zonkersname on zonkers(name)")
 		doordie(db, "update config set value = 3 where key = 'dbversion'")
 		fallthrough

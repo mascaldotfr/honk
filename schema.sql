@@ -4,7 +4,7 @@ create table donks (honkid integer, fileid integer);
 create table files(fileid integer primary key, xid text, name text, url text, media text, content blob);
 create table honkers (honkerid integer primary key, userid integer, name text, xid text, flavor text, pubkey text);
 create table xonkers (xonkerid integer primary key, xid text, ibox text, obox text, sbox text, pubkey text);
-create table zonkers (zonkerid integer primary key, name text, wherefore text);
+create table zonkers (zonkerid integer primary key, userid integer, name text, wherefore text);
 create table doovers(dooverid integer primary key, dt text, tries integer, username text, rcpt text, msg blob);
 
 create index idx_honksxid on honks(xid);
