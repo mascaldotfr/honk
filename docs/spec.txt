@@ -47,14 +47,16 @@ out okay though.
 
 The honkers table is used to manage follows and followers. The flavor column
 describes what. 'sub' is a follow. We have subscribed to their newsletter.
-'dub' is a follower. They get dubbed whenever we honk. We also use this table
-to store public keys for anyone we interact with. This is regrettable.
+'dub' is a follower. They get dubbed whenever we honk.
+
+The xonkers table stores info about external accounts that we may interact
+with. Their keys, their inboxes, etc.
+
+The zonkers table stores things we do not wish to see, per the wherefore
+column. zonkers are bad people, zurls are bad hosts, zonvoys are bad threads.
 
 The xid column generally corresponds to ActivityPub id. For local honks, it
 will be a short string, not a complete URL.
-
-Such explanation would be less necessary were the tables not misused for
-multiple purposes. Will probably split them apart again soon.
 
 Note that some logical seeming joins won't work. The honker column of honks
 does not have a corresponding entry in the honkers table, since we frequently
