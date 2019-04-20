@@ -296,6 +296,21 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 	return
 }
 
+func thoudostbitethythumb(userid int64, who string) bool {
+	where := ""
+	m := re_unurl.FindStringSubmatch(who)
+	if len(m) > 2 {
+		where = m[1]
+	}
+	row := stmtThumbBiter.QueryRow(who, where, userid)
+	var id int64
+	err := row.Scan(&id)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func keymatch(keyname string, actor string) bool {
 	return strings.HasPrefix(keyname, actor)
 }

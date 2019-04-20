@@ -313,6 +313,10 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		log.Printf("keyname actor mismatch: %s <> %s", keyname, who)
 		return
 	}
+	if thoudostbitethythumb(user.ID, who) {
+		log.Printf("ignoring thumb sucker %s", who)
+		return
+	}
 	fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	WriteJunk(fd, j)
 	io.WriteString(fd, "\n")
@@ -1047,7 +1051,7 @@ var stmtHonksForUser, stmtDeleteHonk, stmtSaveDub *sql.Stmt
 var stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
 var stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
-var stmtZonkIt *sql.Stmt
+var stmtThumbBiter, stmtZonkIt *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -1079,6 +1083,7 @@ func prepareStatements(db *sql.DB) {
 	stmtLoadDoover = preparetodie(db, "select tries, username, rcpt, msg from doovers where dooverid = ?")
 	stmtZapDoover = preparetodie(db, "delete from doovers where dooverid = ?")
 	stmtZonkIt = preparetodie(db, "update honks set what = 'zonk' where userid = ? and xid = ?")
+	stmtThumbBiter = preparetodie(db, "select zonkerid from zonkers where ((name = ? and wherefore = 'zonker') or (name = ? and wherefore = 'zurl')) and userid = ?")
 }
 
 func ElaborateUnitTests() {
