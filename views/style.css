@@ -38,7 +38,7 @@ input {
 }
 .info {
 	background: #002;
-	border: 2px solid #dde;
+	border: 1px solid #dde;
 	margin-bottom: 1em;
 	padding: 0em 1em 0em 1em;
 }
@@ -65,15 +65,10 @@ button a {
 	font-size: 1em;
 	background: #305;
 	color: #dde;
-	width: 700px;
+	width: 600px;
 	height: 8em;
 	margin-bottom: 0.5em;
 	box-sizing: border-box;
-}
-@media screen and (max-width: 1024px) {
-	.info textarea {
-		width: 500px;
-	}
 }
 .info input[type="checkbox"] {
 	position: fixed;
@@ -103,7 +98,7 @@ button a {
 	width: 90%;
 	margin: auto;
 	background: #002;
-	border: 2px solid #dde;
+	border: 1px solid #dde;
 	border-radius: 1em;
 	margin-bottom: 1em;
 	padding-left: 1em;
@@ -163,4 +158,19 @@ img.emu {
 	height: 1em;
 	vertical-align: middle;
 	margin: -2px;
+}
+@media screen and (max-width: 740px) {
+	body {
+		font-size: 0.6em;
+	}
+	.info textarea {
+		width: 20em;
+	}
+	.honk .title {
+		height: 48px;
+	}
+	.honk .title img {
+		width: 48px;
+		height: 48px;
+	}
 }
