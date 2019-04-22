@@ -440,6 +440,9 @@ func xonkxonk(item interface{}) *Honk {
 			xid, _ = jsongetstring(obj, "id")
 			content, _ = jsongetstring(obj, "content")
 			summary, _ := jsongetstring(obj, "summary")
+			if !strings.HasPrefix(content, "<p>") {
+				content = "<p>" + content
+			}
 			if summary != "" {
 				content = "<p>summary: " + summary + content
 			}
