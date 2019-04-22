@@ -12,14 +12,19 @@
 <p><input tabindex=1 type="submit" name="add honker" value="add honker">
 </form>
 </div>
+{{ $honkercsrf := .HonkerCSRF }}
 {{ range .Honkers }}
-<div class="honk" id="honker{{ .ID }}">
-<p>
-<span class="linktitle">{{ .Name }}</span>
+<form action="/savehonker" method="POST" class="honk">
+<input type="hidden" name="CSRF" value="{{ $honkercsrf }}">
+<input type="hidden" name="honkerid" value="{{ .ID }}">
+<p>name: {{ .Name }}
 <p>url: {{ .XID }}
-<p><a href="/h/{{ .Name }}">honks</a>
 <p>flavor: {{ .Flavor }}
-</div>
+<p><a href="/h/{{ .Name }}">honks</a>
+<p>combos:{{ range .Combos }} <a href="/c/{{ . }}">{{ . }}</a>{{ end }}
+<p>combos: <input type="text" name="combos" value="{{ range .Combos }}{{ . }} {{end}}">
+<p><input type="submit" name="save" value="save">
+</form>
 {{ end }}
 </div>
 </div>

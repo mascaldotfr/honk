@@ -70,7 +70,7 @@ var dbtimeformat = "2006-01-02 15:04:05"
 var alreadyopendb *sql.DB
 var dbname = "honk.db"
 var stmtConfig *sql.Stmt
-var myVersion = 4
+var myVersion = 5
 
 func initdb() {
 	schema, err := ioutil.ReadFile("schema.sql")
