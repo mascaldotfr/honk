@@ -959,7 +959,7 @@ func savehonker(w http.ResponseWriter, r *http.Request) {
 }
 
 type Zonker struct {
-	Name string
+	Name      string
 	Wherefore string
 }
 
@@ -1089,8 +1089,6 @@ func serve() {
 	getters := mux.Methods("GET").Subrouter()
 
 	getters.HandleFunc("/", homepage)
-	getters.Handle("/atme", LoginRequired(http.HandlerFunc(homepage)))
-	getters.Handle("/killzone", LoginRequired(http.HandlerFunc(killzone)))
 	getters.HandleFunc("/rss", showrss)
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}", viewuser)
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}/h/{xid:[[:alnum:]]+}", viewhonk)
@@ -1100,7 +1098,6 @@ func serve() {
 	getters.HandleFunc("/a", avatate)
 	getters.HandleFunc("/d/{xid:[[:alnum:].]+}", servefile)
 	getters.HandleFunc("/emu/{xid:[[:alnum:]_.]+}", serveemu)
-	getters.HandleFunc("/h/{name:[[:alnum:]]+}", viewhonker)
 	getters.HandleFunc("/.well-known/webfinger", fingerlicker)
 
 	getters.HandleFunc("/style.css", servecss)
@@ -1111,12 +1108,15 @@ func serve() {
 
 	loggedin := mux.NewRoute().Subrouter()
 	loggedin.Use(LoginRequired)
+	loggedin.HandleFunc("/atme", homepage)
+	loggedin.HandleFunc("/killzone", killzone)
 	loggedin.Handle("/honk", CSRFWrap("honkhonk", http.HandlerFunc(savehonk)))
 	loggedin.Handle("/bonk", CSRFWrap("honkhonk", http.HandlerFunc(savebonk)))
 	loggedin.Handle("/zonkit", CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
 	loggedin.Handle("/killitwithfire", CSRFWrap("killitwithfire", http.HandlerFunc(killitwithfire)))
 	loggedin.Handle("/saveuser", CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
 	loggedin.HandleFunc("/honkers", showhonkers)
+	loggedin.HandleFunc("/h/{name:[[:alnum:]]+}", viewhonker)
 	loggedin.Handle("/savehonker", CSRFWrap("savehonker", http.HandlerFunc(savehonker)))
 
 	err = http.Serve(listener, mux)
