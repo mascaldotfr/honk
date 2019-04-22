@@ -958,6 +958,55 @@ func savehonker(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 }
 
+type Zonker struct {
+	Name string
+	Wherefore string
+}
+
+func killzone(w http.ResponseWriter, r *http.Request) {
+	db := opendatabase()
+	userinfo := GetUserInfo(r)
+	rows, err := db.Query("select name, wherefore from zonkers where userid = ?", userinfo.UserID)
+	if err != nil {
+		log.Printf("err: %s", err)
+		return
+	}
+	var zonkers []Zonker
+	for rows.Next() {
+		var z Zonker
+		rows.Scan(&z.Name, &z.Wherefore)
+		zonkers = append(zonkers, z)
+	}
+	templinfo := getInfo(r)
+	templinfo["Zonkers"] = zonkers
+	templinfo["KillCSRF"] = GetCSRF("killitwithfire", r)
+	err = readviews.ExecuteTemplate(w, "zonkers.html", templinfo)
+	if err != nil {
+		log.Print(err)
+	}
+}
+
+func killitwithfire(w http.ResponseWriter, r *http.Request) {
+	userinfo := GetUserInfo(r)
+	wherefore := r.FormValue("wherefore")
+	name := r.FormValue("name")
+	if name == "" {
+		return
+	}
+	switch wherefore {
+	case "zonker":
+	case "zurl":
+	case "zonvoy":
+	default:
+		return
+	}
+	db := opendatabase()
+	db.Exec("insert into zonkers (userid, name, wherefore) values (?, ?, ?)",
+		userinfo.UserID, name, wherefore)
+
+	http.Redirect(w, r, "/killzone", http.StatusSeeOther)
+}
+
 func somedays() string {
 	secs := 432000 + notrand.Int63n(432000)
 	return fmt.Sprintf("%d", secs)
@@ -1020,6 +1069,7 @@ func serve() {
 		"views/homepage.html",
 		"views/honkpage.html",
 		"views/honkers.html",
+		"views/zonkers.html",
 		"views/honkform.html",
 		"views/honk.html",
 		"views/login.html",
@@ -1040,6 +1090,7 @@ func serve() {
 
 	getters.HandleFunc("/", homepage)
 	getters.Handle("/atme", LoginRequired(http.HandlerFunc(homepage)))
+	getters.Handle("/killzone", LoginRequired(http.HandlerFunc(killzone)))
 	getters.HandleFunc("/rss", showrss)
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}", viewuser)
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}/h/{xid:[[:alnum:]]+}", viewhonk)
@@ -1063,6 +1114,7 @@ func serve() {
 	loggedin.Handle("/honk", CSRFWrap("honkhonk", http.HandlerFunc(savehonk)))
 	loggedin.Handle("/bonk", CSRFWrap("honkhonk", http.HandlerFunc(savebonk)))
 	loggedin.Handle("/zonkit", CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
+	loggedin.Handle("/killitwithfire", CSRFWrap("killitwithfire", http.HandlerFunc(killitwithfire)))
 	loggedin.Handle("/saveuser", CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
 	loggedin.HandleFunc("/honkers", showhonkers)
 	loggedin.Handle("/savehonker", CSRFWrap("savehonker", http.HandlerFunc(savehonker)))

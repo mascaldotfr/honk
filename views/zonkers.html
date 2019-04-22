@@ -1,0 +1,29 @@
+{{ template "header.html" . }}
+<div class="center">
+<div class="info">
+<p>
+<form action="/killitwithfire" method="POST">
+<span class="title">kill another zonker</span>
+<input type="hidden" name="CSRF" value="{{ .KillCSRF }}">
+<p>
+<input tabindex=1 type="text" name="name" value="" autocomplete=off> - name
+<p>
+<input type="radio" id="iszonker" name="wherefore" value="zonker">
+<label for="iszonker">Zonker</label>
+<p>
+<input type="radio" id="iszurl" name="wherefore" value="zurl">
+<label for="iszurl">Zurl</label>
+<p>
+<input type="radio" id="iszonvoy" name="wherefore" value="zonvoy">
+<label for="iszonvoy">Zonvoy</label>
+<p><input tabindex=1 type="submit" name="kill" value="kill">
+</form>
+</div>
+{{ range .Zonkers }}
+<div class="honk" id="honkerID">
+<p>What: {{ .Name }}
+<p>Where: {{ .Wherefore }}
+</div>
+{{ end }}
+</div>
+</div>
