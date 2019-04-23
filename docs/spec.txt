@@ -18,6 +18,13 @@ If a message can't be delivered, we backoff and retry.
 
 A random drift of up to 10% is added to each delay to avoid swarming.
 
+-- federating
+
+Messages are transformed for federation and display. Some transformations
+occur send side and some occur receive client because it's more exciting that
+way. @mentions and *markdown* are converted to HTML before transmission.
+Message :emoji: are converted to inline images after receiving.
+
 -- schema
 
 Some notes on the database schema. Mostly for development, but maybe useful
