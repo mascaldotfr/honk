@@ -27,8 +27,8 @@ convoy: {{ .Convoy }}
 {{ end }}
 {{ if and .Bonk (not (eq .Honk.What "zonked")) }}
 <p>
-<button onclick="bonk('{{ .Honk.XID }}'); return false;"><a href="/bonk">bonk</a></button>
+<button onclick="bonk(this, '{{ .Honk.XID }}'); return false;"><a href="/bonk">bonk</a></button>
 <button onclick="showhonkform('{{ .Honk.XID }}', '{{ .Honk.Username }}'); return false;"><a href="/newhonk">tonk</a></button>
-<button onclick="zonkit('{{ .Honk.XID }}'); return false;"><a href="/zonkit">zonk</a></button>
+<button onclick="zonkit(this, '{{ .Honk.XID }}'); return false;"><a href="/zonkit">zonk</a></button>
 {{ end }}
 </div>

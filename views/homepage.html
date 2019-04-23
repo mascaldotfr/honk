@@ -20,10 +20,14 @@ function post(url, data) {
 	x.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
 	x.send(data)
 }
-function bonk(xid) {
+function bonk(el, xid) {
+	el.innerHTML = "bonked"
+	el.disabled = true
 	post("/bonk", "CSRF={{ $BonkCSRF }}&xid=" + xid)
 }
-function zonkit(xid) {
+function zonkit(el, xid) {
+	el.innerHTML = "zonked"
+	el.disabled = true
 	post("/zonkit", "CSRF={{ $BonkCSRF }}&xid=" + xid)
 }
 </script>
