@@ -328,6 +328,21 @@ func thoudostbitethythumb(userid int64, who string) bool {
 	return true
 }
 
-func keymatch(keyname string, actor string) bool {
-	return strings.HasPrefix(keyname, actor)
+func keymatch(keyname string, actor string, userid int64) bool {
+	hash := strings.IndexByte(keyname, '#')
+	if hash == -1 {
+		hash = len(keyname)
+	}
+	owner := keyname[0:hash]
+	if owner == actor {
+		return true
+	}
+	row := stmtHasHonker.QueryRow(owner, userid)
+	var id int64
+	err := row.Scan(&id)
+	if err == nil {
+		log.Printf("allowing resigned content by %s", keyname)
+		return true
+	}
+	return false
 }
