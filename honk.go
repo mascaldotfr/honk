@@ -422,14 +422,14 @@ func viewhonker(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	u := GetUserInfo(r)
 	honks := gethonksbyhonker(u.UserID, name)
-	honkpage(w, r, nil, nil, honks)
+	honkpage(w, r, u, nil, honks)
 }
 
 func viewcombo(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	u := GetUserInfo(r)
 	honks := gethonksbycombo(u.UserID, name)
-	honkpage(w, r, nil, nil, honks)
+	honkpage(w, r, u, nil, honks)
 }
 
 func fingerlicker(w http.ResponseWriter, r *http.Request) {
@@ -502,14 +502,17 @@ func viewhonk(w http.ResponseWriter, r *http.Request) {
 		WriteJunk(w, j)
 		return
 	}
-	honkpage(w, r, nil, nil, []*Honk{h})
+	u := GetUserInfo(r)
+	honkpage(w, r, u, nil, []*Honk{h})
 }
 
 func honkpage(w http.ResponseWriter, r *http.Request, u *UserInfo, user *WhatAbout, honks []*Honk) {
 	reverbolate(honks)
 	templinfo := getInfo(r)
-	if u != nil && u.Username == user.Name {
-		templinfo["UserCSRF"] = GetCSRF("saveuser", r)
+	if u != nil {
+		if user != nil && u.Username == user.Name {
+			templinfo["UserCSRF"] = GetCSRF("saveuser", r)
+		}
 		templinfo["HonkCSRF"] = GetCSRF("honkhonk", r)
 	}
 	if u == nil {
