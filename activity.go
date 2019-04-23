@@ -56,6 +56,7 @@ func ReadJunk(r io.Reader) (map[string]interface{}, error) {
 }
 
 var theonetruename = `application/ld+json; profile="https://www.w3.org/ns/activitystreams"`
+var thefakename = `application/activity+json`
 var falsenames = []string{
 	`application/ld+json`,
 	`application/activity+json`,
@@ -123,7 +124,7 @@ func GetJunk(url string) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	at := theonetruename
+	at := thefakename
 	if strings.Contains(url, ".well-known/webfinger?resource") {
 		at = "application/jrd+json"
 	}
