@@ -151,7 +151,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "max-age=0")
 	}
 	w.Header().Set("Last-Modified", modtime.Format(http.TimeFormat))
-	err := readviews.ExecuteTemplate(w, "homepage.html", templinfo)
+	err := readviews.ExecuteTemplate(w, "honkpage.html", templinfo)
 	if err != nil {
 		log.Print(err)
 	}
@@ -523,6 +523,7 @@ func honkpage(w http.ResponseWriter, r *http.Request, u *UserInfo, user *WhatAbo
 		templinfo["WhatAbout"] = cleanstring(whatabout)
 	}
 	templinfo["Honks"] = honks
+	templinfo["ServerMessage"] = "(some info goes here)"
 	err := readviews.ExecuteTemplate(w, "honkpage.html", templinfo)
 	if err != nil {
 		log.Print(err)
@@ -1092,7 +1093,6 @@ func serve() {
 	debug := false
 	getconfig("debug", &debug)
 	readviews = ParseTemplates(debug,
-		"views/homepage.html",
 		"views/honkpage.html",
 		"views/honkers.html",
 		"views/zonkers.html",
