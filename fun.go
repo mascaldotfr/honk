@@ -149,10 +149,20 @@ func herdofemus(noise string) []Emu {
 	return emus
 }
 
+var re_bolder = regexp.MustCompile(`(^|\W)\*\*([\w\s,.!?']+)\*\*($|\W)`)
+var re_italicer = regexp.MustCompile(`(^|\W)\*([\w\s,.!?']+)\*($|\W)`)
+func markitzero(s string) string {
+	s = re_bolder.ReplaceAllString(s, "$1<b>$2</b>$3")
+	s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
+	return s
+}
+
 func obfusbreak(s string) string {
 	s = strings.TrimSpace(s)
 	s = strings.Replace(s, "\r", "", -1)
 	s = html.EscapeString(s)
+	// dammit go
+	s = strings.Replace(s, "&#39;", "'", -1)
 	linkfn := func(url string) string {
 		if url[0] == '@' {
 			return url
@@ -177,6 +187,8 @@ func obfusbreak(s string) string {
 		return url
 	}
 	s = re_link.ReplaceAllStringFunc(s, linkfn)
+
+	s = markitzero(s)
 
 	s = strings.Replace(s, "\n", "<br>", -1)
 	return s
