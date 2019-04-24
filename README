@@ -2,8 +2,8 @@ honk honk
 
 -- features
 
-Take control of your honks and join the federation in the fight against the
-evil empire.
+Take control of your honks.
+Join the federation in the fight against the evil empire.
 
 Send honks. Receive honks. And not just honks.
 Bonk, donk, tonk, all your favorite activities are here.
@@ -19,7 +19,11 @@ The button to submit a new honk says "it's gonna be honked".
 
 Ein Honk is a stupid person auf deutsch.
 
+Minimal setup and configuration.
+
 No keybase support.
+
+Written in gotesque, an especially grotesque dialect of golang.
 
 -- build
 
@@ -34,6 +38,7 @@ libsqlite3 (you probably already have it)
 
 go modules included in vendor:
 github.com/gorilla/mux
+github.com/mattn/go-runewidth
 golang.org/x/crypto
 golang.org/x/net
 humungus.tedunangst.com/r/go-sqlite3
@@ -42,11 +47,10 @@ humungus.tedunangst.com/r/go-sqlite3
 
 honk expects to be fronted by a TLS terminating reverse proxy.
 
-First, create the database.
+First, create the database. This will ask four questions.
 
 ./honk init
 
-This will ask four questions.
 username: (the username you want)
 password: (the password you want)
 listenaddr: (tcp or unix: localhost:31337, /var/www/honk.sock, etc.)
