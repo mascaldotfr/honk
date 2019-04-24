@@ -1208,7 +1208,7 @@ func prepareStatements(db *sql.DB) {
 	stmtFileData = preparetodie(db, "select media, content from files where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")
-	stmtDeleteHonk = preparetodie(db, "update honks set what = 'zonk' where xid = ? and honker = ?")
+	stmtDeleteHonk = preparetodie(db, "update honks set what = 'zonk' where xid = ? and honker = ? and userid = ?")
 	stmtFindFile = preparetodie(db, "select fileid from files where url = ?")
 	stmtSaveFile = preparetodie(db, "insert into files (xid, name, url, media, content) values (?, ?, ?, ?, ?)")
 	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey from users where username = ?")

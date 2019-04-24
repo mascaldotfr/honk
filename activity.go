@@ -247,7 +247,7 @@ func needxonk(user *WhatAbout, x *Honk) bool {
 func savexonk(user *WhatAbout, x *Honk) {
 	if x.What == "eradicate" {
 		log.Printf("eradicating %s by %s", x.RID, x.Honker)
-		_, err := stmtDeleteHonk.Exec(x.RID, x.Honker)
+		_, err := stmtDeleteHonk.Exec(x.RID, x.Honker, user.ID)
 		if err != nil {
 			log.Printf("error eradicating: %s", err)
 		}
