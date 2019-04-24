@@ -52,3 +52,11 @@ the config table using sqlite3.
 Custom emus may be provided by creating and populating the emus directory.
 emus may be referenced when composing a honk via colon wrapping. How pleasant.
 This :example: will be replaced by emus/example.png.
+
+-- proxy
+
+honk requires a TLS terminating reverse proxy be configured. It communicates
+with other servers via https URLs.
+
+If the proxy is configured to support caching, be mindful of the fact that
+ActivityPub requests vary based on the Accept and Content-Type headers.
