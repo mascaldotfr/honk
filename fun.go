@@ -54,6 +54,7 @@ func reverbolate(honks []*Honk) {
 			}
 		}
 		zap := make(map[*Donk]bool)
+		h.Noise = unpucker(h.Noise)
 		h.HTML = cleanstring(h.Noise)
 		emuxifier := func(e string) string {
 			for _, d := range h.Donks {
@@ -151,6 +152,7 @@ func herdofemus(noise string) []Emu {
 
 var re_bolder = regexp.MustCompile(`(^|\W)\*\*([\w\s,.!?']+)\*\*($|\W)`)
 var re_italicer = regexp.MustCompile(`(^|\W)\*([\w\s,.!?']+)\*($|\W)`)
+
 func markitzero(s string) string {
 	s = re_bolder.ReplaceAllString(s, "$1<b>$2</b>$3")
 	s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
