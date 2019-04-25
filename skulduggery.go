@@ -70,19 +70,30 @@ func unpucker(s string) string {
 		return string(x)
 	}
 	s = re_alltheshitz.ReplaceAllStringFunc(s, fixer)
-	x := make([]byte, 0, len(s))
+
 	zw := false
 	for _, c := range s {
 		if runewidth.RuneWidth(c) == 0 {
-			if zw {
-				continue
-			}
 			zw = true
-		} else {
-			zw = false
+			break
 		}
-		q := string(c)
-		x = append(x, []byte(q)...)
 	}
-	return string(x)
+	if zw {
+		x := make([]byte, 0, len(s))
+		zw = false
+		for _, c := range s {
+			if runewidth.RuneWidth(c) == 0 {
+				if zw {
+					continue
+				}
+				zw = true
+			} else {
+				zw = false
+			}
+			q := string(c)
+			x = append(x, []byte(q)...)
+		}
+		return string(x)
+	}
+	return s
 }
