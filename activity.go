@@ -409,82 +409,131 @@ func newphone(a []string, obj map[string]interface{}) []string {
 }
 
 func xonkxonk(user *WhatAbout, item interface{}) *Honk {
-	// id, _ := jsongetstring(item, "id")
-	what, _ := jsongetstring(item, "type")
-	dt, _ := jsongetstring(item, "published")
+	depth := 0
+	maxdepth := 4
+	var xonkxonkfn func(item interface{}) *Honk
 
-	var audience []string
-	var err error
-	var xid, rid, url, content, convoy string
-	var obj map[string]interface{}
-	var ok bool
-	switch what {
-	case "Announce":
-		xid, ok = jsongetstring(item, "object")
-		if ok {
-			if !needxonkid(user, xid) {
-				return nil
-			}
-			log.Printf("getting bonk: %s", xid)
-			obj, err = GetJunk(xid)
-			if err != nil {
-				log.Printf("error regetting: %s", err)
-			}
-		} else {
-			obj, _ = jsongetmap(item, "object")
+	saveoneup := func(xid string) {
+		log.Printf("getting oneup: %s", xid)
+		if depth >= maxdepth {
+			log.Printf("in too deep")
+			return
 		}
-		what = "bonk"
-	case "Create":
-		obj, _ = jsongetmap(item, "object")
-		what = "honk"
-	case "Delete":
-		obj, _ = jsongetmap(item, "object")
-		rid, _ = jsongetstring(item, "object")
-		what = "eradicate"
-	default:
-		log.Printf("unknown activity: %s", what)
-		return nil
+		obj, err := GetJunk(xid)
+		if err != nil {
+			log.Printf("error getting oneup: %s", err)
+			return
+		}
+		depth++
+		xonk := xonkxonkfn(obj)
+		if needxonk(user, xonk) {
+			xonk.UserID = user.ID
+			savexonk(user, xonk)
+		}
+		depth--
 	}
-	who, _ := jsongetstring(item, "actor")
 
-	var xonk Honk
-	if obj != nil {
-		ot, _ := jsongetstring(obj, "type")
-		url, _ = jsongetstring(obj, "url")
-		if ot == "Note" || ot == "Article" {
-			audience = newphone(audience, obj)
-			xid, _ = jsongetstring(obj, "id")
-			content, _ = jsongetstring(obj, "content")
-			summary, _ := jsongetstring(obj, "summary")
-			if !strings.HasPrefix(content, "<p>") {
-				content = "<p>" + content
+	xonkxonkfn = func(item interface{}) *Honk {
+		// id, _ := jsongetstring(item, "id")
+		what, _ := jsongetstring(item, "type")
+		dt, _ := jsongetstring(item, "published")
+
+		var audience []string
+		var err error
+		var xid, rid, url, content, convoy string
+		var obj map[string]interface{}
+		var ok bool
+		switch what {
+		case "Announce":
+			xid, ok = jsongetstring(item, "object")
+			if ok {
+				if !needxonkid(user, xid) {
+					return nil
+				}
+				log.Printf("getting bonk: %s", xid)
+				obj, err = GetJunk(xid)
+				if err != nil {
+					log.Printf("error regetting: %s", err)
+				}
+			} else {
+				obj, _ = jsongetmap(item, "object")
 			}
-			if summary != "" {
-				content = "<p>summary: " + summary + content
-			}
-			rid, _ = jsongetstring(obj, "inReplyTo")
-			convoy, _ = jsongetstring(obj, "context")
-			if convoy == "" {
-				convoy, _ = jsongetstring(obj, "conversation")
-			}
-			if what == "honk" && rid != "" {
-				what = "tonk"
-			}
+			what = "bonk"
+		case "Create":
+			obj, _ = jsongetmap(item, "object")
+			what = "honk"
+		case "Note":
+			obj = item.(map[string]interface{})
+			what = "honk"
+		case "Delete":
+			obj, _ = jsongetmap(item, "object")
+			rid, _ = jsongetstring(item, "object")
+			what = "eradicate"
+		default:
+			log.Printf("unknown activity: %s", what)
+			return nil
 		}
-		if ot == "Tombstone" {
-			rid, _ = jsongetstring(obj, "id")
-		}
-		atts, _ := jsongetarray(obj, "attachment")
-		for _, att := range atts {
-			at, _ := jsongetstring(att, "type")
-			mt, _ := jsongetstring(att, "mediaType")
-			u, _ := jsongetstring(att, "url")
-			name, _ := jsongetstring(att, "name")
-			if at == "Document" {
-				mt = strings.ToLower(mt)
-				log.Printf("attachment: %s %s", mt, u)
-				if mt == "image/jpeg" || mt == "image/png" ||
-					mt == "image/gif" || mt == "text/plain" {
+
+		var xonk Honk
+		who, _ := jsongetstring(item, "actor")
+		if obj != nil {
+			if who == "" {
+				who, _ = jsongetstring(obj, "attributedTo")
+			}
+			ot, _ := jsongetstring(obj, "type")
+			url, _ = jsongetstring(obj, "url")
+			if ot == "Note" || ot == "Article" {
+				audience = newphone(audience, obj)
+				xid, _ = jsongetstring(obj, "id")
+				content, _ = jsongetstring(obj, "content")
+				summary, _ := jsongetstring(obj, "summary")
+				if !strings.HasPrefix(content, "<p>") {
+					content = "<p>" + content
+				}
+				if summary != "" {
+					content = "<p>summary: " + summary + content
+				}
+				rid, _ = jsongetstring(obj, "inReplyTo")
+				convoy, _ = jsongetstring(obj, "context")
+				if convoy == "" {
+					convoy, _ = jsongetstring(obj, "conversation")
+				}
+				if what == "honk" && rid != "" {
+					what = "tonk"
+					if needxonkid(user, rid) {
+						saveoneup(rid)
+					}
+				}
+			}
+			if ot == "Tombstone" {
+				rid, _ = jsongetstring(obj, "id")
+			}
+			atts, _ := jsongetarray(obj, "attachment")
+			for _, att := range atts {
+				at, _ := jsongetstring(att, "type")
+				mt, _ := jsongetstring(att, "mediaType")
+				u, _ := jsongetstring(att, "url")
+				name, _ := jsongetstring(att, "name")
+				if at == "Document" {
+					mt = strings.ToLower(mt)
+					log.Printf("attachment: %s %s", mt, u)
+					if mt == "image/jpeg" || mt == "image/png" ||
+						mt == "image/gif" || mt == "text/plain" {
+						donk := savedonk(u, name, mt)
+						if donk != nil {
+							xonk.Donks = append(xonk.Donks, donk)
+						}
+					}
+				}
+			}
+			tags, _ := jsongetarray(obj, "tag")
+			for _, tag := range tags {
+				tt, _ := jsongetstring(tag, "type")
+				name, _ := jsongetstring(tag, "name")
+				if tt == "Emoji" {
+					icon, _ := jsongetmap(tag, "icon")
+					mt, _ := jsongetstring(icon, "mediaType")
+					u, _ := jsongetstring(icon, "url")
 					donk := savedonk(u, name, mt)
 					if donk != nil {
 						xonk.Donks = append(xonk.Donks, donk)
@@ -492,36 +541,24 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 				}
 			}
 		}
-		tags, _ := jsongetarray(obj, "tag")
-		for _, tag := range tags {
-			tt, _ := jsongetstring(tag, "type")
-			name, _ := jsongetstring(tag, "name")
-			if tt == "Emoji" {
-				icon, _ := jsongetmap(tag, "icon")
-				mt, _ := jsongetstring(icon, "mediaType")
-				u, _ := jsongetstring(icon, "url")
-				donk := savedonk(u, name, mt)
-				if donk != nil {
-					xonk.Donks = append(xonk.Donks, donk)
-				}
-			}
-		}
+		audience = append(audience, who)
+
+		audience = oneofakind(audience)
+
+		xonk.What = what
+		xonk.Honker = who
+		xonk.XID = xid
+		xonk.RID = rid
+		xonk.Date, _ = time.Parse(time.RFC3339, dt)
+		xonk.URL = url
+		xonk.Noise = content
+		xonk.Audience = audience
+		xonk.Convoy = convoy
+
+		return &xonk
 	}
-	audience = append(audience, who)
 
-	audience = oneofakind(audience)
-
-	xonk.What = what
-	xonk.Honker = who
-	xonk.XID = xid
-	xonk.RID = rid
-	xonk.Date, _ = time.Parse(time.RFC3339, dt)
-	xonk.URL = url
-	xonk.Noise = content
-	xonk.Audience = audience
-	xonk.Convoy = convoy
-
-	return &xonk
+	return xonkxonkfn(item)
 }
 
 func rubadubdub(user *WhatAbout, req map[string]interface{}) {
