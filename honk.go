@@ -39,12 +39,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"humungus.tedunangst.com/r/webs/login"
 )
-
-type UserInfo struct {
-	UserID   int64
-	Username string
-}
 
 type WhatAbout struct {
 	ID      int64
@@ -101,14 +97,14 @@ func getInfo(r *http.Request) map[string]interface{} {
 	templinfo["LocalStyleParam"] = getstyleparam("views/local.css")
 	templinfo["ServerName"] = serverName
 	templinfo["IconName"] = iconName
-	templinfo["UserInfo"] = GetUserInfo(r)
-	templinfo["LogoutCSRF"] = GetCSRF("logout", r)
+	templinfo["UserInfo"] = login.GetUserInfo(r)
+	templinfo["LogoutCSRF"] = login.GetCSRF("logout", r)
 	return templinfo
 }
 
 func homepage(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
-	u := GetUserInfo(r)
+	u := login.GetUserInfo(r)
 	var honks []*Honk
 	if u != nil {
 		if r.URL.Path == "/atme" {
@@ -116,7 +112,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		} else {
 			honks = gethonksforuser(u.UserID)
 		}
-		templinfo["HonkCSRF"] = GetCSRF("honkhonk", r)
+		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	} else {
 		honks = getpublichonks()
 	}
@@ -414,27 +410,27 @@ func viewuser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	honks := gethonksbyuser(name)
-	u := GetUserInfo(r)
+	u := login.GetUserInfo(r)
 	honkpage(w, r, u, user, honks, "")
 }
 
 func viewhonker(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
-	u := GetUserInfo(r)
+	u := login.GetUserInfo(r)
 	honks := gethonksbyhonker(u.UserID, name)
 	honkpage(w, r, u, nil, honks, "honks by honker: " + name)
 }
 
 func viewcombo(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
-	u := GetUserInfo(r)
+	u := login.GetUserInfo(r)
 	honks := gethonksbycombo(u.UserID, name)
 	honkpage(w, r, u, nil, honks, "honks by combo: " + name)
 }
 func viewconvoy(w http.ResponseWriter, r *http.Request) {
 	c := r.FormValue("c")
 	var userid int64 = -1
-	u := GetUserInfo(r)
+	u := login.GetUserInfo(r)
 	if u != nil {
 		userid = u.UserID
 	}
@@ -512,18 +508,19 @@ func viewhonk(w http.ResponseWriter, r *http.Request) {
 		WriteJunk(w, j)
 		return
 	}
-	u := GetUserInfo(r)
+	u := login.GetUserInfo(r)
 	honkpage(w, r, u, nil, []*Honk{h}, "one honk")
 }
 
-func honkpage(w http.ResponseWriter, r *http.Request, u *UserInfo, user *WhatAbout, honks []*Honk, infomsg string) {
+func honkpage(w http.ResponseWriter, r *http.Request, u *login.UserInfo, user *WhatAbout,
+honks []*Honk, infomsg string) {
 	reverbolate(honks)
 	templinfo := getInfo(r)
 	if u != nil {
 		if user != nil && u.Username == user.Name {
-			templinfo["UserCSRF"] = GetCSRF("saveuser", r)
+			templinfo["UserCSRF"] = login.GetCSRF("saveuser", r)
 		}
-		templinfo["HonkCSRF"] = GetCSRF("honkhonk", r)
+		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	}
 	if u == nil {
 		w.Header().Set("Cache-Control", "max-age=60")
@@ -545,7 +542,7 @@ func honkpage(w http.ResponseWriter, r *http.Request, u *UserInfo, user *WhatAbo
 
 func saveuser(w http.ResponseWriter, r *http.Request) {
 	whatabout := r.FormValue("whatabout")
-	u := GetUserInfo(r)
+	u := login.GetUserInfo(r)
 	db := opendatabase()
 	_, err := db.Exec("update users set about = ? where username = ?", whatabout, u.Username)
 	if err != nil {
@@ -721,7 +718,7 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 	}
 	convoy := xonk.Convoy
 
-	userinfo := GetUserInfo(r)
+	userinfo := login.GetUserInfo(r)
 
 	dt := time.Now().UTC()
 	bonk := Honk{
@@ -767,7 +764,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	xid := r.FormValue("xid")
 
 	log.Printf("zonking %s", xid)
-	userinfo := GetUserInfo(r)
+	userinfo := login.GetUserInfo(r)
 	stmtZonkIt.Exec(userinfo.UserID, xid)
 }
 
@@ -775,7 +772,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	rid := r.FormValue("rid")
 	noise := r.FormValue("noise")
 
-	userinfo := GetUserInfo(r)
+	userinfo := login.GetUserInfo(r)
 
 	dt := time.Now().UTC()
 	xid := xfiltrate()
@@ -909,10 +906,10 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 }
 
 func viewhonkers(w http.ResponseWriter, r *http.Request) {
-	userinfo := GetUserInfo(r)
+	userinfo := login.GetUserInfo(r)
 	templinfo := getInfo(r)
 	templinfo["Honkers"] = gethonkers(userinfo.UserID)
-	templinfo["HonkerCSRF"] = GetCSRF("savehonker", r)
+	templinfo["HonkerCSRF"] = login.GetCSRF("savehonker", r)
 	err := readviews.ExecuteTemplate(w, "honkers.html", templinfo)
 	if err != nil {
 		log.Print(err)
@@ -960,7 +957,7 @@ func gofish(name string) string {
 }
 
 func savehonker(w http.ResponseWriter, r *http.Request) {
-	u := GetUserInfo(r)
+	u := login.GetUserInfo(r)
 	name := r.FormValue("name")
 	url := r.FormValue("url")
 	peep := r.FormValue("peep")
@@ -1009,7 +1006,7 @@ type Zonker struct {
 
 func killzone(w http.ResponseWriter, r *http.Request) {
 	db := opendatabase()
-	userinfo := GetUserInfo(r)
+	userinfo := login.GetUserInfo(r)
 	rows, err := db.Query("select name, wherefore from zonkers where userid = ?", userinfo.UserID)
 	if err != nil {
 		log.Printf("err: %s", err)
@@ -1023,7 +1020,7 @@ func killzone(w http.ResponseWriter, r *http.Request) {
 	}
 	templinfo := getInfo(r)
 	templinfo["Zonkers"] = zonkers
-	templinfo["KillCSRF"] = GetCSRF("killitwithfire", r)
+	templinfo["KillCSRF"] = login.GetCSRF("killitwithfire", r)
 	err = readviews.ExecuteTemplate(w, "zonkers.html", templinfo)
 	if err != nil {
 		log.Print(err)
@@ -1031,7 +1028,7 @@ func killzone(w http.ResponseWriter, r *http.Request) {
 }
 
 func killitwithfire(w http.ResponseWriter, r *http.Request) {
-	userinfo := GetUserInfo(r)
+	userinfo := login.GetUserInfo(r)
 	wherefore := r.FormValue("wherefore")
 	name := r.FormValue("name")
 	if name == "" {
@@ -1099,7 +1096,7 @@ func servefile(w http.ResponseWriter, r *http.Request) {
 
 func serve() {
 	db := opendatabase()
-	LoginInit(db)
+	login.Init(db)
 
 	listener, err := openListener()
 	if err != nil {
@@ -1126,7 +1123,7 @@ func serve() {
 	}
 
 	mux := mux.NewRouter()
-	mux.Use(LoginChecker)
+	mux.Use(login.Checker)
 
 	posters := mux.Methods("POST").Subrouter()
 	getters := mux.Methods("GET").Subrouter()
@@ -1147,22 +1144,22 @@ func serve() {
 	getters.HandleFunc("/style.css", servecss)
 	getters.HandleFunc("/local.css", servecss)
 	getters.HandleFunc("/login", servehtml)
-	posters.HandleFunc("/dologin", dologin)
-	getters.HandleFunc("/logout", dologout)
+	posters.HandleFunc("/dologin", login.LoginFunc)
+	getters.HandleFunc("/logout", login.LogoutFunc)
 
 	loggedin := mux.NewRoute().Subrouter()
-	loggedin.Use(LoginRequired)
+	loggedin.Use(login.Required)
 	loggedin.HandleFunc("/atme", homepage)
 	loggedin.HandleFunc("/killzone", killzone)
-	loggedin.Handle("/honk", CSRFWrap("honkhonk", http.HandlerFunc(savehonk)))
-	loggedin.Handle("/bonk", CSRFWrap("honkhonk", http.HandlerFunc(savebonk)))
-	loggedin.Handle("/zonkit", CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
-	loggedin.Handle("/killitwithfire", CSRFWrap("killitwithfire", http.HandlerFunc(killitwithfire)))
-	loggedin.Handle("/saveuser", CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
+	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(savehonk)))
+	loggedin.Handle("/bonk", login.CSRFWrap("honkhonk", http.HandlerFunc(savebonk)))
+	loggedin.Handle("/zonkit", login.CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
+	loggedin.Handle("/killitwithfire", login.CSRFWrap("killitwithfire", http.HandlerFunc(killitwithfire)))
+	loggedin.Handle("/saveuser", login.CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
 	loggedin.HandleFunc("/honkers", viewhonkers)
 	loggedin.HandleFunc("/h/{name:[[:alnum:]]+}", viewhonker)
 	loggedin.HandleFunc("/c/{name:[[:alnum:]]+}", viewcombo)
-	loggedin.Handle("/savehonker", CSRFWrap("savehonker", http.HandlerFunc(savehonker)))
+	loggedin.Handle("/savehonker", login.CSRFWrap("savehonker", http.HandlerFunc(savehonker)))
 
 	err = http.Serve(listener, mux)
 	if err != nil {
