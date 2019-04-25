@@ -395,6 +395,29 @@ func outbox(w http.ResponseWriter, r *http.Request) {
 	WriteJunk(w, j)
 }
 
+func emptiness(w http.ResponseWriter, r *http.Request) {
+	name := mux.Vars(r)["name"]
+	user, err := butwhatabout(name)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	colname := "/followers"
+	if strings.HasSuffix(r.URL.Path, "/following") {
+		colname = "/following"
+	}
+	j := NewJunk()
+	j["@context"] = itiswhatitis
+	j["id"] = user.URL + colname
+	j["type"] = "OrderedCollection"
+	j["totalItems"] = 0
+	j["orderedItems"] = []interface{}{}
+
+	w.Header().Set("Cache-Control", "max-age=60")
+	w.Header().Set("Content-Type", theonetruename)
+	WriteJunk(w, j)
+}
+
 func viewuser(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	user, err := butwhatabout(name)
@@ -1135,6 +1158,8 @@ func serve() {
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}/rss", showrss)
 	posters.HandleFunc("/u/{name:[[:alnum:]]+}/inbox", inbox)
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}/outbox", outbox)
+	getters.HandleFunc("/u/{name:[[:alnum:]]+}/followers", emptiness)
+	getters.HandleFunc("/u/{name:[[:alnum:]]+}/following", emptiness)
 	getters.HandleFunc("/a", avatate)
 	getters.HandleFunc("/t", viewconvoy)
 	getters.HandleFunc("/d/{xid:[[:alnum:].]+}", servefile)

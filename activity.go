@@ -695,6 +695,8 @@ func asjonker(user *WhatAbout) map[string]interface{} {
 	j["type"] = "Person"
 	j["inbox"] = user.URL + "/inbox"
 	j["outbox"] = user.URL + "/outbox"
+	j["followers"] = user.URL + "/followers"
+	j["following"] = user.URL + "/following"
 	j["name"] = user.Display
 	j["preferredUsername"] = user.Name
 	j["summary"] = about
