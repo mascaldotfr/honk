@@ -227,14 +227,21 @@ func savedonk(url string, name, media string) *Donk {
 }
 
 func needxonk(user *WhatAbout, x *Honk) bool {
-	if strings.HasPrefix(x.XID, user.URL+"/h/") {
+	if x == nil {
 		return false
 	}
 	if x.What == "eradicate" {
 		return true
 	}
-	row := stmtFindXonk.QueryRow(user.ID, x.XID)
-	err := row.Scan(&x.ID)
+	return needxonkid(user, x.XID)
+}
+func needxonkid(user *WhatAbout, xid string) bool {
+	if strings.HasPrefix(xid, user.URL+"/h/") {
+		return false
+	}
+	row := stmtFindXonk.QueryRow(user.ID, xid)
+	var id int64
+	err := row.Scan(&id)
 	if err == nil {
 		return false
 	}
@@ -361,8 +368,8 @@ func peeppeep() {
 			}
 
 			for _, item := range items {
-				xonk := xonkxonk(item)
-				if xonk != nil && needxonk(user, xonk) {
+				xonk := xonkxonk(user, item)
+				if needxonk(user, xonk) {
 					xonk.UserID = user.ID
 					savexonk(user, xonk)
 				}
@@ -401,7 +408,7 @@ func newphone(a []string, obj map[string]interface{}) []string {
 	return a
 }
 
-func xonkxonk(item interface{}) *Honk {
+func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 	// id, _ := jsongetstring(item, "id")
 	what, _ := jsongetstring(item, "type")
 	dt, _ := jsongetstring(item, "published")
@@ -415,6 +422,9 @@ func xonkxonk(item interface{}) *Honk {
 	case "Announce":
 		xid, ok = jsongetstring(item, "object")
 		if ok {
+			if !needxonkid(user, xid) {
+				return nil
+			}
 			log.Printf("getting bonk: %s", xid)
 			obj, err = GetJunk(xid)
 			if err != nil {
