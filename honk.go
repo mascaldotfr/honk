@@ -441,14 +441,14 @@ func viewhonker(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	u := login.GetUserInfo(r)
 	honks := gethonksbyhonker(u.UserID, name)
-	honkpage(w, r, u, nil, honks, "honks by honker: " + name)
+	honkpage(w, r, u, nil, honks, "honks by honker: "+name)
 }
 
 func viewcombo(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	u := login.GetUserInfo(r)
 	honks := gethonksbycombo(u.UserID, name)
-	honkpage(w, r, u, nil, honks, "honks by combo: " + name)
+	honkpage(w, r, u, nil, honks, "honks by combo: "+name)
 }
 func viewconvoy(w http.ResponseWriter, r *http.Request) {
 	c := r.FormValue("c")
@@ -458,7 +458,7 @@ func viewconvoy(w http.ResponseWriter, r *http.Request) {
 		userid = u.UserID
 	}
 	honks := gethonksbyconvoy(userid, c)
-	honkpage(w, r, u, nil, honks, "honks in convoy: " + c)
+	honkpage(w, r, u, nil, honks, "honks in convoy: "+c)
 }
 
 func fingerlicker(w http.ResponseWriter, r *http.Request) {
@@ -536,7 +536,7 @@ func viewhonk(w http.ResponseWriter, r *http.Request) {
 }
 
 func honkpage(w http.ResponseWriter, r *http.Request, u *login.UserInfo, user *WhatAbout,
-honks []*Honk, infomsg string) {
+	honks []*Honk, infomsg string) {
 	reverbolate(honks)
 	templinfo := getInfo(r)
 	if u != nil {
