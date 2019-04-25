@@ -337,8 +337,13 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		obj, _ := jsongetstring(j, "object")
 		log.Printf("pong from %s: %s", who, obj)
 	case "Follow":
-		log.Printf("updating honker follow: %s", who)
-		rubadubdub(user, j)
+		obj, _ := jsongetstring(j, "object")
+		if obj == user.URL {
+			log.Printf("updating honker follow: %s", who)
+			rubadubdub(user, j)
+		} else {
+			log.Printf("can't follow %s", obj)
+		}
 	case "Accept":
 		db := opendatabase()
 		log.Printf("updating honker accept: %s", who)
