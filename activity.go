@@ -410,13 +410,18 @@ func xonkxonk(item interface{}) *Honk {
 	var err error
 	var xid, rid, url, content, convoy string
 	var obj map[string]interface{}
+	var ok bool
 	switch what {
 	case "Announce":
-		xid, _ = jsongetstring(item, "object")
-		log.Printf("getting bonk: %s", xid)
-		obj, err = GetJunk(xid)
-		if err != nil {
-			log.Printf("error regetting: %s", err)
+		xid, ok = jsongetstring(item, "object")
+		if ok {
+			log.Printf("getting bonk: %s", xid)
+			obj, err = GetJunk(xid)
+			if err != nil {
+				log.Printf("error regetting: %s", err)
+			}
+		} else {
+			obj, _ = jsongetmap(item, "object")
 		}
 		what = "bonk"
 	case "Create":
