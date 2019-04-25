@@ -813,7 +813,6 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		Username: userinfo.Username,
 		What:     "honk",
 		XID:      xid,
-		RID:      rid,
 		Date:     dt,
 	}
 	if noise[0] == '@' {
@@ -825,6 +824,9 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	if rid != "" {
 		xonk := getxonk("", rid)
 		if xonk != nil {
+			if xonk.Honker == "" {
+				rid = "https://" + serverName + "/u/" + xonk.Username + "/h/" + rid
+			}
 			honk.Audience = append(honk.Audience, xonk.Audience...)
 			convoy = xonk.Convoy
 		} else {
@@ -832,6 +834,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 			honk.Audience = append(honk.Audience, xonkaud...)
 			convoy = c
 		}
+		honk.RID = rid
 	}
 	if convoy == "" {
 		convoy = "data:,electrichonkytonk-" + xfiltrate()
