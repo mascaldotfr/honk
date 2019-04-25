@@ -533,6 +533,9 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 				if tt == "Emoji" {
 					icon, _ := jsongetmap(tag, "icon")
 					mt, _ := jsongetstring(icon, "mediaType")
+					if mt == "" {
+						mt = "image/png"
+					}
 					u, _ := jsongetstring(icon, "url")
 					donk := savedonk(u, name, mt)
 					if donk != nil {
