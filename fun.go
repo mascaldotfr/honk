@@ -324,7 +324,7 @@ func makeitworksomehowwithoutregardforkeycontinuity(keyname string, r *http.Requ
 	return zag(r, payload)
 }
 
-func thoudostbitethythumb(userid int64, who string) bool {
+func thoudostbitethythumb(userid int64, who string, objid string) bool {
 	where := ""
 	m := re_unurl.FindStringSubmatch(who)
 	if len(m) > 2 {
@@ -333,10 +333,10 @@ func thoudostbitethythumb(userid int64, who string) bool {
 	row := stmtThumbBiter.QueryRow(who, where, userid)
 	var id int64
 	err := row.Scan(&id)
-	if err != nil {
-		return false
+	if err == nil {
+		return true
 	}
-	return true
+	return false
 }
 
 func keymatch(keyname string, actor string, userid int64) bool {

@@ -320,7 +320,8 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		log.Printf("keyname actor mismatch: %s <> %s", keyname, who)
 		return
 	}
-	if thoudostbitethythumb(user.ID, who) {
+	objid, _ := jsongetstring(j, "id")
+	if thoudostbitethythumb(user.ID, who, objid) {
 		log.Printf("ignoring thumb sucker %s", who)
 		return
 	}
@@ -367,7 +368,6 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	default:
 		xonk := xonkxonk(user, j)
 		if needxonk(user, xonk) {
-			xonk.UserID = user.ID
 			savexonk(user, xonk)
 		}
 	}

@@ -233,6 +233,10 @@ func needxonk(user *WhatAbout, x *Honk) bool {
 	if x.What == "eradicate" {
 		return true
 	}
+	if thoudostbitethythumb(user.ID, x.Honker, x.XID) {
+		log.Printf("not saving thumb biter %s\n", x.Honker)
+		return false
+	}
 	return needxonkid(user, x.XID)
 }
 func needxonkid(user *WhatAbout, xid string) bool {
@@ -370,7 +374,6 @@ func peeppeep() {
 			for _, item := range items {
 				xonk := xonkxonk(user, item)
 				if needxonk(user, xonk) {
-					xonk.UserID = user.ID
 					savexonk(user, xonk)
 				}
 			}
@@ -548,6 +551,7 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 
 		audience = oneofakind(audience)
 
+		xonk.UserID = user.ID
 		xonk.What = what
 		xonk.Honker = who
 		xonk.XID = xid
