@@ -46,7 +46,7 @@ input {
 	margin-top 1em;
 	margin-bottom: 1em;
 }
-button, form input[type=submit] {
+button, form input[type=submit], select {
 	font-size: 0.8em;
 	font-family: monospace;
 	color: #dde;
@@ -149,6 +149,11 @@ button a {
 }
 .zonked .noise a {
 	color: #a79;
+}
+.inlineform {
+	display: inline;
+}
+.inlineform select {
 }
 img {
 	max-width: 100%

@@ -24,11 +24,19 @@
 <div>
 {{ $BonkCSRF := .HonkCSRF }}
 {{ range .Honks }}
-{{ template "honk.html" map "Honk" . "Bonk" $BonkCSRF }}
+{{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF }}
 {{ end }}
 </div>
 {{ if $BonkCSRF }}
 <script>
+function encode(hash) {
+        var s = []
+        for (var key in hash) {
+                var val = hash[key]
+                s.push(escape(key) + "=" + escape(val))
+        }
+        return s.join("&")
+}
 function post(url, data) {
 	var x = new XMLHttpRequest()
 	x.open("POST", url)
@@ -38,12 +46,19 @@ function post(url, data) {
 function bonk(el, xid) {
 	el.innerHTML = "bonked"
 	el.disabled = true
-	post("/bonk", "CSRF={{ $BonkCSRF }}&xid=" + xid)
+	post("/bonk", "CSRF={{ $BonkCSRF }}&xid=" + escape(xid))
 }
-function zonkit(el, xid) {
+function zonkit(el) {
 	el.innerHTML = "zonked"
 	el.disabled = true
-	post("/zonkit", "CSRF={{ $BonkCSRF }}&xid=" + xid)
+	var data = { }
+	for (var i in el.parentElement.elements) {
+		var e = el.parentElement.elements[i]
+		if (e.name) {
+			data[e.name] = e.value
+		}
+	}
+	post("/zonkit", encode(data))
 }
 </script>
 {{ end }}

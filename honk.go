@@ -789,11 +789,32 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 }
 
 func zonkit(w http.ResponseWriter, r *http.Request) {
-	xid := r.FormValue("xid")
+	wherefore := r.FormValue("wherefore")
+	var what string
+	switch wherefore {
+	case "this honk":
+		what = r.FormValue("honk")
+		wherefore = "zonk"
+	case "this honker":
+		what = r.FormValue("honker")
+		wherefore = "zonker"
+	case "this convoy":
+		what = r.FormValue("convoy")
+		wherefore = "zonvoy"
+	}
+	if what == "" {
+		return
+	}
 
-	log.Printf("zonking %s", xid)
+	log.Printf("zonking %s %s", wherefore, what)
 	userinfo := login.GetUserInfo(r)
-	stmtZonkIt.Exec(userinfo.UserID, xid)
+	if wherefore == "zonk" {
+		stmtZonkIt.Exec(userinfo.UserID, what)
+	} else {
+		db := opendatabase()
+		db.Exec("insert into zonkers (userid, name, wherefore) values (?, ?, ?)",
+			userinfo.UserID, what, wherefore)
+	}
 }
 
 func savehonk(w http.ResponseWriter, r *http.Request) {
