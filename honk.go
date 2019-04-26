@@ -321,7 +321,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	objid, _ := jsongetstring(j, "id")
-	if thoudostbitethythumb(user.ID, who, objid) {
+	if thoudostbitethythumb(user.ID, []string{who}, objid) {
 		log.Printf("ignoring thumb sucker %s", who)
 		return
 	}
@@ -1052,6 +1052,7 @@ func savehonker(w http.ResponseWriter, r *http.Request) {
 }
 
 type Zonker struct {
+	ID        int64
 	Name      string
 	Wherefore string
 }
@@ -1059,7 +1060,7 @@ type Zonker struct {
 func killzone(w http.ResponseWriter, r *http.Request) {
 	db := opendatabase()
 	userinfo := login.GetUserInfo(r)
-	rows, err := db.Query("select name, wherefore from zonkers where userid = ?", userinfo.UserID)
+	rows, err := db.Query("select zonkerid, name, wherefore from zonkers where userid = ?", userinfo.UserID)
 	if err != nil {
 		log.Printf("err: %s", err)
 		return
@@ -1067,7 +1068,7 @@ func killzone(w http.ResponseWriter, r *http.Request) {
 	var zonkers []Zonker
 	for rows.Next() {
 		var z Zonker
-		rows.Scan(&z.Name, &z.Wherefore)
+		rows.Scan(&z.ID, &z.Name, &z.Wherefore)
 		zonkers = append(zonkers, z)
 	}
 	templinfo := getInfo(r)
@@ -1081,6 +1082,16 @@ func killzone(w http.ResponseWriter, r *http.Request) {
 
 func killitwithfire(w http.ResponseWriter, r *http.Request) {
 	userinfo := login.GetUserInfo(r)
+	itsok := r.FormValue("itsok")
+	if itsok == "iforgiveyou" {
+		zonkerid, _ := strconv.ParseInt(r.FormValue("zonkerid"), 10, 0)
+		db := opendatabase()
+		db.Exec("delete from zonkers where userid = ? and zonkerid = ?",
+			userinfo.UserID, zonkerid)
+		bitethethumbs()
+		http.Redirect(w, r, "/killzone", http.StatusSeeOther)
+		return
+	}
 	wherefore := r.FormValue("wherefore")
 	name := r.FormValue("name")
 	if name == "" {
@@ -1095,7 +1106,10 @@ func killitwithfire(w http.ResponseWriter, r *http.Request) {
 	}
 	db := opendatabase()
 	db.Exec("insert into zonkers (userid, name, wherefore) values (?, ?, ?)",
-		userinfo.UserID, name, wherefore)
+	userinfo.UserID, name, wherefore)
+	if wherefore == "zonker" || wherefore == "zurl" {
+		bitethethumbs()
+	}
 
 	http.Redirect(w, r, "/killzone", http.StatusSeeOther)
 }
@@ -1174,6 +1188,8 @@ func serve() {
 		savedstyleparams[s] = getstyleparam(s)
 	}
 
+	bitethethumbs()
+
 	mux := mux.NewRouter()
 	mux.Use(login.Checker)
 
@@ -1227,7 +1243,7 @@ var stmtHonksForUser, stmtHonksForMe, stmtDeleteHonk, stmtSaveDub *sql.Stmt
 var stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
 var stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
-var stmtHasHonker, stmtThumbBiter, stmtZonkIt *sql.Stmt
+var stmtHasHonker, stmtThumbBiters, stmtZonkIt *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -1269,7 +1285,7 @@ func prepareStatements(db *sql.DB) {
 	stmtLoadDoover = preparetodie(db, "select tries, username, rcpt, msg from doovers where dooverid = ?")
 	stmtZapDoover = preparetodie(db, "delete from doovers where dooverid = ?")
 	stmtZonkIt = preparetodie(db, "update honks set what = 'zonk' where userid = ? and xid = ?")
-	stmtThumbBiter = preparetodie(db, "select zonkerid from zonkers where ((name = ? and wherefore = 'zonker') or (name = ? and wherefore = 'zurl')) and userid = ?")
+	stmtThumbBiters = preparetodie(db, "select userid, name, wherefore from zonkers where (wherefore = 'zonker' or wherefore = 'zurl')")
 }
 
 func ElaborateUnitTests() {

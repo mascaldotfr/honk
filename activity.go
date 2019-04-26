@@ -233,8 +233,8 @@ func needxonk(user *WhatAbout, x *Honk) bool {
 	if x.What == "eradicate" {
 		return true
 	}
-	if thoudostbitethythumb(user.ID, x.Honker, x.XID) {
-		log.Printf("not saving thumb biter %s\n", x.Honker)
+	if thoudostbitethythumb(user.ID, x.Audience, x.XID) {
+		log.Printf("not saving thumb biter? %s", x.Honker)
 		return false
 	}
 	return needxonkid(user, x.XID)

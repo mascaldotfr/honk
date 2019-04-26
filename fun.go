@@ -324,17 +324,51 @@ func makeitworksomehowwithoutregardforkeycontinuity(keyname string, r *http.Requ
 	return zag(r, payload)
 }
 
-func thoudostbitethythumb(userid int64, who string, objid string) bool {
-	where := ""
-	m := re_unurl.FindStringSubmatch(who)
-	if len(m) > 2 {
-		where = m[1]
+var thumbbiters map[int64]map[string]bool
+var thumblock sync.Mutex
+
+func bitethethumbs() {
+	rows, err := stmtThumbBiters.Query()
+	if err != nil {
+		log.Printf("error getting thumbbiters: %s", err)
+		return
 	}
-	row := stmtThumbBiter.QueryRow(who, where, userid)
-	var id int64
-	err := row.Scan(&id)
-	if err == nil {
-		return true
+	defer rows.Close()
+	thumblock.Lock()
+	defer thumblock.Unlock()
+	thumbbiters = make(map[int64]map[string]bool)
+	for rows.Next() {
+		var userid int64
+		var name, wherefore string
+		err = rows.Scan(&userid, &name, &wherefore)
+		if err != nil {
+			log.Printf("error scanning zonker: %s", err)
+			continue
+		}
+		m := thumbbiters[userid]
+		if m == nil {
+			m = make(map[string]bool)
+			thumbbiters[userid] = m
+		}
+		m[name] = true
+	}
+}
+
+func thoudostbitethythumb(userid int64, who []string, objid string) bool {
+	thumblock.Lock()
+	biters := thumbbiters[userid]
+	thumblock.Unlock()
+	for _, w := range who {
+		if biters[w] {
+			return true
+		}
+		m := re_unurl.FindStringSubmatch(w)
+		if len(m) > 2 {
+			where := m[1]
+			if biters[where] {
+				return true
+			}
+		}
 	}
 	return false
 }
