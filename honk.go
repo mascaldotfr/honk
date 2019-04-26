@@ -348,7 +348,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	case "Accept":
 		db := opendatabase()
 		log.Printf("updating honker accept: %s", who)
-		db.Exec("update honkers set flavor = 'sub' where xid = ? and flavor = 'presub'", who)
+		db.Exec("update honkers set flavor = 'sub' where userid = ? and xid = ? and flavor = 'presub'", user.ID, who)
 	case "Undo":
 		obj, ok := jsongetmap(j, "object")
 		if !ok {
@@ -359,7 +359,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			case "Follow":
 				log.Printf("updating honker undo: %s", who)
 				db := opendatabase()
-				db.Exec("update honkers set flavor = 'undub' where xid = ? and flavor = 'dub'", who)
+				db.Exec("update honkers set flavor = 'undub' where userid = ? and xid = ? and flavor = 'dub'", user.ID, who)
 			case "Like":
 			default:
 				log.Printf("unknown undo: %s", what)
