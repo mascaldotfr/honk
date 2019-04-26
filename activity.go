@@ -521,7 +521,7 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 					mt = strings.ToLower(mt)
 					log.Printf("attachment: %s %s", mt, u)
 					if mt == "image/jpeg" || mt == "image/png" ||
-						mt == "image/gif" || mt == "text/plain" {
+						mt == "text/plain" {
 						donk := savedonk(u, name, mt)
 						if donk != nil {
 							xonk.Donks = append(xonk.Donks, donk)
