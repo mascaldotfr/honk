@@ -65,3 +65,5 @@ ActivityPub in practice uses HTTP signatures to verify requests. In order for
 this to work, the backend server must receive certain header fields
 unmodified. In particular, the Host header and the message content cannot be
 altered.
+
+Specifically, for nginx: proxy_set_header Host $http_host;
