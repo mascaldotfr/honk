@@ -26,6 +26,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"regexp"
 	"strings"
@@ -135,6 +136,9 @@ func zag(req *http.Request, content []byte) (string, error) {
 			s = strings.ToLower(req.Method) + " " + req.URL.RequestURI()
 		case "host":
 			s = req.Host
+			if s != serverName {
+				log.Printf("caution: servername host header mismatch")
+			}
 		default:
 			s = req.Header.Get(h)
 		}

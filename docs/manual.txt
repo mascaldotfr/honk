@@ -60,3 +60,8 @@ with other servers via https URLs.
 
 If the proxy is configured to support caching, be mindful of the fact that
 ActivityPub requests vary based on the Accept and Content-Type headers.
+
+ActivityPub in practice uses HTTP signatures to verify requests. In order for
+this to work, the backend server must receive certain header fields
+unmodified. In particular, the Host header and the message content cannot be
+altered.
