@@ -27,6 +27,7 @@
 <input type="hidden" name="CSRF" value="{{ $honkercsrf }}">
 <input type="hidden" name="honkerid" value="{{ .ID }}">
 <p>combos: <input type="text" name="combos" value="{{ range .Combos }}{{ . }} {{end}}">
+<p>depart: <input type="text" name="goodbye" value="" autocomplete=off> (say "goodbye")
 <p><input type="submit" name="save" value="save">
 </form>
 </div>

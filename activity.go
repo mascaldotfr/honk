@@ -597,6 +597,33 @@ func rubadubdub(user *WhatAbout, req map[string]interface{}) {
 	stmtSaveDub.Exec(user.ID, actor, actor, "dub")
 }
 
+func itakeitallback(user *WhatAbout, xid string) error {
+	j := NewJunk()
+	j["@context"] = itiswhatitis
+	j["id"] = user.URL + "/unsub/" + xid
+	j["type"] = "Undo"
+	j["actor"] = user.URL
+	j["to"] = xid
+	f := NewJunk()
+	f["id"] = user.URL + "/sub/" + xid
+	f["type"] = "Follow"
+	f["actor"] = user.URL
+	f["to"] = xid
+	j["object"] = f
+	j["published"] = time.Now().UTC().Format(time.RFC3339)
+
+	box, err := getboxes(xid)
+	if err != nil {
+		return err
+	}
+	keyname, key := ziggy(user.Name)
+	err = PostJunk(keyname, key, box.In, j)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func subsub(user *WhatAbout, xid string) {
 	j := NewJunk()
 	j["@context"] = itiswhatitis

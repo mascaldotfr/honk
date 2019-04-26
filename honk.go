@@ -1017,6 +1017,29 @@ func savehonker(w http.ResponseWriter, r *http.Request) {
 	honkerid, _ := strconv.ParseInt(r.FormValue("honkerid"), 10, 0)
 
 	if honkerid > 0 {
+		goodbye := r.FormValue("goodbye")
+		if goodbye == "goodbye" {
+			db := opendatabase()
+			row := db.QueryRow("select xid from honkers where honkerid = ? and userid = ?",
+				honkerid, u.UserID)
+			var xid string
+			err := row.Scan(&xid)
+			if err != nil {
+				log.Printf("can't get honker xid: %s", err)
+				return
+			}
+			log.Printf("unsubscribing from %s", xid)
+			user, _ := butwhatabout(u.Username)
+			err = itakeitallback(user, xid)
+			if err != nil {
+				log.Printf("can't take it back: %s", err)
+			} else {
+				db.Exec("update honkers set flavor = 'unsub' where honkerid = ?", honkerid)
+			}
+
+			http.Redirect(w, r, "/honkers", http.StatusSeeOther)
+			return
+		}
 		combos = " " + strings.TrimSpace(combos) + " "
 		_, err := stmtUpdateHonker.Exec(combos, honkerid, u.UserID)
 		if err != nil {
@@ -1254,7 +1277,7 @@ func preparetodie(db *sql.DB, s string) *sql.Stmt {
 }
 
 func prepareStatements(db *sql.DB) {
-	stmtHonkers = preparetodie(db, "select honkerid, userid, name, xid, flavor, combos from honkers where userid = ? and flavor = 'sub' or flavor = 'peep'")
+	stmtHonkers = preparetodie(db, "select honkerid, userid, name, xid, flavor, combos from honkers where userid = ? and (flavor = 'sub' or flavor = 'peep' or flavor = 'unsub') order by name")
 	stmtSaveHonker = preparetodie(db, "insert into honkers (userid, name, xid, flavor, combos) values (?, ?, ?, ?, ?)")
 	stmtUpdateHonker = preparetodie(db, "update honkers set combos = ? where honkerid = ? and userid = ?")
 	stmtHasHonker = preparetodie(db, "select honkerid from honkers where xid = ? and userid = ?")
