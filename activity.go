@@ -22,6 +22,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"image"
 	"io"
 	"log"
 	"net/http"
@@ -217,7 +218,17 @@ func savedonk(url string, name, media string) *Donk {
 
 	xid := xfiltrate()
 
-	res, err := stmtSaveFile.Exec(xid, name, url, media, buf.Bytes())
+	data := buf.Bytes()
+	if strings.HasPrefix(media, "image") {
+		img, format, err := image.Decode(&buf)
+		if err != nil {
+			log.Printf("unable to decode image: %s", err)
+			return nil
+		}
+		data, format, err = vacuumwrap(img, format)
+		media = "image/" + format
+	}
+	res, err := stmtSaveFile.Exec(xid, name, url, media, data)
 	if err != nil {
 		log.Printf("error saving file %s: %s", url, err)
 		return nil

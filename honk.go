@@ -24,9 +24,6 @@ import (
 	"html"
 	"html/template"
 	"image"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
 	"io"
 	"log"
 	notrand "math/rand"
@@ -1129,7 +1126,7 @@ func killitwithfire(w http.ResponseWriter, r *http.Request) {
 	}
 	db := opendatabase()
 	db.Exec("insert into zonkers (userid, name, wherefore) values (?, ?, ?)",
-	userinfo.UserID, name, wherefore)
+		userinfo.UserID, name, wherefore)
 	if wherefore == "zonker" || wherefore == "zurl" {
 		bitethethumbs()
 	}
