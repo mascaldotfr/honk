@@ -1282,15 +1282,15 @@ func prepareStatements(db *sql.DB) {
 	stmtDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
 
 	selecthonks := "select honkid, honks.userid, username, what, honker, honks.xid, rid, dt, url, audience, noise, convoy from honks join users on honks.userid = users.userid "
-	limit := " order by honkid desc limit "
+	limit := " order by honkid desc limit 250"
 	stmtOneXonk = preparetodie(db, selecthonks+"where xid = ?")
-	stmtPublicHonks = preparetodie(db, selecthonks+"where honker = ''"+limit+"50")
-	stmtUserHonks = preparetodie(db, selecthonks+"where honker = '' and username = ?"+limit+"50")
-	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"+limit+"250")
-	stmtHonksForMe = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and whofore = 1 and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"+limit+"150")
-	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.name = ?"+limit+"50")
-	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.combos like ?"+limit+"50")
-	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or honker = '') and convoy = ?"+limit+"50")
+	stmtPublicHonks = preparetodie(db, selecthonks+"where honker = ''"+limit)
+	stmtUserHonks = preparetodie(db, selecthonks+"where honker = '' and username = ?"+limit)
+	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"+limit)
+	stmtHonksForMe = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and whofore = 1 and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"+limit)
+	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.name = ?"+limit)
+	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.combos like ?"+limit)
+	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or honker = '') and convoy = ?"+limit)
 
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	stmtFileData = preparetodie(db, "select media, content from files where xid = ?")
