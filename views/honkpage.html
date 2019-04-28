@@ -1,5 +1,5 @@
 {{ template "header.html" . }}
-<div class="center">
+<main>
 <div class="info" id="infobox">
 {{ if .Name }}
 <p>{{ .Name }} <span style="margin-left:1em;"><a href="/u/{{ .Name }}/rss">rss</a></span>
@@ -26,7 +26,7 @@
 {{ range .Honks }}
 {{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF }}
 {{ end }}
-</div>
+</main>
 {{ if $BonkCSRF }}
 <script>
 function encode(hash) {
