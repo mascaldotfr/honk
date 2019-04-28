@@ -50,6 +50,13 @@ func reverbolate(honks []*Honk) {
 				h.URL = h.XID
 			}
 		}
+		h.Privacy = "limited"
+		for _, a := range h.Audience {
+			if a == thewholeworld {
+				h.Privacy = ""
+				break
+			}
+		}
 		zap := make(map[*Donk]bool)
 		h.Noise = unpucker(h.Noise)
 		h.HTML = cleanstring(h.Noise)

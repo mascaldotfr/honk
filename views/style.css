@@ -150,6 +150,10 @@ button a {
 .zonked .noise a {
 	color: #a79;
 }
+.limited {
+	border: 1px solid #f04;
+	color: #a79;
+}
 .inlineform {
 	display: inline;
 }

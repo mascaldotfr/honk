@@ -61,6 +61,7 @@ type Honk struct {
 	Noise    string
 	Convoy   string
 	Audience []string
+	Privacy  string
 	HTML     template.HTML
 	Donks    []*Donk
 }
