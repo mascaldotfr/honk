@@ -21,7 +21,6 @@
 {{ template "honkform.html" . }}
 {{ end }}
 </div>
-<div>
 {{ $BonkCSRF := .HonkCSRF }}
 {{ range .Honks }}
 {{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF }}

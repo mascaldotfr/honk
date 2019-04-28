@@ -1,5 +1,5 @@
 {{ template "header.html" . }}
-<div class="center">
+<main>
 <div class="info">
 <p>
 <form action="/killitwithfire" method="POST">
@@ -21,7 +21,7 @@
 </div>
 {{ $killcsrf := .KillCSRF }}
 {{ range .Zonkers }}
-<div class="honk">
+<section class="honk">
 <p>What: {{ .Name }}
 <p>Where: {{ .Wherefore }}
 <form action="/killitwithfire" method="POST">
@@ -31,7 +31,6 @@
 <input type="submit" name="pardon" value="pardon">
 </form>
 <p>
-</div>
+</section>
 {{ end }}
-</div>
-</div>
+</main>

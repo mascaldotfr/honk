@@ -1,5 +1,5 @@
 {{ template "header.html" . }}
-<div class="center">
+<main>
 <div class="info">
 <p>
 <form action="/savehonker" method="POST">
@@ -14,11 +14,11 @@
 </div>
 {{ $honkercsrf := .HonkerCSRF }}
 {{ range .Honkers }}
-<div class="honk">
-<div class="title">
+<section class="honk">
+<header>
 <img alt="avatar" src="/a?a={{ .XID }}">
 <p style="font-size: 1.8em">{{ .Name }}
-</div>
+</header>
 <p>url: <a href="{{ .XID }}" rel=noreferrer>{{ .XID }}</a>
 <p>flavor: {{ .Flavor }}
 <p><a href="/h/{{ .Name }}">honks</a>
@@ -30,7 +30,6 @@
 <p>depart: <input type="text" name="goodbye" value="" autocomplete=off> (say "goodbye")
 <p><input type="submit" name="save" value="save">
 </form>
-</div>
+</section>
 {{ end }}
-</div>
-</div>
+</main>
