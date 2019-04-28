@@ -131,6 +131,7 @@ func GetJunk(url string) (map[string]interface{}, error) {
 	}
 	req.Header.Set("Accept", at)
 	req.Header.Set("Accept-Encoding", "gzip")
+	req.Header.Set("User-Agent", "honksnonk/5.0")
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
