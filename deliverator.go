@@ -115,7 +115,7 @@ func redeliverator() {
 			if !sleeper.Stop() {
 				<-sleeper.C
 			}
-			time.Sleep(1 * time.Minute)
+			time.Sleep(5 * time.Second)
 		case <-sleeper.C:
 		}
 
@@ -150,7 +150,7 @@ func redeliverator() {
 				nexttime = d.When
 			}
 		}
-		dur := nexttime.Sub(now).Round(time.Second) + 1*time.Minute
+		dur := nexttime.Sub(now).Round(time.Second) + 5*time.Second
 		sleeper.Reset(dur)
 	}
 }
