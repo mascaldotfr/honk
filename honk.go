@@ -372,7 +372,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		}
 	default:
 		xonk := xonkxonk(user, j)
-		if needxonk(user, xonk) {
+		if xonk != nil {
 			savexonk(user, xonk)
 		}
 	}

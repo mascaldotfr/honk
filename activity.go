@@ -240,9 +240,6 @@ func savedonk(url string, name, media string) *Donk {
 }
 
 func needxonk(user *WhatAbout, x *Honk) bool {
-	if x == nil {
-		return false
-	}
 	if x.What == "eradicate" {
 		return true
 	}
@@ -386,7 +383,7 @@ func peeppeep() {
 
 			for _, item := range items {
 				xonk := xonkxonk(user, item)
-				if needxonk(user, xonk) {
+				if xonk != nil {
 					savexonk(user, xonk)
 				}
 			}
@@ -442,8 +439,7 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 		}
 		depth++
 		xonk := xonkxonkfn(obj)
-		if needxonk(user, xonk) {
-			xonk.UserID = user.ID
+		if xonk != nil {
 			savexonk(user, xonk)
 		}
 		depth--
@@ -516,9 +512,6 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 				}
 				if what == "honk" && rid != "" {
 					what = "tonk"
-					if needxonkid(user, rid) {
-						saveoneup(rid)
-					}
 				}
 			}
 			if ot == "Tombstone" {
@@ -581,7 +574,15 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 		xonk.Audience = audience
 		xonk.Convoy = convoy
 
-		return &xonk
+		if needxonk(user, &xonk) {
+			if what == "tonk" {
+				if needxonkid(user, rid) {
+					saveoneup(rid)
+				}
+			}
+			return &xonk
+		}
+		return nil
 	}
 
 	return xonkxonkfn(item)
