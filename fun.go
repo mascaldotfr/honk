@@ -307,8 +307,10 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 			log.Printf("error decoding %s pubkey: %s", keyname, err)
 			return
 		}
-		db.Exec("insert into xonkers (xid, ibox, obox, sbox, pubkey) values (?, ?, ?, ?, ?)",
-			keyname, "", "", "", data)
+		_, err = stmtSaveBoxes.Exec(keyname, "", "", "", data)
+		if err != nil {
+			log.Printf("error saving key: %s", err)
+		}
 	} else {
 		_, key, err = pez(data)
 		if err != nil {
@@ -324,7 +326,10 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 
 func makeitworksomehowwithoutregardforkeycontinuity(keyname string, r *http.Request, payload []byte) (string, error) {
 	db := opendatabase()
-	db.Exec("delete from xonkers where xid = ?", keyname)
+	_, err := db.Exec("delete from xonkers where xid = ?", keyname)
+	if err != nil {
+		log.Printf("error deleting key: %s", err)
+	}
 	ziggylock.Lock()
 	delete(zaggies, keyname)
 	ziggylock.Unlock()
