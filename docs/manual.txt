@@ -21,13 +21,14 @@ like https://example.com/users/name. Note that the commonly seen URL with
 Followed honkers may be assigned to combos, listing all their honks together.
 
 Selecting just peeping won't actually follow them. (Incomplete feature.)
+Cant be useful for managing as part of a combo, however.
 
 -- zonking
 
 You can zonk anything you like (or dislike), either your own honk or
 those of others that you're tired of seeing. This reduces its visibility, but
 doesn't attempt to delete it, which is infeasible.
-It's more like disavow.
+It's more like disavow or disregard.
 
 The killzone supports blocking unwanted contacts. One may block an actor
 (zonker), a domain (zurl), or thread (zonvoy).
@@ -37,6 +38,8 @@ The killzone supports blocking unwanted contacts. One may block an actor
 Honks are public. Welcome to the internet.
 
 Received messages are only visible when logged in, regardless of addressing.
+
+Recevied messages that are less than public are tagged with a red border.
 
 -- css
 

@@ -21,9 +21,13 @@ A random drift of up to 10% is added to each delay to avoid swarming.
 -- federating
 
 Messages are transformed for federation and display. Some transformations
-occur send side and some occur receive client because it's more exciting that
+occur send side and some occur receive side because it's more exciting that
 way. @mentions and *markdown* are converted to HTML before transmission.
 Message :emoji: are converted to inline images after receiving.
+
+Up to four parents of a reply will be fetched.
+
+Attachments for received messages are rescaled before saving.
 
 -- schema
 
@@ -33,8 +37,8 @@ for administration as well.
 The config table contains settings, some of which may not be editable via the
 normal interface.
 
-For development purposes, adding a config value (debug, 1) to the database
-will disable caching and hot reload templates. It's not meant to be
+For development purposes, adding a config value ('debug', 1) to the database
+will disable caching and hot reload the templates. It's not meant to be
 harmful in production, just less efficient.
 
 We don't use null, only empty strings. This is easier to work with on the go
@@ -52,12 +56,15 @@ deleted, zonk. If shared, bonk. In particular for the case of bonk, there
 aren't enough columns to store original honker and bonker. This seems to work
 out okay though.
 
+Attachments are physically saved as files, and logically joined to honks via
+the donks table. Emus are saved as donks as well.
+
 The honkers table is used to manage follows and followers. The flavor column
 describes what. 'sub' is a follow. We have subscribed to their newsletter.
 'dub' is a follower. They get dubbed whenever we honk.
 
 The xonkers table stores info about external accounts that we may interact
-with. Their keys, their inboxes, etc.
+with. Their keys, their inboxes, etc. Not user visible.
 
 The zonkers table stores things we do not wish to see, per the wherefore
 column. zonkers are bad people, zurls are bad hosts, zonvoys are bad threads.

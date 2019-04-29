@@ -17,6 +17,9 @@ If the key is only used for signing http requests, it can be be changed
 basically at will. Change the key in the actor, give it a new name (to avoid
 conflict with any cached keys), carry on.
 
+Since keynames in practice don't change, honk will simply discard a key after
+a signature failure and attempt to get a fresh key.
+
 Using keys to sign json is more complicated. The current practice is to name
 keys with URL fragments. example.com/user#key. If the keyname is changed to
 #newkey, how does one fetch the old key to verify existing data?
