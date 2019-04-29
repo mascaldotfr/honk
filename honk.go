@@ -428,7 +428,7 @@ func emptiness(w http.ResponseWriter, r *http.Request) {
 	WriteJunk(w, j)
 }
 
-func viewuser(w http.ResponseWriter, r *http.Request) {
+func showuser(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	user, err := butwhatabout(name)
 	if err != nil {
@@ -447,20 +447,20 @@ func viewuser(w http.ResponseWriter, r *http.Request) {
 	honkpage(w, r, u, user, honks, "")
 }
 
-func viewhonker(w http.ResponseWriter, r *http.Request) {
+func showhonker(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	u := login.GetUserInfo(r)
 	honks := gethonksbyhonker(u.UserID, name)
 	honkpage(w, r, u, nil, honks, "honks by honker: "+name)
 }
 
-func viewcombo(w http.ResponseWriter, r *http.Request) {
+func showcombo(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	u := login.GetUserInfo(r)
 	honks := gethonksbycombo(u.UserID, name)
 	honkpage(w, r, u, nil, honks, "honks by combo: "+name)
 }
-func viewconvoy(w http.ResponseWriter, r *http.Request) {
+func showconvoy(w http.ResponseWriter, r *http.Request) {
 	c := r.FormValue("c")
 	var userid int64 = -1
 	u := login.GetUserInfo(r)
@@ -520,7 +520,7 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 	WriteJunk(w, j)
 }
 
-func viewhonk(w http.ResponseWriter, r *http.Request) {
+func showhonk(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	xid := mux.Vars(r)["xid"]
 	user, err := butwhatabout(name)
@@ -964,7 +964,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func viewhonkers(w http.ResponseWriter, r *http.Request) {
+func showhonkers(w http.ResponseWriter, r *http.Request) {
 	userinfo := login.GetUserInfo(r)
 	templinfo := getInfo(r)
 	templinfo["Honkers"] = gethonkers(userinfo.UserID)
@@ -1232,15 +1232,15 @@ func serve() {
 
 	getters.HandleFunc("/", homepage)
 	getters.HandleFunc("/rss", showrss)
-	getters.HandleFunc("/u/{name:[[:alnum:]]+}", viewuser)
-	getters.HandleFunc("/u/{name:[[:alnum:]]+}/h/{xid:[[:alnum:]]+}", viewhonk)
+	getters.HandleFunc("/u/{name:[[:alnum:]]+}", showuser)
+	getters.HandleFunc("/u/{name:[[:alnum:]]+}/h/{xid:[[:alnum:]]+}", showhonk)
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}/rss", showrss)
 	posters.HandleFunc("/u/{name:[[:alnum:]]+}/inbox", inbox)
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}/outbox", outbox)
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}/followers", emptiness)
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}/following", emptiness)
 	getters.HandleFunc("/a", avatate)
-	getters.HandleFunc("/t", viewconvoy)
+	getters.HandleFunc("/t", showconvoy)
 	getters.HandleFunc("/d/{xid:[[:alnum:].]+}", servefile)
 	getters.HandleFunc("/emu/{xid:[[:alnum:]_.]+}", serveemu)
 	getters.HandleFunc("/.well-known/webfinger", fingerlicker)
@@ -1260,9 +1260,9 @@ func serve() {
 	loggedin.Handle("/zonkit", login.CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
 	loggedin.Handle("/killitwithfire", login.CSRFWrap("killitwithfire", http.HandlerFunc(killitwithfire)))
 	loggedin.Handle("/saveuser", login.CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
-	loggedin.HandleFunc("/honkers", viewhonkers)
-	loggedin.HandleFunc("/h/{name:[[:alnum:]]+}", viewhonker)
-	loggedin.HandleFunc("/c/{name:[[:alnum:]]+}", viewcombo)
+	loggedin.HandleFunc("/honkers", showhonkers)
+	loggedin.HandleFunc("/h/{name:[[:alnum:]]+}", showhonker)
+	loggedin.HandleFunc("/c/{name:[[:alnum:]]+}", showcombo)
 	loggedin.Handle("/savehonker", login.CSRFWrap("savehonker", http.HandlerFunc(savehonker)))
 
 	err = http.Serve(listener, mux)
