@@ -661,12 +661,12 @@ func gethonksforme(userid int64) []*Honk {
 	return getsomehonks(rows, err)
 }
 func gethonksbyhonker(userid int64, honker string) []*Honk {
-	rows, err := stmtHonksByHonker.Query(userid, honker)
+	rows, err := stmtHonksByHonker.Query(userid, honker, userid)
 	return getsomehonks(rows, err)
 }
 func gethonksbycombo(userid int64, combo string) []*Honk {
 	combo = "% " + combo + " %"
-	rows, err := stmtHonksByCombo.Query(userid, combo)
+	rows, err := stmtHonksByCombo.Query(userid, combo, userid)
 	return getsomehonks(rows, err)
 }
 func gethonksbyconvoy(userid int64, convoy string) []*Honk {
