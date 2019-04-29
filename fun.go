@@ -385,7 +385,7 @@ func thoudostbitethythumb(userid int64, who []string, objid string) bool {
 	return false
 }
 
-func keymatch(keyname string, actor string, userid int64) bool {
+func keymatch(keyname string, actor string, what string, userid int64) bool {
 	hash := strings.IndexByte(keyname, '#')
 	if hash == -1 {
 		hash = len(keyname)
@@ -393,6 +393,9 @@ func keymatch(keyname string, actor string, userid int64) bool {
 	owner := keyname[0:hash]
 	if owner == actor {
 		return true
+	}
+	if what != "Create" {
+		return false
 	}
 	row := stmtHasHonker.QueryRow(owner, userid)
 	var id int64

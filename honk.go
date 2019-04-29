@@ -314,7 +314,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	who, _ := jsongetstring(j, "actor")
-	if !keymatch(keyname, who, user.ID) {
+	if !keymatch(keyname, who, what, user.ID) {
 		log.Printf("keyname actor mismatch: %s <> %s", keyname, who)
 		return
 	}
