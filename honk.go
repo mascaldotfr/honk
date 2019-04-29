@@ -37,6 +37,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"humungus.tedunangst.com/r/webs/login"
+	"humungus.tedunangst.com/r/webs/templates"
 )
 
 type WhatAbout struct {
@@ -87,7 +88,7 @@ type Honker struct {
 var serverName string
 var iconName = "icon.png"
 
-var readviews *Template
+var readviews *templates.Template
 
 func getInfo(r *http.Request) map[string]interface{} {
 	templinfo := make(map[string]interface{})
@@ -145,7 +146,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "max-age=0")
 	}
 	w.Header().Set("Last-Modified", modtime.Format(http.TimeFormat))
-	err := readviews.ExecuteTemplate(w, "honkpage.html", templinfo)
+	err := readviews.Execute(w, "honkpage.html", templinfo)
 	if err != nil {
 		log.Print(err)
 	}
@@ -566,7 +567,7 @@ func honkpage(w http.ResponseWriter, r *http.Request, u *login.UserInfo, user *W
 	}
 	templinfo["Honks"] = honks
 	templinfo["ServerMessage"] = infomsg
-	err := readviews.ExecuteTemplate(w, "honkpage.html", templinfo)
+	err := readviews.Execute(w, "honkpage.html", templinfo)
 	if err != nil {
 		log.Print(err)
 	}
@@ -968,7 +969,7 @@ func viewhonkers(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
 	templinfo["Honkers"] = gethonkers(userinfo.UserID)
 	templinfo["HonkerCSRF"] = login.GetCSRF("savehonker", r)
-	err := readviews.ExecuteTemplate(w, "honkers.html", templinfo)
+	err := readviews.Execute(w, "honkers.html", templinfo)
 	if err != nil {
 		log.Print(err)
 	}
@@ -1107,7 +1108,7 @@ func killzone(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
 	templinfo["Zonkers"] = zonkers
 	templinfo["KillCSRF"] = login.GetCSRF("killitwithfire", r)
-	err = readviews.ExecuteTemplate(w, "zonkers.html", templinfo)
+	err = readviews.Execute(w, "zonkers.html", templinfo)
 	if err != nil {
 		log.Print(err)
 	}
@@ -1165,7 +1166,7 @@ func servecss(w http.ResponseWriter, r *http.Request) {
 }
 func servehtml(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
-	err := readviews.ExecuteTemplate(w, r.URL.Path[1:]+".html", templinfo)
+	err := readviews.Execute(w, r.URL.Path[1:]+".html", templinfo)
 	if err != nil {
 		log.Print(err)
 	}
@@ -1205,7 +1206,7 @@ func serve() {
 
 	debug := false
 	getconfig("debug", &debug)
-	readviews = ParseTemplates(debug,
+	readviews = templates.Load(debug,
 		"views/honkpage.html",
 		"views/honkers.html",
 		"views/zonkers.html",
