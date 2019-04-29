@@ -8,6 +8,8 @@ Join the federation in the fight against the evil empire.
 Send honks. Receive honks. And not just honks.
 Bonk, donk, tonk, all your favorite activities are here.
 
+Public RSS.
+
 Custom emus.
 
 Purple color scheme.
@@ -17,11 +19,13 @@ No likes, no faves, no polls, no stars, no claps, no counts.
 
 The button to submit a new honk says "it's gonna be honked".
 
+Avatars assigned by the NSA.
+
 Ein Honk is a stupid person auf deutsch.
 
-Minimal setup and configuration.
+Automatic image attachment debloating.
 
-No keybase support.
+Minimal setup and configuration.
 
 Written in gotesque, an especially grotesque dialect of golang.
 
@@ -36,12 +40,9 @@ Even on a fast machine, building from source can take several seconds.
 
 libsqlite3 (you probably already have it)
 
-go modules included in vendor:
-github.com/gorilla/mux
-github.com/mattn/go-runewidth
-golang.org/x/crypto
-golang.org/x/net
-humungus.tedunangst.com/r/go-sqlite3
+go 1.11+
+
+Internet connection not included.
 
 -- setup
 
