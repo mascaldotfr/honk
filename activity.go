@@ -327,9 +327,7 @@ func getboxes(ident string) (*Box, error) {
 		return b, nil
 	}
 
-	db := opendatabase()
-
-	row := db.QueryRow("select ibox, obox, sbox from xonkers where xid = ?", ident)
+	row := stmtGetBoxes.QueryRow(ident)
 	b = &Box{}
 	err := row.Scan(&b.In, &b.Out, &b.Shared)
 	if err != nil {
@@ -342,8 +340,10 @@ func getboxes(ident string) (*Box, error) {
 		sbox, _ := jsonfindstring(j, []string{"endpoints", "sharedInbox"})
 		b = &Box{In: inbox, Out: outbox, Shared: sbox}
 		if inbox != "" {
-			db.Exec("insert into xonkers (xid, ibox, obox, sbox, pubkey) values (?, ?, ?, ?, ?)",
-				ident, inbox, outbox, sbox, "")
+			_, err = stmtSaveBoxes.Exec(ident, inbox, outbox, sbox, "")
+			if err != nil {
+				log.Printf("error saving boxes: %s", err)
+			}
 		}
 	}
 	boxlock.Lock()

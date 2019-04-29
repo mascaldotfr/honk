@@ -344,9 +344,12 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			log.Printf("can't follow %s", obj)
 		}
 	case "Accept":
-		db := opendatabase()
 		log.Printf("updating honker accept: %s", who)
-		db.Exec("update honkers set flavor = 'sub' where userid = ? and xid = ? and flavor = 'presub'", user.ID, who)
+		_, err = stmtUpdateFlavor.Exec("sub", user.ID, who, "presub")
+		if err != nil {
+			log.Printf("error updating honker: %s", err)
+			return
+		}
 	case "Undo":
 		obj, ok := jsongetmap(j, "object")
 		if !ok {
@@ -356,8 +359,11 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			switch what {
 			case "Follow":
 				log.Printf("updating honker undo: %s", who)
-				db := opendatabase()
-				db.Exec("update honkers set flavor = 'undub' where userid = ? and xid = ? and flavor = 'dub'", user.ID, who)
+				_, err = stmtUpdateFlavor.Exec("undub", user.ID, who, "dub")
+				if err != nil {
+					log.Printf("error updating honker: %s", err)
+					return
+				}
 			case "Like":
 			default:
 				log.Printf("unknown undo: %s", what)
@@ -809,9 +815,11 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	if wherefore == "zonk" {
 		stmtZonkIt.Exec(userinfo.UserID, what)
 	} else {
-		db := opendatabase()
-		db.Exec("insert into zonkers (userid, name, wherefore) values (?, ?, ?)",
-			userinfo.UserID, what, wherefore)
+		_, err := stmtSaveZonker.Exec(userinfo.UserID, what, wherefore)
+		if err != nil {
+			log.Printf("error saving zonker: %s", err)
+			return
+		}
 	}
 }
 
@@ -1032,14 +1040,18 @@ func savehonker(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Printf("can't take it back: %s", err)
 			} else {
-				db.Exec("update honkers set flavor = 'unsub' where honkerid = ?", honkerid)
+				_, err = stmtUpdateFlavor.Exec("unsub", u.UserID, xid, "sub")
+				if err != nil {
+					log.Printf("error updating honker: %s", err)
+					return
+				}
 			}
 
 			http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 			return
 		}
 		combos = " " + strings.TrimSpace(combos) + " "
-		_, err := stmtUpdateHonker.Exec(combos, honkerid, u.UserID)
+		_, err := stmtUpdateCombos.Exec(combos, honkerid, u.UserID)
 		if err != nil {
 			log.Printf("update honker err: %s", err)
 			return
@@ -1258,13 +1270,14 @@ func serve() {
 	}
 }
 
-var stmtHonkers, stmtDubbers, stmtSaveHonker, stmtUpdateHonker *sql.Stmt
+var stmtHonkers, stmtDubbers, stmtSaveHonker, stmtUpdateFlavor, stmtUpdateCombos *sql.Stmt
 var stmtOneXonk, stmtPublicHonks, stmtUserHonks, stmtHonksByCombo, stmtHonksByConvoy *sql.Stmt
 var stmtHonksForUser, stmtHonksForMe, stmtDeleteHonk, stmtSaveDub *sql.Stmt
 var stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
 var stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
-var stmtHasHonker, stmtThumbBiters, stmtZonkIt *sql.Stmt
+var stmtHasHonker, stmtThumbBiters, stmtZonkIt, stmtSaveZonker *sql.Stmt
+var stmtGetBoxes, stmtSaveBoxes *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -1277,7 +1290,8 @@ func preparetodie(db *sql.DB, s string) *sql.Stmt {
 func prepareStatements(db *sql.DB) {
 	stmtHonkers = preparetodie(db, "select honkerid, userid, name, xid, flavor, combos from honkers where userid = ? and (flavor = 'sub' or flavor = 'peep' or flavor = 'unsub') order by name")
 	stmtSaveHonker = preparetodie(db, "insert into honkers (userid, name, xid, flavor, combos) values (?, ?, ?, ?, ?)")
-	stmtUpdateHonker = preparetodie(db, "update honkers set combos = ? where honkerid = ? and userid = ?")
+	stmtUpdateFlavor = preparetodie(db, "update honkers set flavor = ? where userid = ? and xid = ? and flavor = ?")
+	stmtUpdateCombos = preparetodie(db, "update honkers set combos = ? where honkerid = ? and userid = ?")
 	stmtHasHonker = preparetodie(db, "select honkerid from honkers where xid = ? and userid = ?")
 	stmtDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
 
@@ -1308,6 +1322,9 @@ func prepareStatements(db *sql.DB) {
 	stmtZapDoover = preparetodie(db, "delete from doovers where dooverid = ?")
 	stmtZonkIt = preparetodie(db, "update honks set what = 'zonk' where userid = ? and xid = ?")
 	stmtThumbBiters = preparetodie(db, "select userid, name, wherefore from zonkers where (wherefore = 'zonker' or wherefore = 'zurl')")
+	stmtSaveZonker = preparetodie(db, "insert into zonkers (userid, name, wherefore) values (?, ?, ?)")
+	stmtGetBoxes = preparetodie(db, "select ibox, obox, sbox from xonkers where xid = ?")
+	stmtSaveBoxes = preparetodie(db, "insert into xonkers (xid, ibox, obox, sbox, pubkey) values (?, ?, ?, ?, ?)")
 }
 
 func ElaborateUnitTests() {
