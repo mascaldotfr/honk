@@ -58,7 +58,7 @@ func blend(d []byte, s1, s2, s3, s4 int) byte {
 }
 
 func squish(d []byte, s1, s2, s3, s4 int) byte {
-	return uint8((uint32(s1) + uint32(s2)) / 2)
+	return uint8((uint32(d[s1]) + uint32(d[s2]) + uint32(d[s3]) + uint32(d[s4])) / 4)
 }
 
 func vacuumwrap(img image.Image, format string) ([]byte, string, error) {
