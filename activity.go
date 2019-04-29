@@ -22,6 +22,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"html"
 	"image"
 	"io"
 	"log"
@@ -538,7 +539,13 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 						if donk != nil {
 							xonk.Donks = append(xonk.Donks, donk)
 						}
+					} else {
+						u = html.EscapeString(u)
+						content += fmt.Sprintf(
+							`<p>External attachment: <a href="%s" rel=noreferrer>%s</a>`, u, u)
 					}
+				} else {
+					log.Printf("unknown attachment: %s", at)
 				}
 			}
 			tags, _ := jsongetarray(obj, "tag")
