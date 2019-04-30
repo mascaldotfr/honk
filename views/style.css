@@ -175,10 +175,10 @@ img.emu {
 	.info textarea {
 		width: 20em;
 	}
-	.honk .title {
+	.honk header {
 		height: 48px;
 	}
-	.honk .title img {
+	.honk header img {
 		width: 48px;
 		height: 48px;
 	}
