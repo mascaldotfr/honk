@@ -975,6 +975,23 @@ func showhonkers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func showcombos(w http.ResponseWriter, r *http.Request) {
+	userinfo := login.GetUserInfo(r)
+	templinfo := getInfo(r)
+	honkers := gethonkers(userinfo.UserID)
+	var combos []string
+	for _, h := range honkers {
+		combos = append(combos, h.Combos...)
+	}
+	combos = oneofakind(combos)
+	sort.Strings(combos)
+	templinfo["Combos"] = combos
+	err := readviews.Execute(w, "combos.html", templinfo)
+	if err != nil {
+		log.Print(err)
+	}
+}
+
 var handfull = make(map[string]string)
 var handlock sync.Mutex
 
@@ -1210,6 +1227,7 @@ func serve() {
 		"views/honkpage.html",
 		"views/honkers.html",
 		"views/zonkers.html",
+		"views/combos.html",
 		"views/honkform.html",
 		"views/honk.html",
 		"views/login.html",
@@ -1263,6 +1281,7 @@ func serve() {
 	loggedin.HandleFunc("/honkers", showhonkers)
 	loggedin.HandleFunc("/h/{name:[[:alnum:]]+}", showhonker)
 	loggedin.HandleFunc("/c/{name:[[:alnum:]]+}", showcombo)
+	loggedin.HandleFunc("/c", showcombos)
 	loggedin.Handle("/savehonker", login.CSRFWrap("savehonker", http.HandlerFunc(savehonker)))
 
 	err = http.Serve(listener, mux)
