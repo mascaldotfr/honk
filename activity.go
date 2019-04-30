@@ -244,7 +244,7 @@ func needxonk(user *WhatAbout, x *Honk) bool {
 		return true
 	}
 	if thoudostbitethythumb(user.ID, x.Audience, x.XID) {
-		log.Printf("not saving thumb biter? %s", x.Honker)
+		log.Printf("not saving thumb biter? %s via %s", x.XID, x.Honker)
 		return false
 	}
 	return needxonkid(user, x.XID)
