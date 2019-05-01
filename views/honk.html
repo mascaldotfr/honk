@@ -28,8 +28,10 @@ convoy: <a href="/t?c={{ .Convoy }}">{{ .Convoy }}</a>
 {{ if and .BonkCSRF (not (eq .Honk.What "zonked")) }}
 <p>
 <div>
+{{ if not .Honk.Privacy }}
 <button onclick="bonk(this, '{{ .Honk.XID }}'); return false;"><a href="/bonk">bonk</a></button>
 <button onclick="showhonkform('{{ .Honk.XID }}', '{{ .Honk.Username }}'); return false;"><a href="/newhonk">tonk</a></button>
+{{ end }}
 <form class="inlineform" action="/zonkit" method="POST">
 <input type="hidden" name="CSRF" value="{{ .BonkCSRF }}">
 <input type="hidden" name="honk" value="{{ .Honk.XID }}">
