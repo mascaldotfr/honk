@@ -523,7 +523,7 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 				mt, _ := jsongetstring(att, "mediaType")
 				u, _ := jsongetstring(att, "url")
 				name, _ := jsongetstring(att, "name")
-				if at == "Document" {
+				if at == "Document" || at == "Image" {
 					mt = strings.ToLower(mt)
 					log.Printf("attachment: %s %s", mt, u)
 					if mt == "image/jpeg" || mt == "image/png" ||
