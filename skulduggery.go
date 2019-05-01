@@ -29,13 +29,15 @@ var bigitalshitz = "𝑨𝑩𝑪𝑫𝑬𝑭𝑮𝑯𝑰𝑱𝑲𝑳𝑴𝑵𝑶
 var lilitalshitz = "𝒂𝒃𝒄𝒅𝒆𝒇𝒈𝒉𝒊𝒋𝒌𝒍𝒎𝒏𝒐𝒑𝒒𝒓𝒔𝒕𝒖𝒗𝒘𝒙𝒚𝒛"
 var bigbangshitz = "𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ"
 var lilbangshitz = "𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫"
+var bigblokshitz = "🅰🅱🅲🅳🅴🅵🅶🅷🅸🅹🅺🅻🅼🅽🅾🅿🆀🆁🆂🆃🆄🆅🆆🆇🆈🆉"
 
 var re_alltheshitz = regexp.MustCompile(`([` +
 	bigboldshitz + lilboldshitz +
 	biggothshitz + lilgothshitz +
 	bigitalshitz + lilitalshitz +
 	bigbangshitz + lilbangshitz +
-	`] ?){3,}`)
+	bigblokshitz +
+	"][ \ufe0f]?){3,}")
 
 // this may not be especially fast
 func unpucker(s string) string {
@@ -49,7 +51,7 @@ func unpucker(s string) string {
 				x[xi] =  ' '
 				continue
 			}
-			for _, set := range []string{bigboldshitz, biggothshitz, bigitalshitz, bigbangshitz} {
+			for _, set := range []string{bigboldshitz, biggothshitz, bigitalshitz, bigbangshitz, bigblokshitz} {
 				i := 0
 				for _, rr := range set {
 					if rr == c {
