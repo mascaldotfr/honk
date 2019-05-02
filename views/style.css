@@ -141,6 +141,7 @@ button a {
 	color: #aab;
 }
 .zonked {
+	color: #a79;
 }
 .zonked .noise {
 	color: #a79;
@@ -151,7 +152,13 @@ button a {
 	color: #a79;
 }
 .limited {
-	border: 1px solid #f04;
+	border: 1px solid #a04;
+	color: #a79;
+}
+.limited .noise {
+	color: #a79;
+}
+.limited .noise a {
 	color: #a79;
 }
 .inlineform {
