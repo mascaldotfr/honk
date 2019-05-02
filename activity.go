@@ -518,12 +518,12 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 				rid, _ = jsongetstring(obj, "id")
 			}
 			atts, _ := jsongetarray(obj, "attachment")
-			for _, att := range atts {
+			for i, att := range atts {
 				at, _ := jsongetstring(att, "type")
 				mt, _ := jsongetstring(att, "mediaType")
 				u, _ := jsongetstring(att, "url")
 				name, _ := jsongetstring(att, "name")
-				if at == "Document" || at == "Image" {
+				if i < 4 && (at == "Document" || at == "Image") {
 					mt = strings.ToLower(mt)
 					log.Printf("attachment: %s %s", mt, u)
 					if mt == "image/jpeg" || mt == "image/png" ||
