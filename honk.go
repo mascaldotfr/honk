@@ -115,9 +115,6 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	} else {
 		honks = getpublichonks()
 	}
-	sort.Slice(honks, func(i, j int) bool {
-		return honks[i].Date.After(honks[j].Date)
-	})
 
 	var modtime time.Time
 	if len(honks) > 0 {
@@ -161,9 +158,6 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 	} else {
 		honks = getpublichonks()
 	}
-	sort.Slice(honks, func(i, j int) bool {
-		return honks[i].Date.After(honks[j].Date)
-	})
 	reverbolate(honks)
 
 	home := fmt.Sprintf("https://%s/", serverName)
@@ -183,11 +177,7 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 	var modtime time.Time
-	past := time.Now().UTC().Add(-3 * 24 * time.Hour)
 	for _, honk := range honks {
-		if honk.Date.Before(past) {
-			break
-		}
 		desc := string(honk.HTML)
 		for _, d := range honk.Donks {
 			desc += fmt.Sprintf(`<p><a href="%sd/%s">Attachment: %s</a>`,
