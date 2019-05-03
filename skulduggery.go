@@ -48,7 +48,7 @@ func unpucker(s string) string {
 		for _, c := range r {
 			xi++
 			if c == ' ' {
-				x[xi] =  ' '
+				x[xi] = ' '
 				continue
 			}
 			for _, set := range []string{bigboldshitz, biggothshitz, bigitalshitz, bigbangshitz, bigblokshitz} {
