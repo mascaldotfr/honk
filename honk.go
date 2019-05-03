@@ -650,21 +650,23 @@ func getxonk(name, xid string) *Honk {
 }
 
 func getpublichonks() []*Honk {
-	rows, err := stmtPublicHonks.Query()
+	dt := time.Now().UTC().Add(-2 * 24 * time.Hour).Format(dbtimeformat)
+	rows, err := stmtPublicHonks.Query(dt)
 	return getsomehonks(rows, err)
 }
 func gethonksbyuser(name string) []*Honk {
-	rows, err := stmtUserHonks.Query(name)
+	dt := time.Now().UTC().Add(-2 * 24 * time.Hour).Format(dbtimeformat)
+	rows, err := stmtUserHonks.Query(name, dt)
 	return getsomehonks(rows, err)
 }
 func gethonksforuser(userid int64) []*Honk {
-	dt := time.Now().UTC().Add(-2 * 24 * time.Hour)
-	rows, err := stmtHonksForUser.Query(userid, dt.Format(dbtimeformat), userid)
+	dt := time.Now().UTC().Add(-2 * 24 * time.Hour).Format(dbtimeformat)
+	rows, err := stmtHonksForUser.Query(userid, dt, userid)
 	return getsomehonks(rows, err)
 }
 func gethonksforme(userid int64) []*Honk {
-	dt := time.Now().UTC().Add(-4 * 24 * time.Hour)
-	rows, err := stmtHonksForMe.Query(userid, dt.Format(dbtimeformat), userid)
+	dt := time.Now().UTC().Add(-4 * 24 * time.Hour).Format(dbtimeformat)
+	rows, err := stmtHonksForMe.Query(userid, dt, userid)
 	return getsomehonks(rows, err)
 }
 func gethonksbyhonker(userid int64, honker string) []*Honk {
@@ -1330,8 +1332,8 @@ func prepareStatements(db *sql.DB) {
 	limit := " order by honkid desc limit 250"
 	butnotthose := " and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"
 	stmtOneXonk = preparetodie(db, selecthonks+"where xid = ?")
-	stmtPublicHonks = preparetodie(db, selecthonks+"where honker = ''"+limit)
-	stmtUserHonks = preparetodie(db, selecthonks+"where honker = '' and username = ?"+limit)
+	stmtPublicHonks = preparetodie(db, selecthonks+"where honker = '' and dt > ?"+limit)
+	stmtUserHonks = preparetodie(db, selecthonks+"where honker = '' and username = ? and dt > ?"+limit)
 	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ?"+butnotthose+limit)
 	stmtHonksForMe = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and whofore = 1"+butnotthose+limit)
 	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.name = ?"+butnotthose+limit)
