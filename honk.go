@@ -877,6 +877,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	if convoy == "" {
 		convoy = "data:,electrichonkytonk-" + xfiltrate()
 	}
+	butnottooloud(honk.Audience)
 	honk.Audience = oneofakind(honk.Audience)
 	noise = obfusbreak(noise)
 	honk.Noise = noise
