@@ -140,17 +140,6 @@ button a {
 .tonked .noise a {
 	color: #aab;
 }
-.zonked {
-	color: #a79;
-}
-.zonked .noise {
-	color: #a79;
-	font-size: 0.8em;
-	text-decoration: line-through;
-}
-.zonked .noise a {
-	color: #a79;
-}
 .limited {
 	border: 1px solid #a04;
 	color: #a79;

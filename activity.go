@@ -680,22 +680,14 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 	}
 
 	switch h.What {
-	case "zonk":
-		fallthrough
 	case "tonk":
 		fallthrough
 	case "honk":
 		j["type"] = "Create"
-		if h.What == "zonk" {
-			j["type"] = "Delete"
-		}
 
 		jo = NewJunk()
 		jo["id"] = user.URL + "/h/" + h.XID
 		jo["type"] = "Note"
-		if h.What == "zonk" {
-			jo["type"] = "Tombstone"
-		}
 		jo["published"] = dt
 		jo["url"] = user.URL + "/h/" + h.XID
 		jo["attributedTo"] = user.URL
@@ -756,6 +748,9 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 	case "bonk":
 		j["type"] = "Announce"
 		j["object"] = h.XID
+	case "zonk":
+		j["type"] = "Delete"
+		j["object"] = user.URL + "/h/" + h.XID
 	}
 
 	return j, jo

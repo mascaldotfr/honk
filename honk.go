@@ -711,9 +711,6 @@ func donksforhonks(honks []*Honk) {
 	var ids []string
 	hmap := make(map[int64]*Honk)
 	for _, h := range honks {
-		if h.What == "zonk" {
-			continue
-		}
 		ids = append(ids, fmt.Sprintf("%d", h.ID))
 		hmap[h.ID] = h
 	}
@@ -814,7 +811,20 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	log.Printf("zonking %s %s", wherefore, what)
 	userinfo := login.GetUserInfo(r)
 	if wherefore == "zonk" {
+		xonk := getxonk(userinfo.Username, what)
 		stmtZonkIt.Exec(userinfo.UserID, what)
+		if xonk != nil && xonk.Honker == "" {
+			zonk := Honk{
+				What:     "zonk",
+				XID:      xonk.XID,
+				Date:     time.Now().UTC(),
+				Audience: oneofakind(xonk.Audience),
+			}
+
+			user, _ := butwhatabout(userinfo.Username)
+			log.Printf("announcing deleted honk: %s", what)
+			go honkworldwide(user, &zonk)
+		}
 	} else {
 		_, err := stmtSaveZonker.Exec(userinfo.UserID, what, wherefore)
 		if err != nil {
@@ -1331,7 +1341,8 @@ func prepareStatements(db *sql.DB) {
 	stmtFileData = preparetodie(db, "select media, content from files where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")
-	stmtDeleteHonk = preparetodie(db, "update honks set what = 'zonk' where xid = ? and honker = ? and userid = ?")
+	stmtDeleteHonk = preparetodie(db, "delete from honks where xid = ? and honker = ? and userid = ?")
+	stmtZonkIt = preparetodie(db, "delete from honks where userid = ? and xid = ?")
 	stmtFindFile = preparetodie(db, "select fileid from files where url = ?")
 	stmtSaveFile = preparetodie(db, "insert into files (xid, name, url, media, content) values (?, ?, ?, ?, ?)")
 	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey from users where username = ?")
@@ -1340,7 +1351,6 @@ func prepareStatements(db *sql.DB) {
 	stmtGetDoovers = preparetodie(db, "select dooverid, dt from doovers")
 	stmtLoadDoover = preparetodie(db, "select tries, username, rcpt, msg from doovers where dooverid = ?")
 	stmtZapDoover = preparetodie(db, "delete from doovers where dooverid = ?")
-	stmtZonkIt = preparetodie(db, "update honks set what = 'zonk' where userid = ? and xid = ?")
 	stmtThumbBiters = preparetodie(db, "select userid, name, wherefore from zonkers where (wherefore = 'zonker' or wherefore = 'zurl')")
 	stmtSaveZonker = preparetodie(db, "insert into zonkers (userid, name, wherefore) values (?, ?, ?)")
 	stmtGetBoxes = preparetodie(db, "select ibox, obox, sbox from xonkers where xid = ?")

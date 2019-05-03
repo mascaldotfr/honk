@@ -26,9 +26,8 @@ Cant be useful for managing as part of a combo, however.
 -- zonking
 
 You can zonk anything you like (or dislike), either your own honk or
-those of others that you're tired of seeing. This reduces its visibility, but
-doesn't attempt to delete it, which is infeasible.
-It's more like disavow or disregard.
+those of others that you're tired of seeing. Be advised that deletion
+works poorly in a federated environment. It's more like please disregard.
 
 The killzone supports blocking unwanted contacts. One may block an actor
 (zonker), a domain (zurl), or thread (zonvoy).

@@ -25,7 +25,7 @@ convoy: <a href="/t?c={{ .Convoy }}">{{ .Convoy }}</a>
 {{ end }}
 </div>
 {{ end }}
-{{ if and .BonkCSRF (not (eq .Honk.What "zonked")) }}
+{{ if .BonkCSRF }}
 <p>
 <div>
 {{ if not .Honk.Privacy }}
