@@ -268,7 +268,13 @@ func needxonkid(user *WhatAbout, xid string) bool {
 func savexonk(user *WhatAbout, x *Honk) {
 	if x.What == "eradicate" {
 		log.Printf("eradicating %s by %s", x.RID, x.Honker)
-		_, err := stmtDeleteHonk.Exec(x.RID, x.Honker, user.ID)
+		mh := re_unurl.FindStringSubmatch(x.Honker)
+		mr := re_unurl.FindStringSubmatch(x.RID)
+		if len(mh) < 2 || len(mr) < 2 || mh[1] != mr[1] {
+			log.Printf("not deleting owner mismatch")
+			return
+		}
+		_, err := stmtZonkIt.Exec(user.ID, x.RID)
 		if err != nil {
 			log.Printf("error eradicating: %s", err)
 		}

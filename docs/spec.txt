@@ -51,10 +51,10 @@ view. (Previously this was accomplished via separate tables. That made some
 queries more difficult, but I think it's possible to workaround this. It would
 be considerably safer.) The honker column will be empty for local honks.
 
-The what column further refines the type of honk. If a reply, tonk. If
-deleted, zonk. If shared, bonk. In particular for the case of bonk, there
-aren't enough columns to store original honker and bonker. This seems to work
-out okay though.
+The what column further refines the type of honk. If a reply, tonk.
+If shared, bonk. In particular for the case of bonk, there
+aren't enough columns to store original honker and bonker.
+This seems to work out okay though.
 
 Attachments are physically saved as files, and logically joined to honks via
 the donks table. Emus are saved as donks as well.
@@ -73,7 +73,7 @@ The xid column generally corresponds to ActivityPub id. For local honks, it
 will be a short string, not a complete URL.
 
 Note that some logical seeming joins won't work. The honker column of honks
-does not have a corresponding entry in the honkers table, since we frequently
+may not have a corresponding entry in the honkers table, since we frequently
 receive messages from people we don't follow. Should we track everybody whose
 identity crosses our path? This seems unnecessary. The honkers table is more
 like a mapping of active relationships, not a directory of all peoples.
