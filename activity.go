@@ -708,8 +708,23 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 		if len(h.Audience) > 1 {
 			jo["cc"] = h.Audience[1:]
 		}
-		jo["content"] = mentionize(h.Noise)
-		jo["summary"] = nil
+		if strings.HasPrefix(h.Noise, "DZ:") {
+			// alas, it's already been turned into html
+			idx := strings.Index(h.Noise, "<br>")
+			if idx == -1 {
+				jo["summary"] = h.Noise
+				jo["content"] = ""
+			} else {
+				jo["summary"] = h.Noise[:idx]
+				if strings.HasPrefix(h.Noise[idx+4:], "<br>") {
+					idx += 4
+				}
+				jo["content"] = mentionize(h.Noise[idx+4:])
+			}
+			jo["sensitive"] = true
+		} else {
+			jo["content"] = mentionize(h.Noise)
+		}
 		var tags []interface{}
 		g := bunchofgrapes(h.Noise)
 		for _, m := range g {
