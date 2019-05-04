@@ -23,7 +23,6 @@ import (
 	"fmt"
 	"html"
 	"html/template"
-	"image"
 	"io"
 	"log"
 	notrand "math/rand"
@@ -36,6 +35,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"humungus.tedunangst.com/r/webs/image"
 	"humungus.tedunangst.com/r/webs/login"
 	"humungus.tedunangst.com/r/webs/templates"
 )
@@ -883,13 +883,10 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		data := buf.Bytes()
 		xid := xfiltrate()
 		var media, name string
-		img, format, err := image.Decode(&buf)
+		img, err := image.Vacuum(&buf)
 		if err == nil {
-			data, format, err = vacuumwrap(img, format)
-			if err != nil {
-				log.Printf("can't vacuum image: %s", err)
-				return
-			}
+			data = img.Data
+			format := img.Format
 			media = "image/" + format
 			if format == "jpeg" {
 				format = "jpg"

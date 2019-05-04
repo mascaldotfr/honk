@@ -23,7 +23,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html"
-	"image"
 	"io"
 	"log"
 	"net/http"
@@ -33,6 +32,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"humungus.tedunangst.com/r/webs/image"
 )
 
 func NewJunk() map[string]interface{} {
@@ -222,13 +223,13 @@ func savedonk(url string, name, media string) *Donk {
 
 	data := buf.Bytes()
 	if strings.HasPrefix(media, "image") {
-		img, format, err := image.Decode(&buf)
+		img, err := image.Vacuum(&buf)
 		if err != nil {
 			log.Printf("unable to decode image: %s", err)
 			return nil
 		}
-		data, format, err = vacuumwrap(img, format)
-		media = "image/" + format
+		data = img.Data
+		media = "image/" + img.Format
 	}
 	res, err := stmtSaveFile.Exec(xid, name, url, media, data)
 	if err != nil {
