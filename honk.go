@@ -524,7 +524,7 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	donksforhonks([]*Honk{&h})
+	donksforhonks([]*Honk{h})
 	if friendorfoe(r.Header.Get("Accept")) {
 		_, j := jonkjonk(user, h)
 		j["@context"] = itiswhatitis
