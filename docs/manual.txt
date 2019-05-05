@@ -38,7 +38,7 @@ Honks are public. Welcome to the internet.
 
 Received messages are only visible when logged in, regardless of addressing.
 
-Recevied messages that are less than public are tagged with a red border.
+Received messages that are less than public are tagged with a red border.
 
 -- css
 
