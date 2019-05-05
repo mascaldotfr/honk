@@ -637,22 +637,22 @@ func getxonk(userid int64, xid string) *Honk {
 }
 
 func getpublichonks() []*Honk {
-	dt := time.Now().UTC().Add(-2 * 24 * time.Hour).Format(dbtimeformat)
+	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
 	rows, err := stmtPublicHonks.Query(dt)
 	return getsomehonks(rows, err)
 }
 func gethonksbyuser(name string) []*Honk {
-	dt := time.Now().UTC().Add(-2 * 24 * time.Hour).Format(dbtimeformat)
+	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
 	rows, err := stmtUserHonks.Query(name, dt)
 	return getsomehonks(rows, err)
 }
 func gethonksforuser(userid int64) []*Honk {
-	dt := time.Now().UTC().Add(-2 * 24 * time.Hour).Format(dbtimeformat)
+	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
 	rows, err := stmtHonksForUser.Query(userid, dt, userid)
 	return getsomehonks(rows, err)
 }
 func gethonksforme(userid int64) []*Honk {
-	dt := time.Now().UTC().Add(-4 * 24 * time.Hour).Format(dbtimeformat)
+	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
 	rows, err := stmtHonksForMe.Query(userid, dt, userid)
 	return getsomehonks(rows, err)
 }
