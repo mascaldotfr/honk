@@ -519,7 +519,7 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	h := getxonk(name, xid)
+	h := getxonk(user.ID, xid)
 	if h == nil {
 		http.NotFound(w, r)
 		return
@@ -618,20 +618,16 @@ func getdubs(userid int64) []*Honker {
 	return honkers
 }
 
-func getxonk(name, xid string) *Honk {
+func getxonk(userid int64, xid string) *Honk {
 	var h Honk
 	var dt, aud string
-	row := stmtOneXonk.QueryRow(xid)
+	row := stmtOneXonk.QueryRow(userid, xid)
 	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.XID, &h.RID,
 		&dt, &h.URL, &aud, &h.Noise, &h.Convoy)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			log.Printf("error scanning xonk: %s", err)
 		}
-		return nil
-	}
-	if name != "" && h.Username != name {
-		log.Printf("user xonk mismatch")
 		return nil
 	}
 	h.Date, _ = time.Parse(dbtimeformat, dt)
@@ -729,10 +725,11 @@ func donksforhonks(honks []*Honk) {
 
 func savebonk(w http.ResponseWriter, r *http.Request) {
 	xid := r.FormValue("xid")
+	userinfo := login.GetUserInfo(r)
 
 	log.Printf("bonking %s", xid)
 
-	xonk := getxonk("", xid)
+	xonk := getxonk(userinfo.UserID, xid)
 	if xonk == nil {
 		return
 	}
@@ -740,8 +737,6 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 		xonk.XID = fmt.Sprintf("https://%s/u/%s/h/%s", serverName, xonk.Username, xonk.XID)
 	}
 	convoy := xonk.Convoy
-
-	userinfo := login.GetUserInfo(r)
 
 	dt := time.Now().UTC()
 	bonk := Honk{
@@ -804,19 +799,22 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	log.Printf("zonking %s %s", wherefore, what)
 	userinfo := login.GetUserInfo(r)
 	if wherefore == "zonk" {
-		xonk := getxonk(userinfo.Username, what)
-		stmtZonkIt.Exec(userinfo.UserID, what)
-		if xonk != nil && xonk.Honker == "" {
-			zonk := Honk{
-				What:     "zonk",
-				XID:      xonk.XID,
-				Date:     time.Now().UTC(),
-				Audience: oneofakind(xonk.Audience),
-			}
+		xonk := getxonk(userinfo.UserID, what)
+		if xonk != nil {
+			stmtZonkDonks.Exec(xonk.ID)
+			stmtZonkIt.Exec(userinfo.UserID, what)
+			if xonk.Honker == "" {
+				zonk := Honk{
+					What:     "zonk",
+					XID:      xonk.XID,
+					Date:     time.Now().UTC(),
+					Audience: oneofakind(xonk.Audience),
+				}
 
-			user, _ := butwhatabout(userinfo.Username)
-			log.Printf("announcing deleted honk: %s", what)
-			go honkworldwide(user, &zonk)
+				user, _ := butwhatabout(userinfo.Username)
+				log.Printf("announcing deleted honk: %s", what)
+				go honkworldwide(user, &zonk)
+			}
 		}
 	} else {
 		_, err := stmtSaveZonker.Exec(userinfo.UserID, what, wherefore)
@@ -853,7 +851,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	}
 	var convoy string
 	if rid != "" {
-		xonk := getxonk("", rid)
+		xonk := getxonk(userinfo.UserID, rid)
 		if xonk != nil {
 			if xonk.Honker == "" {
 				rid = "https://" + serverName + "/u/" + xonk.Username + "/h/" + rid
@@ -1297,7 +1295,7 @@ var stmtHonksForUser, stmtHonksForMe, stmtSaveDub *sql.Stmt
 var stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
 var stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
-var stmtHasHonker, stmtThumbBiters, stmtZonkIt, stmtSaveZonker *sql.Stmt
+var stmtHasHonker, stmtThumbBiters, stmtZonkIt, stmtZonkDonks, stmtSaveZonker *sql.Stmt
 var stmtGetBoxes, stmtSaveBoxes *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
@@ -1319,7 +1317,7 @@ func prepareStatements(db *sql.DB) {
 	selecthonks := "select honkid, honks.userid, username, what, honker, honks.xid, rid, dt, url, audience, noise, convoy from honks join users on honks.userid = users.userid "
 	limit := " order by honkid desc limit 250"
 	butnotthose := " and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"
-	stmtOneXonk = preparetodie(db, selecthonks+"where xid = ?")
+	stmtOneXonk = preparetodie(db, selecthonks+"where honks.userid = ? and xid = ?")
 	stmtPublicHonks = preparetodie(db, selecthonks+"where honker = '' and dt > ?"+limit)
 	stmtUserHonks = preparetodie(db, selecthonks+"where honker = '' and username = ? and dt > ?"+limit)
 	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ?"+butnotthose+limit)
@@ -1333,6 +1331,7 @@ func prepareStatements(db *sql.DB) {
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")
 	stmtZonkIt = preparetodie(db, "delete from honks where userid = ? and xid = ?")
+	stmtZonkDonks = preparetodie(db, "delete from donks where honkid = ?")
 	stmtFindFile = preparetodie(db, "select fileid from files where url = ?")
 	stmtSaveFile = preparetodie(db, "insert into files (xid, name, url, media, content) values (?, ?, ?, ?, ?)")
 	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey from users where username = ?")

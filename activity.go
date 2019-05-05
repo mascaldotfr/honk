@@ -275,9 +275,13 @@ func savexonk(user *WhatAbout, x *Honk) {
 			log.Printf("not deleting owner mismatch")
 			return
 		}
-		_, err := stmtZonkIt.Exec(user.ID, x.RID)
-		if err != nil {
-			log.Printf("error eradicating: %s", err)
+		xonk := getxonk(user.ID, x.RID)
+		if xonk != nil {
+			stmtZonkDonks.Exec(xonk.ID)
+			_, err := stmtZonkIt.Exec(user.ID, x.RID)
+			if err != nil {
+				log.Printf("error eradicating: %s", err)
+			}
 		}
 		return
 	}
