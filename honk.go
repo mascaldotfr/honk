@@ -733,10 +733,10 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 	if xonk == nil {
 		return
 	}
+	donksforhonks([]*Honk{xonk})
 	if xonk.Honker == "" {
 		xonk.XID = fmt.Sprintf("https://%s/u/%s/h/%s", serverName, xonk.Username, xonk.XID)
 	}
-	convoy := xonk.Convoy
 
 	dt := time.Now().UTC()
 	bonk := Honk{
@@ -747,7 +747,7 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 		XID:      xonk.XID,
 		Date:     dt,
 		Noise:    xonk.Noise,
-		Convoy:   convoy,
+		Convoy:   xonk.Convoy,
 		Donks:    xonk.Donks,
 		Audience: []string{thewholeworld},
 	}
