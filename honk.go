@@ -37,6 +37,7 @@ import (
 	"github.com/gorilla/mux"
 	"humungus.tedunangst.com/r/webs/image"
 	"humungus.tedunangst.com/r/webs/login"
+	"humungus.tedunangst.com/r/webs/rss"
 	"humungus.tedunangst.com/r/webs/templates"
 )
 
@@ -166,11 +167,11 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 		home += "u/" + name
 		name += " "
 	}
-	feed := RssFeed{
+	feed := rss.Feed{
 		Title:       name + "honk",
 		Link:        home,
 		Description: name + "honk rss",
-		FeedImage: &RssFeedImage{
+		Image: &rss.Image{
 			URL:   base + "icon.png",
 			Title: name + "honk rss",
 			Link:  home,
@@ -184,9 +185,9 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 				base, d.XID, html.EscapeString(d.Name))
 		}
 
-		feed.Items = append(feed.Items, &RssItem{
+		feed.Items = append(feed.Items, &rss.Item{
 			Title:       fmt.Sprintf("%s %s %s", honk.Username, honk.What, honk.XID),
-			Description: RssCData{desc},
+			Description: rss.CData{desc},
 			Link:        honk.URL,
 			PubDate:     honk.Date.Format(time.RFC1123),
 		})
