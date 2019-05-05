@@ -749,7 +749,7 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 		Noise:    xonk.Noise,
 		Convoy:   convoy,
 		Donks:    xonk.Donks,
-		Audience: oneofakind(prepend(thewholeworld, xonk.Audience)),
+		Audience: []string{thewholeworld},
 	}
 
 	user, _ := butwhatabout(userinfo.Username)
@@ -775,7 +775,6 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go honkworldwide(user, &bonk)
-
 }
 
 func zonkit(w http.ResponseWriter, r *http.Request) {
