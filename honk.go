@@ -524,6 +524,7 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	donksforhonks([]*Honk{&h})
 	if friendorfoe(r.Header.Get("Accept")) {
 		_, j := jonkjonk(user, h)
 		j["@context"] = itiswhatitis
@@ -632,7 +633,6 @@ func getxonk(userid int64, xid string) *Honk {
 	}
 	h.Date, _ = time.Parse(dbtimeformat, dt)
 	h.Audience = strings.Split(aud, " ")
-	donksforhonks([]*Honk{&h})
 	return &h
 }
 
