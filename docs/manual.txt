@@ -3,7 +3,11 @@ Instructions for running of the honk.
 
 -- posting
 
-Should work as expected. Supports **bold** and *italics*.
+Should work as expected.
+
+Limited markdown support:
+	**bold** and *italics*
+	`code` and ```code block```
 
 Large images are rescaled and reduced.
 

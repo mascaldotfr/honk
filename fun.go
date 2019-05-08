@@ -156,10 +156,14 @@ func herdofemus(noise string) []Emu {
 
 var re_bolder = regexp.MustCompile(`(^|\W)\*\*([\w\s,.!?']+)\*\*($|\W)`)
 var re_italicer = regexp.MustCompile(`(^|\W)\*([\w\s,.!?']+)\*($|\W)`)
+var re_bigcoder = regexp.MustCompile("```((?s:.*?))```")
+var re_coder = regexp.MustCompile("`(.*?)`")
 
 func markitzero(s string) string {
 	s = re_bolder.ReplaceAllString(s, "$1<b>$2</b>$3")
 	s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
+	s = re_bigcoder.ReplaceAllString(s, "<pre><code>$1</code></pre>")
+	s = re_coder.ReplaceAllString(s, "<code>$1</code>")
 	return s
 }
 
