@@ -494,6 +494,10 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 			what = "eradicate"
 		default:
 			log.Printf("unknown activity: %s", what)
+			fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+			WriteJunk(fd, item.(map[string]interface{}))
+			io.WriteString(fd, "\n")
+			fd.Close()
 			return nil
 		}
 

@@ -293,11 +293,6 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			keyname, err = makeitworksomehowwithoutregardforkeycontinuity(keyname, r, payload)
 		}
 		if err != nil {
-			fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-			io.WriteString(fd, "bad signature:\n")
-			WriteJunk(fd, j)
-			io.WriteString(fd, "\n")
-			fd.Close()
 			return
 		}
 	}
@@ -315,10 +310,6 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		log.Printf("ignoring thumb sucker %s", who)
 		return
 	}
-	fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	WriteJunk(fd, j)
-	io.WriteString(fd, "\n")
-	fd.Close()
 	switch what {
 	case "Ping":
 		obj, _ := jsongetstring(j, "id")
@@ -357,6 +348,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			case "Like":
+			case "Announce":
 			default:
 				log.Printf("unknown undo: %s", what)
 			}
