@@ -67,6 +67,8 @@ Busy honk instances may use megabytes of memory.
 
 -- upgrade
 
+cp honk.db backup.db
+
 ./honk upgrade
 
 ./honk
