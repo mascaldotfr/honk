@@ -407,15 +407,5 @@ func keymatch(keyname string, actor string, what string, userid int64) bool {
 	if owner == actor {
 		return true
 	}
-	if what != "Create" {
-		return false
-	}
-	row := stmtHasHonker.QueryRow(owner, userid)
-	var id int64
-	err := row.Scan(&id)
-	if err == nil {
-		log.Printf("allowing resigned content by %s", keyname)
-		return true
-	}
 	return false
 }
