@@ -33,24 +33,24 @@ func avatar(name string) []byte {
 			xx := i/16*16 + j/16
 			x := s[xx]
 			if x < 64 {
-				img.Pix[p+0] = 32
+				img.Pix[p+0] = 16
 				img.Pix[p+1] = 0
-				img.Pix[p+2] = 64
+				img.Pix[p+2] = 48
 				img.Pix[p+3] = 255
 			} else if x < 128 {
-				img.Pix[p+0] = 32
+				img.Pix[p+0] = 48
 				img.Pix[p+1] = 0
-				img.Pix[p+2] = 92
+				img.Pix[p+2] = 96
 				img.Pix[p+3] = 255
 			} else if x < 192 {
-				img.Pix[p+0] = 64
+				img.Pix[p+0] = 72
 				img.Pix[p+1] = 0
-				img.Pix[p+2] = 128
+				img.Pix[p+2] = 144
 				img.Pix[p+3] = 255
 			} else {
 				img.Pix[p+0] = 96
 				img.Pix[p+1] = 0
-				img.Pix[p+2] = 160
+				img.Pix[p+2] = 192
 				img.Pix[p+3] = 255
 			}
 		}
