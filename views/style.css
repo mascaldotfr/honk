@@ -4,6 +4,9 @@ body {
 	font-size: 1em;
 	word-wrap: break-word;
 }
+pre {
+	white-space: pre-wrap;
+}
 a {
 	color: #dde;
 }
