@@ -31,7 +31,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -980,46 +979,6 @@ func showcombos(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Print(err)
 	}
-}
-
-var handfull = make(map[string]string)
-var handlock sync.Mutex
-
-func gofish(name string) string {
-	if name[0] == '@' {
-		name = name[1:]
-	}
-	m := strings.Split(name, "@")
-	if len(m) != 2 {
-		log.Printf("bad fish name: %s", name)
-		return ""
-	}
-	handlock.Lock()
-	ref, ok := handfull[name]
-	handlock.Unlock()
-	if ok {
-		return ref
-	}
-	j, err := GetJunk(fmt.Sprintf("https://%s/.well-known/webfinger?resource=acct:%s", m[1], name))
-	handlock.Lock()
-	defer handlock.Unlock()
-	if err != nil {
-		log.Printf("failed to go fish %s: %s", name, err)
-		handfull[name] = ""
-		return ""
-	}
-	links, _ := jsongetarray(j, "links")
-	for _, l := range links {
-		href, _ := jsongetstring(l, "href")
-		rel, _ := jsongetstring(l, "rel")
-		t, _ := jsongetstring(l, "type")
-		if rel == "self" && friendorfoe(t) {
-			handfull[name] = href
-			return href
-		}
-	}
-	handfull[name] = ""
-	return ""
 }
 
 func savehonker(w http.ResponseWriter, r *http.Request) {
