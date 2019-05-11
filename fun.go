@@ -156,7 +156,7 @@ func herdofemus(noise string) []Emu {
 
 var re_bolder = regexp.MustCompile(`(^|\W)\*\*([\w\s,.!?']+)\*\*($|\W)`)
 var re_italicer = regexp.MustCompile(`(^|\W)\*([\w\s,.!?']+)\*($|\W)`)
-var re_bigcoder = regexp.MustCompile("```((?s:.*?))```")
+var re_bigcoder = regexp.MustCompile("\n?```\n?((?s:.*?))\n?```\n?")
 var re_coder = regexp.MustCompile("`(.*?)`")
 
 func markitzero(s string) string {
