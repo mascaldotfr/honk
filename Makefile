@@ -6,3 +6,6 @@ honk: *.go
 
 clean:
 	rm -f honk
+
+test:
+	go test
