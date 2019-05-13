@@ -515,8 +515,8 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	donksforhonks([]*Honk{h})
 	if friendorfoe(r.Header.Get("Accept")) {
+		donksforhonks([]*Honk{h})
 		_, j := jonkjonk(user, h)
 		j["@context"] = itiswhatitis
 		w.Header().Set("Cache-Control", "max-age=3600")
@@ -524,8 +524,14 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		WriteJunk(w, j)
 		return
 	}
+	honks := gethonksbyconvoy(-1, h.Convoy)
+	for _, hh := range honks {
+		if hh.XID != h.XID {
+			hh.Privacy = "limited"
+		}
+	}
 	u := login.GetUserInfo(r)
-	honkpage(w, r, u, nil, []*Honk{h}, "one honk")
+	honkpage(w, r, u, nil, honks, "one honk maybe more")
 }
 
 func honkpage(w http.ResponseWriter, r *http.Request, u *login.UserInfo, user *WhatAbout,
@@ -611,7 +617,7 @@ func getdubs(userid int64) []*Honker {
 }
 
 func getxonk(userid int64, xid string) *Honk {
-	var h Honk
+	h := new(Honk)
 	var dt, aud string
 	row := stmtOneXonk.QueryRow(userid, xid)
 	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.XID, &h.RID,
@@ -624,7 +630,7 @@ func getxonk(userid int64, xid string) *Honk {
 	}
 	h.Date, _ = time.Parse(dbtimeformat, dt)
 	h.Audience = strings.Split(aud, " ")
-	return &h
+	return h
 }
 
 func getpublichonks() []*Honk {
@@ -658,7 +664,11 @@ func gethonksbycombo(userid int64, combo string) []*Honk {
 }
 func gethonksbyconvoy(userid int64, convoy string) []*Honk {
 	rows, err := stmtHonksByConvoy.Query(userid, convoy)
-	return getsomehonks(rows, err)
+	honks := getsomehonks(rows, err)
+	for i, j := 0, len(honks)-1; i < j; i, j = i+1, j-1 {
+		honks[i], honks[j] = honks[j], honks[i]
+	}
+	return honks
 }
 
 func getsomehonks(rows *sql.Rows, err error) []*Honk {
@@ -679,6 +689,13 @@ func getsomehonks(rows *sql.Rows, err error) []*Honk {
 		}
 		h.Date, _ = time.Parse(dbtimeformat, dt)
 		h.Audience = strings.Split(aud, " ")
+		h.Privacy = "limited"
+		for _, a := range h.Audience {
+			if a == thewholeworld {
+				h.Privacy = ""
+				break
+			}
+		}
 		honks = append(honks, &h)
 	}
 	rows.Close()
