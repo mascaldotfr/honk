@@ -485,13 +485,17 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 		case "Create":
 			obj, _ = jsongetmap(item, "object")
 			what = "honk"
-		case "Note":
-			obj = item.(map[string]interface{})
-			what = "honk"
 		case "Delete":
 			obj, _ = jsongetmap(item, "object")
 			rid, _ = jsongetstring(item, "object")
 			what = "eradicate"
+		case "Note":
+			fallthrough
+		case "Article":
+			fallthrough
+		case "Page":
+			obj = item.(map[string]interface{})
+			what = "honk"
 		default:
 			log.Printf("unknown activity: %s", what)
 			fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -509,7 +513,7 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 			}
 			ot, _ := jsongetstring(obj, "type")
 			url, _ = jsongetstring(obj, "url")
-			if ot == "Note" || ot == "Article" {
+			if ot == "Note" || ot == "Article" || ot == "Page" {
 				audience = newphone(audience, obj)
 				xid, _ = jsongetstring(obj, "id")
 				content, _ = jsongetstring(obj, "content")
