@@ -453,55 +453,6 @@ func showconvoy(w http.ResponseWriter, r *http.Request) {
 	honkpage(w, r, u, nil, honks, "honks in convoy: "+c)
 }
 
-func fingerlicker(w http.ResponseWriter, r *http.Request) {
-	orig := r.FormValue("resource")
-
-	log.Printf("finger lick: %s", orig)
-
-	if strings.HasPrefix(orig, "acct:") {
-		orig = orig[5:]
-	}
-
-	name := orig
-	idx := strings.LastIndexByte(name, '/')
-	if idx != -1 {
-		name = name[idx+1:]
-		if "https://"+serverName+"/u/"+name != orig {
-			log.Printf("foreign request rejected")
-			name = ""
-		}
-	} else {
-		idx = strings.IndexByte(name, '@')
-		if idx != -1 {
-			name = name[:idx]
-			if name+"@"+serverName != orig {
-				log.Printf("foreign request rejected")
-				name = ""
-			}
-		}
-	}
-	user, err := butwhatabout(name)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-
-	j := NewJunk()
-	j["subject"] = fmt.Sprintf("acct:%s@%s", user.Name, serverName)
-	j["aliases"] = []string{user.URL}
-	var links []map[string]interface{}
-	l := NewJunk()
-	l["rel"] = "self"
-	l["type"] = `application/activity+json`
-	l["href"] = user.URL
-	links = append(links, l)
-	j["links"] = links
-
-	w.Header().Set("Cache-Control", "max-age=3600")
-	w.Header().Set("Content-Type", "application/jrd+json")
-	WriteJunk(w, j)
-}
-
 func showhonk(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	xid := mux.Vars(r)["xid"]
@@ -1129,6 +1080,55 @@ func killitwithfire(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/killzone", http.StatusSeeOther)
+}
+
+func fingerlicker(w http.ResponseWriter, r *http.Request) {
+	orig := r.FormValue("resource")
+
+	log.Printf("finger lick: %s", orig)
+
+	if strings.HasPrefix(orig, "acct:") {
+		orig = orig[5:]
+	}
+
+	name := orig
+	idx := strings.LastIndexByte(name, '/')
+	if idx != -1 {
+		name = name[idx+1:]
+		if "https://"+serverName+"/u/"+name != orig {
+			log.Printf("foreign request rejected")
+			name = ""
+		}
+	} else {
+		idx = strings.IndexByte(name, '@')
+		if idx != -1 {
+			name = name[:idx]
+			if name+"@"+serverName != orig {
+				log.Printf("foreign request rejected")
+				name = ""
+			}
+		}
+	}
+	user, err := butwhatabout(name)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	j := NewJunk()
+	j["subject"] = fmt.Sprintf("acct:%s@%s", user.Name, serverName)
+	j["aliases"] = []string{user.URL}
+	var links []map[string]interface{}
+	l := NewJunk()
+	l["rel"] = "self"
+	l["type"] = `application/activity+json`
+	l["href"] = user.URL
+	links = append(links, l)
+	j["links"] = links
+
+	w.Header().Set("Cache-Control", "max-age=3600")
+	w.Header().Set("Content-Type", "application/jrd+json")
+	WriteJunk(w, j)
 }
 
 func somedays() string {

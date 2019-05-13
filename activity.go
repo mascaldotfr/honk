@@ -894,7 +894,7 @@ func gofish(name string) string {
 		t, _ := jsongetstring(l, "type")
 		if rel == "self" && friendorfoe(t) {
 			db.Exec("insert into xonkers (xid, ibox, obox, sbox, pubkey) values (?, ?, ?, ?, ?)",
-			name, href, "", "", "")
+				name, href, "", "", "")
 			handlock.Lock()
 			handfull[name] = href
 			handlock.Unlock()
@@ -906,4 +906,3 @@ func gofish(name string) string {
 	handlock.Unlock()
 	return ""
 }
-
