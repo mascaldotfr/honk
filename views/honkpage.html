@@ -3,18 +3,7 @@
 <div class="info" id="infobox">
 {{ if .Name }}
 <p>{{ .Name }} <span style="margin-left:1em;"><a href="/u/{{ .Name }}/rss">rss</a></span>
-{{ if .HonkCSRF }}
-<div>
-<form id="aboutform" action="/saveuser" method="POST">
-<input type="hidden" name="CSRF" value="{{ .UserCSRF }}">
-<textarea name="whatabout">{{ .RawWhatAbout }}</textarea>
-<p>
-<input type="submit" value="update">
-</form>
-</div>
-{{ else }}
 <p>{{ .WhatAbout }}
-{{ end }}
 {{ end }}
 <p>{{ .ServerMessage }}
 {{ if .HonkCSRF }}

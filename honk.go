@@ -97,7 +97,6 @@ func getInfo(r *http.Request) map[string]interface{} {
 	templinfo["ServerName"] = serverName
 	templinfo["IconName"] = iconName
 	templinfo["UserInfo"] = login.GetUserInfo(r)
-	templinfo["LogoutCSRF"] = login.GetCSRF("logout", r)
 	return templinfo
 }
 
@@ -490,9 +489,6 @@ func honkpage(w http.ResponseWriter, r *http.Request, u *login.UserInfo, user *W
 	reverbolate(honks)
 	templinfo := getInfo(r)
 	if u != nil {
-		if user != nil && u.Username == user.Name {
-			templinfo["UserCSRF"] = login.GetCSRF("saveuser", r)
-		}
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	}
 	if u == nil {
@@ -501,8 +497,7 @@ func honkpage(w http.ResponseWriter, r *http.Request, u *login.UserInfo, user *W
 	if user != nil {
 		templinfo["Name"] = user.Name
 		whatabout := user.About
-		templinfo["RawWhatAbout"] = whatabout
-		whatabout = obfusbreak(whatabout)
+		whatabout = obfusbreak(user.About)
 		templinfo["WhatAbout"] = cleanstring(whatabout)
 	}
 	templinfo["Honks"] = honks
@@ -522,7 +517,7 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 		log.Printf("error bouting what: %s", err)
 	}
 
-	http.Redirect(w, r, "/u/"+u.Username, http.StatusSeeOther)
+	http.Redirect(w, r, "/account", http.StatusSeeOther)
 }
 
 func gethonkers(userid int64) []*Honker {
@@ -1082,6 +1077,27 @@ func killitwithfire(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/killzone", http.StatusSeeOther)
 }
 
+func accountpage(w http.ResponseWriter, r *http.Request) {
+	u := login.GetUserInfo(r)
+	user, _ := butwhatabout(u.Username)
+	templinfo := getInfo(r)
+	templinfo["UserCSRF"] = login.GetCSRF("saveuser", r)
+	templinfo["LogoutCSRF"] = login.GetCSRF("logout", r)
+	templinfo["WhatAbout"] = user.About
+	err := readviews.Execute(w, "account.html", templinfo)
+	if err != nil {
+		log.Print(err)
+	}
+}
+
+func dochpass(w http.ResponseWriter, r *http.Request) {
+	err := login.ChangePassword(w, r)
+	if err != nil {
+		log.Printf("error changing password: %s", err)
+	}
+	http.Redirect(w, r, "/account", http.StatusSeeOther)
+}
+
 func fingerlicker(w http.ResponseWriter, r *http.Request) {
 	orig := r.FormValue("resource")
 
@@ -1196,6 +1212,7 @@ func serve() {
 		"views/combos.html",
 		"views/honkform.html",
 		"views/honk.html",
+		"views/account.html",
 		"views/login.html",
 		"views/header.html",
 	)
@@ -1237,6 +1254,8 @@ func serve() {
 
 	loggedin := mux.NewRoute().Subrouter()
 	loggedin.Use(login.Required)
+	loggedin.HandleFunc("/account", accountpage)
+	loggedin.HandleFunc("/chpass", dochpass)
 	loggedin.HandleFunc("/atme", homepage)
 	loggedin.HandleFunc("/killzone", killzone)
 	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(savehonk)))

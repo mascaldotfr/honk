@@ -12,17 +12,17 @@
 <body>
 <header>
 <span><a href="/">honk</a></span>
+{{ if .ShowRSS }}
+<span><a href="/rss">rss</a></span>
+{{ end }}
 {{ if .UserInfo }}
 <span><a href="/atme">@me</a></span>
 <span><a href="/u/{{ .UserInfo.Username }}">{{ .UserInfo.Username }}</a></span>
 <span><a href="/honkers">honkers</a></span>
 <span><a href="/c">combos</a></span>
 <span><a href="/killzone">killzone</a></span>
-<span><a href="/logout?CSRF={{ .LogoutCSRF }}">logout</a></span>
+<span><a href="/account">account</a></span>
 {{ else }}
 <span><a href="/login">login</a></span>
-{{ end }}
-{{ if .ShowRSS }}
-<span><a href="/rss">rss</a></span>
 {{ end }}
 </header>
