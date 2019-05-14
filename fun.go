@@ -151,7 +151,6 @@ var re_bolder = regexp.MustCompile(`(^|\W)\*\*([\w\s,.!?']+)\*\*($|\W)`)
 var re_italicer = regexp.MustCompile(`(^|\W)\*([\w\s,.!?']+)\*($|\W)`)
 var re_bigcoder = regexp.MustCompile("```\n?((?s:.*?))\n?```")
 var re_coder = regexp.MustCompile("`([^`]*)`")
-var re_quoter = regexp.MustCompile(`(?m:^&gt; (.*)\n)`)
 
 func markitzero(s string) string {
 	var bigcodes []string
@@ -168,7 +167,6 @@ func markitzero(s string) string {
 	s = re_coder.ReplaceAllStringFunc(s, lilsaver)
 	s = re_bolder.ReplaceAllString(s, "$1<b>$2</b>$3")
 	s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
-	s = re_quoter.ReplaceAllString(s, "<blockquote>$1</blockquote>")
 	lilun := func(s string) string {
 		code := lilcodes[0]
 		lilcodes = lilcodes[1:]
