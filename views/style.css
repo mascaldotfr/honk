@@ -7,6 +7,11 @@ body {
 pre, code {
 	white-space: pre-wrap;
 }
+blockquote {
+	margin-left: 0em;
+	padding-left: 0.5em;
+	border-left: 1px solid #aab;
+}
 a {
 	color: #dde;
 }
