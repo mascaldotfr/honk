@@ -31,7 +31,7 @@ import (
 var permittedtags = []string{"div", "h1", "h2", "h3", "h4", "h5", "h6",
 	"table", "thead", "tbody", "th", "tr", "td",
 	"p", "br", "pre", "code", "blockquote",
-	"strong", "em", "b", "i", "s", "u", "sup", "del",
+	"strong", "em", "b", "i", "s", "u", "sub", "sup", "del",
 	"ol", "ul", "li"}
 var permittedattr = []string{"colspan", "rowspan"}
 var bannedtags = []string{"script", "style"}
