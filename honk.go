@@ -55,11 +55,13 @@ type Honk struct {
 	Username string
 	What     string
 	Honker   string
+	Oonker   string
 	XID      string
 	RID      string
 	Date     time.Time
 	URL      string
 	Noise    string
+	Precis   string
 	Convoy   string
 	Audience []string
 	Privacy  string
@@ -566,8 +568,8 @@ func getxonk(userid int64, xid string) *Honk {
 	h := new(Honk)
 	var dt, aud string
 	row := stmtOneXonk.QueryRow(userid, xid)
-	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.XID, &h.RID,
-		&dt, &h.URL, &aud, &h.Noise, &h.Convoy)
+	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker, &h.XID, &h.RID,
+		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			log.Printf("error scanning xonk: %s", err)
@@ -627,8 +629,8 @@ func getsomehonks(rows *sql.Rows, err error) []*Honk {
 	for rows.Next() {
 		var h Honk
 		var dt, aud string
-		err = rows.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.XID, &h.RID,
-			&dt, &h.URL, &aud, &h.Noise, &h.Convoy)
+		err = rows.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker,
+			&h.XID, &h.RID, &dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy)
 		if err != nil {
 			log.Printf("error scanning honks: %s", err)
 			return nil
@@ -696,12 +698,9 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 	bonk := Honk{
 		UserID:   userinfo.UserID,
 		Username: userinfo.Username,
-		Honker:   xonk.Honker,
 		What:     "bonk",
 		XID:      xonk.XID,
 		Date:     dt,
-		Noise:    xonk.Noise,
-		Convoy:   xonk.Convoy,
 		Donks:    xonk.Donks,
 		Audience: []string{thewholeworld},
 	}
@@ -714,7 +713,7 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 		whofore = 1
 	}
 	res, err := stmtSaveHonk.Exec(userinfo.UserID, "bonk", "", xid, "",
-		dt.Format(dbtimeformat), "", aud, bonk.Noise, bonk.Convoy, whofore)
+		dt.Format(dbtimeformat), "", aud, xonk.Noise, xonk.Convoy, whofore, "html", xonk.Precis, xonk.Honker)
 	if err != nil {
 		log.Printf("error saving bonk: %s", err)
 		return
@@ -797,6 +796,19 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		XID:      xid,
 		Date:     dt,
 	}
+	if strings.HasPrefix(noise, "DZ:") {
+		idx := strings.Index(noise, "\n")
+		if idx == -1 {
+			honk.Precis = noise
+			noise = ""
+		} else {
+			honk.Precis = noise[:idx]
+			noise = noise[idx+1:]
+		}
+	}
+	noise = strings.TrimSpace(noise)
+	honk.Precis = strings.TrimSpace(honk.Precis)
+
 	if noise != "" && noise[0] == '@' {
 		honk.Audience = append(grapevine(noise), thewholeworld)
 	} else {
@@ -807,7 +819,8 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		xonk := getxonk(userinfo.UserID, rid)
 		if xonk != nil {
 			if xonk.Honker == "" {
-				rid = "https://" + serverName + "/u/" + xonk.Username + "/h/" + rid
+				xonk.Honker = "https://" + serverName + "/u/" + xonk.Username
+				rid = xonk.Honker + "/h/" + rid
 			}
 			honk.Audience = append(honk.Audience, xonk.Audience...)
 			convoy = xonk.Convoy
@@ -816,6 +829,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 			honk.Audience = append(honk.Audience, xonkaud...)
 			convoy = c
 		}
+		honk.Oonker = xonk.Honker
 		honk.RID = rid
 	}
 	if convoy == "" {
@@ -897,7 +911,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		whofore = 1
 	}
 	res, err := stmtSaveHonk.Exec(userinfo.UserID, what, "", xid, rid,
-		dt.Format(dbtimeformat), "", aud, noise, convoy, whofore)
+		dt.Format(dbtimeformat), "", aud, noise, convoy, whofore, "html", honk.Precis, honk.Oonker)
 	if err != nil {
 		log.Printf("error saving honk: %s", err)
 		return
@@ -1300,7 +1314,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHasHonker = preparetodie(db, "select honkerid from honkers where xid = ? and userid = ?")
 	stmtDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
 
-	selecthonks := "select honkid, honks.userid, username, what, honker, honks.xid, rid, dt, url, audience, noise, convoy from honks join users on honks.userid = users.userid "
+	selecthonks := "select honkid, honks.userid, username, what, honker, oonker, honks.xid, rid, dt, url, audience, noise, precis, convoy from honks join users on honks.userid = users.userid "
 	limit := " order by honkid desc limit 250"
 	butnotthose := " and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"
 	stmtOneXonk = preparetodie(db, selecthonks+"where honks.userid = ? and xid = ?")
@@ -1312,7 +1326,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.combos like ?"+butnotthose+limit)
 	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or honker = '') and convoy = ?"+limit)
 
-	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	stmtFileData = preparetodie(db, "select media, content from files where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")

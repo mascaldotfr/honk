@@ -52,7 +52,11 @@ func reverbolate(honks []*Honk) {
 		}
 		zap := make(map[*Donk]bool)
 		h.Noise = unpucker(h.Noise)
-		h.HTML = cleanstring(h.Noise)
+		precis := h.Precis
+		if precis != "" {
+			precis = "<p>summary: " + precis + "<p>"
+		}
+		h.HTML = cleanstring(precis + h.Noise)
 		emuxifier := func(e string) string {
 			for _, d := range h.Donks {
 				if d.Name == e {

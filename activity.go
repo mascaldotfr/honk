@@ -292,7 +292,7 @@ func savexonk(user *WhatAbout, x *Honk) {
 		whofore = 1
 	}
 	res, err := stmtSaveHonk.Exec(x.UserID, x.What, x.Honker, x.XID, x.RID, dt, x.URL, aud,
-		x.Noise, x.Convoy, whofore)
+		x.Noise, x.Convoy, whofore, "html", x.Precis, x.Oonker)
 	if err != nil {
 		log.Printf("err saving xonk: %s", err)
 		return
@@ -463,7 +463,7 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 
 		var audience []string
 		var err error
-		var xid, rid, url, content, convoy string
+		var xid, rid, url, content, precis, convoy, oonker string
 		var obj map[string]interface{}
 		var ok bool
 		switch what {
@@ -511,18 +511,16 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 			if who == "" {
 				who, _ = jsongetstring(obj, "attributedTo")
 			}
+			oonker, _ = jsongetstring(obj, "attributedTo")
 			ot, _ := jsongetstring(obj, "type")
 			url, _ = jsongetstring(obj, "url")
 			if ot == "Note" || ot == "Article" || ot == "Page" {
 				audience = newphone(audience, obj)
 				xid, _ = jsongetstring(obj, "id")
+				precis, _ = jsongetstring(obj, "summary")
 				content, _ = jsongetstring(obj, "content")
-				summary, _ := jsongetstring(obj, "summary")
 				if !strings.HasPrefix(content, "<p>") {
 					content = "<p>" + content
-				}
-				if summary != "" {
-					content = "<p>summary: " + summary + content
 				}
 				rid, _ = jsongetstring(obj, "inReplyTo")
 				convoy, _ = jsongetstring(obj, "context")
@@ -582,6 +580,9 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 
 		audience = oneofakind(audience)
 
+		if oonker == who {
+			oonker = ""
+		}
 		xonk.UserID = user.ID
 		xonk.What = what
 		xonk.Honker = who
@@ -590,8 +591,10 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 		xonk.Date, _ = time.Parse(time.RFC3339, dt)
 		xonk.URL = url
 		xonk.Noise = content
+		xonk.Precis = precis
 		xonk.Audience = audience
 		xonk.Convoy = convoy
+		xonk.Oonker = oonker
 
 		if needxonk(user, &xonk) {
 			if what == "tonk" {
@@ -721,22 +724,10 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 		if len(h.Audience) > 1 {
 			jo["cc"] = h.Audience[1:]
 		}
-		if strings.HasPrefix(h.Noise, "DZ:") {
-			// alas, it's already been turned into html
-			idx := strings.Index(h.Noise, "<br>")
-			if idx == -1 {
-				jo["summary"] = h.Noise
-				jo["content"] = ""
-			} else {
-				jo["summary"] = h.Noise[:idx]
-				if strings.HasPrefix(h.Noise[idx+4:], "<br>") {
-					idx += 4
-				}
-				jo["content"] = mentionize(h.Noise[idx+4:])
-			}
+		jo["summary"] = h.Precis
+		jo["content"] = mentionize(h.Noise)
+		if strings.HasPrefix(h.Precis, "DZ:") {
 			jo["sensitive"] = true
-		} else {
-			jo["content"] = mentionize(h.Noise)
 		}
 		var tags []interface{}
 		g := bunchofgrapes(h.Noise)

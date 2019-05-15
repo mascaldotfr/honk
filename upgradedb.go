@@ -70,6 +70,15 @@ func upgradedb() {
 		doordie(db, "update config set value = 6 where key = 'dbversion'")
 		fallthrough
 	case 6:
+		doordie(db, "alter table honks add column format")
+		doordie(db, "update honks set format = 'html'")
+		doordie(db, "alter table honks add column precis")
+		doordie(db, "update honks set precis = ''")
+		doordie(db, "alter table honks add column oonker")
+		doordie(db, "update honks set oonker = ''")
+		doordie(db, "update config set value = 7 where key = 'dbversion'")
+		fallthrough
+	case 7:
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
 	}
