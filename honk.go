@@ -190,6 +190,7 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 			Description: rss.CData{desc},
 			Link:        honk.URL,
 			PubDate:     honk.Date.Format(time.RFC1123),
+			Guid:        &rss.Guid{IsPermaLink: true, Value: honk.URL},
 		})
 		if honk.Date.After(modtime) {
 			modtime = honk.Date
