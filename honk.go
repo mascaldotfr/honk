@@ -830,7 +830,6 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 			honk.Audience = append(honk.Audience, xonkaud...)
 			convoy = c
 		}
-		honk.Oonker = xonk.Honker
 		honk.RID = rid
 	}
 	if convoy == "" {
