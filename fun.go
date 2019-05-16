@@ -96,7 +96,7 @@ type Mention struct {
 	where string
 }
 
-var re_mentions = regexp.MustCompile(`@[[:alnum:]]+@[[:alnum:].]+`)
+var re_mentions = regexp.MustCompile(`@[[:alnum:]._-]+@[[:alnum:].-]+`)
 var re_urltions = regexp.MustCompile(`@https://\S+`)
 
 func grapevine(s string) []string {
