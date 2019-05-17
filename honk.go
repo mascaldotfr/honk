@@ -594,7 +594,7 @@ func gethonksbyuser(name string) []*Honk {
 }
 func gethonksforuser(userid int64) []*Honk {
 	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
-	rows, err := stmtHonksForUser.Query(userid, dt, userid)
+	rows, err := stmtHonksForUser.Query(userid, dt, userid, userid)
 	return getsomehonks(rows, err)
 }
 func gethonksforme(userid int64) []*Honk {
@@ -948,6 +948,11 @@ func showcombos(w http.ResponseWriter, r *http.Request) {
 	var combos []string
 	for _, h := range honkers {
 		combos = append(combos, h.Combos...)
+	}
+	for i, c := range combos {
+		if c == "-" {
+			combos[i] = ""
+		}
 	}
 	combos = oneofakind(combos)
 	sort.Strings(combos)
@@ -1320,7 +1325,7 @@ func prepareStatements(db *sql.DB) {
 	stmtOneXonk = preparetodie(db, selecthonks+"where honks.userid = ? and xid = ?")
 	stmtPublicHonks = preparetodie(db, selecthonks+"where honker = '' and dt > ?"+limit)
 	stmtUserHonks = preparetodie(db, selecthonks+"where honker = '' and username = ? and dt > ?"+limit)
-	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ?"+butnotthose+limit)
+	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and honker in (select xid from honkers where userid = ? and flavor = 'sub' and combos not like '% - %')"+butnotthose+limit)
 	stmtHonksForMe = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and whofore = 1"+butnotthose+limit)
 	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.name = ?"+butnotthose+limit)
 	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.combos like ?"+butnotthose+limit)
