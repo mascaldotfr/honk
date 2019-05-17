@@ -26,9 +26,12 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+
+	"humungus.tedunangst.com/r/webs/htfilter"
 )
 
 func reverbolate(honks []*Honk) {
+	filt := htfilter.New()
 	for _, h := range honks {
 		h.What += "ed"
 		if h.Honker == "" {
@@ -56,7 +59,7 @@ func reverbolate(honks []*Honk) {
 		if precis != "" {
 			precis = "<p>summary: " + precis + "<p>"
 		}
-		h.HTML = cleanstring(precis + h.Noise)
+		h.HTML, _ = filt.String(precis + h.Noise)
 		emuxifier := func(e string) string {
 			for _, d := range h.Donks {
 				if d.Name == e {

@@ -34,6 +34,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"humungus.tedunangst.com/r/webs/htfilter"
 	"humungus.tedunangst.com/r/webs/image"
 	"humungus.tedunangst.com/r/webs/login"
 	"humungus.tedunangst.com/r/webs/rss"
@@ -498,10 +499,11 @@ func honkpage(w http.ResponseWriter, r *http.Request, u *login.UserInfo, user *W
 		w.Header().Set("Cache-Control", "max-age=60")
 	}
 	if user != nil {
+		filt := htfilter.New()
 		templinfo["Name"] = user.Name
 		whatabout := user.About
 		whatabout = obfusbreak(user.About)
-		templinfo["WhatAbout"] = cleanstring(whatabout)
+		templinfo["WhatAbout"], _ = filt.String(whatabout)
 	}
 	templinfo["Honks"] = honks
 	templinfo["ServerMessage"] = infomsg
