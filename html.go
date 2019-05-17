@@ -28,11 +28,14 @@ import (
 	"golang.org/x/net/html"
 )
 
-var permittedtags = []string{"div", "h1", "h2", "h3", "h4", "h5", "h6",
-	"table", "thead", "tbody", "th", "tr", "td",
-	"p", "br", "pre", "code", "blockquote",
-	"strong", "em", "b", "i", "s", "u", "sub", "sup", "del",
-	"ol", "ul", "li"}
+var permittedtags = []string{
+	"div", "h1", "h2", "h3", "h4", "h5", "h6",
+	"table", "thead", "tbody", "th", "tr", "td", "colgroup", "col",
+	"p", "br", "pre", "code", "blockquote", "q",
+	"samp", "mark", "ins", "dfn", "cite", "abbr", "address",
+	"strong", "em", "b", "i", "s", "u", "sub", "sup", "del", "tt", "small",
+	"ol", "ul", "li", "dl", "dt", "dd",
+}
 var permittedattr = []string{"colspan", "rowspan"}
 var bannedtags = []string{"script", "style"}
 
@@ -72,8 +75,7 @@ func writetag(w io.Writer, node *html.Node) {
 }
 
 func render(w io.Writer, node *html.Node) {
-	switch node.Type {
-	case html.ElementNode:
+	if node.Type == html.ElementNode {
 		tag := node.Data
 		switch {
 		case tag == "a":
@@ -99,12 +101,14 @@ func render(w io.Writer, node *html.Node) {
 		case contains(bannedtags, tag):
 			return
 		}
-	case html.TextNode:
+	} else if node.Type == html.TextNode {
 		io.WriteString(w, html.EscapeString(node.Data))
 	}
+
 	for c := node.FirstChild; c != nil; c = c.NextSibling {
 		render(w, c)
 	}
+
 	if node.Type == html.ElementNode {
 		tag := node.Data
 		if tag == "a" || (contains(permittedtags, tag) && tag != "br") {
