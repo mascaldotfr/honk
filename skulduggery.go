@@ -42,6 +42,8 @@ var re_alltheshitz = regexp.MustCompile(`([` +
 	bigblokshitz +
 	"][ '\ufe0f]?){3,}")
 
+var re_moredumb = regexp.MustCompile(`[👏]`)
+
 // this may not be especially fast
 func unpucker(s string) string {
 	fixer := func(r string) string {
@@ -79,6 +81,8 @@ func unpucker(s string) string {
 		return string(x)
 	}
 	s = re_alltheshitz.ReplaceAllStringFunc(s, fixer)
+
+	s = re_moredumb.ReplaceAllString(s, ".")
 
 	zw := false
 	for _, c := range s {
