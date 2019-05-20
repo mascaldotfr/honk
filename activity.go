@@ -286,6 +286,7 @@ func savexonk(user *WhatAbout, x *Honk) {
 		}
 		return
 	}
+	log.Printf("saving xonk: %s", x.XID)
 	dt := x.Date.UTC().Format(dbtimeformat)
 	aud := strings.Join(x.Audience, " ")
 	whofore := 0
