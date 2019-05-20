@@ -720,11 +720,15 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 		Audience: []string{thewholeworld},
 	}
 
+	oonker := xonk.Oonker
+	if oonker == "" {
+		oonker = xonk.Honker
+	}
 	aud := strings.Join(bonk.Audience, " ")
 	whofore := 2
 	res, err := stmtSaveHonk.Exec(userinfo.UserID, "bonk", bonk.Honker, xid, "",
 		dt.Format(dbtimeformat), "", aud, xonk.Noise, xonk.Convoy, whofore, "html",
-		xonk.Precis, xonk.Honker)
+		xonk.Precis, oonker)
 	if err != nil {
 		log.Printf("error saving bonk: %s", err)
 		return
