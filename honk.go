@@ -796,7 +796,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	user, _ := butwhatabout(userinfo.Username)
 
 	dt := time.Now().UTC()
-	xid := fmt.Sprintf("https://%s/u/%s/%s", serverName, userinfo.Username, xfiltrate())
+	xid := fmt.Sprintf("https://%s/u/%s/h/%s", serverName, userinfo.Username, xfiltrate())
 	what := "honk"
 	if rid != "" {
 		what = "tonk"
