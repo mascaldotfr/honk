@@ -84,7 +84,7 @@ func upgradedb() {
 		users := allusers()
 		for _, u := range users {
 			h := fmt.Sprintf("https://%s/u/%s", serverName, u.Username)
-			doordie(db, fmt.Sprintf("update honks set xid = '%s/h/' || xid, honker = ?, whofore = 2 where userid = ? and honker = '' and (what = 'honk' or what = 'bonk')", h), h, u.UserID)
+			doordie(db, fmt.Sprintf("update honks set xid = '%s/h/' || xid, honker = ?, whofore = 2 where userid = ? and honker = '' and (what = 'honk' or what = 'tonk')", h), h, u.UserID)
 			doordie(db, "update honks set honker = ?, whofore = 2 where userid = ? and honker = '' and what = 'bonk'", h, u.UserID)
 		}
 		doordie(db, "update config set value = 8 where key = 'dbversion'")
