@@ -459,12 +459,12 @@ func showconvoy(w http.ResponseWriter, r *http.Request) {
 
 func showhonk(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
-	xid := mux.Vars(r)["xid"]
 	user, err := butwhatabout(name)
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
+	xid := fmt.Sprintf("https://%s%s", serverName, r.URL.Path)
 	h := getxonk(user.ID, xid)
 	if h == nil {
 		http.NotFound(w, r)
