@@ -831,10 +831,6 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	if rid != "" {
 		xonk := getxonk(userinfo.UserID, rid)
 		if xonk != nil {
-			if xonk.Honker == "" {
-				xonk.Honker = "https://" + serverName + "/u/" + xonk.Username
-				rid = xonk.Honker + "/h/" + rid
-			}
 			honk.Audience = append(honk.Audience, xonk.Audience...)
 			convoy = xonk.Convoy
 		} else {
