@@ -469,18 +469,19 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 		var ok bool
 		switch what {
 		case "Announce":
-			xid, ok = jsongetstring(item, "object")
+			obj, ok = jsongetmap(item, "object")
 			if ok {
-				if !needxonkid(user, xid) {
-					return nil
-				}
-				log.Printf("getting bonk: %s", xid)
-				obj, err = GetJunk(xid)
-				if err != nil {
-					log.Printf("error regetting: %s", err)
-				}
+				xid, _ = jsongetstring(obj, "id")
 			} else {
-				obj, _ = jsongetmap(item, "object")
+				xid, _ = jsongetstring(item, "object")
+			}
+			if !needxonkid(user, xid) {
+				return nil
+			}
+			log.Printf("getting bonk: %s", xid)
+			obj, err = GetJunk(xid)
+			if err != nil {
+				log.Printf("error regetting: %s", err)
 			}
 			what = "bonk"
 		case "Create":
