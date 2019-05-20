@@ -89,6 +89,7 @@ func PostMsg(keyname string, key *rsa.PrivateKey, url string, msg []byte) error 
 	if err != nil {
 		return err
 	}
+	req.Header.Set("User-Agent", "honksnonk/5.0")
 	req.Header.Set("Content-Type", theonetruename)
 	zig(keyname, key, req, msg)
 	resp, err := client.Do(req)
