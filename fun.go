@@ -34,13 +34,8 @@ func reverbolate(honks []*Honk) {
 	filt := htfilter.New()
 	for _, h := range honks {
 		h.What += "ed"
-		if h.Honker == "" {
-			h.Honker = "https://" + serverName + "/u/" + h.Username
-			if strings.IndexByte(h.XID, '/') == -1 {
-				h.URL = h.Honker + "/h/" + h.XID
-			} else {
-				h.URL = h.XID
-			}
+		if h.Whofore == 2 {
+			h.URL = h.XID
 			h.Noise = mentionize(h.Noise)
 		} else {
 			idx := strings.LastIndexByte(h.Honker, '/')
@@ -79,6 +74,14 @@ func reverbolate(honks []*Honk) {
 		}
 		h.Donks = h.Donks[:j]
 	}
+}
+
+func shortxid(xid string) string {
+	idx := strings.LastIndexByte(xid, '/')
+	if idx == -1 {
+		return xid
+	}
+	return xid[idx+1:]
 }
 
 func xfiltrate() string {

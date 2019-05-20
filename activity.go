@@ -693,7 +693,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 	dt := h.Date.Format(time.RFC3339)
 	var jo map[string]interface{}
 	j := NewJunk()
-	j["id"] = user.URL + "/" + h.What + "/" + h.XID
+	j["id"] = user.URL + "/" + h.What + "/" + shortxid(h.XID)
 	j["actor"] = user.URL
 	j["published"] = dt
 	j["to"] = h.Audience[0]
@@ -708,10 +708,10 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 		j["type"] = "Create"
 
 		jo = NewJunk()
-		jo["id"] = user.URL + "/h/" + h.XID
+		jo["id"] = h.XID
 		jo["type"] = "Note"
 		jo["published"] = dt
-		jo["url"] = user.URL + "/h/" + h.XID
+		jo["url"] = h.XID
 		jo["attributedTo"] = user.URL
 		if h.RID != "" {
 			jo["inReplyTo"] = h.RID
@@ -775,7 +775,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 		j["object"] = h.XID
 	case "zonk":
 		j["type"] = "Delete"
-		j["object"] = user.URL + "/h/" + h.XID
+		j["object"] = h.XID
 	}
 
 	return j, jo

@@ -47,14 +47,9 @@ side.
 The main table is honks. This stores both locally created honks and incoming
 ActivityPub notes converted to honks. It is important to differentiate the two
 cases so that we don't accidentally publish external honks in the public web
-view. (Previously this was accomplished via separate tables. That made some
-queries more difficult, but I think it's possible to workaround this. It would
-be considerably safer.) The honker column will be empty for local honks.
+view. The whofore column value of 2 indiciates a public honk.
 
-The what column further refines the type of honk. If a reply, tonk.
-If shared, bonk. In particular for the case of bonk, there
-aren't enough columns to store original honker and bonker.
-This seems to work out okay though.
+The what column further refines the type of honk.
 
 Attachments are physically saved as files, and logically joined to honks via
 the donks table. Emus are saved as donks as well.
@@ -69,8 +64,7 @@ with. Their keys, their inboxes, etc. Not user visible.
 The zonkers table stores things we do not wish to see, per the wherefore
 column. zonkers are bad people, zurls are bad hosts, zonvoys are bad threads.
 
-The xid column generally corresponds to ActivityPub id. For local honks, it
-will be a short string, not a complete URL.
+The xid column generally corresponds to ActivityPub id.
 
 Note that some logical seeming joins won't work. The honker column of honks
 may not have a corresponding entry in the honkers table, since we frequently
