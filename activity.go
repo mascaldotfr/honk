@@ -137,7 +137,12 @@ func GetJunk(url string) (map[string]interface{}, error) {
 	req.Header.Set("User-Agent", "honksnonk/5.0")
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		log.Printf("first get failed: %s", err)
+		resp, err = client.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		log.Printf("retry succeeded!")
 	}
 	if resp.StatusCode != 200 {
 		resp.Body.Close()
