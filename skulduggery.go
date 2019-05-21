@@ -31,6 +31,8 @@ var bigitalshitz = "𝑨𝑩𝑪𝑫𝑬𝑭𝑮𝑯𝑰𝑱𝑲𝑳𝑴𝑵𝑶
 var lilitalshitz = "𝒂𝒃𝒄𝒅𝒆𝒇𝒈𝒉𝒊𝒋𝒌𝒍𝒎𝒏𝒐𝒑𝒒𝒓𝒔𝒕𝒖𝒗𝒘𝒙𝒚𝒛"
 var bigbangshitz = "𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ"
 var lilbangshitz = "𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫"
+var bigwideshitz = "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ"
+var lilwideshitz = "ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ" 
 var bigblokshitz = "🅰🅱🅲🅳🅴🅵🅶🅷🅸🅹🅺🅻🅼🅽🅾🅿🆀🆁🆂🆃🆄🆅🆆🆇🆈🆉"
 
 var re_alltheshitz = regexp.MustCompile(`([` +
@@ -39,6 +41,7 @@ var re_alltheshitz = regexp.MustCompile(`([` +
 	moegothshitz + morgothshitz +
 	bigitalshitz + lilitalshitz +
 	bigbangshitz + lilbangshitz +
+	bigwideshitz + lilwideshitz +
 	bigblokshitz +
 	"][ '\ufe0f]?){3,}")
 
@@ -56,7 +59,7 @@ func unpucker(s string) string {
 				x[xi] = byte(c)
 				continue
 			}
-			for _, set := range []string{bigboldshitz, biggothshitz, moegothshitz, bigitalshitz, bigbangshitz, bigblokshitz} {
+			for _, set := range []string{bigboldshitz, biggothshitz, bigwideshitz, moegothshitz, bigitalshitz, bigbangshitz, bigblokshitz} {
 				i := 0
 				for _, rr := range set {
 					if rr == c {
@@ -66,7 +69,7 @@ func unpucker(s string) string {
 					i++
 				}
 			}
-			for _, set := range []string{lilboldshitz, lilgothshitz, morgothshitz, lilitalshitz, lilbangshitz} {
+			for _, set := range []string{lilboldshitz, lilgothshitz, lilwideshitz, morgothshitz, lilitalshitz, lilbangshitz} {
 				i := 0
 				for _, rr := range set {
 					if rr == c {
