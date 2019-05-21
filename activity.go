@@ -270,12 +270,6 @@ func needxonkid(user *WhatAbout, xid string) bool {
 func savexonk(user *WhatAbout, x *Honk) {
 	if x.What == "eradicate" {
 		log.Printf("eradicating %s by %s", x.RID, x.Honker)
-		mh := re_unurl.FindStringSubmatch(x.Honker)
-		mr := re_unurl.FindStringSubmatch(x.RID)
-		if len(mh) < 2 || len(mr) < 2 || mh[1] != mr[1] {
-			log.Printf("not deleting owner mismatch")
-			return
-		}
 		xonk := getxonk(user.ID, x.RID)
 		if xonk != nil {
 			stmtZonkDonks.Exec(xonk.ID)
@@ -382,6 +376,7 @@ func peeppeep() {
 			continue
 		}
 		t, _ := jsongetstring(j, "type")
+		origin := originate(f.XID)
 		if t == "OrderedCollection" {
 			items, _ := jsongetarray(j, "orderedItems")
 			if items == nil {
@@ -395,7 +390,7 @@ func peeppeep() {
 			}
 
 			for _, item := range items {
-				xonk := xonkxonk(user, item)
+				xonk := xonkxonk(user, item, origin)
 				if xonk != nil {
 					savexonk(user, xonk)
 				}
@@ -434,10 +429,10 @@ func newphone(a []string, obj map[string]interface{}) []string {
 	return a
 }
 
-func xonkxonk(user *WhatAbout, item interface{}) *Honk {
+func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 	depth := 0
 	maxdepth := 4
-	var xonkxonkfn func(item interface{}) *Honk
+	var xonkxonkfn func(item interface{}, origin string) *Honk
 
 	saveoneup := func(xid string) {
 		log.Printf("getting oneup: %s", xid)
@@ -451,14 +446,14 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 			return
 		}
 		depth++
-		xonk := xonkxonkfn(obj)
+		xonk := xonkxonkfn(obj, originate(xid))
 		if xonk != nil {
 			savexonk(user, xonk)
 		}
 		depth--
 	}
 
-	xonkxonkfn = func(item interface{}) *Honk {
+	xonkxonkfn = func(item interface{}, origin string) *Honk {
 		// id, _ := jsongetstring(item, "id")
 		what, _ := jsongetstring(item, "type")
 		dt, _ := jsongetstring(item, "published")
@@ -484,6 +479,7 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 			if err != nil {
 				log.Printf("error regetting: %s", err)
 			}
+			origin = originate(xid)
 			what = "bonk"
 		case "Create":
 			obj, _ = jsongetmap(item, "object")
@@ -579,6 +575,10 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 				}
 			}
 		}
+		if originate(xid) != origin {
+			log.Printf("original sin: %s <> %s", xid, origin)
+			return nil
+		}
 		audience = append(audience, who)
 
 		audience = oneofakind(audience)
@@ -610,7 +610,7 @@ func xonkxonk(user *WhatAbout, item interface{}) *Honk {
 		return nil
 	}
 
-	return xonkxonkfn(item)
+	return xonkxonkfn(item, origin)
 }
 
 func rubadubdub(user *WhatAbout, req map[string]interface{}) {

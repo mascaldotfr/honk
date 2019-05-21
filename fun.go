@@ -252,6 +252,14 @@ func mentionize(s string) string {
 
 var re_unurl = regexp.MustCompile("https://([^/]+).*/([^/]+)")
 
+func originate(u string) string {
+	m := re_unurl.FindStringSubmatch(u)
+	if len(m) > 2 {
+		return m[1]
+	}
+	return ""
+}
+
 func honkerhandle(h string) string {
 	m := re_unurl.FindStringSubmatch(h)
 	if len(m) > 2 {
@@ -427,14 +435,14 @@ func thoudostbitethythumb(userid int64, who []string, objid string) bool {
 	return false
 }
 
-func keymatch(keyname string, actor string, what string, userid int64) bool {
+func keymatch(keyname string, actor string) string {
 	hash := strings.IndexByte(keyname, '#')
 	if hash == -1 {
 		hash = len(keyname)
 	}
 	owner := keyname[0:hash]
 	if owner == actor {
-		return true
+		return originate(actor)
 	}
-	return false
+	return ""
 }

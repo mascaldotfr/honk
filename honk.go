@@ -304,7 +304,8 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	who, _ := jsongetstring(j, "actor")
-	if !keymatch(keyname, who, what, user.ID) {
+	origin := keymatch(keyname, who)
+	if origin == "" {
 		log.Printf("keyname actor mismatch: %s <> %s", keyname, who)
 		return
 	}
@@ -357,7 +358,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	default:
-		xonk := xonkxonk(user, j)
+		xonk := xonkxonk(user, j, origin)
 		if xonk != nil {
 			savexonk(user, xonk)
 		}
