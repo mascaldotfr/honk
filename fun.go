@@ -159,9 +159,9 @@ func herdofemus(noise string) []Emu {
 
 var re_bolder = regexp.MustCompile(`(^|\W)\*\*([\w\s,.!?'-]+)\*\*($|\W)`)
 var re_italicer = regexp.MustCompile(`(^|\W)\*([\w\s,.!?'-]+)\*($|\W)`)
-var re_bigcoder = regexp.MustCompile("```\n?((?s:.*?))\n?```")
+var re_bigcoder = regexp.MustCompile("```\n?((?s:.*?))\n?```\n?")
 var re_coder = regexp.MustCompile("`([^`]*)`")
-var re_quoter = regexp.MustCompile(`(?m:^&gt; (.*)\n)`)
+var re_quoter = regexp.MustCompile(`(?m:^&gt; (.*)\n?)`)
 
 func markitzero(s string) string {
 	var bigcodes []string
@@ -178,7 +178,7 @@ func markitzero(s string) string {
 	s = re_coder.ReplaceAllStringFunc(s, lilsaver)
 	s = re_bolder.ReplaceAllString(s, "$1<b>$2</b>$3")
 	s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
-	s = re_quoter.ReplaceAllString(s, "<blockquote>$1</blockquote>")
+	s = re_quoter.ReplaceAllString(s, "<blockquote>$1</blockquote><p>")
 	lilun := func(s string) string {
 		code := lilcodes[0]
 		lilcodes = lilcodes[1:]
@@ -191,7 +191,7 @@ func markitzero(s string) string {
 		return code
 	}
 	s = re_bigcoder.ReplaceAllStringFunc(s, bigun)
-	s = re_bigcoder.ReplaceAllString(s, "<pre><code>$1</code></pre>")
+	s = re_bigcoder.ReplaceAllString(s, "<pre><code>$1</code></pre><p>")
 	s = re_coder.ReplaceAllString(s, "<code>$1</code>")
 	return s
 }
