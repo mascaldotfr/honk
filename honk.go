@@ -358,10 +358,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	default:
-		xonk := xonkxonk(user, j, origin)
-		if xonk != nil {
-			savexonk(user, xonk)
-		}
+		go consumeactivity(user, j, origin)
 	}
 }
 

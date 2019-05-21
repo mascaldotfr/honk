@@ -429,6 +429,13 @@ func newphone(a []string, obj map[string]interface{}) []string {
 	return a
 }
 
+func consumeactivity(user *WhatAbout, j interface{}, origin string) {
+	xonk := xonkxonk(user, j, origin)
+	if xonk != nil {
+		savexonk(user, xonk)
+	}
+}
+
 func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 	depth := 0
 	maxdepth := 4
