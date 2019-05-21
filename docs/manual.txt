@@ -59,6 +59,12 @@ Custom emus may be provided by creating and populating the emus directory.
 emus may be referenced when composing a honk via colon wrapping. How pleasant.
 This :example: will be replaced by emus/example.png.
 
+-- cleanup
+
+One may occasionally run `honk cleanup` to free up internal space in the
+database. (This does not run vacuum, so the file size will not immediately
+shrink.)
+
 -- proxy
 
 honk requires a TLS terminating reverse proxy be configured. It communicates

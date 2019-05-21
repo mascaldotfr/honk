@@ -1302,6 +1302,11 @@ func serve() {
 	}
 }
 
+func cleanupdb() {
+	db := opendatabase()
+	doordie(db, "delete from files where fileid not in (select fileid from donks)")
+}
+
 var stmtHonkers, stmtDubbers, stmtSaveHonker, stmtUpdateFlavor, stmtUpdateCombos *sql.Stmt
 var stmtOneXonk, stmtPublicHonks, stmtUserHonks, stmtHonksByCombo, stmtHonksByConvoy *sql.Stmt
 var stmtHonksForUser, stmtHonksForMe, stmtSaveDub *sql.Stmt
@@ -1403,6 +1408,8 @@ func main() {
 	getconfig("servername", &serverName)
 	prepareStatements(db)
 	switch cmd {
+	case "cleanup":
+		cleanupdb()
 	case "ping":
 		if len(os.Args) < 4 {
 			fmt.Printf("usage: honk ping from to\n")
