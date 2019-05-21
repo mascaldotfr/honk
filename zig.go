@@ -139,6 +139,12 @@ func zag(req *http.Request, content []byte) (string, error) {
 			if s != serverName {
 				log.Printf("caution: servername host header mismatch")
 			}
+		case "digest":
+			s = req.Header.Get(h)
+			expv := "SHA-256=" + sb64sha256(content)
+			if s != expv {
+				return "", fmt.Errorf("digest header '%s' did not match content", s)
+			}
 		default:
 			s = req.Header.Get(h)
 		}
