@@ -274,11 +274,11 @@ func needxonkid(user *WhatAbout, xid string) bool {
 
 func savexonk(user *WhatAbout, x *Honk) {
 	if x.What == "eradicate" {
-		log.Printf("eradicating %s by %s", x.RID, x.Honker)
-		xonk := getxonk(user.ID, x.RID)
+		log.Printf("eradicating %s by %s", x.XID, x.Honker)
+		xonk := getxonk(user.ID, x.XID)
 		if xonk != nil {
 			stmtZonkDonks.Exec(xonk.ID)
-			_, err := stmtZonkIt.Exec(user.ID, x.RID)
+			_, err := stmtZonkIt.Exec(user.ID, x.XID)
 			if err != nil {
 				log.Printf("error eradicating: %s", err)
 			}
@@ -498,7 +498,7 @@ func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 			what = "honk"
 		case "Delete":
 			obj, _ = jsongetmap(item, "object")
-			rid, _ = jsongetstring(item, "object")
+			xid, _ = jsongetstring(item, "object")
 			what = "eradicate"
 		case "Note":
 			fallthrough
@@ -543,7 +543,7 @@ func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 				}
 			}
 			if ot == "Tombstone" {
-				rid, _ = jsongetstring(obj, "id")
+				xid, _ = jsongetstring(obj, "id")
 			}
 			atts, _ := jsongetarray(obj, "attachment")
 			for i, att := range atts {
