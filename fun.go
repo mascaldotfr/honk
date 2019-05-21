@@ -424,9 +424,8 @@ func thoudostbitethythumb(userid int64, who []string, objid string) bool {
 		if biters[w] {
 			return true
 		}
-		m := re_unurl.FindStringSubmatch(w)
-		if len(m) > 2 {
-			where := m[1]
+		where := originate(w)
+		if where != "" {
 			if biters[where] {
 				return true
 			}
