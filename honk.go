@@ -1299,6 +1299,21 @@ func serve() {
 
 func cleanupdb() {
 	db := opendatabase()
+	rows, _ := db.Query("select userid, name from zonkers where wherefore = 'zonvoy'")
+	deadthreads := make(map[int64][]string)
+	for rows.Next() {
+		var userid int64
+        var name string
+        rows.Scan(&userid, &name)
+		deadthreads[userid] = append(deadthreads[userid], name)
+	}
+	rows.Close()
+	for userid, threads := range deadthreads {
+		for _, t := range threads {
+			doordie(db, "delete from donks where honkid in (select honkid from honks where userid = ? and convoy = ?)", userid, t)
+			doordie(db, "delete from honks where userid = ? and convoy = ?", userid, t)
+		}
+	}
 	doordie(db, "delete from files where fileid not in (select fileid from donks)")
 }
 
