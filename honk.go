@@ -17,8 +17,6 @@ package main
 
 import (
 	"bytes"
-	"crypto/rand"
-	"crypto/rsa"
 	"database/sql"
 	"fmt"
 	"html"
@@ -1364,27 +1362,6 @@ func prepareStatements(db *sql.DB) {
 func ElaborateUnitTests() {
 }
 
-func finishusersetup() error {
-	db := opendatabase()
-	k, err := rsa.GenerateKey(rand.Reader, 2048)
-	if err != nil {
-		return err
-	}
-	pubkey, err := zem(&k.PublicKey)
-	if err != nil {
-		return err
-	}
-	seckey, err := zem(k)
-	if err != nil {
-		return err
-	}
-	_, err = db.Exec("update users set displayname = username, about = ?, pubkey = ?, seckey = ? where userid = 1", "what about me?", pubkey, seckey)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func main() {
 	cmd := "run"
 	if len(os.Args) > 1 {
@@ -1405,6 +1382,8 @@ func main() {
 	getconfig("servername", &serverName)
 	prepareStatements(db)
 	switch cmd {
+	case "adduser":
+		adduser()
 	case "cleanup":
 		cleanupdb()
 	case "ping":

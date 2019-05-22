@@ -35,6 +35,7 @@ import "C"
 import (
 	"bufio"
 	"crypto/rand"
+	"crypto/rsa"
 	"crypto/sha512"
 	"database/sql"
 	"fmt"
@@ -108,41 +109,13 @@ func initdb() {
 	}
 	defer db.Close()
 	r := bufio.NewReader(os.Stdin)
-	fmt.Printf("username: ")
-	name, err := r.ReadString('\n')
+
+	err = createuser(db, r)
 	if err != nil {
 		log.Print(err)
 		return
 	}
-	name = name[:len(name)-1]
-	if len(name) < 1 {
-		log.Print("that's way too short")
-		return
-	}
-	C.termecho(0)
-	fmt.Printf("password: ")
-	pass, err := r.ReadString('\n')
-	C.termecho(1)
-	fmt.Printf("\n")
-	if err != nil {
-		log.Print(err)
-		return
-	}
-	pass = pass[:len(pass)-1]
-	if len(pass) < 6 {
-		log.Print("that's way too short")
-		return
-	}
-	hash, err := bcrypt.GenerateFromPassword([]byte(pass), 12)
-	if err != nil {
-		log.Print(err)
-		return
-	}
-	_, err = db.Exec("insert into users (username, hash) values (?, ?)", name, hash)
-	if err != nil {
-		log.Print(err)
-		return
-	}
+
 	fmt.Printf("listen address: ")
 	addr, err := r.ReadString('\n')
 	if err != nil {
@@ -188,15 +161,81 @@ func initdb() {
 		log.Print(err)
 		return
 	}
-	err = finishusersetup()
-	if err != nil {
-		log.Print(err)
-		return
-	}
 	prepareStatements(db)
 	db.Close()
 	fmt.Printf("done.\n")
 	os.Exit(0)
+}
+
+func adduser() {
+	db := opendatabase()
+	defer func() {
+		os.Exit(1)
+	}()
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		C.termecho(1)
+		fmt.Printf("\n")
+		os.Exit(1)
+	}()
+
+	r := bufio.NewReader(os.Stdin)
+
+	err := createuser(db, r)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	db.Close()
+	os.Exit(0)
+}
+
+func createuser(db *sql.DB, r *bufio.Reader) error {
+	fmt.Printf("username: ")
+	name, err := r.ReadString('\n')
+	if err != nil {
+		return err
+	}
+	name = name[:len(name)-1]
+	if len(name) < 1 {
+		return fmt.Errorf("that's way too short")
+	}
+	C.termecho(0)
+	fmt.Printf("password: ")
+	pass, err := r.ReadString('\n')
+	C.termecho(1)
+	fmt.Printf("\n")
+	if err != nil {
+		return err
+	}
+	pass = pass[:len(pass)-1]
+	if len(pass) < 6 {
+		return fmt.Errorf("that's way too short")
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(pass), 12)
+	if err != nil {
+		return err
+	}
+	k, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return err
+	}
+	pubkey, err := zem(&k.PublicKey)
+	if err != nil {
+		return err
+	}
+	seckey, err := zem(k)
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec("insert into users (username, displayname, about, hash, pubkey, seckey) values (?, ?, ?, ?, ?, ?)", name, name, "what about me?", hash, pubkey, seckey)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func opendatabase() *sql.DB {

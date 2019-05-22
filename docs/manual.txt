@@ -65,6 +65,10 @@ One may occasionally run `honk cleanup` to free up internal space in the
 database. (This does not run vacuum, so the file size will not immediately
 shrink.)
 
+-- add user
+
+Running `honk adduser` can add additional users. This is discouraged.
+
 -- proxy
 
 honk requires a TLS terminating reverse proxy be configured. It communicates
