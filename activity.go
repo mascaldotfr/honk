@@ -551,7 +551,9 @@ func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 				mt, _ := jsongetstring(att, "mediaType")
 				u, _ := jsongetstring(att, "url")
 				name, _ := jsongetstring(att, "name")
-				if i < 4 && (at == "Document" || at == "Image") {
+				if i > 4 {
+					log.Printf("excessive attachment: %s", at)
+				} else if at == "Document" || at == "Image" {
 					mt = strings.ToLower(mt)
 					log.Printf("attachment: %s %s", mt, u)
 					if mt == "image/jpeg" || mt == "image/png" ||
