@@ -75,6 +75,7 @@ type Donk struct {
 	Name    string
 	URL     string
 	Media   string
+	Local   bool
 	Content []byte
 }
 
@@ -671,7 +672,7 @@ func donksforhonks(honks []*Honk) {
 		ids = append(ids, fmt.Sprintf("%d", h.ID))
 		hmap[h.ID] = h
 	}
-	q := fmt.Sprintf("select honkid, donks.fileid, xid, name, url, media from donks join files on donks.fileid = files.fileid where honkid in (%s)", strings.Join(ids, ","))
+	q := fmt.Sprintf("select honkid, donks.fileid, xid, name, url, media, local from donks join files on donks.fileid = files.fileid where honkid in (%s)", strings.Join(ids, ","))
 	rows, err := db.Query(q)
 	if err != nil {
 		log.Printf("error querying donks: %s", err)
@@ -681,7 +682,7 @@ func donksforhonks(honks []*Honk) {
 	for rows.Next() {
 		var hid int64
 		var d Donk
-		err = rows.Scan(&hid, &d.FileID, &d.XID, &d.Name, &d.URL, &d.Media)
+		err = rows.Scan(&hid, &d.FileID, &d.XID, &d.Name, &d.URL, &d.Media, &d.Local)
 		if err != nil {
 			log.Printf("error scanning donk: %s", err)
 			continue
@@ -889,7 +890,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 			xid += ".txt"
 		}
 		url := fmt.Sprintf("https://%s/d/%s", serverName, xid)
-		res, err := stmtSaveFile.Exec(xid, name, url, media, data)
+		res, err := stmtSaveFile.Exec(xid, name, url, media, 1, data)
 		if err != nil {
 			log.Printf("unable to save image: %s", err)
 			return
@@ -1303,8 +1304,8 @@ func cleanupdb() {
 	deadthreads := make(map[int64][]string)
 	for rows.Next() {
 		var userid int64
-        var name string
-        rows.Scan(&userid, &name)
+		var name string
+		rows.Scan(&userid, &name)
 		deadthreads[userid] = append(deadthreads[userid], name)
 	}
 	rows.Close()
@@ -1314,6 +1315,8 @@ func cleanupdb() {
 			doordie(db, "delete from honks where userid = ? and convoy = ?", userid, t)
 		}
 	}
+	expdate := time.Now().UTC().Add(-30 * 24 * time.Hour).Format(dbtimeformat)
+	doordie(db, "update files set content = '', local = 0 where length(content) > 20000 and fileid in (select fileid from donks join honks on donks.honkid = honks.honkid where honks.dt < ? and whofore = 0)", expdate)
 	doordie(db, "delete from files where fileid not in (select fileid from donks)")
 }
 
@@ -1360,8 +1363,8 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")
 	stmtZonkIt = preparetodie(db, "delete from honks where userid = ? and xid = ?")
 	stmtZonkDonks = preparetodie(db, "delete from donks where honkid = ?")
-	stmtFindFile = preparetodie(db, "select fileid from files where url = ?")
-	stmtSaveFile = preparetodie(db, "insert into files (xid, name, url, media, content) values (?, ?, ?, ?, ?)")
+	stmtFindFile = preparetodie(db, "select fileid from files where url = ? and local = 1")
+	stmtSaveFile = preparetodie(db, "insert into files (xid, name, url, media, local, content) values (?, ?, ?, ?, ?, ?)")
 	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey from users where username = ?")
 	stmtSaveDub = preparetodie(db, "insert into honkers (userid, name, xid, flavor) values (?, ?, ?, ?)")
 	stmtAddDoover = preparetodie(db, "insert into doovers (dt, tries, username, rcpt, msg) values (?, ?, ?, ?, ?)")

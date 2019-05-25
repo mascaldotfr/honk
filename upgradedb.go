@@ -89,6 +89,10 @@ func upgradedb() {
 		}
 		doordie(db, "update config set value = 8 where key = 'dbversion'")
 	case 8:
+		doordie(db, "alter table files add column local integer")
+		doordie(db, "update files set local = 1")
+		doordie(db, "update config set value = 9 where key = 'dbversion'")
+	case 9:
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
 	}

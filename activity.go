@@ -237,7 +237,7 @@ func savedonk(url string, name, media string) *Donk {
 		data = img.Data
 		media = "image/" + img.Format
 	}
-	res, err := stmtSaveFile.Exec(xid, name, url, media, data)
+	res, err := stmtSaveFile.Exec(xid, name, url, media, 1, data)
 	if err != nil {
 		log.Printf("error saving file %s: %s", url, err)
 		return nil

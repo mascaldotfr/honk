@@ -24,10 +24,14 @@ convoy: <a href="/t?c={{ .Convoy }}">{{ .Convoy }}</a>
 <div class="noise">
 <p>{{ .HTML }}
 {{ range .Donks }}
+{{ if .Local }}
 {{ if eq .Media "text/plain" }}
 <p><a href="/d/{{ .XID }}">Attachment: {{ .Name }}</a>
 {{ else }}
 <p><a href="/d/{{ .XID }}"><img src="/d/{{ .XID }}" title="{{ .URL }}"></a>
+{{ end }}
+{{ else }}
+<p><a href="{{ .URL }}">External Attachment: {{ .Name }}</a>
 {{ end }}
 {{ end }}
 </div>
