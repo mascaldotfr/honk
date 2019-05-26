@@ -17,17 +17,15 @@
 <section class="honk">
 <header>
 <img alt="avatar" src="/a?a={{ .XID }}">
-<p style="font-size: 1.8em">{{ .Name }}
+<p style="font-size: 1.8em"><a href="/h/{{ .Name }}">{{ .Name }}<a>
 </header>
 <p>url: <a href="{{ .XID }}" rel=noreferrer>{{ .XID }}</a>
 <p>flavor: {{ .Flavor }}
-<p><a href="/h/{{ .Name }}">honks</a>
-<p>combos:{{ range .Combos }} <a href="/c/{{ . }}">{{ . }}</a>{{ end }}
 <form action="/savehonker" method="POST">
 <input type="hidden" name="CSRF" value="{{ $honkercsrf }}">
 <input type="hidden" name="honkerid" value="{{ .ID }}">
 <p>combos: <input type="text" name="combos" value="{{ range .Combos }}{{ . }} {{end}}">
-<p>depart: <input type="text" name="goodbye" value="" autocomplete=off> (say "goodbye")
+<p>depart: <input type="text" name="goodbye" placeholder="press F" value="" autocomplete=off>
 <p><input type="submit" name="save" value="save">
 </form>
 </section>

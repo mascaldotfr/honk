@@ -977,7 +977,7 @@ func savehonker(w http.ResponseWriter, r *http.Request) {
 
 	if honkerid > 0 {
 		goodbye := r.FormValue("goodbye")
-		if goodbye == "goodbye" {
+		if goodbye == "F" {
 			db := opendatabase()
 			row := db.QueryRow("select xid from honkers where honkerid = ? and userid = ?",
 				honkerid, u.UserID)
