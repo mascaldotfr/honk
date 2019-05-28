@@ -911,7 +911,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	}
 	herd := herdofemus(honk.Noise)
 	for _, e := range herd {
-		donk := savedonk(e.ID, e.Name, "image/png")
+		donk := savedonk(e.ID, e.Name, "image/png", true)
 		if donk != nil {
 			donk.Name = e.Name
 			honk.Donks = append(honk.Donks, donk)

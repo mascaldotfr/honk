@@ -22,7 +22,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"html"
 	"io"
 	"log"
 	"net/http"
@@ -202,7 +201,10 @@ func jsongetmap(j interface{}, key string) (map[string]interface{}, bool) {
 	return jsonfindmap(j, []string{key})
 }
 
-func savedonk(url string, name, media string) *Donk {
+func savedonk(url string, name, media string, localize bool) *Donk {
+	if url == "" {
+		return nil
+	}
 	var donk Donk
 	row := stmtFindFile.QueryRow(url)
 	err := row.Scan(&donk.FileID)
@@ -213,31 +215,37 @@ func savedonk(url string, name, media string) *Donk {
 	if err != nil && err != sql.ErrNoRows {
 		log.Printf("error querying: %s", err)
 	}
-	resp, err := http.Get(url)
-	if err != nil {
-		log.Printf("error fetching %s: %s", url, err)
-		return nil
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return nil
-	}
-	var buf bytes.Buffer
-	io.Copy(&buf, resp.Body)
-
 	xid := xfiltrate()
-
-	data := buf.Bytes()
-	if strings.HasPrefix(media, "image") {
-		img, err := image.Vacuum(&buf)
+	data := []byte{}
+	if localize {
+		resp, err := http.Get(url)
 		if err != nil {
-			log.Printf("unable to decode image: %s", err)
-			return nil
+			log.Printf("error fetching %s: %s", url, err)
+			localize = false
+			goto saveit
 		}
-		data = img.Data
-		media = "image/" + img.Format
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			localize = false
+			goto saveit
+		}
+		var buf bytes.Buffer
+		io.Copy(&buf, resp.Body)
+
+		data = buf.Bytes()
+		if strings.HasPrefix(media, "image") {
+			img, err := image.Vacuum(&buf)
+			if err != nil {
+				log.Printf("unable to decode image: %s", err)
+				localize = false
+				goto saveit
+			}
+			data = img.Data
+			media = "image/" + img.Format
+		}
 	}
-	res, err := stmtSaveFile.Exec(xid, name, url, media, 1, data)
+saveit:
+	res, err := stmtSaveFile.Exec(xid, name, url, media, localize, data)
 	if err != nil {
 		log.Printf("error saving file %s: %s", url, err)
 		return nil
@@ -551,6 +559,7 @@ func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 				mt, _ := jsongetstring(att, "mediaType")
 				u, _ := jsongetstring(att, "url")
 				name, _ := jsongetstring(att, "name")
+				localize := false
 				if i > 4 {
 					log.Printf("excessive attachment: %s", at)
 				} else if at == "Document" || at == "Image" {
@@ -558,17 +567,14 @@ func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 					log.Printf("attachment: %s %s", mt, u)
 					if mt == "image/jpeg" || mt == "image/png" ||
 						mt == "text/plain" {
-						donk := savedonk(u, name, mt)
-						if donk != nil {
-							xonk.Donks = append(xonk.Donks, donk)
-						}
-					} else {
-						u = html.EscapeString(u)
-						content += fmt.Sprintf(
-							`<p>External attachment: <a href="%s" rel=noreferrer>%s</a>`, u, u)
+						localize = true
 					}
 				} else {
 					log.Printf("unknown attachment: %s", at)
+				}
+				donk := savedonk(u, name, mt, localize)
+				if donk != nil {
+					xonk.Donks = append(xonk.Donks, donk)
 				}
 			}
 			tags, _ := jsongetarray(obj, "tag")
@@ -582,7 +588,7 @@ func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 						mt = "image/png"
 					}
 					u, _ := jsongetstring(icon, "url")
-					donk := savedonk(u, name, mt)
+					donk := savedonk(u, name, mt, true)
 					if donk != nil {
 						xonk.Donks = append(xonk.Donks, donk)
 					}
