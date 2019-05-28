@@ -1,4 +1,4 @@
-<article class="honk {{ .Honk.What }} {{ .Honk.Privacy }}">
+<article class="honk {{ .Honk.What }} {{ and (not .Honk.Public) "limited" }}">
 {{ with .Honk }}
 <header>
 <img alt="avatar" src="/a?a={{ .Honker}}">
@@ -39,10 +39,10 @@ convoy: <a href="/t?c={{ .Convoy }}">{{ .Convoy }}</a>
 {{ if .BonkCSRF }}
 <p>
 <div>
-{{ if not .Honk.Privacy }}
+{{ if .Honk.Public }}
 <button onclick="bonk(this, '{{ .Honk.XID }}'); return false;"><a href="/bonk">bonk</a></button>
-<button onclick="showhonkform('{{ .Honk.XID }}', '{{ .Honk.Username }}'); return false;"><a href="/newhonk">tonk</a></button>
 {{ end }}
+<button onclick="showhonkform('{{ .Honk.XID }}', '{{ .Honk.Username }}'); return false;"><a href="/newhonk">tonk</a></button>
 <form class="inlineform" action="/zonkit" method="POST">
 <input type="hidden" name="CSRF" value="{{ .BonkCSRF }}">
 <input type="hidden" name="honk" value="{{ .Honk.XID }}">

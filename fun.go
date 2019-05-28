@@ -281,6 +281,15 @@ func butnottooloud(aud []string) {
 	}
 }
 
+func keepitquiet(aud []string) bool {
+	for _, a := range aud {
+		if a == thewholeworld {
+			return false
+		}
+	}
+	return true
+}
+
 func oneofakind(a []string) []string {
 	var x []string
 	for n, s := range a {

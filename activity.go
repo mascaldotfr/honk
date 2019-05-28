@@ -809,19 +809,25 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 	for _, a := range honk.Audience {
 		if a != thewholeworld && a != user.URL && !strings.HasSuffix(a, "/followers") {
 			box, _ := getboxes(a)
-			if box != nil && box.Shared != "" {
-				rcpts["%"+box.Shared] = true
+			if box != nil {
+				if honk.Public && box.Shared != "" {
+					rcpts["%"+box.Shared] = true
+				} else {
+					rcpts["%"+box.In] = true
+				}
 			} else {
 				rcpts[a] = true
 			}
 		}
 	}
-	for _, f := range getdubs(user.ID) {
-		box, _ := getboxes(f.XID)
-		if box != nil && box.Shared != "" {
-			rcpts["%"+box.Shared] = true
-		} else {
-			rcpts[f.XID] = true
+	if honk.Public {
+		for _, f := range getdubs(user.ID) {
+			box, _ := getboxes(f.XID)
+			if box != nil && box.Shared != "" {
+				rcpts["%"+box.Shared] = true
+			} else {
+				rcpts[f.XID] = true
+			}
 		}
 	}
 	for a := range rcpts {

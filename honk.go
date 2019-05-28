@@ -63,7 +63,7 @@ type Honk struct {
 	Precis   string
 	Convoy   string
 	Audience []string
-	Privacy  string
+	Public   bool
 	Whofore  int64
 	HTML     template.HTML
 	Donks    []*Donk
@@ -156,7 +156,7 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 
 	var honks []*Honk
 	if name != "" {
-		honks = gethonksbyuser(name)
+		honks = gethonksbyuser(name, false)
 	} else {
 		honks = getpublichonks()
 	}
@@ -368,7 +368,7 @@ func outbox(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	honks := gethonksbyuser(name)
+	honks := gethonksbyuser(name, false)
 
 	var jonks []map[string]interface{}
 	for _, h := range honks {
@@ -425,8 +425,8 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 		WriteJunk(w, j)
 		return
 	}
-	honks := gethonksbyuser(name)
 	u := login.GetUserInfo(r)
+	honks := gethonksbyuser(name, u != nil && u.Username == name)
 	honkpage(w, r, u, user, honks, "")
 }
 
@@ -463,7 +463,7 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 	}
 	xid := fmt.Sprintf("https://%s%s", serverName, r.URL.Path)
 	h := getxonk(user.ID, xid)
-	if h == nil {
+	if h == nil || !h.Public {
 		http.NotFound(w, r)
 		return
 	}
@@ -477,11 +477,6 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	honks := gethonksbyconvoy(-1, h.Convoy)
-	for _, hh := range honks {
-		if hh.XID != h.XID {
-			hh.Privacy = "limited"
-		}
-	}
 	u := login.GetUserInfo(r)
 	honkpage(w, r, u, nil, honks, "one honk maybe more")
 }
@@ -591,6 +586,7 @@ func getxonk(userid int64, xid string) *Honk {
 	}
 	h.Date, _ = time.Parse(dbtimeformat, dt)
 	h.Audience = strings.Split(aud, " ")
+	h.Public = !keepitquiet(h.Audience)
 	return h
 }
 
@@ -599,9 +595,13 @@ func getpublichonks() []*Honk {
 	rows, err := stmtPublicHonks.Query(dt)
 	return getsomehonks(rows, err)
 }
-func gethonksbyuser(name string) []*Honk {
+func gethonksbyuser(name string, includeprivate bool) []*Honk {
 	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
-	rows, err := stmtUserHonks.Query(name, dt)
+	whofore := 2
+	if includeprivate {
+		whofore = 3
+	}
+	rows, err := stmtUserHonks.Query(whofore, name, dt)
 	return getsomehonks(rows, err)
 }
 func gethonksforuser(userid int64) []*Honk {
@@ -650,13 +650,7 @@ func getsomehonks(rows *sql.Rows, err error) []*Honk {
 		}
 		h.Date, _ = time.Parse(dbtimeformat, dt)
 		h.Audience = strings.Split(aud, " ")
-		h.Privacy = "limited"
-		for _, a := range h.Audience {
-			if a == thewholeworld {
-				h.Privacy = ""
-				break
-			}
-		}
+		h.Public = !keepitquiet(h.Audience)
 		honks = append(honks, &h)
 	}
 	rows.Close()
@@ -701,6 +695,9 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 
 	xonk := getxonk(userinfo.UserID, xid)
 	if xonk == nil {
+		return
+	}
+	if !xonk.Public {
 		return
 	}
 	donksforhonks([]*Honk{xonk})
@@ -767,7 +764,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		if xonk != nil {
 			stmtZonkDonks.Exec(xonk.ID)
 			stmtZonkIt.Exec(userinfo.UserID, what)
-			if xonk.Whofore == 2 {
+			if xonk.Whofore == 2 || xonk.Whofore == 3 {
 				zonk := Honk{
 					What:     "zonk",
 					XID:      xonk.XID,
@@ -823,11 +820,6 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	noise = strings.TrimSpace(noise)
 	honk.Precis = strings.TrimSpace(honk.Precis)
 
-	if noise != "" && noise[0] == '@' {
-		honk.Audience = append(grapevine(noise), thewholeworld)
-	} else {
-		honk.Audience = prepend(thewholeworld, grapevine(noise))
-	}
 	var convoy string
 	if rid != "" {
 		xonk := getxonk(userinfo.UserID, rid)
@@ -839,13 +831,27 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 			honk.Audience = append(honk.Audience, xonkaud...)
 			convoy = c
 		}
+		for i, a := range honk.Audience {
+			if a == thewholeworld {
+				honk.Audience[0], honk.Audience[i] = honk.Audience[i], honk.Audience[0]
+				break
+			}
+		}
 		honk.RID = rid
+	} else {
+		honk.Audience = []string{thewholeworld}
+	}
+	if noise != "" && noise[0] == '@' {
+		honk.Audience = append(grapevine(noise), honk.Audience...)
+	} else {
+		honk.Audience = append(honk.Audience, grapevine(noise)...)
 	}
 	if convoy == "" {
 		convoy = "data:,electrichonkytonk-" + xfiltrate()
 	}
 	butnottooloud(honk.Audience)
 	honk.Audience = oneofakind(honk.Audience)
+	honk.Public = !keepitquiet(honk.Audience)
 	noise = obfusbreak(noise)
 	honk.Noise = noise
 	honk.Convoy = convoy
@@ -914,6 +920,9 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 
 	aud := strings.Join(honk.Audience, " ")
 	whofore := 2
+	if !honk.Public {
+		whofore = 3
+	}
 	res, err := stmtSaveHonk.Exec(userinfo.UserID, what, honk.Honker, xid, rid,
 		dt.Format(dbtimeformat), "", aud, noise, convoy, whofore, "html", honk.Precis, honk.Oonker)
 	if err != nil {
@@ -1350,7 +1359,7 @@ func prepareStatements(db *sql.DB) {
 	butnotthose := " and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"
 	stmtOneXonk = preparetodie(db, selecthonks+"where honks.userid = ? and xid = ?")
 	stmtPublicHonks = preparetodie(db, selecthonks+"where whofore = 2 and dt > ?"+limit)
-	stmtUserHonks = preparetodie(db, selecthonks+"where whofore = 2 and username = ? and dt > ?"+limit)
+	stmtUserHonks = preparetodie(db, selecthonks+"where (whofore = 2 or whofore = ?) and username = ? and dt > ?"+limit)
 	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and honker in (select xid from honkers where userid = ? and flavor = 'sub' and combos not like '% - %')"+butnotthose+limit)
 	stmtHonksForMe = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and whofore = 1"+butnotthose+limit)
 	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.name = ?"+butnotthose+limit)

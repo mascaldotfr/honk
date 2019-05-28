@@ -93,9 +93,6 @@ func deliverate(goarounds int, username string, rcpt string, msg []byte) {
 			return
 		}
 		inbox = box.In
-		if box.Shared != "" {
-			inbox = box.Shared
-		}
 	}
 	err := PostMsg(keyname, key, inbox, msg)
 	if err != nil {
