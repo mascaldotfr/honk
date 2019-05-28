@@ -741,6 +741,9 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 		if len(h.Audience) > 1 {
 			jo["cc"] = h.Audience[1:]
 		}
+		if !h.Public {
+			jo["directMessage"] = true
+		}
 		jo["summary"] = h.Precis
 		jo["content"] = mentionize(h.Noise)
 		if strings.HasPrefix(h.Precis, "DZ:") {
