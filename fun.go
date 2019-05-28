@@ -34,7 +34,7 @@ func reverbolate(honks []*Honk) {
 	filt := htfilter.New()
 	for _, h := range honks {
 		h.What += "ed"
-		if h.Whofore == 2 {
+		if h.Whofore == 2 || h.Whofore == 3 {
 			h.URL = h.XID
 			h.Noise = mentionize(h.Noise)
 		} else {
