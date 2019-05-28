@@ -1325,7 +1325,7 @@ func cleanupdb() {
 		}
 	}
 	expdate := time.Now().UTC().Add(-30 * 24 * time.Hour).Format(dbtimeformat)
-	doordie(db, "update files set content = '', local = 0 where length(content) > 20000 and fileid in (select fileid from donks join honks on donks.honkid = honks.honkid where honks.dt < ? and whofore = 0) and fileid not in (select fileid from donks join honks on donks.honkid = honks.honkid where whofore = 2)", expdate)
+	doordie(db, "update files set content = '', local = 0 where length(content) > 20000 and fileid in (select fileid from donks join honks on donks.honkid = honks.honkid where honks.dt < ? and whofore = 0) and fileid not in (select fileid from donks join honks on donks.honkid = honks.honkid where whofore = 2 or whofore = 3)", expdate)
 	doordie(db, "delete from files where fileid not in (select fileid from donks)")
 }
 
