@@ -1,4 +1,4 @@
-<article class="honk {{ .Honk.What }} {{ and (not .Honk.Public) "limited" }}">
+<article class="honk {{ .Honk.What }} {{ and (not .Honk.Public) "limited" }}" data-convoy="{{ .Honk.Convoy }}">
 {{ with .Honk }}
 <header>
 <img alt="avatar" src="/a?a={{ .Honker}}">

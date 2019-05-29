@@ -40,13 +40,28 @@ function zonkit(el) {
 	el.innerHTML = "zonked"
 	el.disabled = true
 	var data = { }
+	var convoy, wherefore
 	for (var i in el.parentElement.elements) {
 		var e = el.parentElement.elements[i]
 		if (e.name) {
 			data[e.name] = e.value
+			if (e.name == "convoy") {
+				convoy = e.value
+			} else if (e.name == "wherefore") {
+				wherefore = e.value
+			}
 		}
 	}
 	post("/zonkit", encode(data))
+	if (wherefore == "this convoy") {
+		var els = document.querySelectorAll('article.honk')
+		for (var i = 0; i < els.length; i++) {
+			var e = els[i]
+			if (e.getAttribute("data-convoy") == convoy) {
+				e.remove()
+			}
+		}
+	}
 }
 </script>
 {{ end }}
