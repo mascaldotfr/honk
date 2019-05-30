@@ -444,7 +444,8 @@ func bitethethumbs() {
 			continue
 		}
 		if wherefore == "zword" {
-			re, err := regexp.Compile("\\b" + name + "\\b")
+			zword := "\\b(?i:" + name + ")\\b"
+			re, err := regexp.Compile(zword)
 			if err != nil {
 				log.Printf("error compiling zword: %s", err)
 			} else {
