@@ -76,6 +76,31 @@ func reverbolate(honks []*Honk) {
 	}
 }
 
+func osmosis(honks []*Honk, userid int64) []*Honk {
+	zwords := getzwords(userid)
+	collapse := false
+	for i, h := range honks {
+		for _, z := range zwords {
+			if z.MatchString(h.Noise) {
+				honks[i] = nil
+				collapse = true
+				break
+			}
+		}
+	}
+	if collapse {
+		j := 0
+		for i := 0; i < len(honks); i++ {
+			if honks[i] != nil {
+				honks[j] = honks[i]
+				j++
+			}
+		}
+		return honks[0:j]
+	}
+	return honks
+}
+
 func shortxid(xid string) string {
 	idx := strings.LastIndexByte(xid, '/')
 	if idx == -1 {
@@ -396,6 +421,7 @@ func makeitworksomehowwithoutregardforkeycontinuity(keyname string, r *http.Requ
 }
 
 var thumbbiters map[int64]map[string]bool
+var zwordses map[int64][]*regexp.Regexp
 var thumblock sync.Mutex
 
 func bitethethumbs() {
@@ -408,12 +434,22 @@ func bitethethumbs() {
 	thumblock.Lock()
 	defer thumblock.Unlock()
 	thumbbiters = make(map[int64]map[string]bool)
+	zwordses = make(map[int64][]*regexp.Regexp)
 	for rows.Next() {
 		var userid int64
 		var name, wherefore string
 		err = rows.Scan(&userid, &name, &wherefore)
 		if err != nil {
 			log.Printf("error scanning zonker: %s", err)
+			continue
+		}
+		if wherefore == "zword" {
+			re, err := regexp.Compile("\\b" + name + "\\b")
+			if err != nil {
+				log.Printf("error compiling zword: %s", err)
+			} else {
+				zwordses[userid] = append(zwordses[userid], re)
+			}
 			continue
 		}
 		m := thumbbiters[userid]
@@ -423,6 +459,12 @@ func bitethethumbs() {
 		}
 		m[name] = true
 	}
+}
+
+func getzwords(userid int64) []*regexp.Regexp {
+	thumblock.Lock()
+	defer thumblock.Unlock()
+	return zwordses[userid]
 }
 
 func thoudostbitethythumb(userid int64, who []string, objid string) bool {

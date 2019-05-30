@@ -112,6 +112,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 			honks = gethonksforme(u.UserID)
 		} else {
 			honks = gethonksforuser(u.UserID)
+			honks = osmosis(honks, u.UserID)
 		}
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	} else {
@@ -486,6 +487,7 @@ func honkpage(w http.ResponseWriter, r *http.Request, u *login.UserInfo, user *W
 	reverbolate(honks)
 	templinfo := getInfo(r)
 	if u != nil {
+		honks = osmosis(honks, u.UserID)
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	}
 	if u == nil {
@@ -1096,13 +1098,14 @@ func killitwithfire(w http.ResponseWriter, r *http.Request) {
 	case "zonker":
 	case "zurl":
 	case "zonvoy":
+	case "zword":
 	default:
 		return
 	}
 	db := opendatabase()
 	db.Exec("insert into zonkers (userid, name, wherefore) values (?, ?, ?)",
 		userinfo.UserID, name, wherefore)
-	if wherefore == "zonker" || wherefore == "zurl" {
+	if wherefore == "zonker" || wherefore == "zurl" || wherefore == "zword" {
 		bitethethumbs()
 	}
 
@@ -1380,7 +1383,7 @@ func prepareStatements(db *sql.DB) {
 	stmtGetDoovers = preparetodie(db, "select dooverid, dt from doovers")
 	stmtLoadDoover = preparetodie(db, "select tries, username, rcpt, msg from doovers where dooverid = ?")
 	stmtZapDoover = preparetodie(db, "delete from doovers where dooverid = ?")
-	stmtThumbBiters = preparetodie(db, "select userid, name, wherefore from zonkers where (wherefore = 'zonker' or wherefore = 'zurl')")
+	stmtThumbBiters = preparetodie(db, "select userid, name, wherefore from zonkers where (wherefore = 'zonker' or wherefore = 'zurl' or wherefore = 'zword')")
 	stmtSaveZonker = preparetodie(db, "insert into zonkers (userid, name, wherefore) values (?, ?, ?)")
 	stmtGetBoxes = preparetodie(db, "select ibox, obox, sbox from xonkers where xid = ?")
 	stmtSaveBoxes = preparetodie(db, "insert into xonkers (xid, ibox, obox, sbox, pubkey) values (?, ?, ?, ?, ?)")
