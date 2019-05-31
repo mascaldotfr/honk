@@ -8,6 +8,7 @@ Should work as expected.
 Limited markdown support:
 	**bold** and *italics*
 	`code` and ```code block```
+	> quote
 
 Large images are rescaled and reduced.
 
@@ -25,7 +26,7 @@ like https://example.com/users/name. Note that the commonly seen URL with
 Followed honkers may be assigned to combos, listing all their honks together.
 
 Selecting just peeping won't actually follow them. (Incomplete feature.)
-Cant be useful for managing as part of a combo, however.
+Can be useful for managing as part of a combo, however.
 
 -- zonking
 
@@ -34,16 +35,19 @@ those of others that you're tired of seeing. Be advised that deletion
 works poorly in a federated environment. It's more like please disregard.
 
 The killzone supports muting unwanted contacts. One may mute an actor
-(zonker), a domain (zurl), or thread (zonvoy).
+(zonker), a domain (zurl), thread (zonvoy), or word (zword).
 
 -- privacy
 
-Honks are public. Welcome to the internet.
+Posted honks are public. Welcome to the internet.
 
 Received messages are only visible when logged in, regardless of addressing.
+Content from outside is not publicly rehosted, unless bonked.
 
 Received messages that are less than public are tagged with a red border.
-Replies to private messages will also be private.
+As a special exception to the public honking rule, replies to limited messages
+will be restricted as much as possible. Note that ActivityPub leaks. Do
+not use honk for posting truly private information.
 
 -- css
 
@@ -60,9 +64,15 @@ Custom emus may be provided by creating and populating the emus directory.
 emus may be referenced when composing a honk via colon wrapping. How pleasant.
 This :example: will be replaced by emus/example.png.
 
+-- memes
+
+To save disk space and avoid repeated uploads, the memes directory may be
+prepopulated with bandwidth wasting reactions and referenced by meme: filename.
+Example: "Woah. meme: woahface.mp4"
+
 -- cleanup
 
-One may occasionally run `honk cleanup` to free up internal space in the
+One should occasionally run `honk cleanup` to free up internal space in the
 database. (This does not run vacuum, so the file size will not immediately
 shrink.)
 
