@@ -183,8 +183,8 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 	for _, honk := range honks {
 		desc := string(honk.HTML)
 		for _, d := range honk.Donks {
-			desc += fmt.Sprintf(`<p><a href="%sd/%s">Attachment: %s</a>`,
-				base, d.XID, html.EscapeString(d.Name))
+			desc += fmt.Sprintf(`<p><a href="%s">Attachment: %s</a>`,
+				d.URL, html.EscapeString(d.Name))
 		}
 
 		feed.Items = append(feed.Items, &rss.Item{
@@ -919,6 +919,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 			honk.Donks = append(honk.Donks, donk)
 		}
 	}
+	honk.Donks = append(honk.Donks, memetics(honk.Noise)...)
 
 	aud := strings.Join(honk.Audience, " ")
 	whofore := 2
@@ -1210,6 +1211,11 @@ func serveemu(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "max-age="+somedays())
 	http.ServeFile(w, r, "emus/"+xid)
 }
+func servememe(w http.ResponseWriter, r *http.Request) {
+	xid := mux.Vars(r)["xid"]
+	w.Header().Set("Cache-Control", "max-age="+somedays())
+	http.ServeFile(w, r, "memes/"+xid)
+}
 
 func servefile(w http.ResponseWriter, r *http.Request) {
 	xid := mux.Vars(r)["xid"]
@@ -1278,7 +1284,8 @@ func serve() {
 	getters.HandleFunc("/a", avatate)
 	getters.HandleFunc("/t", showconvoy)
 	getters.HandleFunc("/d/{xid:[[:alnum:].]+}", servefile)
-	getters.HandleFunc("/emu/{xid:[[:alnum:]_.]+}", serveemu)
+	getters.HandleFunc("/emu/{xid:[[:alnum:]_.-]+}", serveemu)
+	getters.HandleFunc("/meme/{xid:[[:alnum:]_.-]+}", servememe)
 	getters.HandleFunc("/.well-known/webfinger", fingerlicker)
 
 	getters.HandleFunc("/style.css", servecss)

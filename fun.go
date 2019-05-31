@@ -23,6 +23,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"sync"
@@ -180,6 +181,44 @@ func herdofemus(noise string) []Emu {
 		emus = append(emus, Emu{ID: url, Name: e})
 	}
 	return emus
+}
+
+var re_memes = regexp.MustCompile("meme: ?([[:alnum:]_.-]+)")
+
+func memetics(noise string) []*Donk {
+	var donks []*Donk
+	m := re_memes.FindAllString(noise, -1)
+	for _, x := range m {
+		name := x[5:]
+		if name[0] == ' ' {
+			name = name[1:]
+		}
+		fd, err := os.Open("memes/" + name)
+		if err != nil {
+			log.Printf("no meme for %s", name)
+			continue
+		}
+		var peek [512]byte
+		n, _ := fd.Read(peek[:])
+		ct := http.DetectContentType(peek[:n])
+		fd.Close()
+
+		url := fmt.Sprintf("https://%s/meme/%s", serverName, name)
+		res, err := stmtSaveFile.Exec("", name, url, ct, 0, "")
+		if err != nil {
+			log.Printf("error saving meme: %s", err)
+			continue
+		}
+		var d Donk
+		d.FileID, _ = res.LastInsertId()
+		d.XID = ""
+		d.Name = name
+		d.Media = ct
+		d.URL = url
+		d.Local = false
+		donks = append(donks, &d)
+	}
+	return donks
 }
 
 var re_bolder = regexp.MustCompile(`(^|\W)\*\*([\w\s,.!?'-]+)\*\*($|\W)`)

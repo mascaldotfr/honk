@@ -31,7 +31,15 @@ convoy: <a href="/t?c={{ .Convoy }}">{{ .Convoy }}</a>
 <p><a href="/d/{{ .XID }}"><img src="/d/{{ .XID }}" title="{{ .URL }}"></a>
 {{ end }}
 {{ else }}
+{{ if .XID }}
 <p><a href="{{ .URL }}">External Attachment: {{ .Name }}</a>
+{{ else }}
+{{ if eq .Media "video/mp4" }}
+<p><a href="{{ .URL }}"><video controls src="{{ .URL }}">{{ .Name }}</video></a>
+{{ else }}
+<p><a href="{{ .URL }}"><img src="{{ .URL }}" title="{{ .Name }}"></a>
+{{ end }}
+{{ end }}
 {{ end }}
 {{ end }}
 </div>
