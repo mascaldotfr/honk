@@ -82,7 +82,7 @@ func osmosis(honks []*Honk, userid int64) []*Honk {
 	collapse := false
 	for i, h := range honks {
 		for _, z := range zwords {
-			if z.MatchString(h.Noise) {
+			if z.MatchString(h.Precis) || z.MatchString(h.Noise) {
 				honks[i] = nil
 				collapse = true
 				break
