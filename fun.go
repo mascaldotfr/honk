@@ -79,27 +79,18 @@ func reverbolate(honks []*Honk) {
 
 func osmosis(honks []*Honk, userid int64) []*Honk {
 	zwords := getzwords(userid)
-	collapse := false
-	for i, h := range honks {
+	j := 0
+outer:
+	for _, h := range honks {
 		for _, z := range zwords {
 			if z.MatchString(h.Precis) || z.MatchString(h.Noise) {
-				honks[i] = nil
-				collapse = true
-				break
+				continue outer
 			}
 		}
+		honks[j] = h
+		j++
 	}
-	if collapse {
-		j := 0
-		for i := 0; i < len(honks); i++ {
-			if honks[i] != nil {
-				honks[j] = honks[i]
-				j++
-			}
-		}
-		return honks[0:j]
-	}
-	return honks
+	return honks[0:j]
 }
 
 func shortxid(xid string) string {
