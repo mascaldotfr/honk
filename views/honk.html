@@ -50,6 +50,7 @@ convoy: <a href="/t?c={{ .Convoy }}">{{ .Convoy }}</a>
 <summary>Actions
 </summary>
 <div>
+<p>
 {{ if .Honk.Public }}
 <button onclick="bonk(this, '{{ .Honk.XID }}'); return false;"><a href="/bonk">bonk</a></button>
 {{ end }}
