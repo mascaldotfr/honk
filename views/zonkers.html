@@ -2,9 +2,9 @@
 <main>
 <div class="info">
 <p>
-<form action="/killitwithfire" method="POST">
-<span class="title">kill another zonker</span>
-<input type="hidden" name="CSRF" value="{{ .KillCSRF }}">
+<form action="/zonkzonk" method="POST">
+<span class="title">it's zonking time!</span>
+<input type="hidden" name="CSRF" value="{{ .ZonkCSRF }}">
 <p>
 <input tabindex=1 type="text" name="name" value="" autocomplete=off> - name
 <p>
@@ -19,16 +19,16 @@
 <p>
 <input type="radio" id="iszword" name="wherefore" value="zword">
 <label for="iszword">Zword</label>
-<p><input tabindex=1 type="submit" name="kill" value="kill">
+<p><br><input tabindex=1 type="submit" name="zonk" value="zonk!">
 </form>
 </div>
-{{ $killcsrf := .KillCSRF }}
+{{ $zonkcsrf := .ZonkCSRF }}
 {{ range .Zonkers }}
 <section class="honk">
 <p>What: {{ .Name }}
 <p>Where: {{ .Wherefore }}
-<form action="/killitwithfire" method="POST">
-<input type="hidden" name="CSRF" value="{{ $killcsrf }}">
+<form action="/zonkzonk" method="POST">
+<input type="hidden" name="CSRF" value="{{ $zonkcsrf }}">
 <input type="hidden" name="zonkerid" value="{{ .ID }}">
 <input type="hidden" name="itsok" value="iforgiveyou">
 <input type="submit" name="pardon" value="pardon">

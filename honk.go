@@ -1055,7 +1055,7 @@ type Zonker struct {
 	Wherefore string
 }
 
-func killzone(w http.ResponseWriter, r *http.Request) {
+func zonkzone(w http.ResponseWriter, r *http.Request) {
 	db := opendatabase()
 	userinfo := login.GetUserInfo(r)
 	rows, err := db.Query("select zonkerid, name, wherefore from zonkers where userid = ?", userinfo.UserID)
@@ -1071,14 +1071,14 @@ func killzone(w http.ResponseWriter, r *http.Request) {
 	}
 	templinfo := getInfo(r)
 	templinfo["Zonkers"] = zonkers
-	templinfo["KillCSRF"] = login.GetCSRF("killitwithfire", r)
+	templinfo["ZonkCSRF"] = login.GetCSRF("zonkzonk", r)
 	err = readviews.Execute(w, "zonkers.html", templinfo)
 	if err != nil {
 		log.Print(err)
 	}
 }
 
-func killitwithfire(w http.ResponseWriter, r *http.Request) {
+func zonkzonk(w http.ResponseWriter, r *http.Request) {
 	userinfo := login.GetUserInfo(r)
 	itsok := r.FormValue("itsok")
 	if itsok == "iforgiveyou" {
@@ -1087,7 +1087,7 @@ func killitwithfire(w http.ResponseWriter, r *http.Request) {
 		db.Exec("delete from zonkers where userid = ? and zonkerid = ?",
 			userinfo.UserID, zonkerid)
 		bitethethumbs()
-		http.Redirect(w, r, "/killzone", http.StatusSeeOther)
+		http.Redirect(w, r, "/zonkzone", http.StatusSeeOther)
 		return
 	}
 	wherefore := r.FormValue("wherefore")
@@ -1110,7 +1110,7 @@ func killitwithfire(w http.ResponseWriter, r *http.Request) {
 		bitethethumbs()
 	}
 
-	http.Redirect(w, r, "/killzone", http.StatusSeeOther)
+	http.Redirect(w, r, "/zonkzone", http.StatusSeeOther)
 }
 
 func accountpage(w http.ResponseWriter, r *http.Request) {
@@ -1299,11 +1299,11 @@ func serve() {
 	loggedin.HandleFunc("/account", accountpage)
 	loggedin.HandleFunc("/chpass", dochpass)
 	loggedin.HandleFunc("/atme", homepage)
-	loggedin.HandleFunc("/killzone", killzone)
+	loggedin.HandleFunc("/zonkzone", zonkzone)
 	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(savehonk)))
 	loggedin.Handle("/bonk", login.CSRFWrap("honkhonk", http.HandlerFunc(savebonk)))
 	loggedin.Handle("/zonkit", login.CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
-	loggedin.Handle("/killitwithfire", login.CSRFWrap("killitwithfire", http.HandlerFunc(killitwithfire)))
+	loggedin.Handle("/zonkzonk", login.CSRFWrap("zonkzonk", http.HandlerFunc(zonkzonk)))
 	loggedin.Handle("/saveuser", login.CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
 	loggedin.HandleFunc("/honkers", showhonkers)
 	loggedin.HandleFunc("/h/{name:[[:alnum:]]+}", showhonker)
