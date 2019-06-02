@@ -82,6 +82,7 @@ button a {
 	height: 8em;
 	margin-bottom: 0.5em;
 	box-sizing: border-box;
+	max-width: 100%;
 }
 .info input[type="checkbox"] {
 	position: fixed;
@@ -174,9 +175,6 @@ img.emu {
 @media screen and (max-width: 740px) {
 	body {
 		font-size: 12px;
-	}
-	.info textarea {
-		width: 20em;
 	}
 	.honk header {
 		height: 48px;

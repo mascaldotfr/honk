@@ -5,10 +5,11 @@
 in reply to: <input type="text" name="rid" id="ridinput" value="" autocomplete=off>
 <input type="hidden" name="CSRF" value="{{ .HonkCSRF }}">
 <p>
+<label id="donker">attach: <input onchange="updatedonker();" type="file" name="donk"><span></span></label>
+<p>
 <textarea name="noise" id="honknoise"></textarea>
 <p>
 <input type="submit" value="it's gonna be honked">
-<label id="donker" style="margin-left:4em;">attach: <input onchange="updatedonker();" type="file" name="donk"><span></span></label>
 </form>
 <script>
 function showhonkform(rid, hname) {
@@ -27,6 +28,6 @@ function showhonkform(rid, hname) {
 }
 function updatedonker() {
 	var el = document.getElementById("donker")
-	el.children[1].textContent = el.children[0].value
+	el.children[1].textContent = el.children[0].value.slice(-20)
 }
 </script>
