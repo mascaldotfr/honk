@@ -645,8 +645,6 @@ func rubadubdub(user *WhatAbout, req map[string]interface{}) {
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 	j["object"] = req
 
-	WriteJunk(os.Stdout, j)
-
 	actor, _ := jsongetstring(req, "actor")
 	box, err := getboxes(actor)
 	if err != nil {
