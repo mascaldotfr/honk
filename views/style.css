@@ -162,6 +162,13 @@ button a {
 }
 .inlineform select {
 }
+details summary {
+	color: #aab;
+}
+.limited details summary {
+	color: #a79;
+}
+
 img {
 	max-width: 100%
 }
