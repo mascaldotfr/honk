@@ -136,7 +136,7 @@ button a {
 	margin-top: 0px;
 }
 .honk button {
-	margin-right: 6em;
+	margin-left: 4em;
 }
 .tonked {
 }
@@ -189,8 +189,5 @@ img.emu {
 	.honk header img {
 		width: 48px;
 		height: 48px;
-	}
-	.honk button {
-		margin-right: 4em;
 	}
 }
