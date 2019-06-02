@@ -826,7 +826,9 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	if rid != "" {
 		xonk := getxonk(userinfo.UserID, rid)
 		if xonk != nil {
-			honk.Audience = append(honk.Audience, xonk.Audience...)
+			if xonk.Public {
+				honk.Audience = append(honk.Audience, xonk.Audience...)
+			}
 			convoy = xonk.Convoy
 		} else {
 			xonkaud, c := whosthere(rid)
@@ -853,6 +855,10 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	}
 	butnottooloud(honk.Audience)
 	honk.Audience = oneofakind(honk.Audience)
+	if len(honk.Audience) == 0 {
+		log.Printf("honk to nowhere")
+		return
+	}
 	honk.Public = !keepitquiet(honk.Audience)
 	noise = obfusbreak(noise)
 	honk.Noise = noise
