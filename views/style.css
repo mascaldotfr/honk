@@ -59,8 +59,8 @@ main {
 	margin-top 1em;
 	margin-bottom: 1em;
 }
-button, form input[type=submit], select {
-	font-size: 0.8em;
+.info label, button, form input[type=submit], select {
+	font-size: 16px;
 	font-family: monospace;
 	color: #dde;
 	background: #305;
@@ -98,13 +98,6 @@ button a {
 }
 .info input[type=file] {
 	display: none;
-}
-.info label {
-	border: 1px solid #dde;
-	font-size: 0.8em;
-	padding: 0.5em;
-	font-size: 0.8em;
-	background: #305;
 }
 
 .honk {
@@ -180,7 +173,7 @@ img.emu {
 }
 @media screen and (max-width: 740px) {
 	body {
-		font-size: 0.6em;
+		font-size: 12px;
 	}
 	.info textarea {
 		width: 20em;

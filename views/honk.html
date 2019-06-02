@@ -46,6 +46,9 @@ convoy: <a href="/t?c={{ .Convoy }}">{{ .Convoy }}</a>
 {{ end }}
 {{ if .BonkCSRF }}
 <p>
+<details>
+<summary>Actions
+</summary>
 <div>
 {{ if .Honk.Public }}
 <button onclick="bonk(this, '{{ .Honk.XID }}'); return false;"><a href="/bonk">bonk</a></button>
@@ -56,14 +59,15 @@ convoy: <a href="/t?c={{ .Convoy }}">{{ .Convoy }}</a>
 <input type="hidden" name="honk" value="{{ .Honk.XID }}">
 <input type="hidden" name="honker" value="{{ .Honk.Honker }}">
 <input type="hidden" name="convoy" value="{{ .Honk.Convoy }}">
+<button onclick="zonkit(this); return false;"><a href="/zonkit">zonk</a></button>
 <select name="wherefore">
 <option>this honk</option>
 <option>this honker</option>
 <option>this convoy</option>
 </select>
-<button onclick="zonkit(this); return false;"><a href="/zonkit">zonk</a></button>
 </form>
 </div>
+</details>
 <p>
 {{ end }}
 </article>
