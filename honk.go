@@ -714,6 +714,7 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 		Date:     dt,
 		Donks:    xonk.Donks,
 		Audience: []string{thewholeworld},
+		Public:   true,
 	}
 
 	oonker := xonk.Oonker
