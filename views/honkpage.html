@@ -61,6 +61,14 @@ function zonkit(el) {
 				e.remove()
 			}
 		}
+	} else if (wherefore == "this honk") {
+		var p = el
+		while (p && p.tagName != "ARTICLE") {
+			p = p.parentElement
+		}
+		if (p) {
+			p.remove()
+		}
 	}
 }
 </script>
