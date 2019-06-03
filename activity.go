@@ -929,3 +929,27 @@ func gofish(name string) string {
 	handlock.Unlock()
 	return ""
 }
+
+func investigate(name string) string {
+	if name == "" {
+		return ""
+	}
+	if name[0] == '@' {
+		name = gofish(name)
+	}
+	if name == "" {
+		return ""
+	}
+	obj, err := GetJunk(name)
+	if err != nil {
+		log.Printf("error investigating honker: %s", err)
+		return ""
+	}
+	t, _ := jsongetstring(obj, "type")
+	id, _ := jsongetstring(obj, "id")
+	if t != "Person" {
+		log.Printf("it's not a person! %s", name)
+		return ""
+	}
+	return id
+}

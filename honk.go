@@ -1036,12 +1036,7 @@ func savehonker(w http.ResponseWriter, r *http.Request) {
 	if peep == "peep" {
 		flavor = "peep"
 	}
-	if url == "" {
-		return
-	}
-	if url[0] == '@' {
-		url = gofish(url)
-	}
+	url = investigate(url)
 	if url == "" {
 		return
 	}

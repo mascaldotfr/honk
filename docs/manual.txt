@@ -20,8 +20,7 @@ The easiest is probably their handle, the thing that resembles an email.
 @name@example.com for example.
 
 Alternatively, one may directly enter the actor ID, which is a URL that looks
-like https://example.com/users/name. Note that the commonly seen URL with
-@name in it is not their actor ID and won't work.
+like https://example.com/users/name.
 
 Followed honkers may be assigned to combos, listing all their honks together.
 
