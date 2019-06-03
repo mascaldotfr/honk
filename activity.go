@@ -344,9 +344,9 @@ func getboxes(ident string) (*Box, error) {
 		return b, nil
 	}
 
-	row := stmtGetBoxes.QueryRow(ident)
-	b = &Box{}
-	err := row.Scan(&b.In, &b.Out, &b.Shared)
+	var info string
+	row := stmtGetXonker.QueryRow(ident, "boxes")
+	err := row.Scan(&info)
 	if err != nil {
 		j, err := GetJunk(ident)
 		if err != nil {
@@ -357,12 +357,17 @@ func getboxes(ident string) (*Box, error) {
 		sbox, _ := jsonfindstring(j, []string{"endpoints", "sharedInbox"})
 		b = &Box{In: inbox, Out: outbox, Shared: sbox}
 		if inbox != "" {
-			_, err = stmtSaveBoxes.Exec(ident, inbox, outbox, sbox, "")
+			m := strings.Join([]string{inbox, outbox, sbox}, " ")
+			_, err = stmtSaveXonker.Exec(ident, m, "boxes")
 			if err != nil {
 				log.Printf("error saving boxes: %s", err)
 			}
 		}
+	} else {
+		m := strings.Split(info, " ")
+		b = &Box{In: m[0], Out: m[1], Shared: m[2]}
 	}
+
 	boxlock.Lock()
 	boxofboxes[ident] = b
 	boxlock.Unlock()
@@ -889,8 +894,7 @@ func gofish(name string) string {
 	if ok {
 		return ref
 	}
-	db := opendatabase()
-	row := db.QueryRow("select ibox from xonkers where xid = ?", name)
+	row := stmtGetXonker.QueryRow(name, "fishname")
 	var href string
 	err := row.Scan(&href)
 	if err == nil {
@@ -914,8 +918,7 @@ func gofish(name string) string {
 		rel, _ := jsongetstring(l, "rel")
 		t, _ := jsongetstring(l, "type")
 		if rel == "self" && friendorfoe(t) {
-			db.Exec("insert into xonkers (xid, ibox, obox, sbox, pubkey) values (?, ?, ?, ?, ?)",
-				name, href, "", "", "")
+			stmtSaveXonker.Exec(name, href, "fishname")
 			handlock.Lock()
 			handfull[name] = href
 			handlock.Unlock()

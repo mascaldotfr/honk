@@ -1354,7 +1354,7 @@ var stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
 var stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
 var stmtHasHonker, stmtThumbBiters, stmtZonkIt, stmtZonkDonks, stmtSaveZonker *sql.Stmt
-var stmtGetBoxes, stmtSaveBoxes *sql.Stmt
+var stmtGetXonker, stmtSaveXonker *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -1400,8 +1400,8 @@ func prepareStatements(db *sql.DB) {
 	stmtZapDoover = preparetodie(db, "delete from doovers where dooverid = ?")
 	stmtThumbBiters = preparetodie(db, "select userid, name, wherefore from zonkers where (wherefore = 'zonker' or wherefore = 'zurl' or wherefore = 'zword')")
 	stmtSaveZonker = preparetodie(db, "insert into zonkers (userid, name, wherefore) values (?, ?, ?)")
-	stmtGetBoxes = preparetodie(db, "select ibox, obox, sbox from xonkers where xid = ?")
-	stmtSaveBoxes = preparetodie(db, "insert into xonkers (xid, ibox, obox, sbox, pubkey) values (?, ?, ?, ?, ?)")
+	stmtGetXonker = preparetodie(db, "select info from xonkers where name = ? and flavor = ?")
+	stmtSaveXonker = preparetodie(db, "insert into xonkers (name, info, flavor) values (?, ?, ?)")
 }
 
 func ElaborateUnitTests() {

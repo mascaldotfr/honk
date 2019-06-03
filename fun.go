@@ -394,8 +394,7 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 	if key != nil {
 		return
 	}
-	db := opendatabase()
-	row := db.QueryRow("select pubkey from xonkers where xid = ?", keyname)
+	row := stmtGetXonker.QueryRow(keyname, "pubkey")
 	var data string
 	err := row.Scan(&data)
 	if err != nil {
@@ -421,7 +420,7 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 			log.Printf("error decoding %s pubkey: %s", keyname, err)
 			return
 		}
-		_, err = stmtSaveBoxes.Exec(keyname, "", "", "", data)
+		_, err = stmtSaveXonker.Exec(keyname, data, "pubkey")
 		if err != nil {
 			log.Printf("error saving key: %s", err)
 		}
