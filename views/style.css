@@ -168,6 +168,12 @@ details summary {
 .limited details summary {
 	color: #a79;
 }
+h1, h2 {
+	font-size: 1.2em;
+}
+h3, h4 {
+	font-size: 1.1em;
+}
 
 img {
 	max-width: 100%
