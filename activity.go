@@ -707,7 +707,6 @@ func subsub(user *WhatAbout, xid string) {
 		log.Printf("can't send follow: %s", err)
 		return
 	}
-	WriteJunk(os.Stdout, j)
 	keyname, key := ziggy(user.Name)
 	err = PostJunk(keyname, key, box.In, j)
 	if err != nil {
