@@ -175,7 +175,7 @@ h3, h4 {
 	font-size: 1.1em;
 }
 
-img {
+img, video {
 	max-width: 100%
 }
 img.emu {
