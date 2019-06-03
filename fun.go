@@ -318,7 +318,7 @@ func originate(u string) string {
 func honkerhandle(h string) string {
 	m := re_unurl.FindStringSubmatch(h)
 	if len(m) > 2 {
-		return fmt.Sprintf("%s@%s", m[2], m[1])
+		return m[2]
 	}
 	return h
 }

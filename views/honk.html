@@ -2,22 +2,22 @@
 {{ with .Honk }}
 <header>
 <img alt="avatar" src="/a?a={{ .Honker}}">
-<p><a href="{{ .Honker }}" rel=noreferrer>{{ .Username }}</a> <span class="clip">{{ .What }} {{ .Date.Format "02 Jan 2006 15:04" }} <a href="{{ .URL }}" rel=noreferrer>{{ .URL }}</a></span>
+<p><a href="{{ .Honker }}" rel=noreferrer>{{ .Username }}</a> <span class="clip"><a href="{{ .URL }}" rel=noreferrer>{{ .What }}</a> {{ .Date.Format "02 Jan 2006 15:04" }}</span>
 {{ if .Oonker }}
 <br>
-<span style="margin-left: 3em;" class="clip">
+<span style="margin-left: 1em;" class="clip">
 original: {{ .Oonker }}
 </span>
 {{ else }}
 {{ if .RID }}
 <br>
-<span style="margin-left: 3em;" class="clip">
+<span style="margin-left: 1em;" class="clip">
 in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 </span>
 {{ end }}
 {{ end }}
 <br>
-<span style="margin-left: 3em;" class="clip">
+<span style="margin-left: 1em;" class="clip">
 convoy: <a href="/t?c={{ .Convoy }}">{{ .Convoy }}</a>
 </span>
 </header>
