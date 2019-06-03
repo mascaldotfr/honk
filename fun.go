@@ -38,12 +38,14 @@ func reverbolate(honks []*Honk) {
 		if h.Whofore == 2 || h.Whofore == 3 {
 			h.URL = h.XID
 			h.Noise = mentionize(h.Noise)
+			h.Username, h.Handle = honkerhandle(h.Honker)
 		} else {
 			idx := strings.LastIndexByte(h.Honker, '/')
 			if idx != -1 {
-				h.Username = honkerhandle(h.Honker)
+				h.Username, h.Handle = honkerhandle(h.Honker)
 			} else {
 				h.Username = h.Honker
+				h.Handle = h.Honker
 			}
 			if h.URL == "" {
 				h.URL = h.XID
@@ -315,12 +317,12 @@ func originate(u string) string {
 	return ""
 }
 
-func honkerhandle(h string) string {
+func honkerhandle(h string) (string, string) {
 	m := re_unurl.FindStringSubmatch(h)
 	if len(m) > 2 {
-		return m[2]
+		return m[2], fmt.Sprintf("%s@%s", m[2], m[1])
 	}
-	return h
+	return "", h
 }
 
 func prepend(s string, x []string) []string {
