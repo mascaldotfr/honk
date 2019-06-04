@@ -55,7 +55,10 @@ func reverbolate(honks []*Honk) {
 		h.Noise = unpucker(h.Noise)
 		precis := h.Precis
 		if precis != "" {
-			precis = "<p>summary: " + precis + "<p>"
+			if strings.IndexByte(precis, ':') == -1 {
+				precis = "summary: " + precis
+			}
+			precis = "<p>" + precis + "<p>"
 		}
 		h.HTML, _ = filt.String(precis + h.Noise)
 		emuxifier := func(e string) string {
