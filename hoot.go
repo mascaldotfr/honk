@@ -21,7 +21,7 @@ func hootfixer(hoot string) string {
 	if url[0] == ' ' {
 		url = url[1:]
 	}
-	url = strings.ReplaceAll(url, "mobile.twitter.com", "twitter.com")
+	url = strings.Replace(url, "mobile.twitter.com", "twitter.com", -1)
 	log.Printf("hooterizing %s", url)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -72,8 +72,8 @@ func hootfixer(hoot string) string {
 			continue
 		}
 		text := htfilter.TextOnly(div)
-		text = strings.ReplaceAll(text, "\n", " ")
-		text = strings.ReplaceAll(text, "pic.twitter.com", "https://pic.twitter.com")
+		text = strings.Replace(text, "\n", " ", -1)
+		text = strings.Replace(text, "pic.twitter.com", "https://pic.twitter.com", -1)
 
 		fmt.Fprintf(&buf, "> @%s: %s\n", author, text)
 	}
