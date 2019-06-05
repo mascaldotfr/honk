@@ -821,6 +821,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 			noise = noise[idx+1:]
 		}
 	}
+	noise = hooterize(noise)
 	noise = strings.TrimSpace(noise)
 	honk.Precis = strings.TrimSpace(honk.Precis)
 

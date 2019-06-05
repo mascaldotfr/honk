@@ -69,6 +69,11 @@ To save disk space and avoid repeated uploads, the memes directory may be
 prepopulated with bandwidth wasting reactions and referenced by meme: filename.
 Example: "Woah. meme: woahface.mp4"
 
+-- hoots
+
+Link and inline a hoot from that other bird site.
+hoot: https://twitter.com/tedunangst/status/839169710675611658
+
 -- cleanup
 
 One should occasionally run `honk cleanup` to free up internal space in the
