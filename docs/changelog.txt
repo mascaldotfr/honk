@@ -1,0 +1,17 @@
+changelog
+
+-- v
+
+++ A changelog.
+
++++ Auto fetching and inlining of hoots.
+
++ Upgrade image library for cleaner screenshots.
+
++ Not all summaries need labels.
+
++ Add max-width for video tag.
+
+-- 0.6.0 and prior
+
+All records from this time of primitive development have been lost.
