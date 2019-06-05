@@ -6,5 +6,5 @@ require (
 	golang.org/x/crypto v0.0.0-20190513172903-22d7a77e9e5f
 	golang.org/x/net v0.0.0-20190522155817-f3200d17e092 // indirect
 	humungus.tedunangst.com/r/go-sqlite3 v1.1.3
-	humungus.tedunangst.com/r/webs v0.4.4
+	humungus.tedunangst.com/r/webs v0.5.1
 )

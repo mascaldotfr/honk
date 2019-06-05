@@ -874,7 +874,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		data := buf.Bytes()
 		xid := xfiltrate()
 		var media, name string
-		img, err := image.Vacuum(&buf)
+		img, err := image.Vacuum(&buf, image.Params{MaxWidth: 2048, MaxHeight: 2048})
 		if err == nil {
 			data = img.Data
 			format := img.Format
