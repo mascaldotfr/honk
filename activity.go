@@ -457,6 +457,7 @@ func consumeactivity(user *WhatAbout, j interface{}, origin string) {
 func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 	depth := 0
 	maxdepth := 4
+	currenttid := ""
 	var xonkxonkfn func(item interface{}, origin string) *Honk
 
 	saveoneup := func(xid string) {
@@ -607,6 +608,13 @@ func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 		audience = append(audience, who)
 
 		audience = oneofakind(audience)
+
+		if currenttid == "" {
+			currenttid = convoy
+		}
+		if convoy == "" {
+			convoy = currenttid
+		}
 
 		if oonker == who {
 			oonker = ""
