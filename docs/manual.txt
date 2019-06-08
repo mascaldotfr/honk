@@ -24,6 +24,9 @@ like https://example.com/users/name.
 
 Followed honkers may be assigned to combos, listing all their honks together.
 
+Followed honkers will appear on the main feedtube unless silenced. Honkers may
+be silenced by adding them to a combo named "-". (One dash.)
+
 Selecting just peeping won't actually follow them. (Incomplete feature.)
 Can be useful for managing as part of a combo, however.
 
@@ -77,8 +80,13 @@ hoot: https://twitter.com/tedunangst/status/839169710675611658
 -- cleanup
 
 One should occasionally run `honk cleanup` to free up internal space in the
-database. (This does not run vacuum, so the file size will not immediately
-shrink.)
+database. This deletes honks older than 30 days, but not those posted by a
+user.
+
+One may also run `honk reduce [honker]` to delete honks older than 3 days.
+This is useful to reduce the space requirements from following image bots.
+
+(Neither command runs vacuum, so the file size will not immediately shrink.)
 
 -- add user
 
@@ -97,4 +105,4 @@ this to work, the backend server must receive certain header fields
 unmodified. In particular, the Host header and the message content cannot be
 altered.
 
-Specifically, for nginx: proxy_set_header Host $http_host;
+Specifically, for nginx: `proxy_set_header Host $http_host;`
