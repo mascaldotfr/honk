@@ -1258,6 +1258,7 @@ func serve() {
 		"views/honkform.html",
 		"views/honk.html",
 		"views/account.html",
+		"views/about.html",
 		"views/login.html",
 		"views/header.html",
 	)
@@ -1294,6 +1295,7 @@ func serve() {
 
 	getters.HandleFunc("/style.css", servecss)
 	getters.HandleFunc("/local.css", servecss)
+	getters.HandleFunc("/about", servehtml)
 	getters.HandleFunc("/login", servehtml)
 	posters.HandleFunc("/dologin", login.LoginFunc)
 	getters.HandleFunc("/logout", login.LogoutFunc)
