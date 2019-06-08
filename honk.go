@@ -1344,6 +1344,14 @@ func cleanupdb() {
 	doordie(db, "delete from files where fileid not in (select fileid from donks)")
 }
 
+func reducedb(honker string) {
+	db := opendatabase()
+	expdate := time.Now().UTC().Add(-3 * 24 * time.Hour).Format(dbtimeformat)
+	doordie(db, "delete from donks where honkid in (select honkid from honks where dt < ? and whofore = 0 and honker = ?)", expdate, honker)
+	doordie(db, "delete from honks where dt < ? and whofore = 0 and honker = ?", expdate, honker)
+	doordie(db, "delete from files where fileid not in (select fileid from donks)")
+}
+
 var stmtHonkers, stmtDubbers, stmtSaveHonker, stmtUpdateFlavor, stmtUpdateCombos *sql.Stmt
 var stmtOneXonk, stmtPublicHonks, stmtUserHonks, stmtHonksByCombo, stmtHonksByConvoy *sql.Stmt
 var stmtHonksForUser, stmtHonksForMe, stmtSaveDub *sql.Stmt
@@ -1428,6 +1436,11 @@ func main() {
 		adduser()
 	case "cleanup":
 		cleanupdb()
+	case "reduce":
+		if len(os.Args) < 3 {
+			log.Fatal("need a honker name")
+		}
+		reducedb(os.Args[2])
 	case "ping":
 		if len(os.Args) < 4 {
 			fmt.Printf("usage: honk ping from to\n")
