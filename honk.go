@@ -338,6 +338,21 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			log.Printf("error updating honker: %s", err)
 			return
 		}
+	case "Update":
+		obj, ok := jsongetmap(j, "object")
+		if ok {
+			what, _ := jsongetstring(obj, "type")
+			switch what {
+			case "Person":
+				return
+			}
+		}
+		log.Printf("unknown Update activity")
+		fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		WriteJunk(fd, j)
+		io.WriteString(fd, "\n")
+		fd.Close()
+
 	case "Undo":
 		obj, ok := jsongetmap(j, "object")
 		if !ok {
