@@ -3,6 +3,7 @@ body {
 	color: #dde;
 	font-size: 1em;
 	word-wrap: break-word;
+	font-family: sans-serif, "Noto Color Emoji";
 }
 pre, code {
 	white-space: pre-wrap;
@@ -20,15 +21,14 @@ table {
 a {
 	color: #dde;
 }
-form {
-	font-family: monospace;
+form, input, textarea {
+	font-family: monospace, "Noto Color Emoji";
 }
 p {
 	margin-top 1em;
 	margin-bottom: 1em;
 }
 input {
-	font-family: monospace;
 	background: #305;
 	color: #dde;
 	font-size: 1.0em;
