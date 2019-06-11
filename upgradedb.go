@@ -101,6 +101,6 @@ func upgradedb() {
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
 	}
-	cleanupdb()
+	cleanupdb(30)
 	os.Exit(0)
 }

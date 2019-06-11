@@ -1366,7 +1366,7 @@ func serve() {
 	}
 }
 
-func cleanupdb() {
+func cleanupdb(days int) {
 	db := opendatabase()
 	rows, _ := db.Query("select userid, name from zonkers where wherefore = 'zonvoy'")
 	deadthreads := make(map[int64][]string)
@@ -1383,7 +1383,7 @@ func cleanupdb() {
 			doordie(db, "delete from honks where userid = ? and convoy = ?", userid, t)
 		}
 	}
-	expdate := time.Now().UTC().Add(-30 * 24 * time.Hour).Format(dbtimeformat)
+	expdate := time.Now().UTC().Add(-time.Duration(days) * 24 * time.Hour).Format(dbtimeformat)
 	doordie(db, "delete from donks where honkid in (select honkid from honks where dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3))", expdate)
 	doordie(db, "delete from honks where dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3)", expdate)
 	doordie(db, "delete from files where fileid not in (select fileid from donks)")
@@ -1458,6 +1458,7 @@ func ElaborateUnitTests() {
 }
 
 func main() {
+	var err error
 	cmd := "run"
 	if len(os.Args) > 1 {
 		cmd = os.Args[1]
@@ -1480,7 +1481,14 @@ func main() {
 	case "adduser":
 		adduser()
 	case "cleanup":
-		cleanupdb()
+		days := 30
+		if len(os.Args) > 2 {
+			days, err = strconv.Atoi(os.Args[2])
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+		cleanupdb(days)
 	case "reduce":
 		if len(os.Args) < 3 {
 			log.Fatal("need a honker name")
