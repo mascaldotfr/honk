@@ -20,42 +20,19 @@ import (
 	"compress/gzip"
 	"crypto/rsa"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"humungus.tedunangst.com/r/webs/image"
+	"humungus.tedunangst.com/r/webs/junk"
 )
-
-func NewJunk() map[string]interface{} {
-	return make(map[string]interface{})
-}
-
-func WriteJunk(w io.Writer, j map[string]interface{}) error {
-	e := json.NewEncoder(w)
-	e.SetEscapeHTML(false)
-	e.SetIndent("", "  ")
-	err := e.Encode(j)
-	return err
-}
-
-func ReadJunk(r io.Reader) (map[string]interface{}, error) {
-	decoder := json.NewDecoder(r)
-	var j map[string]interface{}
-	err := decoder.Decode(&j)
-	if err != nil {
-		return nil, err
-	}
-	return j, nil
-}
 
 var theonetruename = `application/ld+json; profile="https://www.w3.org/ns/activitystreams"`
 var thefakename = `application/activity+json`
@@ -76,9 +53,9 @@ func friendorfoe(ct string) bool {
 	return false
 }
 
-func PostJunk(keyname string, key *rsa.PrivateKey, url string, j map[string]interface{}) error {
+func PostJunk(keyname string, key *rsa.PrivateKey, url string, j junk.Junk) error {
 	var buf bytes.Buffer
-	WriteJunk(&buf, j)
+	j.Write(&buf)
 	return PostMsg(keyname, key, url, buf.Bytes())
 }
 
@@ -121,7 +98,7 @@ func (gz *gzCloser) Close() error {
 	return gz.r.Close()
 }
 
-func GetJunk(url string) (map[string]interface{}, error) {
+func GetJunk(url string) (junk.Junk, error) {
 	client := http.DefaultClient
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -156,49 +133,8 @@ func GetJunk(url string) (map[string]interface{}, error) {
 		resp.Body = &gzCloser{r: gz, under: resp.Body}
 	}
 	defer resp.Body.Close()
-	j, err := ReadJunk(resp.Body)
+	j, err := junk.Read(resp.Body)
 	return j, err
-}
-
-func jsonfindinterface(ii interface{}, keys []string) interface{} {
-	for _, key := range keys {
-		idx, err := strconv.Atoi(key)
-		if err == nil {
-			m := ii.([]interface{})
-			if idx >= len(m) {
-				return nil
-			}
-			ii = m[idx]
-		} else {
-			m := ii.(map[string]interface{})
-			ii = m[key]
-			if ii == nil {
-				return nil
-			}
-		}
-	}
-	return ii
-}
-func jsonfindstring(j interface{}, keys []string) (string, bool) {
-	s, ok := jsonfindinterface(j, keys).(string)
-	return s, ok
-}
-func jsonfindarray(j interface{}, keys []string) ([]interface{}, bool) {
-	a, ok := jsonfindinterface(j, keys).([]interface{})
-	return a, ok
-}
-func jsonfindmap(j interface{}, keys []string) (map[string]interface{}, bool) {
-	m, ok := jsonfindinterface(j, keys).(map[string]interface{})
-	return m, ok
-}
-func jsongetstring(j interface{}, key string) (string, bool) {
-	return jsonfindstring(j, []string{key})
-}
-func jsongetarray(j interface{}, key string) ([]interface{}, bool) {
-	return jsonfindarray(j, []string{key})
-}
-func jsongetmap(j interface{}, key string) (map[string]interface{}, bool) {
-	return jsonfindmap(j, []string{key})
 }
 
 func savedonk(url string, name, media string, localize bool) *Donk {
@@ -352,9 +288,9 @@ func getboxes(ident string) (*Box, error) {
 		if err != nil {
 			return nil, err
 		}
-		inbox, _ := jsongetstring(j, "inbox")
-		outbox, _ := jsongetstring(j, "outbox")
-		sbox, _ := jsonfindstring(j, []string{"endpoints", "sharedInbox"})
+		inbox, _ := j.GetString("inbox")
+		outbox, _ := j.GetString("outbox")
+		sbox, _ := j.FindString([]string{"endpoints", "sharedInbox"})
 		b = &Box{In: inbox, Out: outbox, Shared: sbox}
 		if inbox != "" {
 			m := strings.Join([]string{inbox, outbox, sbox}, " ")
@@ -393,22 +329,26 @@ func peeppeep() {
 			log.Printf("err: %s", err)
 			continue
 		}
-		t, _ := jsongetstring(j, "type")
+		t, _ := j.GetString("type")
 		origin := originate(f.XID)
 		if t == "OrderedCollection" {
-			items, _ := jsongetarray(j, "orderedItems")
+			items, _ := j.GetArray("orderedItems")
 			if items == nil {
-				page1, _ := jsongetstring(j, "first")
+				page1, _ := j.GetString("first")
 				j, err = GetJunk(page1)
 				if err != nil {
 					log.Printf("err: %s", err)
 					continue
 				}
-				items, _ = jsongetarray(j, "orderedItems")
+				items, _ = j.GetArray("orderedItems")
 			}
 
 			for _, item := range items {
-				xonk := xonkxonk(user, item, origin)
+				obj, ok := item.(junk.Junk)
+				if !ok {
+					continue
+				}
+				xonk := xonkxonk(user, obj, origin)
 				if xonk != nil {
 					savexonk(user, xonk)
 				}
@@ -423,20 +363,20 @@ func whosthere(xid string) ([]string, string) {
 		log.Printf("error getting remote xonk: %s", err)
 		return nil, ""
 	}
-	convoy, _ := jsongetstring(obj, "context")
+	convoy, _ := obj.GetString("context")
 	if convoy == "" {
-		convoy, _ = jsongetstring(obj, "conversation")
+		convoy, _ = obj.GetString("conversation")
 	}
 	return newphone(nil, obj), convoy
 }
 
-func newphone(a []string, obj map[string]interface{}) []string {
+func newphone(a []string, obj junk.Junk) []string {
 	for _, addr := range []string{"to", "cc", "attributedTo"} {
-		who, _ := jsongetstring(obj, addr)
+		who, _ := obj.GetString(addr)
 		if who != "" {
 			a = append(a, who)
 		}
-		whos, _ := jsongetarray(obj, addr)
+		whos, _ := obj.GetArray(addr)
 		for _, w := range whos {
 			who, _ := w.(string)
 			if who != "" {
@@ -447,18 +387,18 @@ func newphone(a []string, obj map[string]interface{}) []string {
 	return a
 }
 
-func consumeactivity(user *WhatAbout, j interface{}, origin string) {
+func consumeactivity(user *WhatAbout, j junk.Junk, origin string) {
 	xonk := xonkxonk(user, j, origin)
 	if xonk != nil {
 		savexonk(user, xonk)
 	}
 }
 
-func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
+func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 	depth := 0
 	maxdepth := 4
 	currenttid := ""
-	var xonkxonkfn func(item interface{}, origin string) *Honk
+	var xonkxonkfn func(item junk.Junk, origin string) *Honk
 
 	saveoneup := func(xid string) {
 		log.Printf("getting oneup: %s", xid)
@@ -479,23 +419,23 @@ func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 		depth--
 	}
 
-	xonkxonkfn = func(item interface{}, origin string) *Honk {
-		// id, _ := jsongetstring(item, "id")
-		what, _ := jsongetstring(item, "type")
-		dt, _ := jsongetstring(item, "published")
+	xonkxonkfn = func(item junk.Junk, origin string) *Honk {
+		// id, _ := item.GetString( "id")
+		what, _ := item.GetString("type")
+		dt, _ := item.GetString("published")
 
 		var audience []string
 		var err error
 		var xid, rid, url, content, precis, convoy, oonker string
-		var obj map[string]interface{}
+		var obj junk.Junk
 		var ok bool
 		switch what {
 		case "Announce":
-			obj, ok = jsongetmap(item, "object")
+			obj, ok = item.GetMap("object")
 			if ok {
-				xid, _ = jsongetstring(obj, "id")
+				xid, _ = obj.GetString("id")
 			} else {
-				xid, _ = jsongetstring(item, "object")
+				xid, _ = item.GetString("object")
 			}
 			if !needxonkid(user, xid) {
 				return nil
@@ -508,63 +448,67 @@ func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 			origin = originate(xid)
 			what = "bonk"
 		case "Create":
-			obj, _ = jsongetmap(item, "object")
+			obj, _ = item.GetMap("object")
 			what = "honk"
 		case "Delete":
-			obj, _ = jsongetmap(item, "object")
-			xid, _ = jsongetstring(item, "object")
+			obj, _ = item.GetMap("object")
+			xid, _ = item.GetString("object")
 			what = "eradicate"
 		case "Note":
 			fallthrough
 		case "Article":
 			fallthrough
 		case "Page":
-			obj = item.(map[string]interface{})
+			obj = item
 			what = "honk"
 		default:
 			log.Printf("unknown activity: %s", what)
 			fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-			WriteJunk(fd, item.(map[string]interface{}))
+			item.Write(fd)
 			io.WriteString(fd, "\n")
 			fd.Close()
 			return nil
 		}
 
 		var xonk Honk
-		who, _ := jsongetstring(item, "actor")
+		who, _ := item.GetString("actor")
 		if obj != nil {
 			if who == "" {
-				who, _ = jsongetstring(obj, "attributedTo")
+				who, _ = obj.GetString("attributedTo")
 			}
-			oonker, _ = jsongetstring(obj, "attributedTo")
-			ot, _ := jsongetstring(obj, "type")
-			url, _ = jsongetstring(obj, "url")
+			oonker, _ = obj.GetString("attributedTo")
+			ot, _ := obj.GetString("type")
+			url, _ = obj.GetString("url")
 			if ot == "Note" || ot == "Article" || ot == "Page" {
 				audience = newphone(audience, obj)
-				xid, _ = jsongetstring(obj, "id")
-				precis, _ = jsongetstring(obj, "summary")
-				content, _ = jsongetstring(obj, "content")
+				xid, _ = obj.GetString("id")
+				precis, _ = obj.GetString("summary")
+				content, _ = obj.GetString("content")
 				if !strings.HasPrefix(content, "<p>") {
 					content = "<p>" + content
 				}
-				rid, _ = jsongetstring(obj, "inReplyTo")
-				convoy, _ = jsongetstring(obj, "context")
+				rid, _ = obj.GetString("inReplyTo")
+				convoy, _ = obj.GetString("context")
 				if convoy == "" {
-					convoy, _ = jsongetstring(obj, "conversation")
+					convoy, _ = obj.GetString("conversation")
 				}
 				if what == "honk" && rid != "" {
 					what = "tonk"
 				}
 			}
 			if ot == "Tombstone" {
-				xid, _ = jsongetstring(obj, "id")
+				xid, _ = obj.GetString("id")
 			}
-			atts, _ := jsongetarray(obj, "attachment")
-			for i, att := range atts {
-				at, _ := jsongetstring(att, "type")
-				mt, _ := jsongetstring(att, "mediaType")
-				u, _ := jsongetstring(att, "url")
-				name, _ := jsongetstring(att, "name")
+			atts, _ := obj.GetArray("attachment")
+			for i, atti := range atts {
+				att, ok := atti.(junk.Junk)
+				if !ok {
+					continue
+				}
+				at, _ := att.GetString("type")
+				mt, _ := att.GetString("mediaType")
+				u, _ := att.GetString("url")
+				name, _ := att.GetString("name")
 				localize := false
 				if i > 4 {
 					log.Printf("excessive attachment: %s", at)
@@ -583,17 +527,21 @@ func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 					xonk.Donks = append(xonk.Donks, donk)
 				}
 			}
-			tags, _ := jsongetarray(obj, "tag")
-			for _, tag := range tags {
-				tt, _ := jsongetstring(tag, "type")
-				name, _ := jsongetstring(tag, "name")
+			tags, _ := obj.GetArray("tag")
+			for _, tagi := range tags {
+				tag, ok := tagi.(junk.Junk)
+				if !ok {
+					continue
+				}
+				tt, _ := tag.GetString("type")
+				name, _ := tag.GetString("name")
 				if tt == "Emoji" {
-					icon, _ := jsongetmap(tag, "icon")
-					mt, _ := jsongetstring(icon, "mediaType")
+					icon, _ := tag.GetMap("icon")
+					mt, _ := icon.GetString("mediaType")
 					if mt == "" {
 						mt = "image/png"
 					}
-					u, _ := jsongetstring(icon, "url")
+					u, _ := icon.GetString("url")
 					donk := savedonk(u, name, mt, true)
 					if donk != nil {
 						xonk.Donks = append(xonk.Donks, donk)
@@ -603,6 +551,7 @@ func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 		}
 		if originate(xid) != origin {
 			log.Printf("original sin: %s <> %s", xid, origin)
+			item.Write(os.Stdout)
 			return nil
 		}
 		audience = append(audience, who)
@@ -646,10 +595,10 @@ func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 	return xonkxonkfn(item, origin)
 }
 
-func rubadubdub(user *WhatAbout, req map[string]interface{}) {
-	xid, _ := jsongetstring(req, "id")
-	actor, _ := jsongetstring(req, "actor")
-	j := NewJunk()
+func rubadubdub(user *WhatAbout, req junk.Junk) {
+	xid, _ := req.GetString("id")
+	actor, _ := req.GetString("actor")
+	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["id"] = user.URL + "/dub/" + xid
 	j["type"] = "Accept"
@@ -659,20 +608,20 @@ func rubadubdub(user *WhatAbout, req map[string]interface{}) {
 	j["object"] = req
 
 	var buf bytes.Buffer
-	WriteJunk(&buf, j)
+	j.Write(&buf)
 	msg := buf.Bytes()
 
 	deliverate(0, user.Name, actor, msg)
 }
 
 func itakeitallback(user *WhatAbout, xid string) {
-	j := NewJunk()
+	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["id"] = user.URL + "/unsub/" + xid
 	j["type"] = "Undo"
 	j["actor"] = user.URL
 	j["to"] = xid
-	f := NewJunk()
+	f := junk.New()
 	f["id"] = user.URL + "/sub/" + xid
 	f["type"] = "Follow"
 	f["actor"] = user.URL
@@ -681,14 +630,14 @@ func itakeitallback(user *WhatAbout, xid string) {
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 
 	var buf bytes.Buffer
-	WriteJunk(&buf, j)
+	j.Write(&buf)
 	msg := buf.Bytes()
 
 	deliverate(0, user.Name, xid, msg)
 }
 
 func subsub(user *WhatAbout, xid string) {
-	j := NewJunk()
+	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["id"] = user.URL + "/sub/" + xid
 	j["type"] = "Follow"
@@ -698,16 +647,16 @@ func subsub(user *WhatAbout, xid string) {
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 
 	var buf bytes.Buffer
-	WriteJunk(&buf, j)
+	j.Write(&buf)
 	msg := buf.Bytes()
 
 	deliverate(0, user.Name, xid, msg)
 }
 
-func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]interface{}) {
+func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 	dt := h.Date.Format(time.RFC3339)
-	var jo map[string]interface{}
-	j := NewJunk()
+	var jo junk.Junk
+	j := junk.New()
 	j["id"] = user.URL + "/" + h.What + "/" + shortxid(h.XID)
 	j["actor"] = user.URL
 	j["published"] = dt
@@ -722,7 +671,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 	case "honk":
 		j["type"] = "Create"
 
-		jo = NewJunk()
+		jo = junk.New()
 		jo["id"] = h.XID
 		jo["type"] = "Note"
 		jo["published"] = dt
@@ -750,7 +699,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 		var tags []interface{}
 		g := bunchofgrapes(h.Noise)
 		for _, m := range g {
-			t := NewJunk()
+			t := junk.New()
 			t["type"] = "Mention"
 			t["name"] = m.who
 			t["href"] = m.where
@@ -758,11 +707,11 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 		}
 		herd := herdofemus(h.Noise)
 		for _, e := range herd {
-			t := NewJunk()
+			t := junk.New()
 			t["id"] = e.ID
 			t["type"] = "Emoji"
 			t["name"] = e.Name
-			i := NewJunk()
+			i := junk.New()
 			i["type"] = "Image"
 			i["mediaType"] = "image/png"
 			i["url"] = e.ID
@@ -777,7 +726,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]inte
 			if re_emus.MatchString(d.Name) {
 				continue
 			}
-			jd := NewJunk()
+			jd := junk.New()
 			jd["mediaType"] = d.Media
 			jd["name"] = d.Name
 			jd["type"] = "Document"
@@ -803,7 +752,7 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 	jonk, _ := jonkjonk(user, honk)
 	jonk["@context"] = itiswhatitis
 	var buf bytes.Buffer
-	WriteJunk(&buf, jonk)
+	jonk.Write(&buf)
 	msg := buf.Bytes()
 
 	rcpts := make(map[string]bool)
@@ -836,10 +785,10 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 	}
 }
 
-func asjonker(user *WhatAbout) map[string]interface{} {
+func asjonker(user *WhatAbout) junk.Junk {
 	about := obfusbreak(user.About)
 
-	j := NewJunk()
+	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["id"] = user.URL
 	j["type"] = "Person"
@@ -851,12 +800,12 @@ func asjonker(user *WhatAbout) map[string]interface{} {
 	j["preferredUsername"] = user.Name
 	j["summary"] = about
 	j["url"] = user.URL
-	a := NewJunk()
+	a := junk.New()
 	a["type"] = "icon"
 	a["mediaType"] = "image/png"
 	a["url"] = fmt.Sprintf("https://%s/a?a=%s", serverName, url.QueryEscape(user.URL))
 	j["icon"] = a
-	k := NewJunk()
+	k := junk.New()
 	k["id"] = user.URL + "#key"
 	k["owner"] = user.URL
 	k["publicKeyPem"] = user.Key
@@ -901,11 +850,15 @@ func gofish(name string) string {
 		handlock.Unlock()
 		return ""
 	}
-	links, _ := jsongetarray(j, "links")
-	for _, l := range links {
-		href, _ := jsongetstring(l, "href")
-		rel, _ := jsongetstring(l, "rel")
-		t, _ := jsongetstring(l, "type")
+	links, _ := j.GetArray("links")
+	for _, li := range links {
+		l, ok := li.(junk.Junk)
+		if !ok {
+			continue
+		}
+		href, _ := l.GetString("href")
+		rel, _ := l.GetString("rel")
+		t, _ := l.GetString("type")
 		if rel == "self" && friendorfoe(t) {
 			stmtSaveXonker.Exec(name, href, "fishname")
 			handlock.Lock()
@@ -935,8 +888,8 @@ func investigate(name string) string {
 		log.Printf("error investigating honker: %s", err)
 		return ""
 	}
-	t, _ := jsongetstring(obj, "type")
-	id, _ := jsongetstring(obj, "id")
+	t, _ := obj.GetString("type")
+	id, _ := obj.GetString("id")
 	if t != "Person" {
 		log.Printf("it's not a person! %s", name)
 		return ""

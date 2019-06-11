@@ -35,6 +35,7 @@ import (
 	"github.com/gorilla/mux"
 	"humungus.tedunangst.com/r/webs/htfilter"
 	"humungus.tedunangst.com/r/webs/image"
+	"humungus.tedunangst.com/r/webs/junk"
 	"humungus.tedunangst.com/r/webs/login"
 	"humungus.tedunangst.com/r/webs/rss"
 	"humungus.tedunangst.com/r/webs/templates"
@@ -217,10 +218,10 @@ func butwhatabout(name string) (*WhatAbout, error) {
 	return &user, err
 }
 
-func crappola(j map[string]interface{}) bool {
-	t, _ := jsongetstring(j, "type")
-	a, _ := jsongetstring(j, "actor")
-	o, _ := jsongetstring(j, "object")
+func crappola(j junk.Junk) bool {
+	t, _ := j.GetString("type")
+	a, _ := j.GetString("actor")
+	o, _ := j.GetString("object")
 	if t == "Delete" && a == o {
 		log.Printf("crappola from %s", a)
 		return true
@@ -234,7 +235,7 @@ func ping(user *WhatAbout, who string) {
 		log.Printf("no inbox for ping: %s", err)
 		return
 	}
-	j := NewJunk()
+	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["type"] = "Ping"
 	j["id"] = user.URL + "/ping/" + xfiltrate()
@@ -255,7 +256,7 @@ func pong(user *WhatAbout, who string, obj string) {
 		log.Printf("no inbox for pong %s : %s", who, err)
 		return
 	}
-	j := NewJunk()
+	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["type"] = "Pong"
 	j["id"] = user.URL + "/pong/" + xfiltrate()
@@ -280,7 +281,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	var buf bytes.Buffer
 	io.Copy(&buf, r.Body)
 	payload := buf.Bytes()
-	j, err := ReadJunk(bytes.NewReader(payload))
+	j, err := junk.Read(bytes.NewReader(payload))
 	if err != nil {
 		log.Printf("bad payload: %s", err)
 		io.WriteString(os.Stdout, "bad payload\n")
@@ -301,31 +302,31 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	what, _ := jsongetstring(j, "type")
+	what, _ := j.GetString("type")
 	if what == "Like" {
 		return
 	}
-	who, _ := jsongetstring(j, "actor")
+	who, _ := j.GetString("actor")
 	origin := keymatch(keyname, who)
 	if origin == "" {
 		log.Printf("keyname actor mismatch: %s <> %s", keyname, who)
 		return
 	}
-	objid, _ := jsongetstring(j, "id")
+	objid, _ := j.GetString("id")
 	if thoudostbitethythumb(user.ID, []string{who}, objid) {
 		log.Printf("ignoring thumb sucker %s", who)
 		return
 	}
 	switch what {
 	case "Ping":
-		obj, _ := jsongetstring(j, "id")
+		obj, _ := j.GetString("id")
 		log.Printf("ping from %s: %s", who, obj)
 		pong(user, who, obj)
 	case "Pong":
-		obj, _ := jsongetstring(j, "object")
+		obj, _ := j.GetString("object")
 		log.Printf("pong from %s: %s", who, obj)
 	case "Follow":
-		obj, _ := jsongetstring(j, "object")
+		obj, _ := j.GetString("object")
 		if obj == user.URL {
 			log.Printf("updating honker follow: %s", who)
 			stmtSaveDub.Exec(user.ID, who, who, "dub")
@@ -341,9 +342,9 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	case "Update":
-		obj, ok := jsongetmap(j, "object")
+		obj, ok := j.GetMap("object")
 		if ok {
-			what, _ := jsongetstring(obj, "type")
+			what, _ := obj.GetString("type")
 			switch what {
 			case "Person":
 				return
@@ -351,16 +352,16 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("unknown Update activity")
 		fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		WriteJunk(fd, j)
+		j.Write(fd)
 		io.WriteString(fd, "\n")
 		fd.Close()
 
 	case "Undo":
-		obj, ok := jsongetmap(j, "object")
+		obj, ok := j.GetMap("object")
 		if !ok {
 			log.Printf("unknown undo no object")
 		} else {
-			what, _ := jsongetstring(obj, "type")
+			what, _ := obj.GetString("type")
 			switch what {
 			case "Follow":
 				log.Printf("updating honker undo: %s", who)
@@ -421,7 +422,7 @@ func outbox(w http.ResponseWriter, r *http.Request) {
 		jonks = append(jonks, j)
 	}
 
-	j := NewJunk()
+	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["id"] = user.URL + "/outbox"
 	j["type"] = "OrderedCollection"
@@ -430,7 +431,7 @@ func outbox(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Cache-Control", "max-age=60")
 	w.Header().Set("Content-Type", theonetruename)
-	WriteJunk(w, j)
+	j.Write(w)
 }
 
 func emptiness(w http.ResponseWriter, r *http.Request) {
@@ -444,7 +445,7 @@ func emptiness(w http.ResponseWriter, r *http.Request) {
 	if strings.HasSuffix(r.URL.Path, "/following") {
 		colname = "/following"
 	}
-	j := NewJunk()
+	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["id"] = user.URL + colname
 	j["type"] = "OrderedCollection"
@@ -453,7 +454,7 @@ func emptiness(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Cache-Control", "max-age=60")
 	w.Header().Set("Content-Type", theonetruename)
-	WriteJunk(w, j)
+	j.Write(w)
 }
 
 func showuser(w http.ResponseWriter, r *http.Request) {
@@ -467,7 +468,7 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 		j := asjonker(user)
 		w.Header().Set("Cache-Control", "max-age=600")
 		w.Header().Set("Content-Type", theonetruename)
-		WriteJunk(w, j)
+		j.Write(w)
 		return
 	}
 	u := login.GetUserInfo(r)
@@ -518,7 +519,7 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		j["@context"] = itiswhatitis
 		w.Header().Set("Cache-Control", "max-age=3600")
 		w.Header().Set("Content-Type", theonetruename)
-		WriteJunk(w, j)
+		j.Write(w)
 		return
 	}
 	honks := gethonksbyconvoy(-1, h.Convoy)
@@ -1210,11 +1211,11 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	j := NewJunk()
+	j := junk.New()
 	j["subject"] = fmt.Sprintf("acct:%s@%s", user.Name, serverName)
 	j["aliases"] = []string{user.URL}
 	var links []map[string]interface{}
-	l := NewJunk()
+	l := junk.New()
 	l["rel"] = "self"
 	l["type"] = `application/activity+json`
 	l["href"] = user.URL
@@ -1223,7 +1224,7 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Cache-Control", "max-age=3600")
 	w.Header().Set("Content-Type", "application/jrd+json")
-	WriteJunk(w, j)
+	j.Write(w)
 }
 
 func somedays() string {
