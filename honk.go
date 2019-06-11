@@ -328,7 +328,8 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		obj, _ := jsongetstring(j, "object")
 		if obj == user.URL {
 			log.Printf("updating honker follow: %s", who)
-			rubadubdub(user, j)
+			stmtSaveDub.Exec(user.ID, who, who, "dub")
+			go rubadubdub(user, j)
 		} else {
 			log.Printf("can't follow %s", obj)
 		}
@@ -1052,15 +1053,11 @@ func savehonker(w http.ResponseWriter, r *http.Request) {
 			}
 			log.Printf("unsubscribing from %s", xid)
 			user, _ := butwhatabout(u.Username)
-			err = itakeitallback(user, xid)
+			go itakeitallback(user, xid)
+			_, err = stmtUpdateFlavor.Exec("unsub", u.UserID, xid, "sub")
 			if err != nil {
-				log.Printf("can't take it back: %s", err)
-			} else {
-				_, err = stmtUpdateFlavor.Exec("unsub", u.UserID, xid, "sub")
-				if err != nil {
-					log.Printf("error updating honker: %s", err)
-					return
-				}
+				log.Printf("error updating honker: %s", err)
+				return
 			}
 
 			http.Redirect(w, r, "/honkers", http.StatusSeeOther)

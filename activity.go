@@ -648,32 +648,24 @@ func xonkxonk(user *WhatAbout, item interface{}, origin string) *Honk {
 
 func rubadubdub(user *WhatAbout, req map[string]interface{}) {
 	xid, _ := jsongetstring(req, "id")
-	reqactor, _ := jsongetstring(req, "actor")
+	actor, _ := jsongetstring(req, "actor")
 	j := NewJunk()
 	j["@context"] = itiswhatitis
 	j["id"] = user.URL + "/dub/" + xid
 	j["type"] = "Accept"
 	j["actor"] = user.URL
-	j["to"] = reqactor
+	j["to"] = actor
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 	j["object"] = req
 
-	actor, _ := jsongetstring(req, "actor")
-	box, err := getboxes(actor)
-	if err != nil {
-		log.Printf("can't get dub box: %s", err)
-		return
-	}
-	keyname, key := ziggy(user.Name)
-	err = PostJunk(keyname, key, box.In, j)
-	if err != nil {
-		log.Printf("can't rub a dub: %s", err)
-		return
-	}
-	stmtSaveDub.Exec(user.ID, actor, actor, "dub")
+	var buf bytes.Buffer
+	WriteJunk(&buf, j)
+	msg := buf.Bytes()
+
+	deliverate(0, user.Name, actor, msg)
 }
 
-func itakeitallback(user *WhatAbout, xid string) error {
+func itakeitallback(user *WhatAbout, xid string) {
 	j := NewJunk()
 	j["@context"] = itiswhatitis
 	j["id"] = user.URL + "/unsub/" + xid
@@ -688,16 +680,11 @@ func itakeitallback(user *WhatAbout, xid string) error {
 	j["object"] = f
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 
-	box, err := getboxes(xid)
-	if err != nil {
-		return err
-	}
-	keyname, key := ziggy(user.Name)
-	err = PostJunk(keyname, key, box.In, j)
-	if err != nil {
-		return err
-	}
-	return nil
+	var buf bytes.Buffer
+	WriteJunk(&buf, j)
+	msg := buf.Bytes()
+
+	deliverate(0, user.Name, xid, msg)
 }
 
 func subsub(user *WhatAbout, xid string) {
@@ -710,16 +697,11 @@ func subsub(user *WhatAbout, xid string) {
 	j["object"] = xid
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 
-	a := xid
-	box, _ := getboxes(xid)
-	if box != nil {
-		a = "%" + box.In
-	}
 	var buf bytes.Buffer
 	WriteJunk(&buf, j)
 	msg := buf.Bytes()
 
-	deliverate(0, user.Name, a, msg)
+	deliverate(0, user.Name, xid, msg)
 }
 
 func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]interface{}) {
