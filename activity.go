@@ -710,16 +710,16 @@ func subsub(user *WhatAbout, xid string) {
 	j["object"] = xid
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 
-	box, err := getboxes(xid)
-	if err != nil {
-		log.Printf("can't send follow: %s", err)
-		return
+	a := xid
+	box, _ := getboxes(xid)
+	if box != nil {
+		a = "%" + box.In
 	}
-	keyname, key := ziggy(user.Name)
-	err = PostJunk(keyname, key, box.In, j)
-	if err != nil {
-		log.Printf("failed to subsub: %s", err)
-	}
+	var buf bytes.Buffer
+	WriteJunk(&buf, j)
+	msg := buf.Bytes()
+
+	deliverate(0, user.Name, a, msg)
 }
 
 func jonkjonk(user *WhatAbout, h *Honk) (map[string]interface{}, map[string]interface{}) {
