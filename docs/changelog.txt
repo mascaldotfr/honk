@@ -2,6 +2,16 @@ changelog
 
 -- v
 
+++ Some extra commands for better database retention management.
+
++ Add a form to allow manual import of external posts.
+
++ About page
+
++ More reliable (retries) meta messages such as follow requests.
+
++ Better thread support for missing context.
+
 ++ A changelog.
 
 +++ Auto fetching and inlining of hoots.
