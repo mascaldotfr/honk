@@ -25,6 +25,7 @@ import (
 	"log"
 	notrand "math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"sort"
 	"strconv"
@@ -378,6 +379,32 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func ximport(w http.ResponseWriter, r *http.Request) {
+	xid := r.FormValue("xid")
+	j, err := GetJunk(xid)
+	if err != nil {
+		log.Printf("error getting external object: %s", err)
+		return
+	}
+	u := login.GetUserInfo(r)
+	user, _ := butwhatabout(u.Username)
+	xonk := xonkxonk(user, j, originate(xid))
+	convoy := ""
+	if xonk != nil {
+		convoy = xonk.Convoy
+		savexonk(user, xonk)
+	}
+	http.Redirect(w, r, "/t?c="+url.QueryEscape(convoy), http.StatusSeeOther)
+}
+
+func xzone(w http.ResponseWriter, r *http.Request) {
+	templinfo := getInfo(r)
+	templinfo["XCSRF"] = login.GetCSRF("ximport", r)
+	err := readviews.Execute(w, r.URL.Path[1:]+".html", templinfo)
+	if err != nil {
+		log.Print(err)
+	}
+}
 func outbox(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	user, err := butwhatabout(name)
@@ -1275,6 +1302,7 @@ func serve() {
 		"views/account.html",
 		"views/about.html",
 		"views/login.html",
+		"views/xzone.html",
 		"views/header.html",
 	)
 	if !debug {
@@ -1321,11 +1349,13 @@ func serve() {
 	loggedin.HandleFunc("/chpass", dochpass)
 	loggedin.HandleFunc("/atme", homepage)
 	loggedin.HandleFunc("/zonkzone", zonkzone)
+	loggedin.HandleFunc("/xzone", xzone)
 	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(savehonk)))
 	loggedin.Handle("/bonk", login.CSRFWrap("honkhonk", http.HandlerFunc(savebonk)))
 	loggedin.Handle("/zonkit", login.CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
 	loggedin.Handle("/zonkzonk", login.CSRFWrap("zonkzonk", http.HandlerFunc(zonkzonk)))
 	loggedin.Handle("/saveuser", login.CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
+	loggedin.Handle("/ximport", login.CSRFWrap("ximport", http.HandlerFunc(ximport)))
 	loggedin.HandleFunc("/honkers", showhonkers)
 	loggedin.HandleFunc("/h/{name:[[:alnum:]]+}", showhonker)
 	loggedin.HandleFunc("/c/{name:[[:alnum:]]+}", showcombo)

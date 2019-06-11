@@ -44,6 +44,12 @@ body > header {
 body > header span {
 	margin-right: 2em;
 }
+header details {
+	display: inline;
+}
+header details[open] summary {
+	display: none;
+}
 main {
 	max-width: 1200px;
 	margin: auto;
@@ -162,7 +168,7 @@ button a {
 }
 .inlineform select {
 }
-details summary {
+.honk details summary {
 	color: #aab;
 }
 .limited details summary {
