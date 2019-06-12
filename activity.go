@@ -454,6 +454,8 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			obj, _ = item.GetMap("object")
 			xid, _ = item.GetString("object")
 			what = "eradicate"
+		case "Question":
+			fallthrough
 		case "Note":
 			fallthrough
 		case "Article":
@@ -479,7 +481,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			oonker, _ = obj.GetString("attributedTo")
 			ot, _ := obj.GetString("type")
 			url, _ = obj.GetString("url")
-			if ot == "Note" || ot == "Article" || ot == "Page" {
+			if ot == "Note" || ot == "Article" || ot == "Page" || ot == "Question" {
 				audience = newphone(audience, obj)
 				xid, _ = obj.GetString("id")
 				precis, _ = obj.GetString("summary")
@@ -491,6 +493,29 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				convoy, _ = obj.GetString("context")
 				if convoy == "" {
 					convoy, _ = obj.GetString("conversation")
+				}
+				if ot == "Question" {
+					what = "qonk"
+					content += "<ul>"
+					ans, _ := obj.GetArray("oneOf")
+					for _, ai := range ans {
+						a, ok := ai.(junk.Junk)
+						if !ok {
+							continue
+						}
+						as, _ := a.GetString("name")
+						content += "<li>" + as
+					}
+					ans, _ = obj.GetArray("anyOf")
+					for _, ai := range ans {
+						a, ok := ai.(junk.Junk)
+						if !ok {
+							continue
+						}
+						as, _ := a.GetString("name")
+						content += "<li>" + as
+					}
+					content += "</ul>"
 				}
 				if what == "honk" && rid != "" {
 					what = "tonk"

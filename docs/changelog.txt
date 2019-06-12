@@ -2,9 +2,11 @@ changelog
 
 -- v
 
++ Read only support for qonks.
+
 ++ Some extra commands for better database retention management.
 
-+ Add a form to allow manual import of external posts.
++ Add a form to allow manual import of xonks.
 
 + About page
 
