@@ -93,6 +93,7 @@ type Honker struct {
 
 var serverName string
 var iconName = "icon.png"
+var serverMsg = "Things happen."
 
 var readviews *templates.Template
 
@@ -122,33 +123,16 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		honks = getpublichonks()
 	}
 
-	var modtime time.Time
-	if len(honks) > 0 {
-		modtime = honks[0].Date
-	}
-	debug := false
-	getconfig("debug", &debug)
-	imh := r.Header.Get("If-Modified-Since")
-	if !debug && imh != "" && !modtime.IsZero() {
-		ifmod, err := time.Parse(http.TimeFormat, imh)
-		if err == nil && !modtime.After(ifmod) {
-			w.WriteHeader(http.StatusNotModified)
-			return
-		}
-	}
 	reverbolate(honks)
 
-	msg := "Things happen."
-	getconfig("servermsg", &msg)
 	templinfo["Honks"] = honks
 	templinfo["ShowRSS"] = true
-	templinfo["ServerMessage"] = msg
+	templinfo["ServerMessage"] = serverMsg
 	if u == nil {
 		w.Header().Set("Cache-Control", "max-age=60")
 	} else {
 		w.Header().Set("Cache-Control", "max-age=0")
 	}
-	w.Header().Set("Last-Modified", modtime.Format(http.TimeFormat))
 	err := readviews.Execute(w, "honkpage.html", templinfo)
 	if err != nil {
 		log.Print(err)
@@ -1475,6 +1459,7 @@ func main() {
 	if dbversion != myVersion {
 		log.Fatal("incorrect database version. run upgrade.")
 	}
+	getconfig("servermsg", &serverMsg)
 	getconfig("servername", &serverName)
 	prepareStatements(db)
 	switch cmd {
