@@ -2,13 +2,15 @@ changelog
 
 -- v
 
++ Misc UI touchups.
+
 + Read only support for qonks.
 
 ++ Some extra commands for better database retention management.
 
 + Add a form to allow manual import of xonks.
 
-+ About page
++ About page.
 
 + More reliable (retries) meta messages such as follow requests.
 
