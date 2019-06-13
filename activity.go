@@ -718,7 +718,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		}
 		jo["summary"] = h.Precis
 		jo["content"] = mentionize(h.Noise)
-		if strings.HasPrefix(h.Precis, "DZ:") {
+		if strings.HasPrefix(h.Precis, "DZ:") || strings.HasPrefix(h.Noise, "🌶️🌶️🌶️") {
 			jo["sensitive"] = true
 		}
 		var tags []interface{}
