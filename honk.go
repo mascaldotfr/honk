@@ -1352,21 +1352,6 @@ func serve() {
 
 func cleanupdb(days int) {
 	db := opendatabase()
-	rows, _ := db.Query("select userid, name from zonkers where wherefore = 'zonvoy'")
-	deadthreads := make(map[int64][]string)
-	for rows.Next() {
-		var userid int64
-		var name string
-		rows.Scan(&userid, &name)
-		deadthreads[userid] = append(deadthreads[userid], name)
-	}
-	rows.Close()
-	for userid, threads := range deadthreads {
-		for _, t := range threads {
-			doordie(db, "delete from donks where honkid in (select honkid from honks where userid = ? and convoy = ?)", userid, t)
-			doordie(db, "delete from honks where userid = ? and convoy = ?", userid, t)
-		}
-	}
 	expdate := time.Now().UTC().Add(-time.Duration(days) * 24 * time.Hour).Format(dbtimeformat)
 	doordie(db, "delete from donks where honkid in (select honkid from honks where dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3))", expdate)
 	doordie(db, "delete from honks where dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3)", expdate)
