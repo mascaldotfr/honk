@@ -2,7 +2,7 @@
 create table honks (honkid integer primary key, userid integer, what text, honker text, xid text, rid text, dt text, url text, audience text, noise text, convoy text, whofore integer, format text, precis text, oonker text);
 create table donks (honkid integer, fileid integer);
 create table files(fileid integer primary key, xid text, name text, url text, media text, local integer, content blob);
-create table honkers (honkerid integer primary key, userid integer, name text, xid text, flavor text, combos text, pubkey text);
+create table honkers (honkerid integer primary key, userid integer, name text, xid text, flavor text, combos text);
 create table xonkers (xonkerid integer primary key, name text, info text, flavor text);
 create table zonkers (zonkerid integer primary key, userid integer, name text, wherefore text);
 create table doovers(dooverid integer primary key, dt text, tries integer, username text, rcpt text, msg blob);
