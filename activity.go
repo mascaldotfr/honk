@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -678,6 +679,9 @@ func subsub(user *WhatAbout, xid string) {
 	deliverate(0, user.Name, xid, msg)
 }
 
+var onepepper = string([]byte{0xf0, 0x9f, 0x8c, 0xb6})
+var re_spicy = regexp.MustCompile("^(" + onepepper + "\ufe0f?){3}")
+
 func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 	dt := h.Date.Format(time.RFC3339)
 	var jo junk.Junk
@@ -718,7 +722,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		}
 		jo["summary"] = h.Precis
 		jo["content"] = mentionize(h.Noise)
-		if strings.HasPrefix(h.Precis, "DZ:") || strings.HasPrefix(h.Noise, "🌶️🌶️🌶️") {
+		if strings.HasPrefix(h.Precis, "DZ:") || re_spicy.MatchString(h.Noise) {
 			jo["sensitive"] = true
 		}
 		var tags []interface{}
