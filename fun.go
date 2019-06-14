@@ -311,10 +311,11 @@ func mentionize(s string) string {
 }
 
 var re_unurl = regexp.MustCompile("https://([^/]+).*/([^/]+)")
+var re_urlhost = regexp.MustCompile("https://([^/]+)")
 
 func originate(u string) string {
-	m := re_unurl.FindStringSubmatch(u)
-	if len(m) > 2 {
+	m := re_urlhost.FindStringSubmatch(u)
+	if len(m) > 1 {
 		return m[1]
 	}
 	return ""
