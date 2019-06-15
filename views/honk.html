@@ -52,21 +52,11 @@ convoy: <a href="/t?c={{ .Convoy }}">{{ .Convoy }}</a>
 <div>
 <p>
 {{ if .Honk.Public }}
-<button onclick="bonk(this, '{{ .Honk.XID }}'); return false;"><a href="/bonk">bonk</a></button>
+<button onclick="bonk(this, '{{ .Honk.XID }}');">bonk</button>
 {{ end }}
-<button onclick="showhonkform('{{ .Honk.XID }}', '{{ .Honk.Handle }}'); return false;"><a href="/newhonk">tonk</a></button>
-<form class="inlineform" action="/zonkit" method="POST">
-<input type="hidden" name="CSRF" value="{{ .BonkCSRF }}">
-<input type="hidden" name="honk" value="{{ .Honk.XID }}">
-<input type="hidden" name="honker" value="{{ .Honk.Honker }}">
-<input type="hidden" name="convoy" value="{{ .Honk.Convoy }}">
-<button onclick="zonkit(this); return false;"><a href="/zonkit">zonk</a></button>
-<select name="wherefore">
-<option>this honk</option>
-<option>this honker</option>
-<option selected>this convoy</option>
-</select>
-</form>
+<button onclick="showhonkform('{{ .Honk.XID }}', '{{ .Honk.Handle }}');">tonk</button>
+<button onclick="muteit(this, '{{ .Honk.Convoy }}');">mute</button>
+<button onclick="zonkit(this, '{{ .Honk.XID }}');">zonk</button>
 </div>
 </details>
 <p>
