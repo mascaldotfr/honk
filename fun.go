@@ -123,6 +123,11 @@ var re_hashes = regexp.MustCompile(`(?:^|\W)#[[:alnum:]]+`)
 
 func ontologies(s string) []string {
 	m := re_hashes.FindAllString(s, -1)
+	for i, h := range m {
+		if h[0] != '#' {
+			m[i] = h[1:]
+		}
+	}
 	return m
 }
 
