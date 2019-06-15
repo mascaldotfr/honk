@@ -119,6 +119,13 @@ func xfiltrate() string {
 	}
 }
 
+var re_hashes = regexp.MustCompile(`(?:^|\W)#[[:alnum:]]+`)
+
+func ontologies(s string) []string {
+	m := re_hashes.FindAllString(s, -1)
+	return m
+}
+
 type Mention struct {
 	who   string
 	where string

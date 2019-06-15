@@ -733,6 +733,13 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			t["href"] = m.where
 			tags = append(tags, t)
 		}
+		ooo := ontologies(h.Noise)
+		for _, o := range ooo {
+			t := junk.New()
+			t["type"] = "Hashtag"
+			t["name"] = o
+			tags = append(tags, t)
+		}
 		herd := herdofemus(h.Noise)
 		for _, e := range herd {
 			t := junk.New()
