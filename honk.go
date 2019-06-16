@@ -946,6 +946,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		d.Name = name
 		d.Media = media
 		d.URL = url
+		d.Local = true
 		honk.Donks = append(honk.Donks, &d)
 	}
 	herd := herdofemus(honk.Noise)
@@ -962,6 +963,20 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	whofore := 2
 	if !honk.Public {
 		whofore = 3
+	}
+	if r.FormValue("preview") == "preview" {
+		honks := []*Honk{ &honk }
+		reverbolate(honks)
+		templinfo := getInfo(r)
+		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+		templinfo["Honks"] = honks
+		templinfo["Noise"] = r.FormValue("noise")
+		templinfo["ServerMessage"] = "honk preview"
+		err := readviews.Execute(w, "honkpage.html", templinfo)
+		if err != nil {
+			log.Print(err)
+		}
+		return
 	}
 	res, err := stmtSaveHonk.Exec(userinfo.UserID, what, honk.Honker, xid, rid,
 		dt.Format(dbtimeformat), "", aud, noise, convoy, whofore, "html", honk.Precis, honk.Oonker)

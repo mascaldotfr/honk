@@ -7,9 +7,10 @@ in reply to: <input type="text" name="rid" id="ridinput" value="" autocomplete=o
 <p>
 <label id="donker">attach: <input onchange="updatedonker();" type="file" name="donk"><span></span></label>
 <p>
-<textarea name="noise" id="honknoise"></textarea>
+<textarea name="noise" id="honknoise">{{ .Noise }}</textarea>
 <p>
 <input type="submit" value="it's gonna be honked">
+<input type="submit" name="preview" value="preview">
 </form>
 <script>
 function showhonkform(rid, hname) {
@@ -20,9 +21,6 @@ function showhonkform(rid, hname) {
 	if (rid) {
 		ridinput.value = rid
 		honknoise.value = "@" + hname + " "
-	} else {
-		ridinput.value = ""
-		honknoise.value = ""
 	}
 	document.getElementById("infobox").scrollIntoView()
 }
