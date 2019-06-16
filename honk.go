@@ -384,9 +384,23 @@ func ximport(w http.ResponseWriter, r *http.Request) {
 }
 
 func xzone(w http.ResponseWriter, r *http.Request) {
+	u := login.GetUserInfo(r)
+	var honkers []string
+	rows, err := stmtRecentHonkers.Query(u.UserID)
+	if err != nil {
+		log.Printf("query err: %s", err)
+		return
+	}
+	for rows.Next() {
+		var s string
+		rows.Scan(&s)
+		honkers = append(honkers, s)
+	}
+
 	templinfo := getInfo(r)
 	templinfo["XCSRF"] = login.GetCSRF("ximport", r)
-	err := readviews.Execute(w, r.URL.Path[1:]+".html", templinfo)
+	templinfo["Honkers"] = honkers
+	err = readviews.Execute(w, "xzone.html", templinfo)
 	if err != nil {
 		log.Print(err)
 	}
@@ -461,9 +475,15 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 }
 
 func showhonker(w http.ResponseWriter, r *http.Request) {
-	name := mux.Vars(r)["name"]
 	u := login.GetUserInfo(r)
-	honks := gethonksbyhonker(u.UserID, name)
+	name := mux.Vars(r)["name"]
+	var honks []*Honk
+	if name == "" {
+		name = r.FormValue("xid")
+		honks = gethonksbyxonker(u.UserID, name)
+	} else {
+		honks = gethonksbyhonker(u.UserID, name)
+	}
 	honkpage(w, r, u, nil, honks, "honks by honker: "+name)
 }
 
@@ -647,6 +667,10 @@ func gethonksforme(userid int64) []*Honk {
 }
 func gethonksbyhonker(userid int64, honker string) []*Honk {
 	rows, err := stmtHonksByHonker.Query(userid, honker, userid)
+	return getsomehonks(rows, err)
+}
+func gethonksbyxonker(userid int64, xonker string) []*Honk {
+	rows, err := stmtHonksByXonker.Query(userid, xonker, userid)
 	return getsomehonks(rows, err)
 }
 func gethonksbycombo(userid int64, combo string) []*Honk {
@@ -965,7 +989,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		whofore = 3
 	}
 	if r.FormValue("preview") == "preview" {
-		honks := []*Honk{ &honk }
+		honks := []*Honk{&honk}
 		reverbolate(honks)
 		templinfo := getInfo(r)
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
@@ -1112,7 +1136,7 @@ func zonkzone(w http.ResponseWriter, r *http.Request) {
 		rows.Scan(&z.ID, &z.Name, &z.Wherefore)
 		zonkers = append(zonkers, z)
 	}
-	sort.Slice(zonkers, func (i, j int) bool {
+	sort.Slice(zonkers, func(i, j int) bool {
 		w1 := zonkers[i].Wherefore
 		w2 := zonkers[j].Wherefore
 		if w1 == w2 {
@@ -1370,6 +1394,7 @@ func serve() {
 	loggedin.Handle("/ximport", login.CSRFWrap("ximport", http.HandlerFunc(ximport)))
 	loggedin.HandleFunc("/honkers", showhonkers)
 	loggedin.HandleFunc("/h/{name:[[:alnum:]]+}", showhonker)
+	loggedin.HandleFunc("/h", showhonker)
 	loggedin.HandleFunc("/c/{name:[[:alnum:]]+}", showcombo)
 	loggedin.HandleFunc("/c", showcombos)
 	loggedin.Handle("/savehonker", login.CSRFWrap("savehonker", http.HandlerFunc(savehonker)))
@@ -1398,12 +1423,12 @@ func reducedb(honker string) {
 
 var stmtHonkers, stmtDubbers, stmtSaveHonker, stmtUpdateFlavor, stmtUpdateCombos *sql.Stmt
 var stmtOneXonk, stmtPublicHonks, stmtUserHonks, stmtHonksByCombo, stmtHonksByConvoy *sql.Stmt
-var stmtHonksForUser, stmtHonksForMe, stmtSaveDub *sql.Stmt
+var stmtHonksForUser, stmtHonksForMe, stmtSaveDub, stmtHonksByXonker *sql.Stmt
 var stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
 var stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
 var stmtHasHonker, stmtThumbBiters, stmtZonkIt, stmtZonkDonks, stmtSaveZonker *sql.Stmt
-var stmtGetXonker, stmtSaveXonker *sql.Stmt
+var stmtRecentHonkers, stmtGetXonker, stmtSaveXonker *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -1430,6 +1455,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and honker in (select xid from honkers where userid = ? and flavor = 'sub' and combos not like '% - %')"+butnotthose+limit)
 	stmtHonksForMe = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and whofore = 1"+butnotthose+limit)
 	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.name = ?"+butnotthose+limit)
+	stmtHonksByXonker = preparetodie(db, selecthonks+" where honks.userid = ? and honker = ?"+butnotthose+limit)
 	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.combos like ?"+butnotthose+limit)
 	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or whofore = 2) and convoy = ?"+limit)
 
@@ -1451,6 +1477,7 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveZonker = preparetodie(db, "insert into zonkers (userid, name, wherefore) values (?, ?, ?)")
 	stmtGetXonker = preparetodie(db, "select info from xonkers where name = ? and flavor = ?")
 	stmtSaveXonker = preparetodie(db, "insert into xonkers (name, info, flavor) values (?, ?, ?)")
+	stmtRecentHonkers = preparetodie(db, "select distinct(honker) from honks where userid = ? order by honkid desc limit 100")
 }
 
 func ElaborateUnitTests() {

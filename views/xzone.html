@@ -8,4 +8,9 @@
 <p><input tabindex=1 type="submit" name="fetch" value="fetch">
 </form>
 </div>
+{{ range .Honkers }}
+<section class="honk">
+<p><a href="/h?xid={{ . }}">honks</a> by {{ . }}
+</section>
+{{ end }}
 </main>

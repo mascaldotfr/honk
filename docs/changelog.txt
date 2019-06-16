@@ -2,6 +2,8 @@ changelog
 
 -- v
 
+++ A new xzone to view and import data not otherwise visible.
+
 ++ Preview before honking.
 
 + Misc UI touchups.
@@ -9,8 +11,6 @@ changelog
 + Read only support for qonks.
 
 ++ Some extra commands for better database retention management.
-
-+ Add a form to allow manual import of xonks.
 
 + About page.
 
