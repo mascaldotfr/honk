@@ -108,15 +108,13 @@ func shortxid(xid string) string {
 
 func xfiltrate() string {
 	letters := "BCDFGHJKLMNPQRSTVWXYZbcdfghjklmnpqrstvwxyz1234567891234567891234"
-	for {
-		var b [18]byte
-		rand.Read(b[:])
-		for i, c := range b {
-			b[i] = letters[c&63]
-		}
-		s := string(b[:])
-		return s
+	var b [18]byte
+	rand.Read(b[:])
+	for i, c := range b {
+		b[i] = letters[c&63]
 	}
+	s := string(b[:])
+	return s
 }
 
 var re_hashes = regexp.MustCompile(`(?:^|\W)#[[:alnum:]]+`)
