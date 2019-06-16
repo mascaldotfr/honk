@@ -1112,6 +1112,21 @@ func zonkzone(w http.ResponseWriter, r *http.Request) {
 		rows.Scan(&z.ID, &z.Name, &z.Wherefore)
 		zonkers = append(zonkers, z)
 	}
+	sort.Slice(zonkers, func (i, j int) bool {
+		w1 := zonkers[i].Wherefore
+		w2 := zonkers[j].Wherefore
+		if w1 == w2 {
+			return zonkers[i].Name < zonkers[j].Name
+		}
+		if w1 == "zonvoy" {
+			w1 = "zzzzzzz"
+		}
+		if w2 == "zonvoy" {
+			w2 = "zzzzzzz"
+		}
+		return w1 < w2
+	})
+
 	templinfo := getInfo(r)
 	templinfo["Zonkers"] = zonkers
 	templinfo["ZonkCSRF"] = login.GetCSRF("zonkzonk", r)
