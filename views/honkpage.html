@@ -39,7 +39,7 @@ function bonk(el, xid) {
 function muteit(el, convoy) {
 	el.innerHTML = "muted"
 	el.disabled = true
-	post("/zonkit", "CSRF={{ $BonkCSRF }}&wherefore=this+convoy&convoy=" + escape(convoy))
+	post("/zonkit", "CSRF={{ $BonkCSRF }}&wherefore=zonvoy&what=" + escape(convoy))
 	var els = document.querySelectorAll('article.honk')
 	for (var i = 0; i < els.length; i++) {
 		var e = els[i]
@@ -51,7 +51,7 @@ function muteit(el, convoy) {
 function zonkit(el, xid) {
 	el.innerHTML = "zonked"
 	el.disabled = true
-	post("/zonkit", "CSRF={{ $BonkCSRF }}&wherefore=this+honk&honk=" + escape(xid))
+	post("/zonkit", "CSRF={{ $BonkCSRF }}&wherefore=zonk&what=" + escape(xid))
 	var p = el
 	while (p && p.tagName != "ARTICLE") {
 		p = p.parentElement

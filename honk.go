@@ -807,20 +807,10 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 
 func zonkit(w http.ResponseWriter, r *http.Request) {
 	wherefore := r.FormValue("wherefore")
-	var what string
+	what := r.FormValue("what")
 	switch wherefore {
-	case "this honk":
-		what = r.FormValue("honk")
-		wherefore = "zonk"
-	case "this honker":
-		what = r.FormValue("honker")
-		wherefore = "zonker"
-	case "this convoy":
-		what = r.FormValue("convoy")
-		wherefore = "zonvoy"
-	}
-	if what == "" {
-		return
+	case "zonk":
+	case "zonvoy":
 	}
 
 	log.Printf("zonking %s %s", wherefore, what)
@@ -843,12 +833,11 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 				go honkworldwide(user, &zonk)
 			}
 		}
-	} else {
-		_, err := stmtSaveZonker.Exec(userinfo.UserID, what, wherefore)
-		if err != nil {
-			log.Printf("error saving zonker: %s", err)
-			return
-		}
+	}
+	_, err := stmtSaveZonker.Exec(userinfo.UserID, what, wherefore)
+	if err != nil {
+		log.Printf("error saving zonker: %s", err)
+		return
 	}
 }
 
