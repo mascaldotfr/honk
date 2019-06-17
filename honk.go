@@ -1315,6 +1315,14 @@ func servefile(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+func nomoroboto(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, "User-agent: *\n")
+	io.WriteString(w, "Disallow: /t\n")
+	for _, u := range allusers() {
+		fmt.Fprintf(w, "Disallow: /u/%s/h/\n", u.Username)
+	}
+}
+
 func serve() {
 	db := opendatabase()
 	login.Init(db)
@@ -1356,6 +1364,7 @@ func serve() {
 	getters := mux.Methods("GET").Subrouter()
 
 	getters.HandleFunc("/", homepage)
+	getters.HandleFunc("/robots.txt", nomoroboto)
 	getters.HandleFunc("/rss", showrss)
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}", showuser)
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}/h/{xid:[[:alnum:]]+}", showhonk)

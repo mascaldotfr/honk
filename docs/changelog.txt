@@ -2,6 +2,8 @@ changelog
 
 -- v
 
++ Default robots.txt.
+
 ++ A new xzone to view and import data not otherwise visible.
 
 ++ Preview before honking.
