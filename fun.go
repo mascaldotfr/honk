@@ -476,6 +476,7 @@ func bitethethumbs() {
 		return
 	}
 	defer rows.Close()
+
 	thumblock.Lock()
 	defer thumblock.Unlock()
 	thumbbiters = make(map[int64]map[string]bool)
