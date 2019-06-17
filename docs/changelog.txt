@@ -1,28 +1,28 @@
 changelog
 
--- v
+-- 0.7.0
 
-+ Default robots.txt.
++++ Auto fetching and inlining of hoots.
 
 ++ A new xzone to view and import data not otherwise visible.
 
 ++ Preview before honking.
 
+++ Some extra commands for better database retention management.
+
+++ A changelog.
+
++ Default robots.txt.
+
 + Misc UI touchups.
 
 + Read only support for qonks.
-
-++ Some extra commands for better database retention management.
 
 + About page.
 
 + More reliable (retries) meta messages such as follow requests.
 
 + Better thread support for missing context.
-
-++ A changelog.
-
-+++ Auto fetching and inlining of hoots.
 
 + Upgrade image library for cleaner screenshots.
 
