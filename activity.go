@@ -311,6 +311,50 @@ func getboxes(ident string) (*Box, error) {
 	return b, nil
 }
 
+func gimmexonks(user *WhatAbout, outbox string) {
+	log.Printf("getting outbox: %s", outbox)
+	j, err := GetJunk(outbox)
+	if err != nil {
+		log.Printf("error getting outbox: %s", err)
+		return
+	}
+	t, _ := j.GetString("type")
+	origin := originate(outbox)
+	if t == "OrderedCollection" {
+		items, _ := j.GetArray("orderedItems")
+		if items == nil {
+			obj, ok := j.GetMap("first")
+			if ok {
+				items, _ = obj.GetArray("orderedItems")
+			} else {
+				page1, _ := j.GetString("first")
+				j, err = GetJunk(page1)
+				if err != nil {
+					log.Printf("error gettings page1: %s", err)
+					return
+				}
+				items, _ = j.GetArray("orderedItems")
+			}
+		}
+		if len(items) > 20 {
+			items = items[0:20]
+		}
+		for i, j := 0, len(items)-1; i < j; i, j = i+1, j-1 {
+			items[i], items[j] = items[j], items[i]
+		}
+		for _, item := range items {
+			obj, ok := item.(junk.Junk)
+			if !ok {
+				continue
+			}
+			xonk := xonkxonk(user, obj, origin)
+			if xonk != nil {
+				savexonk(user, xonk)
+			}
+		}
+	}
+}
+
 func peeppeep() {
 	user, _ := butwhatabout("htest")
 	honkers := gethonkers(user.ID)
@@ -324,40 +368,9 @@ func peeppeep() {
 			log.Printf("error getting outbox: %s", err)
 			continue
 		}
-		log.Printf("getting outbox")
-		j, err := GetJunk(box.Out)
-		if err != nil {
-			log.Printf("err: %s", err)
-			continue
-		}
-		t, _ := j.GetString("type")
-		origin := originate(f.XID)
-		if t == "OrderedCollection" {
-			items, _ := j.GetArray("orderedItems")
-			if items == nil {
-				page1, _ := j.GetString("first")
-				j, err = GetJunk(page1)
-				if err != nil {
-					log.Printf("err: %s", err)
-					continue
-				}
-				items, _ = j.GetArray("orderedItems")
-			}
-
-			for _, item := range items {
-				obj, ok := item.(junk.Junk)
-				if !ok {
-					continue
-				}
-				xonk := xonkxonk(user, obj, origin)
-				if xonk != nil {
-					savexonk(user, xonk)
-				}
-			}
-		}
+		gimmexonks(user, box.Out)
 	}
 }
-
 func whosthere(xid string) ([]string, string) {
 	obj, err := GetJunk(xid)
 	if err != nil {

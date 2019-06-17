@@ -372,8 +372,17 @@ func ximport(w http.ResponseWriter, r *http.Request) {
 		log.Printf("error getting external object: %s", err)
 		return
 	}
+	log.Printf("importing %s", xid)
 	u := login.GetUserInfo(r)
 	user, _ := butwhatabout(u.Username)
+
+	what, _ := j.GetString("type")
+	if what == "Person" {
+		outbox, _ := j.GetString("outbox")
+		gimmexonks(user, outbox)
+		http.Redirect(w, r, "/h?xid="+url.QueryEscape(xid), http.StatusSeeOther)
+		return
+	}
 	xonk := xonkxonk(user, j, originate(xid))
 	convoy := ""
 	if xonk != nil {
