@@ -1424,7 +1424,7 @@ var stmtHonkers, stmtDubbers, stmtSaveHonker, stmtUpdateFlavor, stmtUpdateCombos
 var stmtOneXonk, stmtPublicHonks, stmtUserHonks, stmtHonksByCombo, stmtHonksByConvoy *sql.Stmt
 var stmtHonksForUser, stmtHonksForMe, stmtSaveDub, stmtHonksByXonker *sql.Stmt
 var stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
-var stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
+var stmtFindZonk, stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
 var stmtHasHonker, stmtThumbBiters, stmtZonkIt, stmtZonkDonks, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker *sql.Stmt
@@ -1473,7 +1473,8 @@ func prepareStatements(db *sql.DB) {
 	stmtLoadDoover = preparetodie(db, "select tries, username, rcpt, msg from doovers where dooverid = ?")
 	stmtZapDoover = preparetodie(db, "delete from doovers where dooverid = ?")
 	stmtThumbBiters = preparetodie(db, "select userid, name, wherefore from zonkers where (wherefore = 'zonker' or wherefore = 'zurl' or wherefore = 'zword')")
-	stmtGetZonkers = preparetodie(db, "select zonkerid, name, wherefore from zonkers where userid = ?")
+	stmtFindZonk = preparetodie(db, "select zonkerid from zonkers where userid = ? and name = ? and wherefore = 'zonk'")
+	stmtGetZonkers = preparetodie(db, "select zonkerid, name, wherefore from zonkers where userid = ? and wherefore <> 'zonk'")
 	stmtSaveZonker = preparetodie(db, "insert into zonkers (userid, name, wherefore) values (?, ?, ?)")
 	stmtGetXonker = preparetodie(db, "select info from xonkers where name = ? and flavor = ?")
 	stmtSaveXonker = preparetodie(db, "insert into xonkers (name, info, flavor) values (?, ?, ?)")

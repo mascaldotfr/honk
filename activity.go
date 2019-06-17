@@ -191,6 +191,19 @@ saveit:
 	return &donk
 }
 
+func iszonked(userid int64, xid string) bool {
+	row := stmtFindZonk.QueryRow(userid, xid)
+	var id int64
+	err := row.Scan(&id)
+	if err == nil {
+		return true
+	}
+	if err != sql.ErrNoRows {
+		log.Printf("err querying zonk: %s", err)
+	}
+	return false
+}
+
 func needxonk(user *WhatAbout, x *Honk) bool {
 	if x.What == "eradicate" {
 		return true
@@ -203,6 +216,10 @@ func needxonk(user *WhatAbout, x *Honk) bool {
 }
 func needxonkid(user *WhatAbout, xid string) bool {
 	if strings.HasPrefix(xid, user.URL+"/h/") {
+		return false
+	}
+	if iszonked(user.ID, xid) {
+		log.Printf("already zonked: %s", xid)
 		return false
 	}
 	row := stmtFindXonk.QueryRow(user.ID, xid)
@@ -228,6 +245,7 @@ func savexonk(user *WhatAbout, x *Honk) {
 				log.Printf("error eradicating: %s", err)
 			}
 		}
+		stmtSaveZonker.Exec(user.ID, x.XID, "zonk")
 		return
 	}
 	log.Printf("saving xonk: %s", x.XID)
