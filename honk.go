@@ -501,6 +501,7 @@ func showcombo(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	u := login.GetUserInfo(r)
 	honks := gethonksbycombo(u.UserID, name)
+	honks = osmosis(honks, u.UserID)
 	honkpage(w, r, u, nil, honks, "honks by combo: "+name)
 }
 func showconvoy(w http.ResponseWriter, r *http.Request) {
@@ -546,7 +547,6 @@ func honkpage(w http.ResponseWriter, r *http.Request, u *login.UserInfo, user *W
 	reverbolate(honks)
 	templinfo := getInfo(r)
 	if u != nil {
-		honks = osmosis(honks, u.UserID)
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	}
 	if u == nil {
