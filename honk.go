@@ -1374,7 +1374,6 @@ func serve() {
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}/followers", emptiness)
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}/following", emptiness)
 	getters.HandleFunc("/a", avatate)
-	getters.HandleFunc("/t", showconvoy)
 	getters.HandleFunc("/d/{xid:[[:alnum:].]+}", servefile)
 	getters.HandleFunc("/emu/{xid:[[:alnum:]_.-]+}", serveemu)
 	getters.HandleFunc("/meme/{xid:[[:alnum:]_.-]+}", servememe)
@@ -1405,6 +1404,7 @@ func serve() {
 	loggedin.HandleFunc("/h", showhonker)
 	loggedin.HandleFunc("/c/{name:[[:alnum:]]+}", showcombo)
 	loggedin.HandleFunc("/c", showcombos)
+	loggedin.HandleFunc("/t", showconvoy)
 	loggedin.Handle("/savehonker", login.CSRFWrap("savehonker", http.HandlerFunc(savehonker)))
 
 	err = http.Serve(listener, mux)

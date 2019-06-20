@@ -1,4 +1,5 @@
 <article class="honk {{ .Honk.What }} {{ and (not .Honk.Public) "limited" }}" data-convoy="{{ .Honk.Convoy }}">
+{{ $bonkcsrf := .BonkCSRF }}
 {{ with .Honk }}
 <header>
 <img alt="avatar" src="/a?a={{ .Honker}}">
@@ -17,9 +18,11 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ end }}
 {{ end }}
 <br>
-<span style="margin-left: 1em;" class="clip">
-convoy: <a href="/t?c={{ .Convoy }}">{{ .Convoy }}</a>
-</span>
+{{ if $bonkcsrf }}
+<span style="margin-left: 1em;" class="clip">convoy: <a href="/t?c={{ .Convoy }}">{{ .Convoy }}</a></span>
+{{ else }}
+<span style="margin-left: 1em;" class="clip">convoy: {{ .Convoy }}</span>
+{{ end }}
 </header>
 <div class="noise">
 <p>{{ .HTML }}
@@ -44,7 +47,7 @@ convoy: <a href="/t?c={{ .Convoy }}">{{ .Convoy }}</a>
 {{ end }}
 </div>
 {{ end }}
-{{ if .BonkCSRF }}
+{{ if $bonkcsrf }}
 <p>
 <details>
 <summary>Actions
