@@ -1,6 +1,6 @@
 changelog
 
--- next
+-- 0.7.1
 
 + Fix bug preventing unfollow from working.
 
