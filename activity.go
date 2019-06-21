@@ -657,7 +657,7 @@ func rubadubdub(user *WhatAbout, req junk.Junk) {
 	actor, _ := req.GetString("actor")
 	j := junk.New()
 	j["@context"] = itiswhatitis
-	j["id"] = user.URL + "/dub/" + xid
+	j["id"] = user.URL + "/dub/" + url.QueryEscape(xid)
 	j["type"] = "Accept"
 	j["actor"] = user.URL
 	j["to"] = actor
@@ -674,15 +674,16 @@ func rubadubdub(user *WhatAbout, req junk.Junk) {
 func itakeitallback(user *WhatAbout, xid string) {
 	j := junk.New()
 	j["@context"] = itiswhatitis
-	j["id"] = user.URL + "/unsub/" + xid
+	j["id"] = user.URL + "/unsub/" + url.QueryEscape(xid)
 	j["type"] = "Undo"
 	j["actor"] = user.URL
 	j["to"] = xid
 	f := junk.New()
-	f["id"] = user.URL + "/sub/" + xid
+	f["id"] = user.URL + "/sub/" + url.QueryEscape(xid)
 	f["type"] = "Follow"
 	f["actor"] = user.URL
 	f["to"] = xid
+	f["object"] = xid
 	j["object"] = f
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 
@@ -696,7 +697,7 @@ func itakeitallback(user *WhatAbout, xid string) {
 func subsub(user *WhatAbout, xid string) {
 	j := junk.New()
 	j["@context"] = itiswhatitis
-	j["id"] = user.URL + "/sub/" + xid
+	j["id"] = user.URL + "/sub/" + url.QueryEscape(xid)
 	j["type"] = "Follow"
 	j["actor"] = user.URL
 	j["to"] = xid
