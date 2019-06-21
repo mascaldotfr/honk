@@ -1,5 +1,9 @@
 changelog
 
+-- next
+
++ Fix bug preventing unfollow from working.
+
 -- 0.7.0
 
 +++ Auto fetching and inlining of hoots.
