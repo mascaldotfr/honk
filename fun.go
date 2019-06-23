@@ -54,6 +54,9 @@ func reverbolate(honks []*Honk) {
 		zap := make(map[*Donk]bool)
 		h.Noise = unpucker(h.Noise)
 		precis := h.Precis
+		if strings.HasPrefix(h.Noise, "<p>" + precis) {
+			precis = ""
+		}
 		if precis != "" {
 			if strings.IndexByte(precis, ':') == -1 {
 				precis = "summary: " + precis
