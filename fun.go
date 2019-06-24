@@ -54,7 +54,7 @@ func reverbolate(honks []*Honk) {
 		zap := make(map[*Donk]bool)
 		h.Noise = unpucker(h.Noise)
 		precis := h.Precis
-		if strings.HasPrefix(h.Noise, "<p>" + precis) {
+		if strings.HasPrefix(h.Noise, "<p>"+precis) {
 			precis = ""
 		}
 		if precis != "" {
@@ -86,11 +86,11 @@ func reverbolate(honks []*Honk) {
 }
 
 func osmosis(honks []*Honk, userid int64) []*Honk {
-	zwords := getzwords(userid)
+	zords := getzords(userid)
 	j := 0
 outer:
 	for _, h := range honks {
-		for _, z := range zwords {
+		for _, z := range zords {
 			if z.MatchString(h.Precis) || z.MatchString(h.Noise) {
 				continue outer
 			}
@@ -469,7 +469,7 @@ func makeitworksomehowwithoutregardforkeycontinuity(keyname string, r *http.Requ
 }
 
 var thumbbiters map[int64]map[string]bool
-var zwordses map[int64][]*regexp.Regexp
+var zordses map[int64][]*regexp.Regexp
 var thumblock sync.Mutex
 
 func bitethethumbs() {
@@ -483,7 +483,7 @@ func bitethethumbs() {
 	thumblock.Lock()
 	defer thumblock.Unlock()
 	thumbbiters = make(map[int64]map[string]bool)
-	zwordses = make(map[int64][]*regexp.Regexp)
+	zordses = make(map[int64][]*regexp.Regexp)
 	for rows.Next() {
 		var userid int64
 		var name, wherefore string
@@ -492,13 +492,13 @@ func bitethethumbs() {
 			log.Printf("error scanning zonker: %s", err)
 			continue
 		}
-		if wherefore == "zword" {
-			zword := "\\b(?i:" + name + ")\\b"
-			re, err := regexp.Compile(zword)
+		if wherefore == "zord" {
+			zord := "\\b(?i:" + name + ")\\b"
+			re, err := regexp.Compile(zord)
 			if err != nil {
-				log.Printf("error compiling zword: %s", err)
+				log.Printf("error compiling zord: %s", err)
 			} else {
-				zwordses[userid] = append(zwordses[userid], re)
+				zordses[userid] = append(zordses[userid], re)
 			}
 			continue
 		}
@@ -511,10 +511,10 @@ func bitethethumbs() {
 	}
 }
 
-func getzwords(userid int64) []*regexp.Regexp {
+func getzords(userid int64) []*regexp.Regexp {
 	thumblock.Lock()
 	defer thumblock.Unlock()
-	return zwordses[userid]
+	return zordses[userid]
 }
 
 func thoudostbitethythumb(userid int64, who []string, objid string) bool {

@@ -62,7 +62,7 @@ The xonkers table stores info about external accounts that we may interact
 with. Their keys, their inboxes, etc. Not user visible.
 
 The zonkers table stores things we do not wish to see, per the wherefore
-column. zonkers are bad people, zurls are bad hosts, zonvoys are bad threads.
+column. Also used for tombstones for deleted honks to prevent refetching.
 
 The xid column generally corresponds to ActivityPub id.
 

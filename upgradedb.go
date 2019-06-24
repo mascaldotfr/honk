@@ -98,6 +98,10 @@ func upgradedb() {
 		doordie(db, "create index idx_xonkername on xonkers(name)")
 		doordie(db, "update config set value = 10 where key = 'dbversion'")
 	case 10:
+		doordie(db, "update zonkers set wherefore = 'zomain' where wherefore = 'zurl'")
+		doordie(db, "update zonkers set wherefore = 'zord' where wherefore = 'zword'")
+		doordie(db, "update config set value = 11 where key = 'dbversion'")
+	case 11:
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
 	}
