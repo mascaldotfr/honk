@@ -139,6 +139,33 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func showfunzone(w http.ResponseWriter, r *http.Request) {
+	var emunames, memenames []string
+	dir, err := os.Open("emus")
+	if err == nil {
+		emunames, _ = dir.Readdirnames(0)
+		dir.Close()
+	}
+	for i, e := range emunames {
+		if len(e) > 4 {
+			emunames[i] = e[:len(e)-4]
+		}
+	}
+	dir, err = os.Open("memes")
+	if err == nil {
+		memenames, _ = dir.Readdirnames(0)
+		dir.Close()
+	}
+	templinfo := getInfo(r)
+	templinfo["Emus"] = emunames
+	templinfo["Memes"] = memenames
+	err = readviews.Execute(w, "funzone.html", templinfo)
+	if err != nil {
+		log.Print(err)
+	}
+
+}
+
 func showrss(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 
@@ -1344,6 +1371,7 @@ func serve() {
 		"views/honk.html",
 		"views/account.html",
 		"views/about.html",
+		"views/funzone.html",
 		"views/login.html",
 		"views/xzone.html",
 		"views/header.html",
@@ -1390,6 +1418,7 @@ func serve() {
 	loggedin := mux.NewRoute().Subrouter()
 	loggedin.Use(login.Required)
 	loggedin.HandleFunc("/account", accountpage)
+	loggedin.HandleFunc("/funzone", showfunzone)
 	loggedin.HandleFunc("/chpass", dochpass)
 	loggedin.HandleFunc("/atme", homepage)
 	loggedin.HandleFunc("/zonkzone", zonkzone)

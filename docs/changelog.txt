@@ -1,5 +1,9 @@
 changelog
 
+-- v
+
++ Add the funzone.
+
 -- 0.7.1
 
 + Fix bug preventing unfollow from working.

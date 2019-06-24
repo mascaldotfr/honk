@@ -76,17 +76,17 @@ Custom CSS may be provided by creating a views/local.css file.
 A custom server message may be set adding a ('servermsg', 'message') entry to
 the config table using sqlite3.
 
--- emus
+-- emus and memes
 
 Custom emus may be provided by creating and populating the emus directory.
 emus may be referenced when composing a honk via colon wrapping. How pleasant.
 This :example: will be replaced by emus/example.png.
 
--- memes
-
 To save disk space and avoid repeated uploads, the memes directory may be
 prepopulated with bandwidth wasting reactions and referenced by meme: filename.
 Example: "Woah. meme: woahface.mp4"
+
+A list of available emus and memes appears in the funzone.
 
 -- hoots
 
