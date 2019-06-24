@@ -111,7 +111,9 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
 	u := login.GetUserInfo(r)
 	var honks []*Honk
-	if u != nil {
+	if r.URL.Path == "/front" || u == nil {
+		honks = getpublichonks()
+	} else {
 		if r.URL.Path == "/atme" {
 			honks = gethonksforme(u.UserID)
 		} else {
@@ -119,8 +121,6 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 			honks = osmosis(honks, u.UserID)
 		}
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
-	} else {
-		honks = getpublichonks()
 	}
 
 	reverbolate(honks)
@@ -1364,6 +1364,7 @@ func serve() {
 	getters := mux.Methods("GET").Subrouter()
 
 	getters.HandleFunc("/", homepage)
+	getters.HandleFunc("/front", homepage)
 	getters.HandleFunc("/robots.txt", nomoroboto)
 	getters.HandleFunc("/rss", showrss)
 	getters.HandleFunc("/u/{name:[[:alnum:]]+}", showuser)
