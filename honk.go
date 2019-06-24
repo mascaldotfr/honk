@@ -464,7 +464,6 @@ func outbox(w http.ResponseWriter, r *http.Request) {
 	j["totalItems"] = len(jonks)
 	j["orderedItems"] = jonks
 
-	w.Header().Set("Cache-Control", "max-age=60")
 	w.Header().Set("Content-Type", theonetruename)
 	j.Write(w)
 }
@@ -487,7 +486,6 @@ func emptiness(w http.ResponseWriter, r *http.Request) {
 	j["totalItems"] = 0
 	j["orderedItems"] = []interface{}{}
 
-	w.Header().Set("Cache-Control", "max-age=60")
 	w.Header().Set("Content-Type", theonetruename)
 	j.Write(w)
 }
@@ -501,7 +499,6 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 	}
 	if friendorfoe(r.Header.Get("Accept")) {
 		j := asjonker(user)
-		w.Header().Set("Cache-Control", "max-age=600")
 		w.Header().Set("Content-Type", theonetruename)
 		j.Write(w)
 		return
@@ -559,7 +556,6 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		donksforhonks([]*Honk{h})
 		_, j := jonkjonk(user, h)
 		j["@context"] = itiswhatitis
-		w.Header().Set("Cache-Control", "max-age=3600")
 		w.Header().Set("Content-Type", theonetruename)
 		j.Write(w)
 		return
