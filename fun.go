@@ -42,8 +42,8 @@ func reverbolate(honks []*Honk) {
 		} else {
 			_, h.Handle = honkerhandle(h.Honker)
 			h.Username = h.Handle
-			if len(h.Username) > 40 {
-				h.Username = h.Username[:40] + ".."
+			if len(h.Username) > 20 {
+				h.Username = h.Username[:20] + ".."
 			}
 			if h.URL == "" {
 				h.URL = h.XID
