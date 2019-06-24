@@ -12,6 +12,14 @@ Limited markdown support:
 
 Large images are rescaled and reduced.
 
+-- sensitive honks
+
+A honk that begins with the danger zone indication, DZ:, will be marked
+sensitive, using the first line as a summary (spoiler text).
+
+Alternatively, a spicy honk that begins with three or more peppers (U+1F336)
+will be marked sensitive as well, with a subject line consisting of peppers.
+
 -- following
 
 In order to follow somebody, you need to enter one of two identifiers.
@@ -29,6 +37,14 @@ be silenced by adding them to a combo named "-". (One dash.)
 
 Selecting just peeping won't actually follow them. (Incomplete feature.)
 Can be useful for managing as part of a combo, however.
+
+-- xzone
+
+Individual honks may be manually fetched via the xzone.
+
+Additionally, entering a honker will fetch all their recent honks.
+
+A list of recently known honkers will appear as well.
 
 -- zonking
 
