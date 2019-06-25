@@ -956,6 +956,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	honk.Audience = oneofakind(honk.Audience)
 	if len(honk.Audience) == 0 {
 		log.Printf("honk to nowhere")
+		http.Error(w, "honk to nowhere...", http.StatusNotFound)
 		return
 	}
 	honk.Public = !keepitquiet(honk.Audience)
