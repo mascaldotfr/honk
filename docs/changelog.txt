@@ -1,8 +1,8 @@
 changelog
 
--- v
+-- 0.7.2
 
-+ Add the funzone.
++ Add the funzone. Minor other UI tweaks.
 
 -- 0.7.1
 

@@ -453,6 +453,7 @@ func xzone(w http.ResponseWriter, r *http.Request) {
 		log.Print(err)
 	}
 }
+
 func outbox(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	user, err := butwhatabout(name)
