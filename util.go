@@ -260,6 +260,23 @@ func opendatabase() *sql.DB {
 }
 
 func getconfig(key string, value interface{}) error {
+	m, ok := value.(*map[string]bool)
+	if ok {
+		rows, err := stmtConfig.Query(key)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var s string
+			err = rows.Scan(&s)
+			if err != nil {
+				return err
+			}
+			(*m)[s] = true
+		}
+		return nil
+	}
 	row := stmtConfig.QueryRow(key)
 	err := row.Scan(value)
 	if err == sql.ErrNoRows {

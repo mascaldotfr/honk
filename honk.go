@@ -107,6 +107,17 @@ func getInfo(r *http.Request) map[string]interface{} {
 	return templinfo
 }
 
+var donotfedafterdark = make(map[string]bool)
+
+func stealthed(r *http.Request) bool {
+	addr := r.Header.Get("X-Forwarded-For")
+	fake := donotfedafterdark[addr]
+	if fake {
+		log.Printf("faking 404 for %s", addr)
+	}
+	return fake
+}
+
 func homepage(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
 	u := login.GetUserInfo(r)
@@ -449,6 +460,11 @@ func outbox(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	if stealthed(r) {
+		http.NotFound(w, r)
+		return
+	}
+
 	honks := gethonksbyuser(name, false)
 
 	var jonks []map[string]interface{}
@@ -546,6 +562,11 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	if stealthed(r) {
+		http.NotFound(w, r)
+		return
+	}
+
 	xid := fmt.Sprintf("https://%s%s", serverName, r.URL.Path)
 	h := getxonk(user.ID, xid)
 	if h == nil || !h.Public {
@@ -1539,6 +1560,7 @@ func main() {
 	}
 	getconfig("servermsg", &serverMsg)
 	getconfig("servername", &serverName)
+	getconfig("dnf", &donotfedafterdark)
 	prepareStatements(db)
 	switch cmd {
 	case "adduser":
