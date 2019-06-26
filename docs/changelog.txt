@@ -1,5 +1,9 @@
 changelog
 
+-- 0.7.3
+
++ Better fedicompat so bonks are visible to pleroma followers.
+
 -- 0.7.2
 
 + Add the funzone. Minor other UI tweaks.
