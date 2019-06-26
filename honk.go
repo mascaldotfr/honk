@@ -812,6 +812,10 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 	}
 	donksforhonks([]*Honk{xonk})
 
+	oonker := xonk.Oonker
+	if oonker == "" {
+		oonker = xonk.Honker
+	}
 	dt := time.Now().UTC()
 	bonk := Honk{
 		UserID:   userinfo.UserID,
@@ -821,14 +825,11 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 		XID:      xonk.XID,
 		Date:     dt,
 		Donks:    xonk.Donks,
-		Audience: []string{thewholeworld},
+		Convoy:   xonk.Convoy,
+		Audience: []string{oonker, thewholeworld},
 		Public:   true,
 	}
 
-	oonker := xonk.Oonker
-	if oonker == "" {
-		oonker = xonk.Honker
-	}
 	aud := strings.Join(bonk.Audience, " ")
 	whofore := 2
 	res, err := stmtSaveHonk.Exec(userinfo.UserID, "bonk", bonk.Honker, xid, "",

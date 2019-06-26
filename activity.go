@@ -720,7 +720,11 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 	j["id"] = user.URL + "/" + h.What + "/" + shortxid(h.XID)
 	j["actor"] = user.URL
 	j["published"] = dt
-	j["to"] = h.Audience[0]
+	if h.Public {
+		j["to"] = []string{h.Audience[0], user.URL + "/followers"}
+	} else {
+		j["to"] = h.Audience[0]
+	}
 	if len(h.Audience) > 1 {
 		j["cc"] = h.Audience[1:]
 	}
@@ -810,6 +814,9 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		j["object"] = jo
 	case "bonk":
 		j["type"] = "Announce"
+		if h.Convoy != "" {
+			j["context"] = h.Convoy
+		}
 		j["object"] = h.XID
 	case "zonk":
 		j["type"] = "Delete"
