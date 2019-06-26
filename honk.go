@@ -1485,7 +1485,7 @@ var stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
 var stmtFindZonk, stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
 var stmtHasHonker, stmtThumbBiters, stmtZonkIt, stmtZonkDonks, stmtSaveZonker *sql.Stmt
-var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker *sql.Stmt
+var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -1536,6 +1536,7 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveZonker = preparetodie(db, "insert into zonkers (userid, name, wherefore) values (?, ?, ?)")
 	stmtGetXonker = preparetodie(db, "select info from xonkers where name = ? and flavor = ?")
 	stmtSaveXonker = preparetodie(db, "insert into xonkers (name, info, flavor) values (?, ?, ?)")
+	stmtDeleteXonker = preparetodie(db, "delete from xonkers where name = ? and flavor = ?")
 	stmtRecentHonkers = preparetodie(db, "select distinct(honker) from honks where userid = ? order by honkid desc limit 100")
 }
 

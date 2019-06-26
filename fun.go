@@ -455,8 +455,7 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 }
 
 func makeitworksomehowwithoutregardforkeycontinuity(keyname string, r *http.Request, payload []byte) (string, error) {
-	db := opendatabase()
-	_, err := db.Exec("delete from xonkers where xid = ?", keyname)
+	_, err := stmtDeleteXonker.Exec(keyname, "pubkey")
 	if err != nil {
 		log.Printf("error deleting key: %s", err)
 	}
