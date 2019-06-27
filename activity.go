@@ -572,8 +572,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				} else if at == "Document" || at == "Image" {
 					mt = strings.ToLower(mt)
 					log.Printf("attachment: %s %s", mt, u)
-					if mt == "image/jpeg" || mt == "image/png" ||
-						mt == "text/plain" {
+					if mt == "text/plain" || strings.HasPrefix(mt, "image") {
 						localize = true
 					}
 				} else {
