@@ -1,5 +1,9 @@
 changelog
 
+-- next
+
++ webp image transcoding.
+
 -- 0.7.3
 
 + Better fedicompat so bonks are visible to pleroma followers.
