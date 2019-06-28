@@ -42,12 +42,13 @@ import (
 )
 
 type WhatAbout struct {
-	ID      int64
-	Name    string
-	Display string
-	About   string
-	Key     string
-	URL     string
+	ID        int64
+	Name      string
+	Display   string
+	About     string
+	Key       string
+	URL       string
+	SkinnyCSS bool
 }
 
 type Honk struct {
@@ -97,13 +98,26 @@ var serverMsg = "Things happen."
 
 var readviews *templates.Template
 
+func getuserstyle(u *login.UserInfo) template.CSS {
+	if u == nil {
+		return ""
+	}
+	user, _ := butwhatabout(u.Username)
+	if user.SkinnyCSS {
+		return "main { max-width: 700px; }"
+	}
+	return ""
+}
+
 func getInfo(r *http.Request) map[string]interface{} {
+	u := login.GetUserInfo(r)
 	templinfo := make(map[string]interface{})
 	templinfo["StyleParam"] = getstyleparam("views/style.css")
 	templinfo["LocalStyleParam"] = getstyleparam("views/local.css")
+	templinfo["UserStyle"] = getuserstyle(u)
 	templinfo["ServerName"] = serverName
 	templinfo["IconName"] = iconName
-	templinfo["UserInfo"] = login.GetUserInfo(r)
+	templinfo["UserInfo"] = u
 	return templinfo
 }
 
@@ -238,6 +252,7 @@ func butwhatabout(name string) (*WhatAbout, error) {
 	var options string
 	err := row.Scan(&user.ID, &user.Name, &user.Display, &user.About, &user.Key, &options)
 	user.URL = fmt.Sprintf("https://%s/u/%s", serverName, user.Name)
+	user.SkinnyCSS = strings.Contains(options, " skinny ")
 	return &user, err
 }
 
@@ -617,7 +632,11 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	whatabout := r.FormValue("whatabout")
 	u := login.GetUserInfo(r)
 	db := opendatabase()
-	_, err := db.Exec("update users set about = ? where username = ?", whatabout, u.Username)
+	options := ""
+	if r.FormValue("skinny") == "skinny" {
+		options += " skinny "
+	}
+	_, err := db.Exec("update users set about = ?, options = ? where username = ?", whatabout, options, u.Username)
 	if err != nil {
 		log.Printf("error bouting what: %s", err)
 	}
@@ -1248,7 +1267,7 @@ func accountpage(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
 	templinfo["UserCSRF"] = login.GetCSRF("saveuser", r)
 	templinfo["LogoutCSRF"] = login.GetCSRF("logout", r)
-	templinfo["WhatAbout"] = user.About
+	templinfo["User"] = user
 	err := readviews.Execute(w, "account.html", templinfo)
 	if err != nil {
 		log.Print(err)

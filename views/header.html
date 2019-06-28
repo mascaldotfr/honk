@@ -6,6 +6,9 @@
 {{ if .LocalStyleParam }}
 <link href="/local.css{{ .LocalStyleParam }}" rel="stylesheet">
 {{ end }}
+<style>
+{{ .UserStyle }}
+</style>
 <link href="/icon.png" rel="icon">
 <meta name="viewport" content="width=device-width">
 </head>
