@@ -18,7 +18,7 @@ create index idx_filesurl on files(url);
 
 create table config (key text, value text);
 
-create table users (userid integer primary key, username text, hash text, displayname text, about text, pubkey text, seckey text);
+create table users (userid integer primary key, username text, hash text, displayname text, about text, pubkey text, seckey text, options text);
 create table auth (authid integer primary key, userid integer, hash text);
 CREATE index idxusers_username on users(username);
 CREATE index idxauth_userid on auth(userid);

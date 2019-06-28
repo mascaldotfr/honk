@@ -235,7 +235,8 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 func butwhatabout(name string) (*WhatAbout, error) {
 	row := stmtWhatAbout.QueryRow(name)
 	var user WhatAbout
-	err := row.Scan(&user.ID, &user.Name, &user.Display, &user.About, &user.Key)
+	var options string
+	err := row.Scan(&user.ID, &user.Name, &user.Display, &user.About, &user.Key, &options)
 	user.URL = fmt.Sprintf("https://%s/u/%s", serverName, user.Name)
 	return &user, err
 }
@@ -1525,7 +1526,7 @@ func prepareStatements(db *sql.DB) {
 	stmtZonkDonks = preparetodie(db, "delete from donks where honkid = ?")
 	stmtFindFile = preparetodie(db, "select fileid from files where url = ? and local = 1")
 	stmtSaveFile = preparetodie(db, "insert into files (xid, name, url, media, local, content) values (?, ?, ?, ?, ?, ?)")
-	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey from users where username = ?")
+	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey, options from users where username = ?")
 	stmtSaveDub = preparetodie(db, "insert into honkers (userid, name, xid, flavor) values (?, ?, ?, ?)")
 	stmtAddDoover = preparetodie(db, "insert into doovers (dt, tries, username, rcpt, msg) values (?, ?, ?, ?, ?)")
 	stmtGetDoovers = preparetodie(db, "select dooverid, dt from doovers")

@@ -102,6 +102,9 @@ func upgradedb() {
 		doordie(db, "update zonkers set wherefore = 'zord' where wherefore = 'zword'")
 		doordie(db, "update config set value = 11 where key = 'dbversion'")
 	case 11:
+		doordie(db, "alter table users add column options text")
+		doordie(db, "update users set options = ''")
+		doordie(db, "update config set value = 12 where key = 'dbversion'")
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
 	}
