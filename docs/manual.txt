@@ -1,5 +1,7 @@
 
-Instructions for running of the honk.
+Instructions for using honk.
+
+This is the user manual. Please refer to admin.txt for administration.
 
 -- posting
 
@@ -67,26 +69,13 @@ As a special exception to the public honking rule, replies to limited messages
 will be restricted as much as possible. Note that ActivityPub leaks. Do
 not use honk for posting truly private information.
 
--- css
-
-Custom CSS may be provided by creating a views/local.css file.
-
--- message
-
-A custom server message may be set adding a ('servermsg', 'message') entry to
-the config table using sqlite3.
-
 -- emus and memes
 
-Custom emus may be provided by creating and populating the emus directory.
-emus may be referenced when composing a honk via colon wrapping. How pleasant.
-This :example: will be replaced by emus/example.png.
-
-To save disk space and avoid repeated uploads, the memes directory may be
-prepopulated with bandwidth wasting reactions and referenced by meme: filename.
-Example: "Woah. meme: woahface.mp4"
-
 A list of available emus and memes appears in the funzone.
+
+Emus such as :example: will be inlined into posts.
+
+Memes such as `meme: example.mp4` will be appended to posts.
 
 -- hoots
 
