@@ -1047,7 +1047,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 			honk.Donks = append(honk.Donks, donk)
 		}
 	}
-	honk.Donks = append(honk.Donks, memetics(honk.Noise)...)
+	memetize(&honk)
 
 	aud := strings.Join(honk.Audience, " ")
 	whofore := 2
@@ -1069,7 +1069,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	res, err := stmtSaveHonk.Exec(userinfo.UserID, what, honk.Honker, xid, rid,
-		dt.Format(dbtimeformat), "", aud, noise, convoy, whofore, "html", honk.Precis, honk.Oonker)
+		dt.Format(dbtimeformat), "", aud, honk.Noise, convoy, whofore, "html", honk.Precis, honk.Oonker)
 	if err != nil {
 		log.Printf("error saving honk: %s", err)
 		return
