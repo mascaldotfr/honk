@@ -419,6 +419,25 @@ func newphone(a []string, obj junk.Junk) []string {
 	return a
 }
 
+func extractattrto(obj junk.Junk) string {
+	who, _ := obj.GetString("attributedTo")
+	if who != "" {
+		return who
+	}
+	arr, _ := obj.GetArray("attributedTo")
+	for _, a := range arr {
+		o, ok := a.(junk.Junk)
+		if ok {
+			t, _ := o.GetString("type")
+			id, _ := o.GetString("id")
+			if t == "Person" || t == "" {
+				return id
+			}
+		}
+	}
+	return ""
+}
+
 func consumeactivity(user *WhatAbout, j junk.Junk, origin string) {
 	xonk := xonkxonk(user, j, origin)
 	if xonk != nil {
@@ -486,6 +505,8 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			obj, _ = item.GetMap("object")
 			xid, _ = item.GetString("object")
 			what = "eradicate"
+		case "Video":
+			fallthrough
 		case "Question":
 			fallthrough
 		case "Note":
@@ -508,12 +529,14 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		who, _ := item.GetString("actor")
 		if obj != nil {
 			if who == "" {
-				who, _ = obj.GetString("attributedTo")
+				who = extractattrto(obj)
 			}
-			oonker, _ = obj.GetString("attributedTo")
+			oonker = extractattrto(obj)
 			ot, _ := obj.GetString("type")
 			url, _ = obj.GetString("url")
-			if ot == "Note" || ot == "Article" || ot == "Page" || ot == "Question" {
+			if ot == "Tombstone" {
+				xid, _ = obj.GetString("id")
+			} else {
 				audience = newphone(audience, obj)
 				xid, _ = obj.GetString("id")
 				precis, _ = obj.GetString("summary")
@@ -552,9 +575,6 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if what == "honk" && rid != "" {
 					what = "tonk"
 				}
-			}
-			if ot == "Tombstone" {
-				xid, _ = obj.GetString("id")
 			}
 			atts, _ := obj.GetArray("attachment")
 			for i, atti := range atts {

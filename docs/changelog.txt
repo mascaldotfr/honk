@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Minimal support for Video activity and PeerTube compat.
+
 + Support for some user selectable styling. Currently, skinny column mode.
 
 + webp image transcoding.
