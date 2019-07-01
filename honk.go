@@ -1072,6 +1072,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		dt.Format(dbtimeformat), "", aud, honk.Noise, convoy, whofore, "html", honk.Precis, honk.Oonker)
 	if err != nil {
 		log.Printf("error saving honk: %s", err)
+		http.Error(w, "something bad happened while saving", http.StatusInternalServerError)
 		return
 	}
 	honk.ID, _ = res.LastInsertId()
@@ -1079,6 +1080,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		_, err = stmtSaveDonk.Exec(honk.ID, d.FileID)
 		if err != nil {
 			log.Printf("err saving donk: %s", err)
+			http.Error(w, "something bad happened while saving", http.StatusInternalServerError)
 			return
 		}
 	}
