@@ -3,6 +3,9 @@
 {{ with .Honk }}
 <header>
 <img alt="avatar" src="/a?a={{ .Honker}}">
+{{ if .Oonker }}
+<img alt="avatar" src="/a?a={{ .Oonker}}">
+{{ end }}
 <p><a href="{{ .Honker }}" rel=noreferrer>{{ .Username }}</a> <span class="clip"><a href="{{ .URL }}" rel=noreferrer>{{ .What }}</a> {{ .Date.Format "02 Jan 2006 15:04" }}</span>
 {{ if .Oonker }}
 <br>
