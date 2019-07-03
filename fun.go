@@ -122,12 +122,18 @@ var re_hashes = regexp.MustCompile(`(?:^|\W)#[[:alnum:]]+`)
 
 func ontologies(s string) []string {
 	m := re_hashes.FindAllString(s, -1)
-	for i, h := range m {
-		if h[0] != '#' {
-			m[i] = h[1:]
+	j := 0
+	for _, h := range m {
+		if h[0] == '&' {
+			continue
 		}
+		if h[0] != '#' {
+			h = h[1:]
+		}
+		m[j] = h
+		j++
 	}
-	return m
+	return m[:j]
 }
 
 type Mention struct {
