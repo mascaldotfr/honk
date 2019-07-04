@@ -175,6 +175,7 @@ func savedonk(url string, name, media string, localize bool) *Donk {
 			if err != nil {
 				log.Printf("unable to decode image: %s", err)
 				localize = false
+				data = []byte{}
 				goto saveit
 			}
 			data = img.Data
