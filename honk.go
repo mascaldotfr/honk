@@ -586,8 +586,18 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 
 	xid := fmt.Sprintf("https://%s%s", serverName, r.URL.Path)
 	h := getxonk(user.ID, xid)
-	if h == nil || !h.Public {
+	if h == nil {
 		http.NotFound(w, r)
+		return
+	}
+	u := login.GetUserInfo(r)
+	if !h.Public {
+		if u == nil || u.UserID != h.UserID {
+			http.NotFound(w, r)
+			return
+
+		}
+		honkpage(w, r, u, nil, []*Honk{h}, "one honk maybe more")
 		return
 	}
 	if friendorfoe(r.Header.Get("Accept")) {
@@ -599,7 +609,6 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	honks := gethonksbyconvoy(-1, h.Convoy)
-	u := login.GetUserInfo(r)
 	honkpage(w, r, u, nil, honks, "one honk maybe more")
 }
 
