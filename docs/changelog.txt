@@ -2,7 +2,7 @@ changelog
 
 -- next
 
-+ Show both avatars for bonks.
++ Show both avatars for bonks. Other minor refinements to UI.
 
 + Minimal support for Video activity and PeerTube compat.
 
