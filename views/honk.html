@@ -6,7 +6,13 @@
 {{ if .Oonker }}
 <img alt="avatar" src="/a?a={{ .Oonker}}">
 {{ end }}
-<p><a href="{{ .Honker }}" rel=noreferrer>{{ .Username }}</a> <span class="clip"><a href="{{ .URL }}" rel=noreferrer>{{ .What }}</a> {{ .Date.Format "02 Jan 2006 15:04" }}</span>
+<p>
+{{ if $bonkcsrf }}
+<a href="/h?xid={{ .Honker }}" rel=noreferrer>{{ .Username }}</a>
+{{ else }}
+<a href="{{ .Honker }}" rel=noreferrer>{{ .Username }}</a>
+{{ end }}
+<span class="clip"><a href="{{ .URL }}" rel=noreferrer>{{ .What }}</a> {{ .Date.Format "02 Jan 2006 15:04" }}</span>
 {{ if .Oonker }}
 <br>
 <span style="margin-left: 1em;" class="clip">
