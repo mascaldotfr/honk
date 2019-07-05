@@ -49,6 +49,9 @@ func reverbolate(honks []*Honk) {
 				h.URL = h.XID
 			}
 		}
+		if h.Oonker != "" {
+			_, h.Oondle = honkerhandle(h.Oonker)
+		}
 		zap := make(map[*Donk]bool)
 		h.Noise = unpucker(h.Noise)
 		precis := h.Precis
