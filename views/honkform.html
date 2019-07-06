@@ -1,4 +1,4 @@
-<p>
+<p id="honkformhost">
 <button onclick="showhonkform(); return false"><a href="/newhonk">it's honking time</a></button>
 <form id="honkform" action="/honk" method="POST" enctype="multipart/form-data" style="display: none">
 <p>
@@ -13,16 +13,23 @@ in reply to: <input type="text" name="rid" id="ridinput" value="" autocomplete=o
 <input type="submit" name="preview" value="preview">
 </form>
 <script>
-function showhonkform(rid, hname) {
+function showhonkform(elem, rid, hname) {
 	var form = document.getElementById("honkform")
 	form.style = "display: block"
+	if (elem) {
+		form.remove()
+		elem.parentElement.insertAdjacentElement('beforebegin', form)
+	} else {
+		elem = document.getElementById("honkformhost")
+		elem.insertAdjacentElement('afterend', form)
+	}
 	var ridinput = document.getElementById("ridinput")
 	var honknoise = document.getElementById("honknoise")
 	if (rid) {
 		ridinput.value = rid
 		honknoise.value = "@" + hname + " "
 	}
-	document.getElementById("infobox").scrollIntoView()
+	//document.getElementById("infobox").scrollIntoView()
 }
 function updatedonker() {
 	var el = document.getElementById("donker")

@@ -65,7 +65,7 @@ main {
 	margin-top 1em;
 	margin-bottom: 1em;
 }
-.info label, button, form input[type=submit], select {
+label, button, form input[type=submit], select {
 	font-size: 16px;
 	font-family: monospace;
 	color: #dde;
@@ -76,10 +76,10 @@ main {
 button a {
 	text-decoration: none;
 }
-.info form {
+form {
 	margin-top: 1em;
 }
-.info textarea {
+textarea {
 	padding: 0.5em;
 	font-size: 1em;
 	background: #305;
@@ -90,20 +90,20 @@ button a {
 	box-sizing: border-box;
 	max-width: 100%;
 }
-.info input[type="checkbox"] {
+input[type="checkbox"] {
 	position: fixed;
 	top: -9999px;
 }
-.info input[type="checkbox"] + span:after {
+input[type="checkbox"] + span:after {
 	content: "no";
 }
-.info input[type="checkbox"]:checked + span:after {
+input[type="checkbox"]:checked + span:after {
 	content: "yes";
 }
-.info input[type="checkbox"]:focus + span:after {
+input[type="checkbox"]:focus + span:after {
 	outline: 1px solid #dde;
 }
-.info input[type=file] {
+input[type=file] {
 	display: none;
 }
 
@@ -118,6 +118,11 @@ button a {
 	padding-right: 1em;
 	padding-top: 0;
 }
+.honk form {
+	padding: 1em;
+	border: 1px solid #dde;
+}
+
 .honk a {
 	color: #dde;
 }

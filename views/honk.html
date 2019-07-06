@@ -68,7 +68,7 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ else }}
 <button disabled>nope</button>
 {{ end }}
-<button onclick="showhonkform('{{ .Honk.XID }}', '{{ .Honk.Handle }}');">tonk</button>
+<button onclick="showhonkform(this, '{{ .Honk.XID }}', '{{ .Honk.Handle }}');">tonk</button>
 <button onclick="muteit(this, '{{ .Honk.Convoy }}');">mute</button>
 <button onclick="zonkit(this, '{{ .Honk.XID }}');">zonk</button>
 </div>
