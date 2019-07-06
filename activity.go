@@ -555,7 +555,9 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					convoy, _ = obj.GetString("conversation")
 				}
 				if ot == "Question" {
-					what = "qonk"
+					if what == "honk" {
+						what = "qonk"
+					}
 					content += "<ul>"
 					ans, _ := obj.GetArray("oneOf")
 					for _, ai := range ans {
