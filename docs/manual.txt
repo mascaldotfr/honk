@@ -14,6 +14,8 @@ Limited markdown support:
 
 Large images are rescaled and reduced.
 
+The tonk button will prefill the forms for replies.
+
 -- sensitive honks
 
 A honk that begins with the danger zone indication, DZ:, will be marked
@@ -44,7 +46,7 @@ Can be useful for managing as part of a combo, however.
 
 Individual honks may be manually fetched via the xzone.
 
-Additionally, entering a honker will fetch all their recent honks.
+Additionally, entering a honker URL will fetch all their recent honks.
 
 A list of recently known honkers will appear as well.
 
@@ -59,7 +61,8 @@ The zonkzone supports muting unwanted contacts. One may mute an actor
 
 -- privacy
 
-Posted honks are public. Welcome to the internet.
+Posted honks are public. The federated environment lacks robust privacy
+controls.
 
 Received messages are only visible when logged in, regardless of addressing.
 Content from outside is not publicly rehosted, unless bonked.
@@ -79,7 +82,7 @@ Memes such as `meme: example.mp4` will be appended to posts.
 
 -- hoots
 
-Link and inline a hoot from that other bird site.
+Link and inline a hoot and replies from that other bird site.
 hoot: https://twitter.com/tedunangst/status/839169710675611658
 
 -- cleanup
