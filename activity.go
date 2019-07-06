@@ -644,9 +644,6 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		if currenttid == "" {
 			currenttid = convoy
 		}
-		if convoy == "" {
-			convoy = currenttid
-		}
 
 		if oonker == who {
 			oonker = ""
@@ -661,7 +658,6 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		xonk.Noise = content
 		xonk.Precis = precis
 		xonk.Audience = audience
-		xonk.Convoy = convoy
 		xonk.Oonker = oonker
 
 		if needxonk(user, &xonk) {
@@ -670,6 +666,10 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					saveoneup(rid)
 				}
 			}
+			if convoy == "" {
+				convoy = currenttid
+			}
+			xonk.Convoy = convoy
 			return &xonk
 		}
 		return nil
