@@ -149,13 +149,13 @@ input[type=file] {
 .honk button {
 	margin-left: 4em;
 }
-.tonked {
+.subtle {
 }
-.tonked .noise {
+.subtle .noise {
 	color: #aab;
 	font-size: 0.8em;
 }
-.tonked .noise a {
+.subtle .noise a {
 	color: #aab;
 }
 .limited {

@@ -14,7 +14,7 @@ Limited markdown support:
 
 Large images are rescaled and reduced.
 
-The tonk button will prefill the forms for replies.
+The honk back button will prefill the forms for replies.
 
 -- sensitive honks
 

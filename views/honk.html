@@ -1,4 +1,4 @@
-<article class="honk {{ .Honk.What }} {{ and (not .Honk.Public) "limited" }}" data-convoy="{{ .Honk.Convoy }}">
+<article class="honk {{ .Honk.Style }}" data-convoy="{{ .Honk.Convoy }}">
 {{ $bonkcsrf := .BonkCSRF }}
 {{ with .Honk }}
 <header>
@@ -68,7 +68,7 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ else }}
 <button disabled>nope</button>
 {{ end }}
-<button onclick="showhonkform(this, '{{ .Honk.XID }}', '{{ .Honk.Handle }}');">tonk</button>
+<button onclick="showhonkform(this, '{{ .Honk.XID }}', '{{ .Honk.Handle }}');">honk back</button>
 <button onclick="muteit(this, '{{ .Honk.Convoy }}');">mute</button>
 <button onclick="zonkit(this, '{{ .Honk.XID }}');">zonk</button>
 </div>

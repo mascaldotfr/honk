@@ -71,6 +71,7 @@ type Honk struct {
 	Public   bool
 	Whofore  int64
 	HTML     template.HTML
+	Style    string
 	Donks    []*Donk
 }
 

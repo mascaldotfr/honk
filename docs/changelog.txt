@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Tonks are now honk backs.
+
 + Show both avatars for bonks. Other minor refinements to UI.
 
 + Minimal support for Video activity and PeerTube compat.
