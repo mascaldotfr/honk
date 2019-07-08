@@ -661,7 +661,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		xonk.Oonker = oonker
 
 		if needxonk(user, &xonk) {
-			if what == "tonk" {
+			if rid != "" {
 				if needxonkid(user, rid) {
 					saveoneup(rid)
 				}
