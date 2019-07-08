@@ -905,7 +905,7 @@ func asjonker(user *WhatAbout) junk.Junk {
 	j["summary"] = about
 	j["url"] = user.URL
 	a := junk.New()
-	a["type"] = "icon"
+	a["type"] = "Image"
 	a["mediaType"] = "image/png"
 	a["url"] = fmt.Sprintf("https://%s/a?a=%s", serverName, url.QueryEscape(user.URL))
 	j["icon"] = a
