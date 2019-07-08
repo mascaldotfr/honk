@@ -193,6 +193,10 @@ func herdofemus(noise string) []Emu {
 	var emus []Emu
 	for _, e := range m {
 		fname := e[1 : len(e)-1]
+		_, err := os.Stat("emus/" + fname + ".png")
+		if err != nil {
+			continue
+		}
 		url := fmt.Sprintf("https://%s/emu/%s.png", serverName, fname)
 		emus = append(emus, Emu{ID: url, Name: e})
 	}
