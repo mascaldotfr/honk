@@ -423,8 +423,13 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 
 func ximport(w http.ResponseWriter, r *http.Request) {
 	xid := r.FormValue("xid")
+	x := investigate(xid)
+	if x != "" {
+		xid = x
+	}
 	j, err := GetJunk(xid)
 	if err != nil {
+		http.Error(w, "error getting external object", http.StatusInternalServerError)
 		log.Printf("error getting external object: %s", err)
 		return
 	}
