@@ -76,7 +76,9 @@ func reverbolate(honks []*Honk) {
 			for _, d := range h.Donks {
 				if d.Name == e {
 					zap[d] = true
-					return fmt.Sprintf(`<img class="emu" title="%s" src="/d/%s">`, d.Name, d.XID)
+					if d.Local {
+						return fmt.Sprintf(`<img class="emu" title="%s" src="/d/%s">`, d.Name, d.XID)
+					}
 				}
 			}
 			return e
