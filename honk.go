@@ -598,8 +598,11 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u := login.GetUserInfo(r)
+	if u != nil && u.UserID != user.ID {
+		u = nil
+	}
 	if !h.Public {
-		if u == nil || u.UserID != h.UserID {
+		if u == nil {
 			http.NotFound(w, r)
 			return
 
