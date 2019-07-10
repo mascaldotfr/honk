@@ -549,6 +549,10 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if !strings.HasPrefix(content, "<p>") {
 					content = "<p>" + content
 				}
+				sens, _ := obj["sensitive"].(bool)
+				if sens && precis == "" {
+					precis = "unspecified horror"
+				}
 				rid, _ = obj.GetString("inReplyTo")
 				convoy, _ = obj.GetString("context")
 				if convoy == "" {
