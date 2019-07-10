@@ -977,6 +977,17 @@ func gofish(name string) string {
 	return ""
 }
 
+func isactor(t string) bool {
+	switch t {
+	case "Person":
+	case "Application":
+	case "Service":
+	default:
+		return false
+	}
+	return true
+}
+
 func investigate(name string) string {
 	if name == "" {
 		return ""
@@ -993,10 +1004,10 @@ func investigate(name string) string {
 		return ""
 	}
 	t, _ := obj.GetString("type")
-	id, _ := obj.GetString("id")
-	if t != "Person" {
+	if !isactor(t) {
 		log.Printf("it's not a person! %s", name)
 		return ""
 	}
+	id, _ := obj.GetString("id")
 	return id
 }

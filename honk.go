@@ -438,7 +438,7 @@ func ximport(w http.ResponseWriter, r *http.Request) {
 	user, _ := butwhatabout(u.Username)
 
 	what, _ := j.GetString("type")
-	if what == "Person" {
+	if isactor(what) {
 		outbox, _ := j.GetString("outbox")
 		gimmexonks(user, outbox)
 		http.Redirect(w, r, "/h?xid="+url.QueryEscape(xid), http.StatusSeeOther)
