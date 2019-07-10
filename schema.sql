@@ -10,6 +10,7 @@ create table doovers(dooverid integer primary key, dt text, tries integer, usern
 create index idx_honksxid on honks(xid);
 create index idx_honksconvoy on honks(convoy);
 create index idx_honkshonker on honks(honker);
+create index idx_honksoonker on honks(oonker);
 create index idx_honkerxid on honkers(xid);
 create index idx_xonkername on xonkers(name);
 create index idx_zonkersname on zonkers(name);
