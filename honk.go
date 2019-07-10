@@ -1270,13 +1270,14 @@ func zonkzonk(w http.ResponseWriter, r *http.Request) {
 	case "zomain":
 	case "zonvoy":
 	case "zord":
+	case "zilence":
 	default:
 		return
 	}
 	db := opendatabase()
 	db.Exec("insert into zonkers (userid, name, wherefore) values (?, ?, ?)",
 		userinfo.UserID, name, wherefore)
-	if wherefore == "zonker" || wherefore == "zomain" || wherefore == "zord" {
+	if wherefore == "zonker" || wherefore == "zomain" || wherefore == "zord" || wherefore == "zilence" {
 		bitethethumbs()
 	}
 
@@ -1573,7 +1574,7 @@ func prepareStatements(db *sql.DB) {
 	stmtGetDoovers = preparetodie(db, "select dooverid, dt from doovers")
 	stmtLoadDoover = preparetodie(db, "select tries, username, rcpt, msg from doovers where dooverid = ?")
 	stmtZapDoover = preparetodie(db, "delete from doovers where dooverid = ?")
-	stmtThumbBiters = preparetodie(db, "select userid, name, wherefore from zonkers where (wherefore = 'zonker' or wherefore = 'zomain' or wherefore = 'zord')")
+	stmtThumbBiters = preparetodie(db, "select userid, name, wherefore from zonkers where (wherefore = 'zonker' or wherefore = 'zomain' or wherefore = 'zord' or wherefore = 'zilence')")
 	stmtFindZonk = preparetodie(db, "select zonkerid from zonkers where userid = ? and name = ? and wherefore = 'zonk'")
 	stmtGetZonkers = preparetodie(db, "select zonkerid, name, wherefore from zonkers where userid = ? and wherefore <> 'zonk'")
 	stmtSaveZonker = preparetodie(db, "insert into zonkers (userid, name, wherefore) values (?, ?, ?)")

@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Collapse posts based on custom regex match.
+
 + Tonks are now honk backs.
 
 + Show both avatars for bonks. Other minor refinements to UI.

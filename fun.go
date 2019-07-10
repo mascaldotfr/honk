@@ -33,6 +33,7 @@ import (
 
 func reverbolate(userid int64, honks []*Honk) {
 	filt := htfilter.New()
+	zilences := getzilences(userid)
 	for _, h := range honks {
 		h.What += "ed"
 		if h.What == "tonked" {
@@ -62,13 +63,11 @@ func reverbolate(userid int64, honks []*Honk) {
 		zap := make(map[*Donk]bool)
 		h.Noise = unpucker(h.Noise)
 		h.Open = "open"
-		if userid != -1 {
-			if badword := unsee(userid, h.Precis, h.Noise); badword != "" {
-				if h.Precis == "" {
-					h.Precis = badword
-				}
-				h.Open = ""
+		if badword := unsee(zilences, h.Precis, h.Noise); badword != "" {
+			if h.Precis == "" {
+				h.Precis = badword
 			}
+			h.Open = ""
 		}
 		h.HTML, _ = filt.String(h.Noise)
 		emuxifier := func(e string) string {
@@ -94,9 +93,15 @@ func reverbolate(userid int64, honks []*Honk) {
 	}
 }
 
-func unsee(userid int64, precis string, noise string) string {
-	if precis != "" {
-		return "more..."
+func unsee(zilences []*regexp.Regexp, precis string, noise string) string {
+	for _, z := range zilences {
+		if z.MatchString(precis) || z.MatchString(noise) {
+			if precis == "" {
+				w := z.String()
+				return w[6 : len(w)-3]
+			}
+			return precis
+		}
 	}
 	return ""
 }
@@ -495,6 +500,7 @@ func makeitworksomehowwithoutregardforkeycontinuity(keyname string, r *http.Requ
 
 var thumbbiters map[int64]map[string]bool
 var zordses map[int64][]*regexp.Regexp
+var zilences map[int64][]*regexp.Regexp
 var thumblock sync.Mutex
 
 func bitethethumbs() {
@@ -509,6 +515,7 @@ func bitethethumbs() {
 	defer thumblock.Unlock()
 	thumbbiters = make(map[int64]map[string]bool)
 	zordses = make(map[int64][]*regexp.Regexp)
+	zilences = make(map[int64][]*regexp.Regexp)
 	for rows.Next() {
 		var userid int64
 		var name, wherefore string
@@ -517,13 +524,17 @@ func bitethethumbs() {
 			log.Printf("error scanning zonker: %s", err)
 			continue
 		}
-		if wherefore == "zord" {
+		if wherefore == "zord" || wherefore == "zilence" {
 			zord := "\\b(?i:" + name + ")\\b"
 			re, err := regexp.Compile(zord)
 			if err != nil {
 				log.Printf("error compiling zord: %s", err)
 			} else {
-				zordses[userid] = append(zordses[userid], re)
+				if wherefore == "zord" {
+					zordses[userid] = append(zordses[userid], re)
+				} else {
+					zilences[userid] = append(zilences[userid], re)
+				}
 			}
 			continue
 		}
@@ -540,6 +551,12 @@ func getzords(userid int64) []*regexp.Regexp {
 	thumblock.Lock()
 	defer thumblock.Unlock()
 	return zordses[userid]
+}
+
+func getzilences(userid int64) []*regexp.Regexp {
+	thumblock.Lock()
+	defer thumblock.Unlock()
+	return zilences[userid]
 }
 
 func thoudostbitethythumb(userid int64, who []string, objid string) bool {
