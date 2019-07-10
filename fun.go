@@ -108,18 +108,33 @@ func unsee(zilences []*regexp.Regexp, precis string, noise string) string {
 
 func osmosis(honks []*Honk, userid int64) []*Honk {
 	zords := getzords(userid)
+	for i, j := 0, len(honks)-1; i < j; i, j = i+1, j-1 {
+		honks[i], honks[j] = honks[j], honks[i]
+	}
+
 	j := 0
+	filtered := make(map[string]bool)
 outer:
 	for _, h := range honks {
+		if h.RID != "" && filtered[h.RID] {
+			filtered[h.XID] = true
+			continue outer
+		}
+
 		for _, z := range zords {
 			if z.MatchString(h.Precis) || z.MatchString(h.Noise) {
+				filtered[h.XID] = true
 				continue outer
 			}
 		}
 		honks[j] = h
 		j++
 	}
-	return honks[0:j]
+	honks = honks[0:j]
+	for i, j := 0, len(honks)-1; i < j; i, j = i+1, j-1 {
+		honks[i], honks[j] = honks[j], honks[i]
+	}
+	return honks
 }
 
 func shortxid(xid string) string {
