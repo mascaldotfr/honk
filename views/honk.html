@@ -16,7 +16,11 @@
 {{ if .Oonker }}
 <br>
 <span style="margin-left: 1em;" class="clip">
-original: {{ .Oondle }}
+{{ if $bonkcsrf }}
+original: <a href="/h?xid={{ .Oonker }}" rel=noreferrer>{{ .Oondle }}</a>
+{{ else }}
+original: <a href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }}</a>
+{{ end }}
 </span>
 {{ else }}
 {{ if .RID }}
