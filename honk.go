@@ -760,7 +760,7 @@ func gethonksbyhonker(userid int64, honker string) []*Honk {
 	return getsomehonks(rows, err)
 }
 func gethonksbyxonker(userid int64, xonker string) []*Honk {
-	rows, err := stmtHonksByXonker.Query(userid, xonker, userid)
+	rows, err := stmtHonksByXonker.Query(userid, xonker, xonker, userid)
 	return getsomehonks(rows, err)
 }
 func gethonksbycombo(userid int64, combo string) []*Honk {
@@ -1550,7 +1550,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and honker in (select xid from honkers where userid = ? and flavor = 'sub' and combos not like '% - %')"+butnotthose+limit)
 	stmtHonksForMe = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and whofore = 1"+butnotthose+limit)
 	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.name = ?"+butnotthose+limit)
-	stmtHonksByXonker = preparetodie(db, selecthonks+" where honks.userid = ? and honker = ?"+butnotthose+limit)
+	stmtHonksByXonker = preparetodie(db, selecthonks+" where honks.userid = ? and (honker = ? or oonker = ?)"+butnotthose+limit)
 	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.combos like ?"+butnotthose+limit)
 	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or (? = -1 and whofore = 2)) and convoy = ?"+limit)
 
