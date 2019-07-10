@@ -168,15 +168,18 @@ input[type=file] {
 .limited .noise a {
 	color: #a79;
 }
+details.noise[open] summary {
+	display: none;
+}
 .inlineform {
 	display: inline;
 }
 .inlineform select {
 }
-.honk details summary {
+.honk details.actions summary {
 	color: #aab;
 }
-.limited details summary {
+.limited details.actions summary {
 	color: #a79;
 }
 h1, h2 {

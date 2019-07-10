@@ -37,7 +37,10 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 <span style="margin-left: 1em;" class="clip">convoy: {{ .Convoy }}</span>
 {{ end }}
 </header>
-<div class="noise">
+<p>
+<details class="noise" {{ .Open }} >
+<summary>{{ .Precis }}</summary>
+<p>{{ .Precis }}
 <p>{{ .HTML }}
 {{ range .Donks }}
 {{ if .Local }}
@@ -58,11 +61,11 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ end }}
 {{ end }}
 {{ end }}
-</div>
+</details>
 {{ end }}
 {{ if $bonkcsrf }}
 <p>
-<details>
+<details class="actions">
 <summary>Actions
 </summary>
 <div>

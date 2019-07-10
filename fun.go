@@ -31,7 +31,7 @@ import (
 	"humungus.tedunangst.com/r/webs/htfilter"
 )
 
-func reverbolate(honks []*Honk) {
+func reverbolate(userid int64, honks []*Honk) {
 	filt := htfilter.New()
 	for _, h := range honks {
 		h.What += "ed"
@@ -61,17 +61,16 @@ func reverbolate(honks []*Honk) {
 		}
 		zap := make(map[*Donk]bool)
 		h.Noise = unpucker(h.Noise)
-		precis := h.Precis
-		if strings.HasPrefix(h.Noise, "<p>"+precis) {
-			precis = ""
-		}
-		if precis != "" {
-			if strings.IndexByte(precis, ':') == -1 {
-				precis = "summary: " + precis
+		h.Open = "open"
+		if userid != -1 {
+			if badword := unsee(userid, h.Precis, h.Noise); badword != "" {
+				if h.Precis == "" {
+					h.Precis = badword
+				}
+				h.Open = ""
 			}
-			precis = "<p>" + precis + "<p>"
 		}
-		h.HTML, _ = filt.String(precis + h.Noise)
+		h.HTML, _ = filt.String(h.Noise)
 		emuxifier := func(e string) string {
 			for _, d := range h.Donks {
 				if d.Name == e {
@@ -93,6 +92,13 @@ func reverbolate(honks []*Honk) {
 		}
 		h.Donks = h.Donks[:j]
 	}
+}
+
+func unsee(userid int64, precis string, noise string) string {
+	if precis != "" {
+		return "more..."
+	}
+	return ""
 }
 
 func osmosis(honks []*Honk, userid int64) []*Honk {

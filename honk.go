@@ -72,6 +72,7 @@ type Honk struct {
 	Whofore  int64
 	HTML     template.HTML
 	Style    string
+	Open     string
 	Donks    []*Donk
 }
 
@@ -138,19 +139,21 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
 	u := login.GetUserInfo(r)
 	var honks []*Honk
+	var userid int64 = -1
 	if r.URL.Path == "/front" || u == nil {
 		honks = getpublichonks()
 	} else {
+		userid = u.UserID
 		if r.URL.Path == "/atme" {
-			honks = gethonksforme(u.UserID)
+			honks = gethonksforme(userid)
 		} else {
-			honks = gethonksforuser(u.UserID)
-			honks = osmosis(honks, u.UserID)
+			honks = gethonksforuser(userid)
+			honks = osmosis(honks, userid)
 		}
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	}
 
-	reverbolate(honks)
+	reverbolate(userid, honks)
 
 	templinfo["Honks"] = honks
 	templinfo["ShowRSS"] = true
@@ -202,7 +205,7 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 	} else {
 		honks = getpublichonks()
 	}
-	reverbolate(honks)
+	reverbolate(-1, honks)
 
 	home := fmt.Sprintf("https://%s/", serverName)
 	base := home
@@ -620,14 +623,16 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 
 func honkpage(w http.ResponseWriter, r *http.Request, u *login.UserInfo, user *WhatAbout,
 	honks []*Honk, infomsg string) {
-	reverbolate(honks)
 	templinfo := getInfo(r)
+	var userid int64 = -1
 	if u != nil {
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+		userid = u.UserID
 	}
 	if u == nil {
 		w.Header().Set("Cache-Control", "max-age=60")
 	}
+	reverbolate(userid, honks)
 	if user != nil {
 		filt := htfilter.New()
 		templinfo["Name"] = user.Name
@@ -1071,7 +1076,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.FormValue("preview") == "preview" {
 		honks := []*Honk{&honk}
-		reverbolate(honks)
+		reverbolate(userinfo.UserID, honks)
 		templinfo := getInfo(r)
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 		templinfo["Honks"] = honks
