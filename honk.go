@@ -570,12 +570,8 @@ func showcombo(w http.ResponseWriter, r *http.Request) {
 }
 func showconvoy(w http.ResponseWriter, r *http.Request) {
 	c := r.FormValue("c")
-	var userid int64 = -1
 	u := login.GetUserInfo(r)
-	if u != nil {
-		userid = u.UserID
-	}
-	honks := gethonksbyconvoy(userid, c)
+	honks := gethonksbyconvoy(u.UserID, c)
 	honkpage(w, r, u, nil, honks, "honks in convoy: "+c)
 }
 
@@ -773,7 +769,7 @@ func gethonksbycombo(userid int64, combo string) []*Honk {
 	return getsomehonks(rows, err)
 }
 func gethonksbyconvoy(userid int64, convoy string) []*Honk {
-	rows, err := stmtHonksByConvoy.Query(userid, convoy)
+	rows, err := stmtHonksByConvoy.Query(userid, userid, convoy)
 	honks := getsomehonks(rows, err)
 	for i, j := 0, len(honks)-1; i < j; i, j = i+1, j-1 {
 		honks[i], honks[j] = honks[j], honks[i]
@@ -1556,7 +1552,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.name = ?"+butnotthose+limit)
 	stmtHonksByXonker = preparetodie(db, selecthonks+" where honks.userid = ? and honker = ?"+butnotthose+limit)
 	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.combos like ?"+butnotthose+limit)
-	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or whofore = 2) and convoy = ?"+limit)
+	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or (? = -1 and whofore = 2)) and convoy = ?"+limit)
 
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	stmtFileData = preparetodie(db, "select media, content from files where xid = ?")
