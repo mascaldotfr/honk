@@ -18,6 +18,7 @@ package main
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/rsa"
 	"database/sql"
 	"fmt"
@@ -100,6 +101,14 @@ func (gz *gzCloser) Close() error {
 }
 
 func GetJunk(url string) (junk.Junk, error) {
+	return GetJunkTimeout(url, 0)
+}
+
+func GetJunkFast(url string) (junk.Junk, error) {
+	return GetJunkTimeout(url, 5*time.Second)
+}
+
+func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
 	client := http.DefaultClient
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -112,9 +121,17 @@ func GetJunk(url string) (junk.Junk, error) {
 	req.Header.Set("Accept", at)
 	req.Header.Set("Accept-Encoding", "gzip")
 	req.Header.Set("User-Agent", "honksnonk/5.0")
+	if timeout > 0 {
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+		req = req.WithContext(ctx)
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("first get failed: %s", err)
+		if timeout > 0 {
+			return nil, err
+		}
 		resp, err = client.Do(req)
 		if err != nil {
 			return nil, err
@@ -950,7 +967,7 @@ func gofish(name string) string {
 		return href
 	}
 	log.Printf("fishing for %s", name)
-	j, err := GetJunk(fmt.Sprintf("https://%s/.well-known/webfinger?resource=acct:%s", m[1], name))
+	j, err := GetJunkFast(fmt.Sprintf("https://%s/.well-known/webfinger?resource=acct:%s", m[1], name))
 	if err != nil {
 		log.Printf("failed to go fish %s: %s", name, err)
 		handlock.Lock()
@@ -1002,7 +1019,7 @@ func investigate(name string) string {
 	if name == "" {
 		return ""
 	}
-	obj, err := GetJunk(name)
+	obj, err := GetJunkFast(name)
 	if err != nil {
 		log.Printf("error investigating honker: %s", err)
 		return ""
