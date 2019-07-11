@@ -913,6 +913,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 					Date:     time.Now().UTC(),
 					Audience: oneofakind(xonk.Audience),
 				}
+				zonk.Public = !keepitquiet(zonk.Audience)
 
 				user, _ := butwhatabout(userinfo.Username)
 				log.Printf("announcing deleted honk: %s", what)
