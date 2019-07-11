@@ -337,7 +337,7 @@ func obfusbreak(s string) string {
 			url = url[:len(url)-1]
 			adddot = true
 		}
-		url = fmt.Sprintf(`<a class="mention" href="%s">%s</a>`, url, url)
+		url = fmt.Sprintf(`<a class="mention u-url" href="%s">%s</a>`, url, url)
 		if adddot {
 			url += "."
 		}
