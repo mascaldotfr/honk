@@ -68,6 +68,8 @@ func reverbolate(userid int64, honks []*Honk) {
 				h.Precis = badword
 			}
 			h.Open = ""
+		} else if h.Precis == "unspecified horror" {
+			h.Precis = ""
 		}
 		h.HTML, _ = filt.String(h.Noise)
 		emuxifier := func(e string) string {
