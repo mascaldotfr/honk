@@ -117,6 +117,7 @@ input[type=file] {
 	padding-left: 1em;
 	padding-right: 1em;
 	padding-top: 0;
+	overflow: hidden;
 }
 .honk #honkform {
 	padding: 1em;
