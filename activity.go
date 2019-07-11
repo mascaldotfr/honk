@@ -129,7 +129,7 @@ func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("first get failed: %s", err)
-		if timeout > 0 {
+		if timeout > 0 || !strings.Contains(err.Error(), "TLS handshake timeout") {
 			return nil, err
 		}
 		resp, err = client.Do(req)
