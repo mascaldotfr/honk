@@ -1,6 +1,8 @@
 changelog
 
--- next
+-- 0.7.4
+
++ Ever more bug fixes.
 
 + Collapse posts based on custom regex match.
 
