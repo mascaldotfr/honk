@@ -41,7 +41,7 @@ func reverbolate(userid int64, honks []*Honk) {
 			h.Style = "subtle"
 		}
 		if !h.Public {
-			h.Style = "limited"
+			h.Style += " limited"
 		}
 		if h.Whofore == 2 || h.Whofore == 3 {
 			h.URL = h.XID
