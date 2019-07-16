@@ -31,6 +31,8 @@ var moegothshitz = "𝔄𝔅𝕮𝔇𝔈𝔉𝔊𝕳ℑ𝔍𝔎𝔏𝔐𝔑𝔒�
 var morgothshitz = "𝔞𝔟𝔠𝔡𝔢𝔣𝔤𝔥𝔦𝔧𝔨𝔩𝔪𝔫𝔬𝔭𝔮𝔯𝔰𝔱𝔲𝔳𝔴𝔵𝔶𝔷"
 var bigitalshitz = "𝑨𝑩𝑪𝑫𝑬𝑭𝑮𝑯𝑰𝑱𝑲𝑳𝑴𝑵𝑶𝑷𝑸𝑹𝑺𝑻𝑼𝑽𝑾𝑿𝒀𝒁"
 var lilitalshitz = "𝒂𝒃𝒄𝒅𝒆𝒇𝒈𝒉𝒊𝒋𝒌𝒍𝒎𝒏𝒐𝒑𝒒𝒓𝒔𝒕𝒖𝒗𝒘𝒙𝒚𝒛"
+var moeitalshitz = "𝘼𝘽𝘾𝘿𝙀𝙁𝙂𝙃𝙄𝙅𝙆𝙇𝙈𝙉𝙊𝙋𝙌𝙍𝙎𝙏𝙐𝙑𝙒𝙓𝙔𝙕"
+var moritalshitz = "𝙖𝙗𝙘𝙙𝙚𝙛𝙜𝙝𝙞𝙟𝙠𝙡𝙢𝙣𝙤𝙥𝙦𝙧𝙨𝙩𝙪𝙫𝙬𝙭𝙮𝙯"
 var bigbangshitz = "𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ"
 var lilbangshitz = "𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫"
 var bigwideshitz = "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ"
@@ -43,13 +45,14 @@ var re_alltheshitz = regexp.MustCompile(`([` +
 	biggothshitz + lilgothshitz +
 	moegothshitz + morgothshitz +
 	bigitalshitz + lilitalshitz +
+	moeitalshitz + moritalshitz +
 	bigbangshitz + lilbangshitz +
 	bigwideshitz + lilwideshitz +
 	bigblokshitz +
 	"][ '\ufe0f]?){3,}")
 
-var allUppers = []string{bigboldshitz, moeboldshitz, biggothshitz, bigwideshitz, moegothshitz, bigitalshitz, bigbangshitz, bigblokshitz}
-var allLowers = []string{lilboldshitz, morboldshitz, lilgothshitz, lilwideshitz, morgothshitz, lilitalshitz, lilbangshitz}
+var allUppers = []string{bigboldshitz, moeboldshitz, biggothshitz, bigwideshitz, moegothshitz, bigitalshitz, moeitalshitz, bigbangshitz, bigblokshitz}
+var allLowers = []string{lilboldshitz, morboldshitz, lilgothshitz, lilwideshitz, morgothshitz, lilitalshitz, moritalshitz, lilbangshitz}
 
 var re_moredumb = regexp.MustCompile(`[👏]`)
 
