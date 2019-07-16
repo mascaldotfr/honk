@@ -23,6 +23,8 @@ import (
 
 var bigboldshitz = "𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙"
 var lilboldshitz = "𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳"
+var moeboldshitz = "𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭"
+var morboldshitz = "𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇"
 var biggothshitz = "𝕬𝕭𝕮𝕯𝕰𝕱𝕲𝕳𝕴𝕵𝕶𝕷𝕸𝕹𝕺𝕻𝕼𝕽𝕾𝕿𝖀𝖁𝖂𝖃𝖄𝖅"
 var lilgothshitz = "𝖆𝖇𝖈𝖉𝖊𝖋𝖌𝖍𝖎𝖏𝖐𝖑𝖒𝖓𝖔𝖕𝖖𝖗𝖘𝖙𝖚𝖛𝖜𝖝𝖞𝖟"
 var moegothshitz = "𝔄𝔅𝕮𝔇𝔈𝔉𝔊𝕳ℑ𝔍𝔎𝔏𝔐𝔑𝔒𝔓𝔔ℜ𝔖𝔗𝔘𝔙𝔚𝔛𝔜𝖅"
@@ -37,6 +39,7 @@ var bigblokshitz = "🅰🅱🅲🅳🅴🅵🅶🅷🅸🅹🅺🅻🅼🅽🅾
 
 var re_alltheshitz = regexp.MustCompile(`([` +
 	bigboldshitz + lilboldshitz +
+	moeboldshitz + morboldshitz +
 	biggothshitz + lilgothshitz +
 	moegothshitz + morgothshitz +
 	bigitalshitz + lilitalshitz +
@@ -44,6 +47,9 @@ var re_alltheshitz = regexp.MustCompile(`([` +
 	bigwideshitz + lilwideshitz +
 	bigblokshitz +
 	"][ '\ufe0f]?){3,}")
+
+var allUppers = []string{bigboldshitz, moeboldshitz, biggothshitz, bigwideshitz, moegothshitz, bigitalshitz, bigbangshitz, bigblokshitz}
+var allLowers = []string{lilboldshitz, morboldshitz, lilgothshitz, lilwideshitz, morgothshitz, lilitalshitz, lilbangshitz}
 
 var re_moredumb = regexp.MustCompile(`[👏]`)
 
@@ -59,7 +65,7 @@ func unpucker(s string) string {
 				x[xi] = byte(c)
 				continue
 			}
-			for _, set := range []string{bigboldshitz, biggothshitz, bigwideshitz, moegothshitz, bigitalshitz, bigbangshitz, bigblokshitz} {
+			for _, set := range allUppers {
 				i := 0
 				for _, rr := range set {
 					if rr == c {
@@ -69,7 +75,7 @@ func unpucker(s string) string {
 					i++
 				}
 			}
-			for _, set := range []string{lilboldshitz, lilgothshitz, lilwideshitz, morgothshitz, lilitalshitz, lilbangshitz} {
+			for _, set := range allLowers {
 				i := 0
 				for _, rr := range set {
 					if rr == c {
