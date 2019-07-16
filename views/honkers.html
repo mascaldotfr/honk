@@ -19,6 +19,8 @@
 <img alt="avatar" src="/a?a={{ .XID }}">
 <p style="font-size: 1.8em"><a href="/h/{{ .Name }}">{{ .Name }}<a>
 </header>
+<p>
+<details>
 <p>url: <a href="{{ .XID }}" rel=noreferrer>{{ .XID }}</a>
 <p>flavor: {{ .Flavor }}
 <form action="/savehonker" method="POST">
@@ -28,6 +30,8 @@
 <p>depart: <input type="text" name="goodbye" placeholder="press F" value="" autocomplete=off>
 <p><input type="submit" name="save" value="save">
 </form>
+</details>
+<p>
 </section>
 {{ end }}
 </main>
