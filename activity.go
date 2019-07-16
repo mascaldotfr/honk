@@ -562,6 +562,9 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				audience = newphone(audience, obj)
 				xid, _ = obj.GetString("id")
 				precis, _ = obj.GetString("summary")
+				if precis == "" {
+					precis, _ = obj.GetString("name")
+				}
 				content, _ = obj.GetString("content")
 				if !strings.HasPrefix(content, "<p>") {
 					content = "<p>" + content
