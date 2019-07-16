@@ -13,6 +13,17 @@
 </form>
 </div>
 {{ $honkercsrf := .HonkerCSRF }}
+<div class="info">
+<script>
+function expandstuff() {
+	var els = document.querySelectorAll(".honk details")
+	for (var i = 0; i < els.length; i++) {
+		els[i].open = true
+	}
+}
+</script>
+<p><button onclick="expandstuff()">expand</button>
+</div>
 {{ range .Honkers }}
 <section class="honk">
 <header>
