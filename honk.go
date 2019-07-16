@@ -1507,19 +1507,19 @@ func serve() {
 	}
 }
 
-func cleanupdb(days int) {
+func cleanupdb(arg string) {
 	db := opendatabase()
-	expdate := time.Now().UTC().Add(-time.Duration(days) * 24 * time.Hour).Format(dbtimeformat)
-	doordie(db, "delete from donks where honkid in (select honkid from honks where dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3))", expdate)
-	doordie(db, "delete from honks where dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3)", expdate)
-	doordie(db, "delete from files where fileid not in (select fileid from donks)")
-}
-
-func reducedb(honker string) {
-	db := opendatabase()
-	expdate := time.Now().UTC().Add(-3 * 24 * time.Hour).Format(dbtimeformat)
-	doordie(db, "delete from donks where honkid in (select honkid from honks where dt < ? and whofore = 0 and honker = ?)", expdate, honker)
-	doordie(db, "delete from honks where dt < ? and whofore = 0 and honker = ?", expdate, honker)
+	days, err := strconv.Atoi(arg)
+	if err != nil {
+		honker := arg
+		expdate := time.Now().UTC().Add(-3 * 24 * time.Hour).Format(dbtimeformat)
+		doordie(db, "delete from donks where honkid in (select honkid from honks where dt < ? and whofore = 0 and honker = ?)", expdate, honker)
+		doordie(db, "delete from honks where dt < ? and whofore = 0 and honker = ?", expdate, honker)
+	} else {
+		expdate := time.Now().UTC().Add(-time.Duration(days) * 24 * time.Hour).Format(dbtimeformat)
+		doordie(db, "delete from donks where honkid in (select honkid from honks where dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3))", expdate)
+		doordie(db, "delete from honks where dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3)", expdate)
+	}
 	doordie(db, "delete from files where fileid not in (select fileid from donks)")
 }
 
@@ -1589,7 +1589,6 @@ func ElaborateUnitTests() {
 }
 
 func main() {
-	var err error
 	cmd := "run"
 	if len(os.Args) > 1 {
 		cmd = os.Args[1]
@@ -1614,19 +1613,11 @@ func main() {
 	case "adduser":
 		adduser()
 	case "cleanup":
-		days := 30
+		arg := "30"
 		if len(os.Args) > 2 {
-			days, err = strconv.Atoi(os.Args[2])
-			if err != nil {
-				log.Fatal(err)
-			}
+			arg = os.Args[2]
 		}
-		cleanupdb(days)
-	case "reduce":
-		if len(os.Args) < 3 {
-			log.Fatal("need a honker name")
-		}
-		reducedb(os.Args[2])
+		cleanupdb(arg)
 	case "ping":
 		if len(os.Args) < 4 {
 			fmt.Printf("usage: honk ping from to\n")
