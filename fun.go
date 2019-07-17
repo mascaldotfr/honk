@@ -457,13 +457,16 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 			log.Printf("error getting %s pubkey: %s", keyname, err)
 			return
 		}
-		var ok bool
-		data, ok = j.FindString([]string{"publicKey", "publicKeyPem"})
+		keyobj, ok := j.GetMap("publicKey")
+		if ok {
+			j = keyobj
+		}
+		data, ok = j.GetString("publicKeyPem")
 		if !ok {
 			log.Printf("error finding %s pubkey", keyname)
 			return
 		}
-		_, ok = j.FindString([]string{"publicKey", "owner"})
+		_, ok = j.GetString("owner")
 		if !ok {
 			log.Printf("error finding %s pubkey owner", keyname)
 			return
