@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 
@@ -16,7 +18,7 @@ var tweetsel = cascadia.MustCompile("p.tweet-text")
 var linksel = cascadia.MustCompile(".time a.tweet-timestamp")
 var authorregex = regexp.MustCompile("twitter.com/([^/]+)")
 
-func hootfixer(hoot string) string {
+func hootfetcher(hoot string) string {
 	url := hoot[5:]
 	if url[0] == ' ' {
 		url = url[1:]
@@ -28,7 +30,7 @@ func hootfixer(hoot string) string {
 		log.Printf("error: %s", err)
 		return hoot
 	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; CrOS x86_64 11021.56.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.76 Safari/537.36")
+	req.Header.Set("User-Agent", "OpenBSD ftp")
 	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
 	resp, err := http.DefaultClient.Do(req)
@@ -41,16 +43,16 @@ func hootfixer(hoot string) string {
 		log.Printf("error getting %s: %d", url, resp.StatusCode)
 		return hoot
 	}
+	ld, _ := os.Create("lasthoot.html")
+	r := io.TeeReader(resp.Body, ld)
+	return hootfixer(r, url)
+}
 
-	root, _ := html.Parse(resp.Body)
+func hootfixer(r io.Reader, url string) string {
+	root, _ := html.Parse(r)
 	divs := tweetsel.MatchAll(root)
 
-	authormatch := authorregex.FindStringSubmatch(url)
-	if len(authormatch) < 2 {
-		log.Printf("no author")
-		return hoot
-	}
-	wanted := authormatch[1]
+	wanted := ""
 	var buf strings.Builder
 
 	fmt.Fprintf(&buf, "hoot: %s\n", url)
@@ -62,12 +64,15 @@ func hootfixer(hoot string) string {
 			continue
 		}
 		link := "https://twitter.com" + htfilter.GetAttr(alink, "href")
-		authormatch = authorregex.FindStringSubmatch(link)
+		authormatch := authorregex.FindStringSubmatch(link)
 		if len(authormatch) < 2 {
 			log.Printf("no author?")
 			continue
 		}
 		author := authormatch[1]
+		if wanted == "" {
+			wanted = author
+		}
 		if author != wanted {
 			continue
 		}
@@ -83,5 +88,5 @@ func hootfixer(hoot string) string {
 var re_hoots = regexp.MustCompile(`hoot: ?https://\S+`)
 
 func hooterize(noise string) string {
-	return re_hoots.ReplaceAllStringFunc(noise, hootfixer)
+	return re_hoots.ReplaceAllStringFunc(noise, hootfetcher)
 }
