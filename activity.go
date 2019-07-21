@@ -528,7 +528,15 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			origin = originate(xid)
 			what = "bonk"
 		case "Create":
-			obj, _ = item.GetMap("object")
+			obj, ok = item.GetMap("object")
+			if !ok {
+				xid, _ = obj.GetString("object")
+				log.Printf("getting created honk: %s", xid)
+				obj, err = GetJunk(xid)
+				if err != nil {
+					log.Printf("error getting creation: %s", err)
+				}
+			}
 			what = "honk"
 		case "Delete":
 			obj, _ = item.GetMap("object")
