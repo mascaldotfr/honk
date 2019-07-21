@@ -446,6 +446,13 @@ func extractattrto(obj junk.Junk) string {
 	if who != "" {
 		return who
 	}
+	o, ok := obj.GetMap("attributedTo")
+	if ok {
+		id, ok := o.GetString("id")
+		if ok {
+			return id
+		}
+	}
 	arr, _ := obj.GetArray("attributedTo")
 	for _, a := range arr {
 		o, ok := a.(junk.Junk)
