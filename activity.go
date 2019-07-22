@@ -588,7 +588,13 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if sens && precis == "" {
 					precis = "unspecified horror"
 				}
-				rid, _ = obj.GetString("inReplyTo")
+				rid, ok = obj.GetString("inReplyTo")
+				if !ok {
+					robj, ok := obj.GetMap("inReplyTo")
+					if ok {
+						rid, _ = robj.GetString("id")
+					}
+				}
 				convoy, _ = obj.GetString("context")
 				if convoy == "" {
 					convoy, _ = obj.GetString("conversation")

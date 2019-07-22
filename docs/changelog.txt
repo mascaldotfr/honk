@@ -1,5 +1,13 @@
 changelog
 
+-- next
+
++ Improved ActivityPub parsing conformance for better compat with others.
+
++ Add server name to user agent.
+
++ What may be considered UI improvements.
+
 -- 0.7.4
 
 + Ever more bug fixes.
