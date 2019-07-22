@@ -45,7 +45,9 @@ func reverbolate(userid int64, honks []*Honk) {
 		}
 		if h.Whofore == 2 || h.Whofore == 3 {
 			h.URL = h.XID
-			h.Noise = mentionize(h.Noise)
+			if h.What != "bonked" {
+				h.Noise = mentionize(h.Noise)
+			}
 			h.Username, h.Handle = honkerhandle(h.Honker)
 		} else {
 			_, h.Handle = honkerhandle(h.Honker)
