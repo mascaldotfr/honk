@@ -2,6 +2,10 @@ changelog
 
 -- next
 
++ Fix a bug (introdcued 0.7.4) preventing new user creation from working.
+
++ Semi flexible URL patterns to allow transition from other software.
+
 + Improved ActivityPub parsing conformance for better compat with others.
 
 + Add server name to user agent.
