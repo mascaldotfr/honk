@@ -231,7 +231,7 @@ func createuser(db *sql.DB, r *bufio.Reader) error {
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec("insert into users (username, displayname, about, hash, pubkey, seckey) values (?, ?, ?, ?, ?, ?)", name, name, "what about me?", hash, pubkey, seckey)
+	_, err = db.Exec("insert into users (username, displayname, about, hash, pubkey, seckey, options) values (?, ?, ?, ?, ?, ?, ?)", name, name, "what about me?", hash, pubkey, seckey, "")
 	if err != nil {
 		return err
 	}
