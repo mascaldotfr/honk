@@ -99,6 +99,9 @@ var serverName string
 var iconName = "icon.png"
 var serverMsg = "Things happen."
 
+var userSep = "u"
+var honkSep = "h"
+
 var readviews *templates.Template
 
 func getuserstyle(u *login.UserInfo) template.CSS {
@@ -121,6 +124,7 @@ func getInfo(r *http.Request) map[string]interface{} {
 	templinfo["ServerName"] = serverName
 	templinfo["IconName"] = iconName
 	templinfo["UserInfo"] = u
+	templinfo["UserSep"] = userSep
 	return templinfo
 }
 
@@ -256,7 +260,7 @@ func butwhatabout(name string) (*WhatAbout, error) {
 	var user WhatAbout
 	var options string
 	err := row.Scan(&user.ID, &user.Name, &user.Display, &user.About, &user.Key, &options)
-	user.URL = fmt.Sprintf("https://%s/u/%s", serverName, user.Name)
+	user.URL = fmt.Sprintf("https://%s/%s/%s", serverName, userSep, user.Name)
 	user.SkinnyCSS = strings.Contains(options, " skinny ")
 	return &user, err
 }
@@ -537,6 +541,7 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	user, err := butwhatabout(name)
 	if err != nil {
+		log.Printf("user not found %s: %s", name, err)
 		http.NotFound(w, r)
 		return
 	}
@@ -936,7 +941,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	user, _ := butwhatabout(userinfo.Username)
 
 	dt := time.Now().UTC()
-	xid := fmt.Sprintf("https://%s/u/%s/h/%s", serverName, userinfo.Username, xfiltrate())
+	xid := fmt.Sprintf("%s/%s/%s", user.URL, honkSep, xfiltrate())
 	what := "honk"
 	if rid != "" {
 		what = "tonk"
@@ -1319,7 +1324,7 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 	idx := strings.LastIndexByte(name, '/')
 	if idx != -1 {
 		name = name[idx+1:]
-		if "https://"+serverName+"/u/"+name != orig {
+		if fmt.Sprintf("https://%s/%s/%s", serverName, userSep, name) != orig {
 			log.Printf("foreign request rejected")
 			name = ""
 		}
@@ -1412,7 +1417,7 @@ func nomoroboto(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Disallow: /d\n")
 	io.WriteString(w, "Disallow: /meme\n")
 	for _, u := range allusers() {
-		fmt.Fprintf(w, "Disallow: /u/%s/h/\n", u.Username)
+		fmt.Fprintf(w, "Disallow: /%s/%s/%s/\n", userSep, u.Username, honkSep)
 	}
 }
 
@@ -1461,13 +1466,13 @@ func serve() {
 	getters.HandleFunc("/front", homepage)
 	getters.HandleFunc("/robots.txt", nomoroboto)
 	getters.HandleFunc("/rss", showrss)
-	getters.HandleFunc("/u/{name:[[:alnum:]]+}", showuser)
-	getters.HandleFunc("/u/{name:[[:alnum:]]+}/h/{xid:[[:alnum:]]+}", showhonk)
-	getters.HandleFunc("/u/{name:[[:alnum:]]+}/rss", showrss)
-	posters.HandleFunc("/u/{name:[[:alnum:]]+}/inbox", inbox)
-	getters.HandleFunc("/u/{name:[[:alnum:]]+}/outbox", outbox)
-	getters.HandleFunc("/u/{name:[[:alnum:]]+}/followers", emptiness)
-	getters.HandleFunc("/u/{name:[[:alnum:]]+}/following", emptiness)
+	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}", showuser)
+	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/"+honkSep+"/{xid:[[:alnum:]]+}", showhonk)
+	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/rss", showrss)
+	posters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/inbox", inbox)
+	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/outbox", outbox)
+	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/followers", emptiness)
+	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/following", emptiness)
 	getters.HandleFunc("/a", avatate)
 	getters.HandleFunc("/d/{xid:[[:alnum:].]+}", servefile)
 	getters.HandleFunc("/emu/{xid:[[:alnum:]_.-]+}", serveemu)
@@ -1609,6 +1614,8 @@ func main() {
 	}
 	getconfig("servermsg", &serverMsg)
 	getconfig("servername", &serverName)
+	getconfig("usersep", &userSep)
+	getconfig("honksep", &honkSep)
 	getconfig("dnf", &donotfedafterdark)
 	prepareStatements(db)
 	switch cmd {

@@ -17,7 +17,7 @@
 <span><a href="/">honk</a></span>
 {{ if .UserInfo }}
 <span><a href="/atme">@me</a></span>
-<span><a href="/u/{{ .UserInfo.Username }}">{{ .UserInfo.Username }}</a></span>
+<span><a href="/{{ .UserSep }}/{{ .UserInfo.Username }}">{{ .UserInfo.Username }}</a></span>
 <span><a href="/honkers">honkers</a></span>
 <span><a href="/c">combos</a></span>
 <details>

@@ -237,7 +237,7 @@ func needxonk(user *WhatAbout, x *Honk) bool {
 	return needxonkid(user, x.XID)
 }
 func needxonkid(user *WhatAbout, xid string) bool {
-	if strings.HasPrefix(xid, user.URL+"/h/") {
+	if strings.HasPrefix(xid, user.URL+"/") {
 		return false
 	}
 	if iszonked(user.ID, xid) {
