@@ -88,26 +88,32 @@ func upgradedb() {
 			doordie(db, "update honks set honker = ?, whofore = 2 where userid = ? and honker = '' and what = 'bonk'", h, u.UserID)
 		}
 		doordie(db, "update config set value = 8 where key = 'dbversion'")
+		fallthrough
 	case 8:
 		doordie(db, "alter table files add column local integer")
 		doordie(db, "update files set local = 1")
 		doordie(db, "update config set value = 9 where key = 'dbversion'")
+		fallthrough
 	case 9:
 		doordie(db, "drop table xonkers")
 		doordie(db, "create table xonkers (xonkerid integer primary key, name text, info text, flavor text)")
 		doordie(db, "create index idx_xonkername on xonkers(name)")
 		doordie(db, "update config set value = 10 where key = 'dbversion'")
+		fallthrough
 	case 10:
 		doordie(db, "update zonkers set wherefore = 'zomain' where wherefore = 'zurl'")
 		doordie(db, "update zonkers set wherefore = 'zord' where wherefore = 'zword'")
 		doordie(db, "update config set value = 11 where key = 'dbversion'")
+		fallthrough
 	case 11:
 		doordie(db, "alter table users add column options text")
 		doordie(db, "update users set options = ''")
 		doordie(db, "update config set value = 12 where key = 'dbversion'")
+		fallthrough
 	case 12:
 		doordie(db, "create index idx_honksoonker on honks(oonker)")
 		doordie(db, "update config set value = 13 where key = 'dbversion'")
+		fallthrough
 	case 13:
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)

@@ -1,5 +1,9 @@
 changelog
 
+-- 0.7.6
+
++ Fix a bug where upgrades would not complete in one step.
+
 -- 0.7.5
 
 + Fix a bug (introdcued 0.7.4) preventing new user creation from working.
