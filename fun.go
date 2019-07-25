@@ -438,7 +438,7 @@ func ziggy(username string) (keyname string, key *rsa.PrivateKey) {
 		ziggies[username] = key
 		ziggylock.Unlock()
 	}
-	keyname = fmt.Sprintf("https://%s/u/%s#key", serverName, username)
+	keyname = fmt.Sprintf("https://%s/%s/%s#key", serverName, userSep, username)
 	return
 }
 
