@@ -908,12 +908,8 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 	for _, a := range honk.Audience {
 		if a != thewholeworld && a != user.URL && !strings.HasSuffix(a, "/followers") {
 			box, _ := getboxes(a)
-			if box != nil {
-				if honk.Public && box.Shared != "" {
-					rcpts["%"+box.Shared] = true
-				} else {
-					rcpts["%"+box.In] = true
-				}
+			if box != nil && honk.Public && box.Shared != "" {
+				rcpts["%"+box.Shared] = true
 			} else {
 				rcpts[a] = true
 			}
