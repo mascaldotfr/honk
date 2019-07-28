@@ -32,6 +32,7 @@ import (
 	"sync"
 	"time"
 
+	"humungus.tedunangst.com/r/webs/httpsig"
 	"humungus.tedunangst.com/r/webs/image"
 	"humungus.tedunangst.com/r/webs/junk"
 )
@@ -69,7 +70,7 @@ func PostMsg(keyname string, key *rsa.PrivateKey, url string, msg []byte) error 
 	}
 	req.Header.Set("User-Agent", "honksnonk/5.0; "+serverName)
 	req.Header.Set("Content-Type", theonetruename)
-	zig(keyname, key, req, msg)
+	httpsig.SignRequest(keyname, key, req, msg)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err

@@ -29,6 +29,7 @@ import (
 	"sync"
 
 	"humungus.tedunangst.com/r/webs/htfilter"
+	"humungus.tedunangst.com/r/webs/httpsig"
 )
 
 func reverbolate(userid int64, honks []*Honk) {
@@ -429,7 +430,7 @@ func ziggy(username string) (keyname string, key *rsa.PrivateKey) {
 		var data string
 		row.Scan(&data)
 		var err error
-		key, _, err = pez(data)
+		key, _, err = httpsig.DecodeKey(data)
 		if err != nil {
 			log.Printf("error decoding %s seckey: %s", username, err)
 			return
@@ -473,7 +474,7 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 			log.Printf("error finding %s pubkey owner", keyname)
 			return
 		}
-		_, key, err = pez(data)
+		_, key, err = httpsig.DecodeKey(data)
 		if err != nil {
 			log.Printf("error decoding %s pubkey: %s", keyname, err)
 			return
@@ -483,7 +484,7 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 			log.Printf("error saving key: %s", err)
 		}
 	} else {
-		_, key, err = pez(data)
+		_, key, err = httpsig.DecodeKey(data)
 		if err != nil {
 			log.Printf("error decoding %s pubkey: %s", keyname, err)
 			return
@@ -503,7 +504,7 @@ func makeitworksomehowwithoutregardforkeycontinuity(keyname string, r *http.Requ
 	ziggylock.Lock()
 	delete(zaggies, keyname)
 	ziggylock.Unlock()
-	return zag(r, payload)
+	return httpsig.VerifyRequest(r, payload, zaggy)
 }
 
 var thumbbiters map[int64]map[string]bool

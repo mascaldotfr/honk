@@ -34,6 +34,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"humungus.tedunangst.com/r/webs/htfilter"
+	"humungus.tedunangst.com/r/webs/httpsig"
 	"humungus.tedunangst.com/r/webs/image"
 	"humungus.tedunangst.com/r/webs/junk"
 	"humungus.tedunangst.com/r/webs/login"
@@ -339,7 +340,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	if crappola(j) {
 		return
 	}
-	keyname, err := zag(r, payload)
+	keyname, err := httpsig.VerifyRequest(r, payload, zaggy)
 	if err != nil {
 		log.Printf("inbox message failed signature: %s", err)
 		if keyname != "" {

@@ -48,6 +48,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 	_ "humungus.tedunangst.com/r/go-sqlite3"
+	"humungus.tedunangst.com/r/webs/httpsig"
 )
 
 var savedstyleparams = make(map[string]string)
@@ -223,11 +224,11 @@ func createuser(db *sql.DB, r *bufio.Reader) error {
 	if err != nil {
 		return err
 	}
-	pubkey, err := zem(&k.PublicKey)
+	pubkey, err := httpsig.EncodeKey(&k.PublicKey)
 	if err != nil {
 		return err
 	}
-	seckey, err := zem(k)
+	seckey, err := httpsig.EncodeKey(k)
 	if err != nil {
 		return err
 	}
