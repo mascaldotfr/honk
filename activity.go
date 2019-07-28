@@ -17,8 +17,6 @@ package main
 
 import (
 	"bytes"
-	"compress/gzip"
-	"context"
 	"crypto/rsa"
 	"database/sql"
 	"fmt"
@@ -87,20 +85,6 @@ func PostMsg(keyname string, key *rsa.PrivateKey, url string, msg []byte) error 
 	return nil
 }
 
-type gzCloser struct {
-	r     *gzip.Reader
-	under io.ReadCloser
-}
-
-func (gz *gzCloser) Read(p []byte) (int, error) {
-	return gz.r.Read(p)
-}
-
-func (gz *gzCloser) Close() error {
-	defer gz.under.Close()
-	return gz.r.Close()
-}
-
 func GetJunk(url string) (junk.Junk, error) {
 	return GetJunkTimeout(url, 0)
 }
@@ -110,50 +94,15 @@ func GetJunkFast(url string) (junk.Junk, error) {
 }
 
 func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
-	client := http.DefaultClient
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
 	at := thefakename
 	if strings.Contains(url, ".well-known/webfinger?resource") {
 		at = "application/jrd+json"
 	}
-	req.Header.Set("Accept", at)
-	req.Header.Set("Accept-Encoding", "gzip")
-	req.Header.Set("User-Agent", "honksnonk/5.0; "+serverName)
-	if timeout > 0 {
-		ctx, cancel := context.WithTimeout(context.Background(), timeout)
-		defer cancel()
-		req = req.WithContext(ctx)
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		if timeout > 0 || !strings.Contains(err.Error(), "TLS handshake timeout") {
-			return nil, err
-		}
-		log.Printf("first get failed: %s", err)
-		resp, err = client.Do(req)
-		if err != nil {
-			return nil, err
-		}
-		log.Printf("retry succeeded!")
-	}
-	if resp.StatusCode != 200 {
-		resp.Body.Close()
-		return nil, fmt.Errorf("http get status: %d", resp.StatusCode)
-	}
-	if strings.EqualFold(resp.Header.Get("Content-Encoding"), "gzip") {
-		gz, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			resp.Body.Close()
-			return nil, err
-		}
-		resp.Body = &gzCloser{r: gz, under: resp.Body}
-	}
-	defer resp.Body.Close()
-	j, err := junk.Read(resp.Body)
-	return j, err
+	return junk.Get(url, junk.GetArgs{
+		Accept:  at,
+		Agent:   "honksnonk/5.0; " + serverName,
+		Timeout: timeout,
+	})
 }
 
 func savedonk(url string, name, media string, localize bool) *Donk {
