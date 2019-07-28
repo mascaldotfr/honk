@@ -566,7 +566,9 @@ func showhonker(w http.ResponseWriter, r *http.Request) {
 	} else {
 		honks = gethonksbyhonker(u.UserID, name)
 	}
-	honkpage(w, r, u, nil, honks, "honks by honker: "+name)
+	name = html.EscapeString(name)
+	msg := fmt.Sprintf(`honks by honker: <a href="%s">%s</a>`, name, name)
+	honkpage(w, r, u, nil, honks, template.HTML(msg))
 }
 
 func showcombo(w http.ResponseWriter, r *http.Request) {
@@ -574,13 +576,13 @@ func showcombo(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	honks := gethonksbycombo(u.UserID, name)
 	honks = osmosis(honks, u.UserID)
-	honkpage(w, r, u, nil, honks, "honks by combo: "+name)
+	honkpage(w, r, u, nil, honks, template.HTML(html.EscapeString("honks by combo: "+name)))
 }
 func showconvoy(w http.ResponseWriter, r *http.Request) {
 	c := r.FormValue("c")
 	u := login.GetUserInfo(r)
 	honks := gethonksbyconvoy(u.UserID, c)
-	honkpage(w, r, u, nil, honks, "honks in convoy: "+c)
+	honkpage(w, r, u, nil, honks, template.HTML(html.EscapeString("honks in convoy: "+c)))
 }
 
 func showhonk(w http.ResponseWriter, r *http.Request) {
@@ -627,7 +629,7 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 }
 
 func honkpage(w http.ResponseWriter, r *http.Request, u *login.UserInfo, user *WhatAbout,
-	honks []*Honk, infomsg string) {
+	honks []*Honk, infomsg template.HTML) {
 	templinfo := getInfo(r)
 	var userid int64 = -1
 	if u != nil {
