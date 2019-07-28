@@ -1528,6 +1528,9 @@ func cleanupdb(arg string) {
 		doordie(db, "delete from honks where dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3)", expdate)
 	}
 	doordie(db, "delete from files where fileid not in (select fileid from donks)")
+	for _, u := range allusers() {
+		doordie(db, "delete from zonkers where userid = ? and wherefore = 'zonvoy' and zonkerid < (select zonkerid from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 1 offset 200)", u.UserID, u.UserID)
+	}
 }
 
 var stmtHonkers, stmtDubbers, stmtSaveHonker, stmtUpdateFlavor, stmtUpdateCombos *sql.Stmt
