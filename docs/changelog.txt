@@ -1,5 +1,9 @@
 changelog
 
+-- next
+
++ Increase max thread retrieval depth to 10.
+
 -- 0.7.6
 
 + Fix a bug where upgrades would not complete in one step.

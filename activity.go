@@ -426,7 +426,7 @@ func consumeactivity(user *WhatAbout, j junk.Junk, origin string) {
 
 func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 	depth := 0
-	maxdepth := 4
+	maxdepth := 10
 	currenttid := ""
 	var xonkxonkfn func(item junk.Junk, origin string) *Honk
 
