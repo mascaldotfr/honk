@@ -568,7 +568,7 @@ func showhonker(w http.ResponseWriter, r *http.Request) {
 		honks = gethonksbyhonker(u.UserID, name)
 	}
 	name = html.EscapeString(name)
-	msg := fmt.Sprintf(`honks by honker: <a href="%s">%s</a>`, name, name)
+	msg := fmt.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>`, name, name)
 	honkpage(w, r, u, nil, honks, template.HTML(msg))
 }
 
