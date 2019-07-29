@@ -785,7 +785,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			jo["sensitive"] = true
 		}
 
-		var tags []interface{}
+		var tags []junk.Junk
 		g := bunchofgrapes(h.Noise)
 		for _, m := range g {
 			t := junk.New()
@@ -817,7 +817,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		if len(tags) > 0 {
 			jo["tag"] = tags
 		}
-		var atts []interface{}
+		var atts []junk.Junk
 		for _, d := range h.Donks {
 			if re_emus.MatchString(d.Name) {
 				continue

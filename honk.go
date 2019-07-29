@@ -499,7 +499,7 @@ func outbox(w http.ResponseWriter, r *http.Request) {
 
 	honks := gethonksbyuser(name, false)
 
-	var jonks []map[string]interface{}
+	var jonks []junk.Junk
 	for _, h := range honks {
 		j, _ := jonkjonk(user, h)
 		jonks = append(jonks, j)
@@ -532,7 +532,7 @@ func emptiness(w http.ResponseWriter, r *http.Request) {
 	j["id"] = user.URL + colname
 	j["type"] = "OrderedCollection"
 	j["totalItems"] = 0
-	j["orderedItems"] = []interface{}{}
+	j["orderedItems"] = []junk.Junk{}
 
 	w.Header().Set("Content-Type", theonetruename)
 	j.Write(w)
@@ -1350,7 +1350,7 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 	j := junk.New()
 	j["subject"] = fmt.Sprintf("acct:%s@%s", user.Name, serverName)
 	j["aliases"] = []string{user.URL}
-	var links []map[string]interface{}
+	var links []junk.Junk
 	l := junk.New()
 	l["rel"] = "self"
 	l["type"] = `application/activity+json`
