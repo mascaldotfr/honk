@@ -1089,6 +1089,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		templinfo := getInfo(r)
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 		templinfo["Honks"] = honks
+		templinfo["InReplyTo"] = r.FormValue("rid")
 		templinfo["Noise"] = r.FormValue("noise")
 		templinfo["ServerMessage"] = "honk preview"
 		err := readviews.Execute(w, "honkpage.html", templinfo)

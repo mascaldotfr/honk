@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Keep reply to setting during preview.
+
 + Increase max thread retrieval depth to 10.
 
 -- 0.7.6
