@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Add another retry to workaround pixelfed's general unreliability.
+
 + Attached images are not lost when previewing.
 
 - Remove sensitivity to spicy peppers.

@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	notrand "math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -473,6 +474,15 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			obj, err = GetJunk(xid)
 			if err != nil {
 				log.Printf("error regetting: %s", err)
+				if err.Error() == "http get status: 502" {
+					time.Sleep(time.Duration(60+notrand.Int63n(60)) * time.Second)
+					obj, err = GetJunk(xid)
+					if err != nil {
+						log.Printf("still couldn't get it")
+					} else {
+						log.Printf("retry success!")
+					}
+				}
 			}
 			origin = originate(xid)
 			what = "bonk"
