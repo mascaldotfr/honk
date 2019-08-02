@@ -21,9 +21,6 @@ The honk back button will prefill the forms for replies.
 A honk that begins with the danger zone indication, DZ:, will be marked
 sensitive, using the first line as a summary (spoiler text).
 
-Alternatively, a spicy honk that begins with three or more peppers (U+1F336)
-will be marked sensitive as well, with a subject line consisting of peppers.
-
 -- following
 
 In order to follow somebody, you need to enter one of two identifiers.

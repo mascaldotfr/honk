@@ -2,6 +2,8 @@ changelog
 
 -- next
 
+- Remove sensitivity to spicy peppers.
+
 + Keep reply to setting during preview.
 
 + Increase max thread retrieval depth to 10.
