@@ -1,6 +1,6 @@
 changelog
 
--- next
+-- 0.7.7
 
 + Add another retry to workaround pixelfed's general unreliability.
 
