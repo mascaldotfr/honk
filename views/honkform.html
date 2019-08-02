@@ -5,7 +5,8 @@
 in reply to: <input type="text" name="rid" id="ridinput" value="{{ .InReplyTo }}" autocomplete=off>
 <input type="hidden" name="CSRF" value="{{ .HonkCSRF }}">
 <p>
-<label id="donker">attach: <input onchange="updatedonker();" type="file" name="donk"><span></span></label>
+<label id="donker">attach: {{ if .SavedFile }} {{ .SavedFile }} {{ else }} <input onchange="updatedonker();" type="file" name="donk"><span></span> {{ end }}</label>
+<input type="hidden" name="donkxid" value="{{ .SavedFile }}">
 <p>
 <textarea name="noise" id="honknoise">{{ .Noise }}</textarea>
 <p>

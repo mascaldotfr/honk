@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Attached images are not lost when previewing.
+
 - Remove sensitivity to spicy peppers.
 
 + Keep reply to setting during preview.

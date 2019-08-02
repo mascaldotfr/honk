@@ -1014,59 +1014,77 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	honk.Noise = noise
 	honk.Convoy = convoy
 
-	file, filehdr, err := r.FormFile("donk")
-	if err == nil {
-		var buf bytes.Buffer
-		io.Copy(&buf, file)
-		file.Close()
-		data := buf.Bytes()
-		xid := xfiltrate()
-		var media, name string
-		img, err := image.Vacuum(&buf, image.Params{MaxWidth: 2048, MaxHeight: 2048})
+	donkxid := r.FormValue("donkxid")
+	if donkxid == "" {
+		file, filehdr, err := r.FormFile("donk")
 		if err == nil {
-			data = img.Data
-			format := img.Format
-			media = "image/" + format
-			if format == "jpeg" {
-				format = "jpg"
-			}
-			name = xid + "." + format
-			xid = name
-		} else {
-			maxsize := 100000
-			if len(data) > maxsize {
-				log.Printf("bad image: %s too much text: %d", err, len(data))
-				http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
-				return
-			}
-			for i := 0; i < len(data); i++ {
-				if data[i] < 32 && data[i] != '\t' && data[i] != '\r' && data[i] != '\n' {
-					log.Printf("bad image: %s not text: %d", err, data[i])
+			var buf bytes.Buffer
+			io.Copy(&buf, file)
+			file.Close()
+			data := buf.Bytes()
+			xid := xfiltrate()
+			var media, name string
+			img, err := image.Vacuum(&buf, image.Params{MaxWidth: 2048, MaxHeight: 2048})
+			if err == nil {
+				data = img.Data
+				format := img.Format
+				media = "image/" + format
+				if format == "jpeg" {
+					format = "jpg"
+				}
+				name = xid + "." + format
+				xid = name
+			} else {
+				maxsize := 100000
+				if len(data) > maxsize {
+					log.Printf("bad image: %s too much text: %d", err, len(data))
 					http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
 					return
 				}
+				for i := 0; i < len(data); i++ {
+					if data[i] < 32 && data[i] != '\t' && data[i] != '\r' && data[i] != '\n' {
+						log.Printf("bad image: %s not text: %d", err, data[i])
+						http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
+						return
+					}
+				}
+				media = "text/plain"
+				name = filehdr.Filename
+				if name == "" {
+					name = xid + ".txt"
+				}
+				xid += ".txt"
 			}
-			media = "text/plain"
-			name = filehdr.Filename
-			if name == "" {
-				name = xid + ".txt"
+			url := fmt.Sprintf("https://%s/d/%s", serverName, xid)
+			res, err := stmtSaveFile.Exec(xid, name, url, media, 1, data)
+			if err != nil {
+				log.Printf("unable to save image: %s", err)
+				return
 			}
-			xid += ".txt"
+			var d Donk
+			d.FileID, _ = res.LastInsertId()
+			d.XID = name
+			d.Name = name
+			d.Media = media
+			d.URL = url
+			d.Local = true
+			honk.Donks = append(honk.Donks, &d)
+			donkxid = d.XID
 		}
+	} else {
+		xid := donkxid
 		url := fmt.Sprintf("https://%s/d/%s", serverName, xid)
-		res, err := stmtSaveFile.Exec(xid, name, url, media, 1, data)
-		if err != nil {
-			log.Printf("unable to save image: %s", err)
-			return
+		var donk Donk
+		row := stmtFindFile.QueryRow(url)
+		err := row.Scan(&donk.FileID)
+		if err == nil {
+			donk.XID = xid
+			donk.Local = true
+			donk.URL = url
+			honk.Donks = append(honk.Donks, &donk)
+		} else {
+			log.Printf("can't find file: %s", xid)
 		}
-		var d Donk
-		d.FileID, _ = res.LastInsertId()
-		d.XID = name
-		d.Name = name
-		d.Media = media
-		d.URL = url
-		d.Local = true
-		honk.Donks = append(honk.Donks, &d)
 	}
 	herd := herdofemus(honk.Noise)
 	for _, e := range herd {
@@ -1091,6 +1109,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		templinfo["Honks"] = honks
 		templinfo["InReplyTo"] = r.FormValue("rid")
 		templinfo["Noise"] = r.FormValue("noise")
+		templinfo["SavedFile"] = donkxid
 		templinfo["ServerMessage"] = "honk preview"
 		err := readviews.Execute(w, "honkpage.html", templinfo)
 		if err != nil {
