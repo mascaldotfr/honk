@@ -396,6 +396,8 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			switch what {
 			case "Person":
 				return
+			case "Question":
+				return
 			}
 		}
 		log.Printf("unknown Update activity")
