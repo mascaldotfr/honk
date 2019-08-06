@@ -39,8 +39,10 @@ func sayitagain(goarounds int, username string, rcpt string, msg []byte) {
 	case 2:
 		drift = 1 * time.Hour
 	case 3:
-		drift = 12 * time.Hour
+		drift = 4 * time.Hour
 	case 4:
+		drift = 12 * time.Hour
+	case 5:
 		drift = 24 * time.Hour
 	default:
 		log.Printf("he's dead jim: %s", rcpt)
