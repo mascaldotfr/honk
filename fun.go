@@ -261,7 +261,6 @@ func memetize(honk *Honk) {
 		d.URL = url
 		d.Local = false
 		honk.Donks = append(honk.Donks, &d)
-		log.Printf("replace with -")
 		return ""
 	}
 	honk.Noise = re_memes.ReplaceAllStringFunc(honk.Noise, repl)
