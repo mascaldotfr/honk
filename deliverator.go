@@ -56,7 +56,7 @@ func sayitagain(goarounds int, username string, rcpt string, msg []byte) {
 }
 
 var trucksout = 0
-var maxtrucksout = 10
+var maxtrucksout = 20
 var garagelock sync.Mutex
 var garagebell = sync.NewCond(&garagelock)
 
