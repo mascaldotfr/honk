@@ -571,6 +571,10 @@ func thoudostbitethythumb(userid int64, who []string, objid string) bool {
 	thumblock.Lock()
 	biters := thumbbiters[userid]
 	thumblock.Unlock()
+	objwhere := originate(objid)
+	if objwhere != "" && biters[objwhere] {
+		return true
+	}
 	for _, w := range who {
 		if biters[w] {
 			return true
