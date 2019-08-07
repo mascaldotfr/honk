@@ -1,5 +1,9 @@
 changelog
 
+-- next
+
++ Don't decode excessively large images and run out of memory.
+
 -- 0.7.7
 
 + Add another retry to workaround pixelfed's general unreliability.
