@@ -54,7 +54,7 @@ var re_alltheshitz = regexp.MustCompile(`([` +
 var allUppers = []string{bigboldshitz, moeboldshitz, biggothshitz, bigwideshitz, moegothshitz, bigitalshitz, moeitalshitz, bigbangshitz, bigblokshitz}
 var allLowers = []string{lilboldshitz, morboldshitz, lilgothshitz, lilwideshitz, morgothshitz, lilitalshitz, moritalshitz, lilbangshitz}
 
-var re_moredumb = regexp.MustCompile(`[👏]`)
+var re_moredumb = regexp.MustCompile("[\U0001f44f\U0001f6a8\U000026a0]\ufe0f?")
 
 // this may not be especially fast
 func unpucker(s string) string {
