@@ -74,6 +74,7 @@ func reverbolate(userid int64, honks []*Honk) {
 		} else if h.Precis == "unspecified horror" {
 			h.Precis = ""
 		}
+		h.Precis = unpucker(h.Precis)
 		h.HTML, _ = filt.String(h.Noise)
 		emuxifier := func(e string) string {
 			for _, d := range h.Donks {
