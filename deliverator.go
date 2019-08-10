@@ -128,7 +128,11 @@ func redeliverator() {
 		for rows.Next() {
 			var d Doover
 			var dt string
-			rows.Scan(&d.ID, &dt)
+			err := rows.Scan(&d.ID, &dt)
+			if err != nil {
+				log.Printf("error scanning dooverid: %s", err)
+				continue
+			}
 			d.When, _ = time.Parse(dbtimeformat, dt)
 			doovers = append(doovers, d)
 		}
@@ -141,7 +145,11 @@ func redeliverator() {
 				var username, rcpt string
 				var msg []byte
 				row := stmtLoadDoover.QueryRow(d.ID)
-				row.Scan(&goarounds, &username, &rcpt, &msg)
+				err := row.Scan(&goarounds, &username, &rcpt, &msg)
+				if err != nil {
+					log.Printf("error scanning doover: %s", err)
+					continue
+				}
 				stmtZapDoover.Exec(d.ID)
 				log.Printf("redeliverating %s try %d", rcpt, goarounds)
 				deliverate(goarounds, username, rcpt, msg)
