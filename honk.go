@@ -345,6 +345,9 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		log.Printf("inbox message failed signature: %s", err)
 		if keyname != "" {
 			keyname, err = makeitworksomehowwithoutregardforkeycontinuity(keyname, r, payload)
+			if err != nil {
+				log.Printf("still failed: %s", err)
+			}
 		}
 		if err != nil {
 			return
