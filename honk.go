@@ -469,7 +469,7 @@ func ximport(w http.ResponseWriter, r *http.Request) {
 func xzone(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	var honkers []string
-	rows, err := stmtRecentHonkers.Query(u.UserID)
+	rows, err := stmtRecentHonkers.Query(u.UserID, u.UserID)
 	if err != nil {
 		log.Printf("query err: %s", err)
 		return
@@ -1620,7 +1620,7 @@ func prepareStatements(db *sql.DB) {
 	stmtGetXonker = preparetodie(db, "select info from xonkers where name = ? and flavor = ?")
 	stmtSaveXonker = preparetodie(db, "insert into xonkers (name, info, flavor) values (?, ?, ?)")
 	stmtDeleteXonker = preparetodie(db, "delete from xonkers where name = ? and flavor = ?")
-	stmtRecentHonkers = preparetodie(db, "select distinct(honker) from honks where userid = ? order by honkid desc limit 100")
+	stmtRecentHonkers = preparetodie(db, "select distinct(honker) from honks where userid = ? and honker not in (select xid from honkers where userid = ? and flavor = 'sub') order by honkid desc limit 100")
 }
 
 func ElaborateUnitTests() {
