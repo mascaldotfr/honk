@@ -86,11 +86,29 @@ func PostMsg(keyname string, key *rsa.PrivateKey, url string, msg []byte) error 
 }
 
 func GetJunk(url string) (junk.Junk, error) {
-	return GetJunkTimeout(url, 0)
+	return GetJunkTimeout(url, 30*time.Second)
 }
 
 func GetJunkFast(url string) (junk.Junk, error) {
 	return GetJunkTimeout(url, 5*time.Second)
+}
+
+func GetJunkHardMode(url string) (junk.Junk, error) {
+	j, err := GetJunk(url)
+	if err != nil {
+		emsg := err.Error()
+		if emsg == "http get status: 502" || strings.Contains(emsg, "timeout") {
+			log.Printf("trying again after error: %s", emsg)
+			time.Sleep(time.Duration(60+notrand.Int63n(60)) * time.Second)
+			j, err = GetJunk(url)
+			if err != nil {
+				log.Printf("still couldn't get it")
+			} else {
+				log.Printf("retry success!")
+			}
+		}
+	}
+	return j, err
 }
 
 func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
@@ -437,7 +455,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			log.Printf("in too deep")
 			return
 		}
-		obj, err := GetJunk(xid)
+		obj, err := GetJunkHardMode(xid)
 		if err != nil {
 			log.Printf("error getting oneup: %s", err)
 			return
@@ -472,19 +490,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				return nil
 			}
 			log.Printf("getting bonk: %s", xid)
-			obj, err = GetJunk(xid)
-			if err != nil {
-				log.Printf("error regetting: %s", err)
-				if err.Error() == "http get status: 502" {
-					time.Sleep(time.Duration(60+notrand.Int63n(60)) * time.Second)
-					obj, err = GetJunk(xid)
-					if err != nil {
-						log.Printf("still couldn't get it")
-					} else {
-						log.Printf("retry success!")
-					}
-				}
-			}
+			obj, err = GetJunkHardMode(xid)
 			origin = originate(xid)
 			what = "bonk"
 		case "Create":
@@ -492,7 +498,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if !ok {
 				xid, _ = obj.GetString("object")
 				log.Printf("getting created honk: %s", xid)
-				obj, err = GetJunk(xid)
+				obj, err = GetJunkHardMode(xid)
 				if err != nil {
 					log.Printf("error getting creation: %s", err)
 				}
