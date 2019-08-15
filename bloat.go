@@ -85,7 +85,9 @@ func bloat_counterannounce(user *WhatAbout, honk *Honk) {
 			}
 		}
 	}
+	orignoise := honk.Noise
 	for a := range rcpts {
+		honk.Noise = orignoise
 		bloat_counterfixhonk(honk)
 		jonk, _ := jonkjonk(user, honk)
 		jonk["@context"] = itiswhatitis
