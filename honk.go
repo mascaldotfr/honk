@@ -506,6 +506,9 @@ func outbox(w http.ResponseWriter, r *http.Request) {
 
 	var jonks []junk.Junk
 	for _, h := range honks {
+		if bloat_iscounter(h) {
+			continue
+		}
 		j, _ := jonkjonk(user, h)
 		jonks = append(jonks, j)
 	}
@@ -624,6 +627,9 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 	}
 	if friendorfoe(r.Header.Get("Accept")) {
 		donksforhonks([]*Honk{h})
+		if bloat_iscounter(h) {
+			bloat_counterfixhonk(h)
+		}
 		_, j := jonkjonk(user, h)
 		j["@context"] = itiswhatitis
 		w.Header().Set("Content-Type", theonetruename)
@@ -1139,7 +1145,11 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	go honkworldwide(user, &honk)
+	if bloat_iscounter(&honk) {
+		go bloat_counterannounce(user, &honk)
+	} else {
+		go honkworldwide(user, &honk)
+	}
 
 	http.Redirect(w, r, xid, http.StatusSeeOther)
 }

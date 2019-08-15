@@ -286,6 +286,11 @@ func getconfig(key string, value interface{}) error {
 	return err
 }
 
+func saveconfig(key string, val interface{}) {
+	db := opendatabase()
+	db.Exec("update config set value = ? where key = ?", val, key)
+}
+
 func openListener() (net.Listener, error) {
 	var listenAddr string
 	err := getconfig("listenaddr", &listenAddr)
