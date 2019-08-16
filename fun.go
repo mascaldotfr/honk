@@ -48,9 +48,6 @@ func reverbolate(userid int64, honks []*Honk) {
 			h.URL = h.XID
 			if h.What != "bonked" {
 				h.Noise = mentionize(h.Noise)
-				if bloat_iscounter(h) {
-					bloat_counterhtml(h)
-				}
 			}
 			h.Username, h.Handle = handles(h.Honker)
 		} else {
