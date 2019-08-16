@@ -1634,6 +1634,7 @@ func prepareStatements(db *sql.DB) {
 }
 
 func ElaborateUnitTests() {
+	bloat_undocounter()
 }
 
 func main() {

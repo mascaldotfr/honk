@@ -102,3 +102,7 @@ func bloat_iscounter(honk *Honk) bool {
 	return strings.Contains(honk.Noise, "&lt;bloat_counter&gt;")
 }
 
+func bloat_undocounter() {
+	db := opendatabase()
+	db.Exec("update honks set noise = 'This post has expired' where noise like '%&lt;bloat_counter&gt;%' and whofore = 2 and what = 'honk'")
+}
