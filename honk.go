@@ -469,19 +469,22 @@ func ximport(w http.ResponseWriter, r *http.Request) {
 
 func xzone(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
-	var honkers []string
 	rows, err := stmtRecentHonkers.Query(u.UserID, u.UserID)
 	if err != nil {
 		log.Printf("query err: %s", err)
 		return
 	}
 	defer rows.Close()
+	var honkers []Honker
 	for rows.Next() {
-		var s string
-		rows.Scan(&s)
-		honkers = append(honkers, s)
+		var xid string
+		rows.Scan(&xid)
+		honkers = append(honkers, Honker{ XID: xid})
 	}
-
+	rows.Close()
+	for i, _ := range honkers {
+		_, honkers[i].Handle = handles(honkers[i].XID)
+	}
 	templinfo := getInfo(r)
 	templinfo["XCSRF"] = login.GetCSRF("ximport", r)
 	templinfo["Honkers"] = honkers

@@ -10,7 +10,7 @@
 </div>
 {{ range .Honkers }}
 <section class="honk">
-<p><a href="/h?xid={{ . }}">honks</a> by {{ . }}
+<p><a href="/h?xid={{ .XID }}">honks</a> by {{ .Handle }}
 </section>
 {{ end }}
 </main>

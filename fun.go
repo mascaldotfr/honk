@@ -391,7 +391,10 @@ func handles(xid string) (string, string) {
 		} else {
 			handle = p.Handle
 		}
-		stmtSaveXonker.Exec(xid, handle, "handle")
+		_, err = stmtSaveXonker.Exec(xid, handle, "handle")
+		if err != nil {
+			log.Printf("error saving handle: %s", err)
+		}
 	}
 	if handle == xid {
 		return xid, xid
