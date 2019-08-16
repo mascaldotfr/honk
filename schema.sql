@@ -1,5 +1,5 @@
 
-create table honks (honkid integer primary key, userid integer, what text, honker text, xid text, rid text, dt text, url text, audience text, noise text, convoy text, whofore integer, format text, precis text, oonker text);
+create table honks (honkid integer primary key, userid integer, what text, honker text, xid text, rid text, dt text, url text, audience text, noise text, convoy text, whofore integer, format text, precis text, oonker text, flags integer);
 create table donks (honkid integer, fileid integer);
 create table files(fileid integer primary key, xid text, name text, url text, media text, local integer, content blob);
 create table honkers (honkerid integer primary key, userid integer, name text, xid text, flavor text, combos text);

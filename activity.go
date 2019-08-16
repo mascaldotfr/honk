@@ -253,7 +253,7 @@ func savexonk(user *WhatAbout, x *Honk) {
 		whofore = 1
 	}
 	res, err := stmtSaveHonk.Exec(x.UserID, x.What, x.Honker, x.XID, x.RID, dt, x.URL, aud,
-		x.Noise, x.Convoy, whofore, "html", x.Precis, x.Oonker)
+		x.Noise, x.Convoy, whofore, "html", x.Precis, x.Oonker, 0)
 	if err != nil {
 		log.Printf("err saving xonk: %s", err)
 		return

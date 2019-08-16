@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Schema change. (add flags to honks table)
+
 + Better understanding of ActivityPub Persons. No need to enter names!
 
 + More robust retries for fetching objects.
