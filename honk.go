@@ -78,6 +78,14 @@ type Honk struct {
 	Donks    []*Donk
 }
 
+const (
+	flagIsAcked = 1
+)
+
+func honkIsAcked(flags int64) bool {
+	return flags&flagIsAcked != 0
+}
+
 type Donk struct {
 	FileID  int64
 	XID     string
@@ -635,7 +643,14 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		j.Write(w)
 		return
 	}
-	honks := gethonksbyconvoy(-1, h.Convoy)
+	rawhonks := gethonksbyconvoy(h.UserID, h.Convoy)
+	var honks []*Honk
+	for _, h := range rawhonks {
+		if h.Public && (h.Whofore == 2 || honkIsAcked(h.Flags)) {
+			honks = append(honks, h)
+		}
+	}
+
 	honkpage(w, r, u, nil, honks, "one honk maybe more")
 }
 
@@ -912,9 +927,13 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 func zonkit(w http.ResponseWriter, r *http.Request) {
 	wherefore := r.FormValue("wherefore")
 	what := r.FormValue("what")
-	switch wherefore {
-	case "zonk":
-	case "zonvoy":
+
+	if wherefore == "ack" {
+		_, err := stmtUpdateFlags.Exec(flagIsAcked, what)
+		if err != nil {
+			log.Printf("error acking: %s", err)
+		}
+		return
 	}
 
 	log.Printf("zonking %s %s", wherefore, what)
@@ -1586,6 +1605,7 @@ var stmtFindZonk, stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.St
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
 var stmtHasHonker, stmtThumbBiters, stmtZonkIt, stmtZonkDonks, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
+var stmtUpdateFlags *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -1638,6 +1658,7 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveXonker = preparetodie(db, "insert into xonkers (name, info, flavor) values (?, ?, ?)")
 	stmtDeleteXonker = preparetodie(db, "delete from xonkers where name = ? and flavor = ?")
 	stmtRecentHonkers = preparetodie(db, "select distinct(honker) from honks where userid = ? and honker not in (select xid from honkers where userid = ? and flavor = 'sub') order by honkid desc limit 100")
+	stmtUpdateFlags = preparetodie(db, "update honks set flags = flags | ? where xid = ?")
 }
 
 func ElaborateUnitTests() {
