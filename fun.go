@@ -379,15 +379,23 @@ func handles(xid string) (string, string) {
 	row := stmtGetXonker.QueryRow(xid, "handle")
 	var handle string
 	err := row.Scan(&handle)
-	if err == nil {
-		return handle, handle + "@" + originate(xid)
+	if err != nil {
+		p := investigate(xid)
+		if p == nil {
+			m := re_unurl.FindStringSubmatch(xid)
+			if len(m) > 2 {
+				handle = m[2]
+			} else {
+				handle = xid
+			}
+		} else {
+			handle = p.Handle
+		}
+		stmtSaveXonker.Exec(xid, handle, "handle")
 	}
-	p := investigate(xid)
-	if p == nil {
+	if handle == xid {
 		return xid, xid
 	}
-	handle = p.Handle
-	stmtSaveXonker.Exec(xid, handle, "handle")
 	return handle, handle + "@" + originate(xid)
 }
 
