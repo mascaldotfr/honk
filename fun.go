@@ -395,7 +395,6 @@ func handles(xid string) (string, string) {
 }
 
 func findhandle(xid string) string {
-	log.Printf("finding")
 	row := stmtGetXonker.QueryRow(xid, "handle")
 	var handle string
 	err := row.Scan(&handle)
