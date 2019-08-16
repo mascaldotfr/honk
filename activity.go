@@ -991,6 +991,7 @@ func gofish(name string) string {
 func isactor(t string) bool {
 	switch t {
 	case "Person":
+	case "Organization":
 	case "Application":
 	case "Service":
 	default:
