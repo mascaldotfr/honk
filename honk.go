@@ -92,6 +92,7 @@ type Honker struct {
 	UserID int64
 	Name   string
 	XID    string
+	Handle string
 	Flavor string
 	Combos []string
 }
@@ -436,9 +437,9 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 
 func ximport(w http.ResponseWriter, r *http.Request) {
 	xid := r.FormValue("xid")
-	x := investigate(xid)
-	if x != "" {
-		xid = x
+	p := investigate(xid)
+	if p != nil {
+		xid = p.XID
 	}
 	j, err := GetJunk(xid)
 	if err != nil {
@@ -1232,9 +1233,14 @@ func savehonker(w http.ResponseWriter, r *http.Request) {
 	if peep == "peep" {
 		flavor = "peep"
 	}
-	url = investigate(url)
-	if url == "" {
+	p := investigate(url)
+	if p == nil {
+		log.Printf("failed to investigate honker")
 		return
+	}
+	url = p.XID
+	if name == "" {
+		name = p.Handle
 	}
 	_, err := stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos)
 	if err != nil {

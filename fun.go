@@ -52,9 +52,9 @@ func reverbolate(userid int64, honks []*Honk) {
 					bloat_counterhtml(h)
 				}
 			}
-			h.Username, h.Handle = honkerhandle(h.Honker)
+			h.Username, h.Handle = handles(h.Honker)
 		} else {
-			_, h.Handle = honkerhandle(h.Honker)
+			_, h.Handle = handles(h.Honker)
 			h.Username = h.Handle
 			if len(h.Username) > 20 {
 				h.Username = h.Username[:20] + ".."
@@ -64,7 +64,7 @@ func reverbolate(userid int64, honks []*Honk) {
 			}
 		}
 		if h.Oonker != "" {
-			_, h.Oondle = honkerhandle(h.Oonker)
+			_, h.Oondle = handles(h.Oonker)
 		}
 		zap := make(map[*Donk]bool)
 		h.Noise = unpucker(h.Noise)
@@ -374,12 +374,21 @@ func originate(u string) string {
 	return ""
 }
 
-func honkerhandle(h string) (string, string) {
-	m := re_unurl.FindStringSubmatch(h)
-	if len(m) > 2 {
-		return m[2], fmt.Sprintf("%s@%s", m[2], m[1])
+// handle, handle@host
+func handles(xid string) (string, string) {
+	row := stmtGetXonker.QueryRow(xid, "handle")
+	var handle string
+	err := row.Scan(&handle)
+	if err == nil {
+		return handle, handle + "@" + originate(xid)
 	}
-	return h, h
+	p := investigate(xid)
+	if p == nil {
+		return xid, xid
+	}
+	handle = p.Handle
+	stmtSaveXonker.Exec(xid, handle, "handle")
+	return handle, handle + "@" + originate(xid)
 }
 
 func prepend(s string, x []string) []string {
