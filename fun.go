@@ -374,8 +374,28 @@ func originate(u string) string {
 	return ""
 }
 
+var allhandles = make(map[string]string)
+var handlelock sync.Mutex
+
 // handle, handle@host
 func handles(xid string) (string, string) {
+	handlelock.Lock()
+	handle := allhandles[xid]
+	handlelock.Unlock()
+	if handle == "" {
+		handle = findhandle(xid)
+		handlelock.Lock()
+		allhandles[xid] = handle
+		handlelock.Unlock()
+	}
+	if handle == xid {
+		return xid, xid
+	}
+	return handle, handle + "@" + originate(xid)
+}
+
+func findhandle(xid string) string {
+	log.Printf("finding")
 	row := stmtGetXonker.QueryRow(xid, "handle")
 	var handle string
 	err := row.Scan(&handle)
@@ -396,10 +416,7 @@ func handles(xid string) (string, string) {
 			log.Printf("error saving handle: %s", err)
 		}
 	}
-	if handle == xid {
-		return xid, xid
-	}
-	return handle, handle + "@" + originate(xid)
+	return handle
 }
 
 func prepend(s string, x []string) []string {
