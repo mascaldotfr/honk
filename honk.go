@@ -479,7 +479,7 @@ func xzone(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var xid string
 		rows.Scan(&xid)
-		honkers = append(honkers, Honker{ XID: xid})
+		honkers = append(honkers, Honker{XID: xid})
 	}
 	rows.Close()
 	for i, _ := range honkers {
@@ -927,8 +927,14 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	if wherefore == "zonk" {
 		xonk := getxonk(userinfo.UserID, what)
 		if xonk != nil {
-			stmtZonkDonks.Exec(xonk.ID)
-			stmtZonkIt.Exec(userinfo.UserID, what)
+			_, err := stmtZonkDonks.Exec(xonk.ID)
+			if err != nil {
+				log.Printf("error zonking: %s", err)
+			}
+			_, err = stmtZonkIt.Exec(userinfo.UserID, what)
+			if err != nil {
+				log.Printf("error zonking: %s", err)
+			}
 			if xonk.Whofore == 2 || xonk.Whofore == 3 {
 				zonk := Honk{
 					What:     "zonk",

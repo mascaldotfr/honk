@@ -230,13 +230,19 @@ func savexonk(user *WhatAbout, x *Honk) {
 		log.Printf("eradicating %s by %s", x.XID, x.Honker)
 		xonk := getxonk(user.ID, x.XID)
 		if xonk != nil {
-			stmtZonkDonks.Exec(xonk.ID)
-			_, err := stmtZonkIt.Exec(user.ID, x.XID)
+			_, err := stmtZonkDonks.Exec(xonk.ID)
+			if err != nil {
+				log.Printf("error eradicating: %s", err)
+			}
+			_, err = stmtZonkIt.Exec(user.ID, x.XID)
 			if err != nil {
 				log.Printf("error eradicating: %s", err)
 			}
 		}
-		stmtSaveZonker.Exec(user.ID, x.XID, "zonk")
+		_, err := stmtSaveZonker.Exec(user.ID, x.XID, "zonk")
+		if err != nil {
+			log.Printf("error eradicating: %s", err)
+		}
 		return
 	}
 	log.Printf("saving xonk: %s", x.XID)
@@ -966,7 +972,10 @@ func gofish(name string) string {
 		rel, _ := l.GetString("rel")
 		t, _ := l.GetString("type")
 		if rel == "self" && friendorfoe(t) {
-			stmtSaveXonker.Exec(name, href, "fishname")
+			_, err := stmtSaveXonker.Exec(name, href, "fishname")
+			if err != nil {
+				log.Printf("error saving fishname: %s", err)
+			}
 			handlock.Lock()
 			handfull[name] = href
 			handlock.Unlock()
