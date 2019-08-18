@@ -252,6 +252,8 @@ func savexonk(user *WhatAbout, x *Honk) {
 	if strings.Contains(aud, user.URL) {
 		whofore = 1
 	}
+	go prehandle(x.Honker)
+	go prehandle(x.Oonker)
 	res, err := stmtSaveHonk.Exec(x.UserID, x.What, x.Honker, x.XID, x.RID, dt, x.URL, aud,
 		x.Noise, x.Convoy, whofore, "html", x.Precis, x.Oonker, 0)
 	if err != nil {

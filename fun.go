@@ -376,6 +376,9 @@ var handlelock sync.Mutex
 
 // handle, handle@host
 func handles(xid string) (string, string) {
+	if xid == "" {
+		return "", ""
+	}
 	handlelock.Lock()
 	handle := allhandles[xid]
 	handlelock.Unlock()
@@ -413,6 +416,14 @@ func findhandle(xid string) string {
 		}
 	}
 	return handle
+}
+
+var handleprelock sync.Mutex
+
+func prehandle(xid string) {
+	handleprelock.Lock()
+	defer handleprelock.Unlock()
+	handles(xid)
 }
 
 func prepend(s string, x []string) []string {
