@@ -65,5 +65,10 @@ function ackit(el, xid) {
 	el.disabled = true
 	post("/zonkit", "CSRF={{ $BonkCSRF }}&wherefore=ack&what=" + escape(xid))
 }
+function deackit(el, xid) {
+	el.innerHTML = "deacked"
+	el.disabled = true
+	post("/zonkit", "CSRF={{ $BonkCSRF }}&wherefore=deack&what=" + escape(xid))
+}
 </script>
 {{ end }}

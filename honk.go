@@ -83,8 +83,8 @@ const (
 	flagIsAcked = 1
 )
 
-func honkIsAcked(flags int64) bool {
-	return flags&flagIsAcked != 0
+func (honk *Honk) IsAcked() bool {
+	return honk.Flags&flagIsAcked != 0
 }
 
 type Donk struct {
@@ -639,7 +639,7 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 	rawhonks := gethonksbyconvoy(honk.UserID, honk.Convoy)
 	if friendorfoe(r.Header.Get("Accept")) {
 		for _, h := range rawhonks {
-			if h.RID == honk.XID && h.Public && (h.Whofore == 2 || honkIsAcked(h.Flags)) {
+			if h.RID == honk.XID && h.Public && (h.Whofore == 2 || h.IsAcked()) {
 				honk.Replies = append(honk.Replies, h)
 			}
 		}
@@ -652,7 +652,7 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 	}
 	var honks []*Honk
 	for _, h := range rawhonks {
-		if h.Public && (h.Whofore == 2 || honkIsAcked(h.Flags)) {
+		if h.Public && (h.Whofore == 2 || h.IsAcked()) {
 			honks = append(honks, h)
 		}
 	}
@@ -938,6 +938,14 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		_, err := stmtUpdateFlags.Exec(flagIsAcked, what)
 		if err != nil {
 			log.Printf("error acking: %s", err)
+		}
+		return
+	}
+
+	if wherefore == "deack" {
+		_, err := stmtClearFlags.Exec(flagIsAcked, what)
+		if err != nil {
+			log.Printf("error deacking: %s", err)
 		}
 		return
 	}
@@ -1611,7 +1619,7 @@ var stmtFindZonk, stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.St
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
 var stmtHasHonker, stmtThumbBiters, stmtZonkIt, stmtZonkDonks, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
-var stmtUpdateFlags *sql.Stmt
+var stmtUpdateFlags, stmtClearFlags *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -1665,6 +1673,7 @@ func prepareStatements(db *sql.DB) {
 	stmtDeleteXonker = preparetodie(db, "delete from xonkers where name = ? and flavor = ?")
 	stmtRecentHonkers = preparetodie(db, "select distinct(honker) from honks where userid = ? and honker not in (select xid from honkers where userid = ? and flavor = 'sub') order by honkid desc limit 100")
 	stmtUpdateFlags = preparetodie(db, "update honks set flags = flags | ? where xid = ?")
+	stmtClearFlags = preparetodie(db, "update honks set flags = flags & ~ ? where xid = ?")
 }
 
 func ElaborateUnitTests() {
