@@ -194,7 +194,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Header().Set("Cache-Control", "max-age=0")
 	}
-	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	err := readviews.Execute(w, tname, templinfo)
 	if err != nil {
