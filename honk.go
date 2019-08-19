@@ -165,8 +165,23 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		} else {
 			honks = gethonksforuser(userid)
 			honks = osmosis(honks, userid)
+			if len(honks) > 0 {
+				templinfo["TopXID"] = honks[0].XID
+			}
 		}
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+	}
+
+	tname := "honkpage.html"
+	if topxid := r.FormValue("topxid"); topxid != "" {
+		for i, h := range honks {
+			if h.XID == topxid {
+				honks = honks[0:i]
+				break
+			}
+		}
+		log.Printf("topxid %d frags", len(honks))
+		tname = "honkfrags.html"
 	}
 
 	reverbolate(userid, honks)
@@ -179,7 +194,9 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Header().Set("Cache-Control", "max-age=0")
 	}
-	err := readviews.Execute(w, "honkpage.html", templinfo)
+	w.Header().Set("Content-Type", "text/html")
+
+	err := readviews.Execute(w, tname, templinfo)
 	if err != nil {
 		log.Print(err)
 	}
@@ -1513,6 +1530,7 @@ func serve() {
 	getconfig("debug", &debug)
 	readviews = templates.Load(debug,
 		"views/honkpage.html",
+		"views/honkfrags.html",
 		"views/honkers.html",
 		"views/zonkers.html",
 		"views/combos.html",

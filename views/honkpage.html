@@ -11,6 +11,27 @@
 {{ end }}
 </div>
 {{ $BonkCSRF := .HonkCSRF }}
+{{ if .TopXID }}
+<div class="info" id="refreshbox">
+<script>
+var topxid = {{ .TopXID }}
+function refreshhonks() {
+	get("/?topxid=" + escape(topxid), function(xhr) {
+		var doc = xhr.responseXML
+		topel = doc.children[0].children[1].children[0]
+		topxid = topel.innerText
+		honks = doc.children[0].children[1].children
+		var mebox = document.getElementById("refreshbox")
+		for (var i = honks.length; i > 1; i--) {
+			mebox.insertAdjacentElement('afterend', honks[i-1])
+		}
+	})
+}
+</script>
+<p><button onclick="refreshhonks()">refresh</button>
+</div>
+
+{{ end }}
 {{ range .Honks }}
 {{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF }}
 {{ end }}
@@ -30,6 +51,13 @@ function post(url, data) {
 	x.open("POST", url)
 	x.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
 	x.send(data)
+}
+function get(url, whendone) {
+	var x = new XMLHttpRequest()
+	x.open("GET", url)
+	x.responseType = "document"
+	x.onload = function() { whendone(x) }
+	x.send()
 }
 function bonk(el, xid) {
 	el.innerHTML = "bonked"
