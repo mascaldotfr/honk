@@ -804,6 +804,18 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			jo["sensitive"] = true
 		}
 
+		var replies []string
+		for _, reply := range h.Replies {
+			replies = append(replies, reply.XID)
+		}
+		if len(replies) > 0 {
+			jr := junk.New()
+			jr["type"] = "Collection"
+			jr["totalItems"] = len(replies)
+			jr["items"] = replies
+			jo["replies"] = jr
+		}
+
 		var tags []junk.Junk
 		g := bunchofgrapes(h.Noise)
 		for _, m := range g {

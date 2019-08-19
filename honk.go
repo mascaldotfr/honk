@@ -71,6 +71,7 @@ type Honk struct {
 	Audience []string
 	Public   bool
 	Whofore  int64
+	Replies  []*Honk
 	Flags    int64
 	HTML     template.HTML
 	Style    string
@@ -617,8 +618,8 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 	}
 
 	xid := fmt.Sprintf("https://%s%s", serverName, r.URL.Path)
-	h := getxonk(user.ID, xid)
-	if h == nil {
+	honk := getxonk(user.ID, xid)
+	if honk == nil {
 		http.NotFound(w, r)
 		return
 	}
@@ -626,24 +627,29 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 	if u != nil && u.UserID != user.ID {
 		u = nil
 	}
-	if !h.Public {
+	if !honk.Public {
 		if u == nil {
 			http.NotFound(w, r)
 			return
 
 		}
-		honkpage(w, r, u, nil, []*Honk{h}, "one honk maybe more")
+		honkpage(w, r, u, nil, []*Honk{honk}, "one honk maybe more")
 		return
 	}
+	rawhonks := gethonksbyconvoy(honk.UserID, honk.Convoy)
 	if friendorfoe(r.Header.Get("Accept")) {
-		donksforhonks([]*Honk{h})
-		_, j := jonkjonk(user, h)
+		for _, h := range rawhonks {
+			if h.RID == honk.XID && h.Public && (h.Whofore == 2 || honkIsAcked(h.Flags)) {
+				honk.Replies = append(honk.Replies, h)
+			}
+		}
+		donksforhonks([]*Honk{honk})
+		_, j := jonkjonk(user, honk)
 		j["@context"] = itiswhatitis
 		w.Header().Set("Content-Type", theonetruename)
 		j.Write(w)
 		return
 	}
-	rawhonks := gethonksbyconvoy(h.UserID, h.Convoy)
 	var honks []*Honk
 	for _, h := range rawhonks {
 		if h.Public && (h.Whofore == 2 || honkIsAcked(h.Flags)) {
