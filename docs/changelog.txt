@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Dynamic refresh.
+
 ++ Reply control. Ack replies to show them on the site.
 
 + Schema change. (add flags to honks table)

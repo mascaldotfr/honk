@@ -15,19 +15,25 @@
 <div class="info" id="refreshbox">
 <script>
 var topxid = "{{ .TopXID }}"
-function refreshhonks() {
+function refreshhonks(btn) {
+	btn.innerHTML = "refreshing"
+	btn.disabled = true
 	get("/?topxid=" + escape(topxid), function(xhr) {
 		var doc = xhr.responseXML
 		topxid = doc.children[0].children[1].children[0].innerText
 		var honks = doc.children[0].children[1].children
 		var mebox = document.getElementById("refreshbox")
+		var newhonks = honks.length - 1
 		for (var i = honks.length; i > 1; i--) {
 			mebox.insertAdjacentElement('afterend', honks[i-1])
 		}
+		btn.innerHTML = "refresh"
+		btn.disabled = false
+		btn.parentElement.children[1].innerHTML = " " + newhonks + " new"
 	})
 }
 </script>
-<p><button onclick="refreshhonks()">refresh</button>
+<p><button onclick="refreshhonks(this)">refresh</button><span></span>
 </div>
 {{ end }}
 {{ range .Honks }}
