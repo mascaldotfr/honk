@@ -516,6 +516,21 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			obj, _ = item.GetMap("object")
 			xid, _ = item.GetString("object")
 			what = "eradicate"
+		case "Read":
+			xid, ok = item.GetString("object")
+			if ok {
+				if !needxonkid(user, xid) {
+					log.Printf("don't need read obj: %s", xid)
+					return nil
+				}
+				obj, err = GetJunkHardMode(xid)
+				if err != nil {
+					log.Printf("error getting read: %s", err)
+					return nil
+				}
+				return xonkxonkfn(obj, originate(xid))
+			}
+			return nil
 		case "Video":
 			fallthrough
 		case "Question":
@@ -872,6 +887,12 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		j["object"] = h.XID
 	case "zonk":
 		j["type"] = "Delete"
+		j["object"] = h.XID
+	case "ack":
+		j["type"] = "Read"
+		j["object"] = h.XID
+	case "deack":
+		j["type"] = "Ignore"
 		j["object"] = h.XID
 	}
 

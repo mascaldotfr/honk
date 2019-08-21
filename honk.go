@@ -947,14 +947,33 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 	go honkworldwide(user, &bonk)
 }
 
+func sendzonkofsorts(xonk *Honk, user *WhatAbout, what string) {
+	zonk := Honk{
+		What:     what,
+		XID:      xonk.XID,
+		Date:     time.Now().UTC(),
+		Audience: oneofakind(xonk.Audience),
+	}
+	zonk.Public = !keepitquiet(zonk.Audience)
+
+	log.Printf("announcing %sed honk: %s", what, xonk.XID)
+	go honkworldwide(user, &zonk)
+}
+
 func zonkit(w http.ResponseWriter, r *http.Request) {
 	wherefore := r.FormValue("wherefore")
 	what := r.FormValue("what")
+	userinfo := login.GetUserInfo(r)
+	user, _ := butwhatabout(userinfo.Username)
 
 	if wherefore == "ack" {
 		_, err := stmtUpdateFlags.Exec(flagIsAcked, what)
 		if err != nil {
 			log.Printf("error acking: %s", err)
+		}
+		xonk := getxonk(userinfo.UserID, what)
+		if xonk != nil {
+			sendzonkofsorts(xonk, user, "ack")
 		}
 		return
 	}
@@ -964,11 +983,14 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Printf("error deacking: %s", err)
 		}
+		xonk := getxonk(userinfo.UserID, what)
+		if xonk != nil {
+			sendzonkofsorts(xonk, user, "deack")
+		}
 		return
 	}
 
 	log.Printf("zonking %s %s", wherefore, what)
-	userinfo := login.GetUserInfo(r)
 	if wherefore == "zonk" {
 		xonk := getxonk(userinfo.UserID, what)
 		if xonk != nil {
@@ -981,17 +1003,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 				log.Printf("error zonking: %s", err)
 			}
 			if xonk.Whofore == 2 || xonk.Whofore == 3 {
-				zonk := Honk{
-					What:     "zonk",
-					XID:      xonk.XID,
-					Date:     time.Now().UTC(),
-					Audience: oneofakind(xonk.Audience),
-				}
-				zonk.Public = !keepitquiet(zonk.Audience)
-
-				user, _ := butwhatabout(userinfo.Username)
-				log.Printf("announcing deleted honk: %s", what)
-				go honkworldwide(user, &zonk)
+				sendzonkofsorts(xonk, user, "zonk")
 			}
 		}
 	}
