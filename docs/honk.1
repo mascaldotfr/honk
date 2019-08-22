@@ -32,10 +32,57 @@ For administration, see
 This manual is very incomplete.
 Refer to the text files.
 .Ss Following
-Follow your friends.
-Learn about their doings.
-.Ss Posting
-Inform others about your greatness.
+In order to receive posts from other users, one must follow them.
+Begin at the
+.Pa honkers
+tab.
+The
+.Ar url
+field is required.
+Either of two forms are accepted, the user's handle (or webfinger) or their
+ActivityPub actor URL.
+The
+.Ar name
+field is optional and will be automatically inferred.
+Examples:
+.Dl @user@example.social
+.Dl https://example.social/users/user
+.Pp
+.Pp
+After following a fellow honker, they may be added to one or more
+.Ic combos .
+These are accessed via the
+.Pa combos
+tab and allow easy access to particular groupings.
+The special combo name of one hyphen
+.Sq -
+will remove a honker's posts from the primary feed.
+.Ss Viewing
+The primary feed is accessed via the home tab, labelled
+.Pa honk .
+It will contain posts from all followed honkers.
+Posts mentioning the user, both followed and not, are collected under the
+.Pa @me
+tab.
+.Ss Honking
+On the home page and most other pages, there will be a button marked
+.Dq it's honking time
+which activates the honk form.
+.Pp
+The in reply to field is an advanced feature.
+.Pp
+One may attach a file to a post.
+Images are automatically rescaled and reduced in size for federation.
+.Pp
+A limited subset of markdown is supported.
+Bold, italics, and code blocks.
+Mentioning a specfic user
+.Pq @user@example.social
+will send a copy of the message to them.
+When replying, the author of the parent post is automatically mentioned.
+.Ss zonkzone
+Sometimes other users of the federation can get unruly.
+The zonkzone can be of great use to restore order to one's timeline.
 .\" .Sh EXAMPLES
 .Sh SEE ALSO
 .Xr honk 8
