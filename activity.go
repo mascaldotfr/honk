@@ -465,7 +465,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		}
 		obj, err := GetJunkHardMode(xid)
 		if err != nil {
-			log.Printf("error getting oneup: %s", err)
+			log.Printf("error getting oneup: %s: %s", xid, err)
 			return
 		}
 		depth++
@@ -499,6 +499,9 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			}
 			log.Printf("getting bonk: %s", xid)
 			obj, err = GetJunkHardMode(xid)
+			if err != nil {
+				log.Printf("error getting bonk: %s: %s", xid, err)
+			}
 			origin = originate(xid)
 			what = "bonk"
 		case "Create":
