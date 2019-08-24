@@ -80,11 +80,16 @@ type Honk struct {
 }
 
 const (
-	flagIsAcked = 1
+	flagIsAcked  = 1
+	flagIsBonked = 2
 )
 
 func (honk *Honk) IsAcked() bool {
 	return honk.Flags&flagIsAcked != 0
+}
+
+func (honk *Honk) IsBonked() bool {
+	return honk.Flags&flagIsBonked != 0
 }
 
 type Donk struct {
@@ -911,6 +916,11 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 	}
 	donksforhonks([]*Honk{xonk})
 
+	_, err := stmtUpdateFlags.Exec(flagIsBonked, xonk.XID, userinfo.UserID)
+	if err != nil {
+		log.Printf("error acking bonk: %s", err)
+	}
+
 	oonker := xonk.Oonker
 	if oonker == "" {
 		oonker = xonk.Honker
@@ -970,7 +980,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	user, _ := butwhatabout(userinfo.Username)
 
 	if wherefore == "ack" {
-		_, err := stmtUpdateFlags.Exec(flagIsAcked, what)
+		_, err := stmtUpdateFlags.Exec(flagIsAcked, what, userinfo.UserID)
 		if err != nil {
 			log.Printf("error acking: %s", err)
 		}
@@ -982,7 +992,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if wherefore == "deack" {
-		_, err := stmtClearFlags.Exec(flagIsAcked, what)
+		_, err := stmtClearFlags.Exec(flagIsAcked, what, userinfo.UserID)
 		if err != nil {
 			log.Printf("error deacking: %s", err)
 		}
@@ -990,6 +1000,11 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		if xonk != nil {
 			sendzonkofsorts(xonk, user, "deack")
 		}
+		return
+	}
+
+	if wherefore == "unbonk" {
+		// todo
 		return
 	}
 
@@ -1705,8 +1720,8 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveXonker = preparetodie(db, "insert into xonkers (name, info, flavor) values (?, ?, ?)")
 	stmtDeleteXonker = preparetodie(db, "delete from xonkers where name = ? and flavor = ?")
 	stmtRecentHonkers = preparetodie(db, "select distinct(honker) from honks where userid = ? and honker not in (select xid from honkers where userid = ? and flavor = 'sub') order by honkid desc limit 100")
-	stmtUpdateFlags = preparetodie(db, "update honks set flags = flags | ? where xid = ?")
-	stmtClearFlags = preparetodie(db, "update honks set flags = flags & ~ ? where xid = ?")
+	stmtUpdateFlags = preparetodie(db, "update honks set flags = flags | ? where xid = ? and userid = ?")
+	stmtClearFlags = preparetodie(db, "update honks set flags = flags & ~ ? where xid = ? and userid = ?")
 }
 
 func ElaborateUnitTests() {

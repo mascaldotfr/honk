@@ -68,6 +68,11 @@ function bonk(el, xid) {
 	el.disabled = true
 	post("/bonk", "CSRF={{ $BonkCSRF }}&xid=" + escape(xid))
 }
+function bonk(el, xid) {
+	el.innerHTML = "unbonked"
+	el.disabled = true
+	post("/zonkit", "CSRF={{ $BonkCSRF }}&wherefore=unbonk&what=" + escape(xid))
+}
 function muteit(el, convoy) {
 	el.innerHTML = "muted"
 	el.disabled = true

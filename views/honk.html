@@ -71,7 +71,11 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 <div>
 <p>
 {{ if .Honk.Public }}
+{{ if .Honk.IsBonked }}
+<button onclick="unbonk(this, '{{ .Honk.XID }}');">unbonk</button>
+{{ else }}
 <button onclick="bonk(this, '{{ .Honk.XID }}');">bonk</button>
+{{ end }}
 {{ else }}
 <button disabled>nope</button>
 {{ end }}
