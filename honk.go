@@ -258,6 +258,9 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 	}
 	var modtime time.Time
 	for _, honk := range honks {
+		if !firstclass(honk) {
+			continue
+		}
 		desc := string(honk.HTML)
 		for _, d := range honk.Donks {
 			desc += fmt.Sprintf(`<p><a href="%s">Attachment: %s</a>`,
@@ -922,7 +925,7 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 		Date:     dt,
 		Donks:    xonk.Donks,
 		Convoy:   xonk.Convoy,
-		Audience: []string{oonker, thewholeworld},
+		Audience: []string{thewholeworld, oonker},
 		Public:   true,
 	}
 

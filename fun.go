@@ -448,6 +448,10 @@ func keepitquiet(aud []string) bool {
 	return true
 }
 
+func firstclass(honk *Honk) bool {
+	return honk.Audience[0] == thewholeworld
+}
+
 func oneofakind(a []string) []string {
 	var x []string
 	for n, s := range a {
