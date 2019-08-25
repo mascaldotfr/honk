@@ -1727,7 +1727,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where onts.ontology = ? and honks.whofore = 2"+limit)
 
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags, onts) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-	stmtSaveOnts = preparetodie(db, "insert into onts (ontology, honkid), values (?, ?)")
+	stmtSaveOnts = preparetodie(db, "insert into onts (ontology, honkid) values (?, ?)")
 	stmtFileData = preparetodie(db, "select media, content from files where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")
