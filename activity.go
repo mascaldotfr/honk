@@ -255,7 +255,7 @@ func savexonk(user *WhatAbout, x *Honk) {
 	go prehandle(x.Honker)
 	go prehandle(x.Oonker)
 	res, err := stmtSaveHonk.Exec(x.UserID, x.What, x.Honker, x.XID, x.RID, dt, x.URL, aud,
-		x.Noise, x.Convoy, whofore, "html", x.Precis, x.Oonker, 0)
+		x.Noise, x.Convoy, whofore, "html", x.Precis, x.Oonker, 0, strings.Join(x.Onts, " "))
 	if err != nil {
 		log.Printf("err saving xonk: %s", err)
 		return
@@ -268,6 +268,13 @@ func savexonk(user *WhatAbout, x *Honk) {
 			return
 		}
 	}
+	for _, o := range x.Onts {
+		_, err = stmtSaveOnts.Exec(strings.ToLower(o), x.ID)
+		if err != nil {
+			log.Printf("error saving ont: %s", err)
+		}
+	}
+
 }
 
 type Box struct {

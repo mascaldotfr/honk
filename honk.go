@@ -77,6 +77,7 @@ type Honk struct {
 	Style    string
 	Open     string
 	Donks    []*Donk
+	Onts     []string
 }
 
 const (
@@ -952,9 +953,10 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 
 	aud := strings.Join(bonk.Audience, " ")
 	whofore := 2
+	onts := ontologies(xonk.Noise)
 	res, err := stmtSaveHonk.Exec(userinfo.UserID, "bonk", bonk.Honker, xid, "",
 		dt.Format(dbtimeformat), "", aud, xonk.Noise, xonk.Convoy, whofore, "html",
-		xonk.Precis, oonker, 0)
+		xonk.Precis, oonker, 0, strings.Join(onts, " "))
 	if err != nil {
 		log.Printf("error saving bonk: %s", err)
 		return
@@ -965,6 +967,12 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Printf("err saving donk: %s", err)
 			return
+		}
+	}
+	for _, o := range onts {
+		_, err = stmtSaveOnts.Exec(strings.ToLower(o), bonk.ID)
+		if err != nil {
+			log.Printf("error saving ont: %s", err)
 		}
 	}
 
@@ -1224,9 +1232,10 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	onts := ontologies(honk.Noise)
 	res, err := stmtSaveHonk.Exec(userinfo.UserID, what, honk.Honker, xid, rid,
 		dt.Format(dbtimeformat), "", aud, honk.Noise, convoy, whofore, "html",
-		honk.Precis, honk.Oonker, 0)
+		honk.Precis, honk.Oonker, 0, strings.Join(onts, " "))
 	if err != nil {
 		log.Printf("error saving honk: %s", err)
 		http.Error(w, "something bad happened while saving", http.StatusInternalServerError)
@@ -1239,6 +1248,12 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 			log.Printf("err saving donk: %s", err)
 			http.Error(w, "something bad happened while saving", http.StatusInternalServerError)
 			return
+		}
+	}
+	for _, o := range onts {
+		_, err = stmtSaveOnts.Exec(strings.ToLower(o), honk.ID)
+		if err != nil {
+			log.Printf("error saving ont: %s", err)
 		}
 	}
 
@@ -1679,7 +1694,7 @@ var stmtFindZonk, stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.St
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
 var stmtHasHonker, stmtThumbBiters, stmtZonkIt, stmtZonkDonks, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
-var stmtUpdateFlags, stmtClearFlags *sql.Stmt
+var stmtSaveOnts, stmtUpdateFlags, stmtClearFlags *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -1711,7 +1726,8 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or (? = -1 and whofore = 2)) and convoy = ?"+limit)
 	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where onts.ontology = ? and honks.whofore = 2"+limit)
 
-	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags, onts) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	stmtSaveOnts = preparetodie(db, "insert into onts (ontology, honkid), values (?, ?)")
 	stmtFileData = preparetodie(db, "select media, content from files where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")
