@@ -48,6 +48,7 @@ func reverbolate(userid int64, honks []*Honk) {
 			h.URL = h.XID
 			if h.What != "bonked" {
 				h.Noise = mentionize(h.Noise)
+				h.Noise = ontologize(h.Noise)
 			}
 			h.Username, h.Handle = handles(h.Honker)
 		} else {
@@ -356,6 +357,23 @@ func mentionize(s string) string {
 	s = re_urltions.ReplaceAllStringFunc(s, func(m string) string {
 		return fmt.Sprintf(`<span class="h-card"><a class="u-url mention" href="%s">%s</a></span>`,
 			html.EscapeString(m[1:]), html.EscapeString(m))
+	})
+	return s
+}
+
+func ontologize(s string) string {
+	s = re_hashes.ReplaceAllStringFunc(s, func(o string) string {
+		if o[0] == '&' {
+			return o
+		}
+		p := ""
+		h := o
+		if h[0] != '#' {
+			p = h[:1]
+			h = h[1:]
+		}
+		log.Printf("fixing: %s", o)
+		return fmt.Sprintf(`%s<a href="https://%s/o/%s">%s</a>`, p, serverName, h[1:], h)
 	})
 	return s
 }

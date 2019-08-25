@@ -2,6 +2,8 @@ changelog
 
 -- next
 
+++ Hashtags that work?
+
 + Dynamic refresh.
 
 ++ Reply control. Ack replies to show them on the site.

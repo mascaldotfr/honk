@@ -817,7 +817,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			jo["directMessage"] = true
 		}
 		jo["summary"] = h.Precis
-		jo["content"] = mentionize(h.Noise)
+		jo["content"] = ontologize(mentionize(h.Noise))
 		if strings.HasPrefix(h.Precis, "DZ:") {
 			jo["sensitive"] = true
 		}
@@ -847,6 +847,8 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		for _, o := range ooo {
 			t := junk.New()
 			t["type"] = "Hashtag"
+			o = strings.ToLower(o)
+			t["href"] = fmt.Sprintf("https://%s/o/%s", serverName, o[1:])
 			t["name"] = o
 			tags = append(tags, t)
 		}

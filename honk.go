@@ -629,6 +629,12 @@ func showconvoy(w http.ResponseWriter, r *http.Request) {
 	honks := gethonksbyconvoy(u.UserID, c)
 	honkpage(w, r, u, nil, honks, template.HTML(html.EscapeString("honks in convoy: "+c)))
 }
+func showontology(w http.ResponseWriter, r *http.Request) {
+	name := mux.Vars(r)["name"]
+	u := login.GetUserInfo(r)
+	honks := gethonksbyontology("#" + name)
+	honkpage(w, r, u, nil, honks, template.HTML(html.EscapeString("honks by ontology: "+name)))
+}
 
 func showhonk(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
@@ -843,6 +849,11 @@ func gethonksbyconvoy(userid int64, convoy string) []*Honk {
 	for i, j := 0, len(honks)-1; i < j; i, j = i+1, j-1 {
 		honks[i], honks[j] = honks[j], honks[i]
 	}
+	return honks
+}
+func gethonksbyontology(name string) []*Honk {
+	rows, err := stmtHonksByOntology.Query(name)
+	honks := getsomehonks(rows, err)
 	return honks
 }
 
@@ -1600,6 +1611,7 @@ func serve() {
 	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/followers", emptiness)
 	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/following", emptiness)
 	getters.HandleFunc("/a", avatate)
+	getters.HandleFunc("/o/{name:[a-z0-9-]+}", showontology)
 	getters.HandleFunc("/d/{xid:[[:alnum:].]+}", servefile)
 	getters.HandleFunc("/emu/{xid:[[:alnum:]_.-]+}", serveemu)
 	getters.HandleFunc("/meme/{xid:[[:alnum:]_.-]+}", servememe)
@@ -1661,7 +1673,7 @@ func cleanupdb(arg string) {
 
 var stmtHonkers, stmtDubbers, stmtSaveHonker, stmtUpdateFlavor, stmtUpdateCombos *sql.Stmt
 var stmtOneXonk, stmtPublicHonks, stmtUserHonks, stmtHonksByCombo, stmtHonksByConvoy *sql.Stmt
-var stmtHonksForUser, stmtHonksForMe, stmtSaveDub, stmtHonksByXonker *sql.Stmt
+var stmtHonksByOntology, stmtHonksForUser, stmtHonksForMe, stmtSaveDub, stmtHonksByXonker *sql.Stmt
 var stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
 var stmtFindZonk, stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
@@ -1685,8 +1697,8 @@ func prepareStatements(db *sql.DB) {
 	stmtHasHonker = preparetodie(db, "select honkerid from honkers where xid = ? and userid = ?")
 	stmtDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
 
-	selecthonks := "select honkid, honks.userid, username, what, honker, oonker, honks.xid, rid, dt, url, audience, noise, precis, convoy, whofore, flags from honks join users on honks.userid = users.userid "
-	limit := " order by honkid desc limit 250"
+	selecthonks := "select honks.honkid, honks.userid, username, what, honker, oonker, honks.xid, rid, dt, url, audience, noise, precis, convoy, whofore, flags from honks join users on honks.userid = users.userid "
+	limit := " order by honks.honkid desc limit 250"
 	butnotthose := " and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"
 	stmtOneXonk = preparetodie(db, selecthonks+"where honks.userid = ? and xid = ?")
 	stmtPublicHonks = preparetodie(db, selecthonks+"where whofore = 2 and dt > ?"+limit)
@@ -1697,6 +1709,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksByXonker = preparetodie(db, selecthonks+" where honks.userid = ? and (honker = ? or oonker = ?)"+butnotthose+limit)
 	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.combos like ?"+butnotthose+limit)
 	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or (? = -1 and whofore = 2)) and convoy = ?"+limit)
+	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where onts.ontology = ? and honks.whofore = 2"+limit)
 
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	stmtFileData = preparetodie(db, "select media, content from files where xid = ?")
