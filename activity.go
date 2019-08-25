@@ -674,6 +674,9 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 						xonk.Donks = append(xonk.Donks, donk)
 					}
 				}
+				if tt == "Hashtag" {
+					xonk.Onts = append(xonk.Onts, name)
+				}
 			}
 		}
 		if originate(xid) != origin {
