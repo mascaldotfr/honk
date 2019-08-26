@@ -633,7 +633,11 @@ func showconvoy(w http.ResponseWriter, r *http.Request) {
 func showontology(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	u := login.GetUserInfo(r)
-	honks := gethonksbyontology("#" + name)
+	var userid int64 = -1
+	if u != nil {
+		userid = u.UserID
+	}
+	honks := gethonksbyontology(userid, "#"+name)
 	honkpage(w, r, u, nil, honks, template.HTML(html.EscapeString("honks by ontology: "+name)))
 }
 
@@ -852,8 +856,8 @@ func gethonksbyconvoy(userid int64, convoy string) []*Honk {
 	}
 	return honks
 }
-func gethonksbyontology(name string) []*Honk {
-	rows, err := stmtHonksByOntology.Query(name)
+func gethonksbyontology(userid int64, name string) []*Honk {
+	rows, err := stmtHonksByOntology.Query(name, userid, userid)
 	honks := getsomehonks(rows, err)
 	return honks
 }
@@ -1724,7 +1728,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksByXonker = preparetodie(db, selecthonks+" where honks.userid = ? and (honker = ? or oonker = ?)"+butnotthose+limit)
 	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.combos like ?"+butnotthose+limit)
 	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or (? = -1 and whofore = 2)) and convoy = ?"+limit)
-	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where onts.ontology = ? and honks.whofore = 2"+limit)
+	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where onts.ontology = ? and (honks.userid = ? or (? = -1 and honks.whofore = 2))"+limit)
 
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags, onts) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	stmtSaveOnts = preparetodie(db, "insert into onts (ontology, honkid) values (?, ?)")
