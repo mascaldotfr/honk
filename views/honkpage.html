@@ -68,7 +68,7 @@ function bonk(el, xid) {
 	el.disabled = true
 	post("/bonk", "CSRF={{ $BonkCSRF }}&xid=" + escape(xid))
 }
-function bonk(el, xid) {
+function unbonk(el, xid) {
 	el.innerHTML = "unbonked"
 	el.disabled = true
 	post("/zonkit", "CSRF={{ $BonkCSRF }}&wherefore=unbonk&what=" + escape(xid))
