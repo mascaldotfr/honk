@@ -374,7 +374,8 @@ func ontologize(s string) string {
 			p = h[:1]
 			h = h[1:]
 		}
-		return fmt.Sprintf(`%s<a href="https://%s/o/%s">%s</a>`, p, serverName, h[1:], h)
+		return fmt.Sprintf(`%s<a href="https://%s/o/%s">%s</a>`, p, serverName,
+			strings.ToLower(h[1:]), h)
 	})
 	return s
 }
