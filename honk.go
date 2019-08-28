@@ -850,7 +850,7 @@ func getxonk(userid int64, xid string) *Honk {
 func getbonk(userid int64, xid string) *Honk {
 	h := new(Honk)
 	var dt, aud string
-	row := stmtOneXonk.QueryRow(userid, xid)
+	row := stmtOneBonk.QueryRow(userid, xid)
 	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker, &h.XID, &h.RID,
 		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy, &h.Whofore, &h.Flags)
 	if err != nil {
@@ -1083,7 +1083,16 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	if wherefore == "unbonk" {
 		xonk := getbonk(userinfo.UserID, what)
 		if xonk != nil {
-			_, err := stmtClearFlags.Exec(flagIsBonked, xonk.ID)
+			_, err := stmtZonkDonks.Exec(xonk.ID)
+			if err != nil {
+				log.Printf("error zonking: %s", err)
+			}
+			_, err = stmtZonkIt.Exec(xonk.ID)
+			if err != nil {
+				log.Printf("error zonking: %s", err)
+			}
+			xonk = getxonk(userinfo.UserID, what)
+			_, err = stmtClearFlags.Exec(flagIsBonked, xonk.ID)
 			if err != nil {
 				log.Printf("error unbonking: %s", err)
 			}
@@ -1100,7 +1109,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Printf("error zonking: %s", err)
 			}
-			_, err = stmtZonkIt.Exec(userinfo.UserID, what)
+			_, err = stmtZonkIt.Exec(xonk.ID)
 			if err != nil {
 				log.Printf("error zonking: %s", err)
 			}
@@ -1799,7 +1808,7 @@ func prepareStatements(db *sql.DB) {
 	stmtFileData = preparetodie(db, "select media, content from files where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")
-	stmtZonkIt = preparetodie(db, "delete from honks where userid = ? and xid = ?")
+	stmtZonkIt = preparetodie(db, "delete from honks where honkid = ?")
 	stmtZonkDonks = preparetodie(db, "delete from donks where honkid = ?")
 	stmtFindFile = preparetodie(db, "select fileid from files where url = ? and local = 1")
 	stmtSaveFile = preparetodie(db, "insert into files (xid, name, url, media, local, content) values (?, ?, ?, ?, ?, ?)")

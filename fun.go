@@ -49,6 +49,8 @@ func reverbolate(userid int64, honks []*Honk) {
 			if h.What != "bonked" {
 				h.Noise = mentionize(h.Noise)
 				h.Noise = ontologize(h.Noise)
+			} else {
+				h.Flags |= flagIsBonked
 			}
 			h.Username, h.Handle = handles(h.Honker)
 		} else {

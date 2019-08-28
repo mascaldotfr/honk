@@ -234,7 +234,7 @@ func savexonk(user *WhatAbout, x *Honk) {
 			if err != nil {
 				log.Printf("error eradicating: %s", err)
 			}
-			_, err = stmtZonkIt.Exec(user.ID, x.XID)
+			_, err = stmtZonkIt.Exec(xonk.ID)
 			if err != nil {
 				log.Printf("error eradicating: %s", err)
 			}
