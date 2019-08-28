@@ -1,0 +1,10 @@
+{{ template "header.html" . }}
+<main>
+<div class="info">
+<p>ontologies of interest
+<p>
+{{ range .Onts }}
+<a href="/o/{{ index . 1 }}">{{ index . 0 }}</a>
+{{ end }}
+</div>
+</main>

@@ -648,6 +648,30 @@ func showontology(w http.ResponseWriter, r *http.Request) {
 	honkpage(w, r, u, nil, honks, template.HTML(html.EscapeString("honks by ontology: "+name)))
 }
 
+func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
+	rows, err := stmtSelectOnts.Query()
+	if err != nil {
+		log.Printf("selection error: %s", err)
+		return
+	}
+	var onts [][]string
+	for rows.Next() {
+		var o string
+		err := rows.Scan(&o)
+		if err != nil {
+			log.Printf("error scanning ont: %s", err)
+			continue
+		}
+		onts = append(onts, []string{o, o[1:]})
+	}
+	templinfo := getInfo(r)
+	templinfo["Onts"] = onts
+	err = readviews.Execute(w, "onts.html", templinfo)
+	if err != nil {
+		log.Print(err)
+	}
+}
+
 func showhonk(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	user, err := butwhatabout(name)
@@ -1634,6 +1658,7 @@ func serve() {
 		"views/login.html",
 		"views/xzone.html",
 		"views/header.html",
+		"views/onts.html",
 	)
 	if !debug {
 		s := "views/style.css"
@@ -1662,6 +1687,7 @@ func serve() {
 	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/followers", emptiness)
 	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/following", emptiness)
 	getters.HandleFunc("/a", avatate)
+	getters.HandleFunc("/o", thelistingoftheontologies)
 	getters.HandleFunc("/o/{name:[a-z0-9-]+}", showontology)
 	getters.HandleFunc("/d/{xid:[[:alnum:].]+}", servefile)
 	getters.HandleFunc("/emu/{xid:[[:alnum:]_.-]+}", serveemu)
@@ -1730,7 +1756,7 @@ var stmtOneBonk, stmtFindZonk, stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSav
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
 var stmtHasHonker, stmtThumbBiters, stmtZonkIt, stmtZonkDonks, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
-var stmtSaveOnts, stmtUpdateFlags, stmtClearFlags *sql.Stmt
+var stmtSelectOnts, stmtSaveOnts, stmtUpdateFlags, stmtClearFlags *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -1788,6 +1814,7 @@ func prepareStatements(db *sql.DB) {
 	stmtRecentHonkers = preparetodie(db, "select distinct(honker) from honks where userid = ? and honker not in (select xid from honkers where userid = ? and flavor = 'sub') order by honkid desc limit 100")
 	stmtUpdateFlags = preparetodie(db, "update honks set flags = flags | ? where honkid = ?")
 	stmtClearFlags = preparetodie(db, "update honks set flags = flags & ~ ? where honkid = ?")
+	stmtSelectOnts = preparetodie(db, "select distinct(ontology) from onts join honks on onts.honkid = honks.honkid where honks.whofore = 2")
 }
 
 func ElaborateUnitTests() {
