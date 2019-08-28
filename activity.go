@@ -900,6 +900,16 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			j["context"] = h.Convoy
 		}
 		j["object"] = h.XID
+	case "unbonk":
+		b := junk.New()
+		b["id"] = user.URL + "/" + "bonk" + "/" + shortxid(h.XID)
+		b["type"] = "Announce"
+		if h.Convoy != "" {
+			b["context"] = h.Convoy
+		}
+		b["object"] = h.XID
+		j["type"] = "Undo"
+		j["object"] = b
 	case "zonk":
 		j["type"] = "Delete"
 		j["object"] = h.XID

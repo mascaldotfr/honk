@@ -460,8 +460,15 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 					log.Printf("error updating honker: %s", err)
 					return
 				}
-			case "Like":
 			case "Announce":
+				fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+				j.Write(fd)
+				io.WriteString(fd, "\n")
+				fd.Close()
+				log.Printf("an announcement has been undone")
+				xid, _ := obj.GetString("object")
+				log.Printf("undo announce: %s", xid)
+			case "Like":
 			default:
 				log.Printf("unknown undo: %s", what)
 			}
@@ -811,6 +818,24 @@ func getxonk(userid int64, xid string) *Honk {
 	return h
 }
 
+func getbonk(userid int64, xid string) *Honk {
+	h := new(Honk)
+	var dt, aud string
+	row := stmtOneXonk.QueryRow(userid, xid)
+	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker, &h.XID, &h.RID,
+		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy, &h.Whofore, &h.Flags)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			log.Printf("error scanning xonk: %s", err)
+		}
+		return nil
+	}
+	h.Date, _ = time.Parse(dbtimeformat, dt)
+	h.Audience = strings.Split(aud, " ")
+	h.Public = !keepitquiet(h.Audience)
+	return h
+}
+
 func getpublichonks() []*Honk {
 	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
 	rows, err := stmtPublicHonks.Query(dt)
@@ -932,7 +957,7 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 	}
 	donksforhonks([]*Honk{xonk})
 
-	_, err := stmtUpdateFlags.Exec(flagIsBonked, xonk.XID, userinfo.UserID)
+	_, err := stmtUpdateFlags.Exec(flagIsBonked, xonk.ID)
 	if err != nil {
 		log.Printf("error acking bonk: %s", err)
 	}
@@ -1003,31 +1028,38 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	user, _ := butwhatabout(userinfo.Username)
 
 	if wherefore == "ack" {
-		_, err := stmtUpdateFlags.Exec(flagIsAcked, what, userinfo.UserID)
-		if err != nil {
-			log.Printf("error acking: %s", err)
-		}
 		xonk := getxonk(userinfo.UserID, what)
 		if xonk != nil {
+			_, err := stmtUpdateFlags.Exec(flagIsAcked, xonk.ID)
+			if err != nil {
+				log.Printf("error acking: %s", err)
+			}
 			sendzonkofsorts(xonk, user, "ack")
 		}
 		return
 	}
 
 	if wherefore == "deack" {
-		_, err := stmtClearFlags.Exec(flagIsAcked, what, userinfo.UserID)
-		if err != nil {
-			log.Printf("error deacking: %s", err)
-		}
 		xonk := getxonk(userinfo.UserID, what)
 		if xonk != nil {
+			_, err := stmtClearFlags.Exec(flagIsAcked, xonk.ID)
+			if err != nil {
+				log.Printf("error deacking: %s", err)
+			}
 			sendzonkofsorts(xonk, user, "deack")
 		}
 		return
 	}
 
 	if wherefore == "unbonk" {
-		// todo
+		xonk := getbonk(userinfo.UserID, what)
+		if xonk != nil {
+			_, err := stmtClearFlags.Exec(flagIsBonked, xonk.ID)
+			if err != nil {
+				log.Printf("error unbonking: %s", err)
+			}
+			sendzonkofsorts(xonk, user, "unbonk")
+		}
 		return
 	}
 
@@ -1694,7 +1726,7 @@ var stmtHonkers, stmtDubbers, stmtSaveHonker, stmtUpdateFlavor, stmtUpdateCombos
 var stmtOneXonk, stmtPublicHonks, stmtUserHonks, stmtHonksByCombo, stmtHonksByConvoy *sql.Stmt
 var stmtHonksByOntology, stmtHonksForUser, stmtHonksForMe, stmtSaveDub, stmtHonksByXonker *sql.Stmt
 var stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
-var stmtFindZonk, stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
+var stmtOneBonk, stmtFindZonk, stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
 var stmtHasHonker, stmtThumbBiters, stmtZonkIt, stmtZonkDonks, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
@@ -1720,6 +1752,7 @@ func prepareStatements(db *sql.DB) {
 	limit := " order by honks.honkid desc limit 250"
 	butnotthose := " and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"
 	stmtOneXonk = preparetodie(db, selecthonks+"where honks.userid = ? and xid = ?")
+	stmtOneBonk = preparetodie(db, selecthonks+"where honks.userid = ? and xid = ? and what = 'bonk' and whofore = 2")
 	stmtPublicHonks = preparetodie(db, selecthonks+"where whofore = 2 and dt > ?"+limit)
 	stmtUserHonks = preparetodie(db, selecthonks+"where (whofore = 2 or whofore = ?) and username = ? and dt > ?"+limit)
 	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and honker in (select xid from honkers where userid = ? and flavor = 'sub' and combos not like '% - %')"+butnotthose+limit)
@@ -1753,8 +1786,8 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveXonker = preparetodie(db, "insert into xonkers (name, info, flavor) values (?, ?, ?)")
 	stmtDeleteXonker = preparetodie(db, "delete from xonkers where name = ? and flavor = ?")
 	stmtRecentHonkers = preparetodie(db, "select distinct(honker) from honks where userid = ? and honker not in (select xid from honkers where userid = ? and flavor = 'sub') order by honkid desc limit 100")
-	stmtUpdateFlags = preparetodie(db, "update honks set flags = flags | ? where xid = ? and userid = ?")
-	stmtClearFlags = preparetodie(db, "update honks set flags = flags & ~ ? where xid = ? and userid = ?")
+	stmtUpdateFlags = preparetodie(db, "update honks set flags = flags | ? where honkid = ?")
+	stmtClearFlags = preparetodie(db, "update honks set flags = flags & ~ ? where honkid = ?")
 }
 
 func ElaborateUnitTests() {
