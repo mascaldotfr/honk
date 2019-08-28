@@ -649,7 +649,12 @@ func showontology(w http.ResponseWriter, r *http.Request) {
 }
 
 func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
-	rows, err := stmtSelectOnts.Query()
+	u := login.GetUserInfo(r)
+	var userid int64 = -1
+	if u != nil {
+		userid = u.UserID
+	}
+	rows, err := stmtSelectOnts.Query(userid)
 	if err != nil {
 		log.Printf("selection error: %s", err)
 		return
@@ -1814,7 +1819,7 @@ func prepareStatements(db *sql.DB) {
 	stmtRecentHonkers = preparetodie(db, "select distinct(honker) from honks where userid = ? and honker not in (select xid from honkers where userid = ? and flavor = 'sub') order by honkid desc limit 100")
 	stmtUpdateFlags = preparetodie(db, "update honks set flags = flags | ? where honkid = ?")
 	stmtClearFlags = preparetodie(db, "update honks set flags = flags & ~ ? where honkid = ?")
-	stmtSelectOnts = preparetodie(db, "select distinct(ontology) from onts join honks on onts.honkid = honks.honkid where honks.whofore = 2")
+	stmtSelectOnts = preparetodie(db, "select distinct(ontology) from onts join honks on onts.honkid = honks.honkid where (honks.userid = ? or honks.whofore = 2)")
 }
 
 func ElaborateUnitTests() {
