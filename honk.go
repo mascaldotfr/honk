@@ -831,10 +831,10 @@ func allusers() []login.UserInfo {
 
 func getxonk(userid int64, xid string) *Honk {
 	h := new(Honk)
-	var dt, aud string
+	var dt, aud, onts string
 	row := stmtOneXonk.QueryRow(userid, xid)
 	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker, &h.XID, &h.RID,
-		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy, &h.Whofore, &h.Flags)
+		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy, &h.Whofore, &h.Flags, &onts)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			log.Printf("error scanning xonk: %s", err)
@@ -844,15 +844,16 @@ func getxonk(userid int64, xid string) *Honk {
 	h.Date, _ = time.Parse(dbtimeformat, dt)
 	h.Audience = strings.Split(aud, " ")
 	h.Public = !keepitquiet(h.Audience)
+	h.Onts = strings.Split(onts, " ")
 	return h
 }
 
 func getbonk(userid int64, xid string) *Honk {
 	h := new(Honk)
-	var dt, aud string
+	var dt, aud, onts string
 	row := stmtOneBonk.QueryRow(userid, xid)
 	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker, &h.XID, &h.RID,
-		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy, &h.Whofore, &h.Flags)
+		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy, &h.Whofore, &h.Flags, &onts)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			log.Printf("error scanning xonk: %s", err)
@@ -862,6 +863,7 @@ func getbonk(userid int64, xid string) *Honk {
 	h.Date, _ = time.Parse(dbtimeformat, dt)
 	h.Audience = strings.Split(aud, " ")
 	h.Public = !keepitquiet(h.Audience)
+	h.Onts = strings.Split(onts, " ")
 	return h
 }
 
@@ -925,9 +927,9 @@ func getsomehonks(rows *sql.Rows, err error) []*Honk {
 	var honks []*Honk
 	for rows.Next() {
 		var h Honk
-		var dt, aud string
-		err = rows.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker,
-			&h.XID, &h.RID, &dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy, &h.Whofore, &h.Flags)
+		var dt, aud, onts string
+		err = rows.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker, &h.XID,
+			&h.RID, &dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy, &h.Whofore, &h.Flags, &onts)
 		if err != nil {
 			log.Printf("error scanning honks: %s", err)
 			return nil
@@ -935,6 +937,7 @@ func getsomehonks(rows *sql.Rows, err error) []*Honk {
 		h.Date, _ = time.Parse(dbtimeformat, dt)
 		h.Audience = strings.Split(aud, " ")
 		h.Public = !keepitquiet(h.Audience)
+		h.Onts = strings.Split(onts, " ")
 		honks = append(honks, &h)
 	}
 	rows.Close()
@@ -1011,7 +1014,7 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 
 	aud := strings.Join(bonk.Audience, " ")
 	whofore := 2
-	onts := ontologies(xonk.Noise)
+	onts := xonk.Onts
 	res, err := stmtSaveHonk.Exec(userinfo.UserID, "bonk", bonk.Honker, xid, "",
 		dt.Format(dbtimeformat), "", aud, xonk.Noise, xonk.Convoy, whofore, "html",
 		xonk.Precis, oonker, 0, strings.Join(onts, " "))
@@ -1788,7 +1791,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHasHonker = preparetodie(db, "select honkerid from honkers where xid = ? and userid = ?")
 	stmtDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
 
-	selecthonks := "select honks.honkid, honks.userid, username, what, honker, oonker, honks.xid, rid, dt, url, audience, noise, precis, convoy, whofore, flags from honks join users on honks.userid = users.userid "
+	selecthonks := "select honks.honkid, honks.userid, username, what, honker, oonker, honks.xid, rid, dt, url, audience, noise, precis, convoy, whofore, flags, onts from honks join users on honks.userid = users.userid "
 	limit := " order by honks.honkid desc limit 250"
 	butnotthose := " and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"
 	stmtOneXonk = preparetodie(db, selecthonks+"where honks.userid = ? and xid = ?")
