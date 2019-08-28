@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -122,14 +123,19 @@ func upgradedb() {
 		fallthrough
 	case 14:
 		doordie(db, "alter table honks add column onts text")
-		doordie(db, "update honks set onts = ''")
 		doordie(db, "create table onts (ontology text, honkid integer)")
 		doordie(db, "create index idx_ontology on onts(ontology)")
+		doordie(db, "update config set value = 15 where key = 'dbversion'")
+		fallthrough
+	case 15:
+		doordie(db, "update honks set onts = ''")
+		doordie(db, "delete from onts")
 		ontmap := make(map[int64][]string)
 		rows, err := db.Query("select honkid, noise from honks")
 		if err != nil {
 			log.Fatalf("can't query honks: %s", err)
 		}
+		re_more := regexp.MustCompile(`#<span>[[:alpha:]][[:alnum:]-]*`)
 		for rows.Next() {
 			var honkid int64
 			var noise string
@@ -137,9 +143,13 @@ func upgradedb() {
 			if err != nil {
 				log.Fatalf("can't scan honks: %s", err)
 			}
-			o := ontologies(noise)
-			if len(o) > 0 {
-				ontmap[honkid] = o
+			onts := ontologies(noise)
+			mo := re_more.FindAllString(noise, -1)
+			for _, o := range mo {
+				onts = append(onts, o[7:])
+			}
+			if len(onts) > 0 {
+				ontmap[honkid] = oneofakind(onts)
 			}
 		}
 		rows.Close()
@@ -171,9 +181,9 @@ func upgradedb() {
 		if err != nil {
 			log.Fatalf("can't commit: %s", err)
 		}
-		doordie(db, "update config set value = 15 where key = 'dbversion'")
+		doordie(db, "update config set value = 16 where key = 'dbversion'")
 		fallthrough
-	case 15:
+	case 16:
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
 	}
