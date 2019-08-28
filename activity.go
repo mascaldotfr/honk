@@ -678,6 +678,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					xonk.Onts = append(xonk.Onts, name)
 				}
 			}
+			xonk.Onts = oneofakind(xonk.Onts)
 		}
 		if originate(xid) != origin {
 			log.Printf("original sin: %s <> %s", xid, origin)
@@ -853,8 +854,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			t["href"] = m.where
 			tags = append(tags, t)
 		}
-		ooo := ontologies(h.Noise)
-		for _, o := range ooo {
+		for _, o := range h.Onts {
 			t := junk.New()
 			t["type"] = "Hashtag"
 			o = strings.ToLower(o)

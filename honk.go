@@ -669,6 +669,9 @@ func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
 		}
 		onts = append(onts, []string{o, o[1:]})
 	}
+	if u == nil {
+		w.Header().Set("Cache-Control", "max-age=300")
+	}
 	templinfo := getInfo(r)
 	templinfo["Onts"] = onts
 	err = readviews.Execute(w, "onts.html", templinfo)
@@ -1309,10 +1312,10 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	onts := ontologies(honk.Noise)
+	honk.Onts = oneofakind(ontologies(honk.Noise))
 	res, err := stmtSaveHonk.Exec(userinfo.UserID, what, honk.Honker, xid, rid,
 		dt.Format(dbtimeformat), "", aud, honk.Noise, convoy, whofore, "html",
-		honk.Precis, honk.Oonker, 0, strings.Join(onts, " "))
+		honk.Precis, honk.Oonker, 0, strings.Join(honk.Onts, " "))
 	if err != nil {
 		log.Printf("error saving honk: %s", err)
 		http.Error(w, "something bad happened while saving", http.StatusInternalServerError)
@@ -1327,7 +1330,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	for _, o := range onts {
+	for _, o := range honk.Onts {
 		_, err = stmtSaveOnts.Exec(strings.ToLower(o), honk.ID)
 		if err != nil {
 			log.Printf("error saving ont: %s", err)

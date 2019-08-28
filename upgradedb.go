@@ -146,7 +146,7 @@ func upgradedb() {
 			onts := ontologies(noise)
 			mo := re_more.FindAllString(noise, -1)
 			for _, o := range mo {
-				onts = append(onts, "#" + o[7:])
+				onts = append(onts, "#"+o[7:])
 			}
 			if len(onts) > 0 {
 				ontmap[honkid] = oneofakind(onts)
