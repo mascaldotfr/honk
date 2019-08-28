@@ -149,7 +149,7 @@ func xfiltrate() string {
 	return s
 }
 
-var re_hashes = regexp.MustCompile(`(?:^|\W)#[[:alnum:]]+`)
+var re_hashes = regexp.MustCompile(`(?:^|\W)#[[:alnum:]-]+`)
 
 func ontologies(s string) []string {
 	m := re_hashes.FindAllString(s, -1)
