@@ -461,11 +461,6 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			case "Announce":
-				fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-				j.Write(fd)
-				io.WriteString(fd, "\n")
-				fd.Close()
-				log.Printf("an announcement has been undone")
 				xid, _ := obj.GetString("object")
 				log.Printf("undo announce: %s", xid)
 			case "Like":
