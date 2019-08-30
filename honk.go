@@ -847,7 +847,9 @@ func getxonk(userid int64, xid string) *Honk {
 	h.Date, _ = time.Parse(dbtimeformat, dt)
 	h.Audience = strings.Split(aud, " ")
 	h.Public = !keepitquiet(h.Audience)
-	h.Onts = strings.Split(onts, " ")
+	if len(onts) > 0 {
+		h.Onts = strings.Split(onts, " ")
+	}
 	return h
 }
 
@@ -866,7 +868,9 @@ func getbonk(userid int64, xid string) *Honk {
 	h.Date, _ = time.Parse(dbtimeformat, dt)
 	h.Audience = strings.Split(aud, " ")
 	h.Public = !keepitquiet(h.Audience)
-	h.Onts = strings.Split(onts, " ")
+	if len(onts) > 0 {
+		h.Onts = strings.Split(onts, " ")
+	}
 	return h
 }
 
@@ -940,7 +944,9 @@ func getsomehonks(rows *sql.Rows, err error) []*Honk {
 		h.Date, _ = time.Parse(dbtimeformat, dt)
 		h.Audience = strings.Split(aud, " ")
 		h.Public = !keepitquiet(h.Audience)
-		h.Onts = strings.Split(onts, " ")
+		if len(onts) > 0 {
+			h.Onts = strings.Split(onts, " ")
+		}
 		honks = append(honks, &h)
 	}
 	rows.Close()
