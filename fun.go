@@ -419,7 +419,7 @@ func findhandle(xid string) string {
 	var handle string
 	err := row.Scan(&handle)
 	if err != nil {
-		p := investigate(xid)
+		p, _ := investigate(xid)
 		if p == nil {
 			m := re_unurl.FindStringSubmatch(xid)
 			if len(m) > 2 {

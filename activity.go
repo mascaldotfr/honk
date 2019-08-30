@@ -1060,28 +1060,28 @@ func isactor(t string) bool {
 	return true
 }
 
-func investigate(name string) *Honker {
+func investigate(name string) (*Honker, error) {
 	if name == "" {
-		return nil
+		return nil, fmt.Errorf("no name")
 	}
 	if name[0] == '@' {
 		name = gofish(name)
 	}
 	if name == "" {
-		return nil
+		return nil, fmt.Errorf("no name")
 	}
 	log.Printf("digging up some info on %s", name)
 	obj, err := GetJunkFast(name)
 	if err != nil {
 		log.Printf("error investigating honker: %s", err)
-		return nil
+		return nil, err
 	}
 	t, _ := obj.GetString("type")
 	if !isactor(t) {
 		log.Printf("it's not a person! %s", name)
-		return nil
+		return nil, err
 	}
 	xid, _ := obj.GetString("id")
 	handle, _ := obj.GetString("preferredUsername")
-	return &Honker{XID: xid, Handle: handle}
+	return &Honker{XID: xid, Handle: handle}, nil
 }

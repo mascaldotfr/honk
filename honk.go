@@ -480,7 +480,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 
 func ximport(w http.ResponseWriter, r *http.Request) {
 	xid := r.FormValue("xid")
-	p := investigate(xid)
+	p, _ := investigate(xid)
 	if p != nil {
 		xid = p.XID
 	}
@@ -1426,8 +1426,9 @@ func savehonker(w http.ResponseWriter, r *http.Request) {
 	if peep == "peep" {
 		flavor = "peep"
 	}
-	p := investigate(url)
-	if p == nil {
+	p, err := investigate(url)
+	if err != nil {
+		http.Error(w, "error investigating: "+err.Error(), http.StatusInternalServerError)
 		log.Printf("failed to investigate honker")
 		return
 	}
@@ -1435,7 +1436,7 @@ func savehonker(w http.ResponseWriter, r *http.Request) {
 	if name == "" {
 		name = p.Handle
 	}
-	_, err := stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos)
+	_, err = stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos)
 	if err != nil {
 		log.Print(err)
 		return
