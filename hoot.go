@@ -64,13 +64,17 @@ func hootfetcher(hoot string) string {
 }
 
 func hootfixer(r io.Reader, url string) string {
-	root, _ := html.Parse(r)
+	root, err := html.Parse(r)
+	if err != nil {
+		log.Printf("error parsing hoot: %s", err)
+		return url
+	}
 	divs := tweetsel.MatchAll(root)
 
 	wanted := ""
 	var buf strings.Builder
 
-	fmt.Fprintf(&buf, "hoot: %s\n", url)
+	fmt.Fprintf(&buf, "%s\n", url)
 	for _, div := range divs {
 		twp := div.Parent.Parent.Parent
 		alink := linksel.MatchFirst(twp)
