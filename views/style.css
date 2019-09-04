@@ -1,6 +1,12 @@
+$bg-page: #305;
+$bg-dark: #002;
+$fg: #dde;
+$fg-subtle: #aab;
+$fg-limited: #a79;
+
 body {
-	background: #305;
-	color: #dde;
+	background: $bg-page;
+	color: $fg;
 	font-size: 1em;
 	word-wrap: break-word;
 	font-family: sans-serif, "Noto Color Emoji";
@@ -11,7 +17,7 @@ pre, code {
 blockquote {
 	margin-left: 0em;
 	padding-left: 0.5em;
-	border-left: 1px solid #aab;
+	border-left: 1px solid $fg-subtle;
 }
 table {
 	display: block;
@@ -19,7 +25,7 @@ table {
 	overflow-x: auto;
 }
 a {
-	color: #dde;
+	color: $fg;
 }
 form, input, textarea {
 	font-family: monospace, "Noto Color Emoji";
@@ -29,8 +35,8 @@ p {
 	margin-bottom: 1em;
 }
 input {
-	background: #305;
-	color: #dde;
+	background: $bg-page;
+	color: $fg;
 	font-size: 1.0em;
 	line-height: 1.2em;
 	padding: 0.5em;
@@ -56,8 +62,8 @@ main {
 	font-size: 1.5em;
 }
 .info {
-	background: #002;
-	border: 1px solid #dde;
+	background: $bg-dark;
+	border: 1px solid $fg;
 	margin-bottom: 1em;
 	padding: 0em 1em 0em 1em;
 }
@@ -68,9 +74,9 @@ main {
 label, button, form input[type=submit], select {
 	font-size: 16px;
 	font-family: monospace;
-	color: #dde;
-	background: #305;
-	border: 1px solid #dde;
+	color: $fg;
+	background: $bg-page;
+	border: 1px solid $fg;
 	padding: 0.5em;
 }
 button a {
@@ -82,8 +88,8 @@ form {
 textarea {
 	padding: 0.5em;
 	font-size: 1em;
-	background: #305;
-	color: #dde;
+	background: $bg-page;
+	color: $fg;
 	width: 600px;
 	height: 8em;
 	margin-bottom: 0.5em;
@@ -101,7 +107,7 @@ input[type="checkbox"]:checked + span:after {
 	content: "yes";
 }
 input[type="checkbox"]:focus + span:after {
-	outline: 1px solid #dde;
+	outline: 1px solid $fg;
 }
 input[type=file] {
 	display: none;
@@ -110,8 +116,8 @@ input[type=file] {
 .honk {
 	width: 90%;
 	margin: auto;
-	background: #002;
-	border: 1px solid #dde;
+	background: $bg-dark;
+	border: 1px solid $fg;
 	border-radius: 1em;
 	margin-bottom: 1em;
 	padding-left: 1em;
@@ -121,14 +127,14 @@ input[type=file] {
 }
 .honk #honkform {
 	padding: 1em;
-	border: 1px solid #dde;
+	border: 1px solid $fg;
 }
 
 .honk a {
-	color: #dde;
+	color: $fg;
 }
 .honk header .clip a {
-	color: #88a;
+	color: $fg-subtle;
 }
 .honk header {
 	white-space: nowrap;
@@ -154,21 +160,21 @@ input[type=file] {
 .subtle {
 }
 .subtle .noise {
-	color: #aab;
+	color: $fg-subtle;
 	font-size: 0.8em;
 }
 .subtle .noise a {
-	color: #aab;
+	color: $fg-subtle;
 }
 .limited {
-	border: 1px solid #a79;
-	color: #a79;
+	border: 1px solid fg-limited;
+	color: fg-limited;
 }
 .limited .noise {
-	color: #a79;
+	color: fg-limited;
 }
 .limited .noise a {
-	color: #a79;
+	color: fg-limited;
 }
 details.noise[open] summary {
 	display: none;
@@ -179,10 +185,10 @@ details.noise[open] summary {
 .inlineform select {
 }
 .honk details.actions summary {
-	color: #aab;
+	color: $fg-subtle;
 }
 .limited details.actions summary {
-	color: #a79;
+	color: fg-limited;
 }
 h1, h2 {
 	font-size: 1.2em;
@@ -192,7 +198,7 @@ h3, h4 {
 }
 
 img:not(.emu) {
-	background: #305;
+	background: $bg-page;
 }
 img, video {
 	max-width: 100%

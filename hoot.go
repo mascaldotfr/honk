@@ -74,6 +74,7 @@ func hootfixer(r io.Reader, url string) string {
 	wanted := ""
 	var buf strings.Builder
 
+	filt := htfilter.New()
 	fmt.Fprintf(&buf, "%s\n", url)
 	for _, div := range divs {
 		twp := div.Parent.Parent.Parent
@@ -95,7 +96,7 @@ func hootfixer(r io.Reader, url string) string {
 		if author != wanted {
 			continue
 		}
-		text := htfilter.TextOnly(div)
+		text := filt.TextOnly(div)
 		text = strings.Replace(text, "\n", " ", -1)
 		text = strings.Replace(text, "pic.twitter.com", "https://pic.twitter.com", -1)
 

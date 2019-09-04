@@ -22,6 +22,7 @@ import (
 	"html"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"log"
 	notrand "math/rand"
 	"net/http"
@@ -33,6 +34,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"humungus.tedunangst.com/r/webs/css"
 	"humungus.tedunangst.com/r/webs/htfilter"
 	"humungus.tedunangst.com/r/webs/httpsig"
 	"humungus.tedunangst.com/r/webs/image"
@@ -1618,8 +1620,11 @@ func avatate(w http.ResponseWriter, r *http.Request) {
 }
 
 func servecss(w http.ResponseWriter, r *http.Request) {
+	data, _ := ioutil.ReadFile("views" + r.URL.Path)
+	s := css.Process(string(data))
 	w.Header().Set("Cache-Control", "max-age=7776000")
-	http.ServeFile(w, r, "views"+r.URL.Path)
+	w.Header().Set("Content-Type", "text/css; charset=utf-8")
+	w.Write([]byte(s))
 }
 func servehtml(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
