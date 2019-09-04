@@ -167,14 +167,14 @@ input[type=file] {
 	color: $fg-subtle;
 }
 .limited {
-	border: 1px solid fg-limited;
-	color: fg-limited;
+	border: 1px solid $fg-limited;
+	color: $fg-limited;
 }
 .limited .noise {
-	color: fg-limited;
+	color: $fg-limited;
 }
 .limited .noise a {
-	color: fg-limited;
+	color: $fg-limited;
 }
 details.noise[open] summary {
 	display: none;
@@ -188,7 +188,7 @@ details.noise[open] summary {
 	color: $fg-subtle;
 }
 .limited details.actions summary {
-	color: fg-limited;
+	color: $fg-limited;
 }
 h1, h2 {
 	font-size: 1.2em;
