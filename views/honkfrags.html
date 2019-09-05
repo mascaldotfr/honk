@@ -1,5 +1,7 @@
 <div>{{ .TopXID }}</div>
 {{ $BonkCSRF := .HonkCSRF }}
+<div>
 {{ range .Honks }}
 {{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF }}
 {{ end }}
+</div>

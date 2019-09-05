@@ -173,9 +173,9 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		} else {
 			honks = gethonksforuser(userid)
 			honks = osmosis(honks, userid)
-			if len(honks) > 0 {
-				templinfo["TopXID"] = honks[0].XID
-			}
+		}
+		if len(honks) > 0 {
+			templinfo["TopXID"] = honks[0].XID
 		}
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	}
@@ -1715,6 +1715,7 @@ func serve() {
 	getters := mux.Methods("GET").Subrouter()
 
 	getters.HandleFunc("/", homepage)
+	getters.HandleFunc("/home", homepage)
 	getters.HandleFunc("/front", homepage)
 	getters.HandleFunc("/robots.txt", nomoroboto)
 	getters.HandleFunc("/rss", showrss)

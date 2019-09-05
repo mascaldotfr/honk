@@ -14,31 +14,70 @@
 {{ if .TopXID }}
 <div class="info" id="refreshbox">
 <script>
-var topxid = "{{ .TopXID }}"
+var topxid = { "home" : "{{ .TopXID }}" }
+var honksforpage = { }
+var thispagename = "home"
+function fillinhonks(xhr) {
+	var doc = xhr.responseXML
+	topxid[thispagename] = doc.children[0].children[1].children[0].innerText
+	var honks = doc.children[0].children[1].children[1].children
+	var honksonpage = document.getElementById("honksonpage")
+	var lenhonks = honks.length
+	for (var i = honks.length; i > 0; i--) {
+		honksonpage.prepend(honks[i-1])
+	}
+	return lenhonks
+}
 function refreshhonks(btn) {
 	btn.innerHTML = "refreshing"
 	btn.disabled = true
-	get("/?topxid=" + escape(topxid), function(xhr) {
-		var doc = xhr.responseXML
-		topxid = doc.children[0].children[1].children[0].innerText
-		var honks = doc.children[0].children[1].children
-		var mebox = document.getElementById("refreshbox")
-		var newhonks = honks.length - 1
-		for (var i = honks.length; i > 1; i--) {
-			mebox.insertAdjacentElement('afterend', honks[i-1])
-		}
+	get("/" + thispagename + "?topxid=" + escape(topxid[thispagename]), function(xhr) {
+		var lenhonks = fillinhonks(xhr)
 		btn.innerHTML = "refresh"
 		btn.disabled = false
-		btn.parentElement.children[1].innerHTML = " " + newhonks + " new"
+		btn.parentElement.children[1].innerHTML = " " + lenhonks + " new"
 	})
 }
+function pageswitcher(name) {
+	return function(evt) {
+		if (name == thispagename) {
+			return false
+		}
+		var honksonpage = document.getElementById("honksonpage")
+		var holder = document.createElement("div");
+		while (honksonpage.children.length) {
+			holder.prepend(honksonpage.children[0])
+		}
+		honksforpage[thispagename] = holder
+		thispagename = name
+		holder = honksforpage[name]
+		if (holder) {
+			while (holder.children.length) {
+				honksonpage.prepend(holder.children[0])
+			}
+		} else {
+			get("/" + name + "?topxid=" + escape(topxid[thispagename]), function(xhr) {
+				fillinhonks(xhr)
+			})
+		}
+		return false
+	}
+}
+(function() {
+	var el = document.getElementById("homelink")
+	el.onclick = pageswitcher("home")
+	var el = document.getElementById("atmelink")
+	el.onclick = pageswitcher("atme")
+})();
 </script>
 <p><button onclick="refreshhonks(this)">refresh</button><span></span>
 </div>
 {{ end }}
+<div id="honksonpage">
 {{ range .Honks }}
 {{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF }}
 {{ end }}
+</div>
 </main>
 {{ if $BonkCSRF }}
 <script>
