@@ -14,9 +14,9 @@
 {{ if .TopXID }}
 <div class="info" id="refreshbox">
 <script>
-var topxid = { "home" : "{{ .TopXID }}" }
+var topxid = { "{{ .PageName }}" : "{{ .TopXID }}" }
 var honksforpage = { }
-var thispagename = "home"
+var thispagename = "{{ .PageName }}"
 function fillinhonks(xhr) {
 	var doc = xhr.responseXML
 	topxid[thispagename] = doc.children[0].children[1].children[0].innerText

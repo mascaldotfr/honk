@@ -169,8 +169,10 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	} else {
 		userid = u.UserID
 		if r.URL.Path == "/atme" {
+			templinfo["PageName"] = "atme"
 			honks = gethonksforme(userid)
 		} else {
+			templinfo["PageName"] = "home"
 			honks = gethonksforuser(userid)
 			honks = osmosis(honks, userid)
 		}
