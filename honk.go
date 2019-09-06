@@ -248,6 +248,9 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 	} else {
 		honks = getpublichonks()
 	}
+	if len(honks) > 20 {
+		honks = honks[0:20]
+	}
 	reverbolate(-1, honks)
 
 	home := fmt.Sprintf("https://%s/", serverName)
@@ -549,6 +552,9 @@ func outbox(w http.ResponseWriter, r *http.Request) {
 	}
 
 	honks := gethonksbyuser(name, false)
+	if len(honks) > 20 {
+		honks = honks[0:20]
+	}
 
 	var jonks []junk.Junk
 	for _, h := range honks {
