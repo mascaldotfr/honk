@@ -209,6 +209,10 @@ func needxonkid(user *WhatAbout, xid string) bool {
 	if strings.HasPrefix(xid, user.URL+"/") {
 		return false
 	}
+	if thoudostbitethythumb(user.ID, nil, xid) {
+		log.Printf("don't need thumb biter? %s", xid)
+		return false
+	}
 	if iszonked(user.ID, xid) {
 		log.Printf("already zonked: %s", xid)
 		return false
