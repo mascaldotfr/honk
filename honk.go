@@ -99,6 +99,7 @@ type Donk struct {
 	FileID  int64
 	XID     string
 	Name    string
+	Desc    string
 	URL     string
 	Media   string
 	Local   bool
@@ -979,7 +980,7 @@ func donksforhonks(honks []*Honk) {
 		ids = append(ids, fmt.Sprintf("%d", h.ID))
 		hmap[h.ID] = h
 	}
-	q := fmt.Sprintf("select honkid, donks.fileid, xid, name, url, media, local from donks join files on donks.fileid = files.fileid where honkid in (%s)", strings.Join(ids, ","))
+	q := fmt.Sprintf("select honkid, donks.fileid, xid, name, description, url, media, local from donks join files on donks.fileid = files.fileid where honkid in (%s)", strings.Join(ids, ","))
 	rows, err := db.Query(q)
 	if err != nil {
 		log.Printf("error querying donks: %s", err)
@@ -989,7 +990,7 @@ func donksforhonks(honks []*Honk) {
 	for rows.Next() {
 		var hid int64
 		var d Donk
-		err = rows.Scan(&hid, &d.FileID, &d.XID, &d.Name, &d.URL, &d.Media, &d.Local)
+		err = rows.Scan(&hid, &d.FileID, &d.XID, &d.Name, &d.Desc, &d.URL, &d.Media, &d.Local)
 		if err != nil {
 			log.Printf("error scanning donk: %s", err)
 			continue
@@ -1273,19 +1274,15 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 				}
 				xid += ".txt"
 			}
+			desc := r.FormValue("donkdesc")
 			url := fmt.Sprintf("https://%s/d/%s", serverName, xid)
-			res, err := stmtSaveFile.Exec(xid, name, url, media, 1, data)
+			res, err := stmtSaveFile.Exec(xid, name, desc, url, media, 1, data)
 			if err != nil {
 				log.Printf("unable to save image: %s", err)
 				return
 			}
 			var d Donk
 			d.FileID, _ = res.LastInsertId()
-			d.XID = name
-			d.Name = name
-			d.Media = media
-			d.URL = url
-			d.Local = true
 			honk.Donks = append(honk.Donks, &d)
 			donkxid = d.XID
 		}
@@ -1296,9 +1293,6 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		row := stmtFindFile.QueryRow(url)
 		err := row.Scan(&donk.FileID)
 		if err == nil {
-			donk.XID = xid
-			donk.Local = true
-			donk.URL = url
 			honk.Donks = append(honk.Donks, &donk)
 		} else {
 			log.Printf("can't find file: %s", xid)
@@ -1306,7 +1300,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	}
 	herd := herdofemus(honk.Noise)
 	for _, e := range herd {
-		donk := savedonk(e.ID, e.Name, "image/png", true)
+		donk := savedonk(e.ID, e.Name, e.Name, "image/png", true)
 		if donk != nil {
 			donk.Name = e.Name
 			honk.Donks = append(honk.Donks, donk)
@@ -1359,6 +1353,8 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 			log.Printf("error saving ont: %s", err)
 		}
 	}
+	honk.Donks = nil
+	donksforhonks([]*Honk{&honk})
 
 	go honkworldwide(user, &honk)
 
@@ -1847,7 +1843,7 @@ func prepareStatements(db *sql.DB) {
 	stmtZonkIt = preparetodie(db, "delete from honks where honkid = ?")
 	stmtZonkDonks = preparetodie(db, "delete from donks where honkid = ?")
 	stmtFindFile = preparetodie(db, "select fileid from files where url = ? and local = 1")
-	stmtSaveFile = preparetodie(db, "insert into files (xid, name, url, media, local, content) values (?, ?, ?, ?, ?, ?)")
+	stmtSaveFile = preparetodie(db, "insert into files (xid, name, description, url, media, local, content) values (?, ?, ?, ?, ?, ?, ?)")
 	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey, options from users where username = ?")
 	stmtSaveDub = preparetodie(db, "insert into honkers (userid, name, xid, flavor) values (?, ?, ?, ?)")
 	stmtAddDoover = preparetodie(db, "insert into doovers (dt, tries, username, rcpt, msg) values (?, ?, ?, ?, ?)")

@@ -123,7 +123,7 @@ func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
 	})
 }
 
-func savedonk(url string, name, media string, localize bool) *Donk {
+func savedonk(url string, name, desc, media string, localize bool) *Donk {
 	if url == "" {
 		return nil
 	}
@@ -173,7 +173,7 @@ func savedonk(url string, name, media string, localize bool) *Donk {
 		}
 	}
 saveit:
-	res, err := stmtSaveFile.Exec(xid, name, url, media, localize, data)
+	res, err := stmtSaveFile.Exec(xid, name, desc, url, media, localize, data)
 	if err != nil {
 		log.Printf("error saving file %s: %s", url, err)
 		return nil
@@ -641,6 +641,11 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				mt, _ := att.GetString("mediaType")
 				u, _ := att.GetString("url")
 				name, _ := att.GetString("name")
+				desc, _ := att.GetString("summary")
+				log.Printf("att: %s %s %s", name, desc, u)
+				if desc == "" {
+					desc = name
+				}
 				localize := false
 				if i > 4 {
 					log.Printf("excessive attachment: %s", at)
@@ -653,7 +658,8 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				} else {
 					log.Printf("unknown attachment: %s", at)
 				}
-				donk := savedonk(u, name, mt, localize)
+				log.Printf("saving a donk: %s is %s", name, desc)
+				donk := savedonk(u, name, desc, mt, localize)
 				if donk != nil {
 					xonk.Donks = append(xonk.Donks, donk)
 				}
@@ -666,6 +672,10 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				}
 				tt, _ := tag.GetString("type")
 				name, _ := tag.GetString("name")
+				desc, _ := tag.GetString("summary")
+				if desc == "" {
+					desc = name
+				}
 				if tt == "Emoji" {
 					icon, _ := tag.GetMap("icon")
 					mt, _ := icon.GetString("mediaType")
@@ -673,7 +683,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 						mt = "image/png"
 					}
 					u, _ := icon.GetString("url")
-					donk := savedonk(u, name, mt, true)
+					donk := savedonk(u, name, desc, mt, true)
 					if donk != nil {
 						xonk.Donks = append(xonk.Donks, donk)
 					}
@@ -890,6 +900,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			jd := junk.New()
 			jd["mediaType"] = d.Media
 			jd["name"] = d.Name
+			jd["summary"] = d.Desc
 			jd["type"] = "Document"
 			jd["url"] = d.URL
 			atts = append(atts, jd)

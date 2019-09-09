@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Image descriptions.
+
 ++ Search. I hate it already.
 
 + Unbonking.
