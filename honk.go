@@ -1275,6 +1275,9 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 				xid += ".txt"
 			}
 			desc := r.FormValue("donkdesc")
+			if desc == "" {
+				desc = name
+			}
 			url := fmt.Sprintf("https://%s/d/%s", serverName, xid)
 			res, err := stmtSaveFile.Exec(xid, name, desc, url, media, 1, data)
 			if err != nil {
