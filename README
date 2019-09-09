@@ -34,6 +34,8 @@ You'll need a go compiler version 1.11 or later.
 
 Even on a fast machine, building from source can take several seconds.
 
+Development sources: hg clone https://humungus.tedunangst.com/r/honk
+
 -- requirements
 
 libsqlite3 (you probably already have it)
