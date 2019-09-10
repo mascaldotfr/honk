@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Quick mention @alias.
+
 + Image descriptions.
 
 ++ Search. I hate it already.

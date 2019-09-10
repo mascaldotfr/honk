@@ -346,6 +346,32 @@ func obfusbreak(s string) string {
 	return s
 }
 
+var re_quickmention = regexp.MustCompile("(^| )@[[:alnum:]]+ ")
+
+func quickrename(s string, userid int64) string {
+	return re_quickmention.ReplaceAllStringFunc(s, func(m string) string {
+		prefix := ""
+		if m[0] == ' ' {
+			prefix = " "
+			m = m[1:]
+		}
+		prefix += "@"
+		m = m[1:]
+		m = m[:len(m)-1]
+
+		row := stmtOneHonker.QueryRow(m, userid)
+		var xid string
+		err := row.Scan(&xid)
+		if err == nil {
+			_, name := handles(xid)
+			if name != "" {
+				m = name
+			}
+		}
+		return prefix + m + " "
+	})
+}
+
 func mentionize(s string) string {
 	s = re_mentions.ReplaceAllStringFunc(s, func(m string) string {
 		where := gofish(m)

@@ -1186,6 +1186,7 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 			noise = noise[idx+1:]
 		}
 	}
+	noise = quickrename(noise, userinfo.UserID)
 	noise = hooterize(noise)
 	noise = strings.TrimSpace(noise)
 	honk.Precis = strings.TrimSpace(honk.Precis)
@@ -1801,7 +1802,7 @@ var stmtOneXonk, stmtPublicHonks, stmtUserHonks, stmtHonksByCombo, stmtHonksByCo
 var stmtHonksByOntology, stmtHonksForUser, stmtHonksForMe, stmtSaveDub, stmtHonksByXonker *sql.Stmt
 var stmtHonksBySearch, stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
 var stmtOneBonk, stmtFindZonk, stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
-var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover *sql.Stmt
+var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover, stmtOneHonker *sql.Stmt
 var stmtHasHonker, stmtThumbBiters, stmtZonkIt, stmtZonkDonks, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
 var stmtSelectOnts, stmtSaveOnts, stmtUpdateFlags, stmtClearFlags *sql.Stmt
@@ -1820,6 +1821,7 @@ func prepareStatements(db *sql.DB) {
 	stmtUpdateFlavor = preparetodie(db, "update honkers set flavor = ? where userid = ? and xid = ? and flavor = ?")
 	stmtUpdateCombos = preparetodie(db, "update honkers set combos = ? where honkerid = ? and userid = ?")
 	stmtHasHonker = preparetodie(db, "select honkerid from honkers where xid = ? and userid = ?")
+	stmtOneHonker = preparetodie(db, "select xid from honkers where name = ? and userid = ?")
 	stmtDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
 
 	selecthonks := "select honks.honkid, honks.userid, username, what, honker, oonker, honks.xid, rid, dt, url, audience, noise, precis, convoy, whofore, flags, onts from honks join users on honks.userid = users.userid "
