@@ -47,16 +47,16 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ if eq .Media "text/plain" }}
 <p><a href="/d/{{ .XID }}">Attachment: {{ .Name }}</a>
 {{ else }}
-<p><a href="/d/{{ .XID }}"><img src="/d/{{ .XID }}" title="{{ .Desc }}" alt="{{ .Desc }}"></a>
+<p><img src="/d/{{ .XID }}" title="{{ .Desc }}" alt="{{ .Desc }}">
 {{ end }}
 {{ else }}
 {{ if .XID }}
 <p><a href="{{ .URL }}">External Attachment: {{ .Name }}</a>
 {{ else }}
 {{ if eq .Media "video/mp4" }}
-<p><a href="{{ .URL }}"><video controls src="{{ .URL }}">{{ .Name }}</video></a>
+<p><video controls src="{{ .URL }}">{{ .Name }}</video>
 {{ else }}
-<p><a href="{{ .URL }}"><img src="{{ .URL }}" title="{{ .Desc }}" alt="{{ .Desc }}"></a>
+<p><img src="{{ .URL }}" title="{{ .Desc }}" alt="{{ .Desc }}">
 {{ end }}
 {{ end }}
 {{ end }}
