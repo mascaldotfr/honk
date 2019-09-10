@@ -735,6 +735,7 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 		What:     "bonk",
 		Honker:   user.URL,
 		XID:      xonk.XID,
+		RID:      xonk.RID,
 		Date:     dt,
 		Donks:    xonk.Donks,
 		Convoy:   xonk.Convoy,
@@ -745,7 +746,7 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 	aud := strings.Join(bonk.Audience, " ")
 	whofore := 2
 	onts := xonk.Onts
-	res, err := stmtSaveHonk.Exec(userinfo.UserID, "bonk", bonk.Honker, xid, "",
+	res, err := stmtSaveHonk.Exec(userinfo.UserID, "bonk", bonk.Honker, xid, bonk.RID,
 		dt.Format(dbtimeformat), "", aud, xonk.Noise, xonk.Convoy, whofore, "html",
 		xonk.Precis, oonker, 0, strings.Join(onts, " "))
 	if err != nil {
