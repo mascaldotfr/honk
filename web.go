@@ -421,7 +421,7 @@ func ximport(w http.ResponseWriter, r *http.Request) {
 	convoy := ""
 	if xonk != nil {
 		convoy = xonk.Convoy
-		savexonk(user, xonk)
+		savexonk(xonk)
 	}
 	http.Redirect(w, r, "/t?c="+url.QueryEscape(convoy), http.StatusSeeOther)
 }
@@ -703,7 +703,7 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/account", http.StatusSeeOther)
 }
 
-func savebonk(w http.ResponseWriter, r *http.Request) {
+func submitbonk(w http.ResponseWriter, r *http.Request) {
 	xid := r.FormValue("xid")
 	userinfo := login.GetUserInfo(r)
 	user, _ := butwhatabout(userinfo.Username)
@@ -734,38 +734,26 @@ func savebonk(w http.ResponseWriter, r *http.Request) {
 		Username: userinfo.Username,
 		What:     "bonk",
 		Honker:   user.URL,
+		Oonker:   oonker,
 		XID:      xonk.XID,
 		RID:      xonk.RID,
+		Noise:    xonk.Noise,
+		Precis:   xonk.Precis,
+		URL:      xonk.URL,
 		Date:     dt,
 		Donks:    xonk.Donks,
+		Whofore:  2,
 		Convoy:   xonk.Convoy,
 		Audience: []string{thewholeworld, oonker},
 		Public:   true,
 	}
 
-	aud := strings.Join(bonk.Audience, " ")
-	whofore := 2
-	onts := xonk.Onts
-	res, err := stmtSaveHonk.Exec(userinfo.UserID, "bonk", bonk.Honker, xid, bonk.RID,
-		dt.Format(dbtimeformat), "", aud, xonk.Noise, xonk.Convoy, whofore, "html",
-		xonk.Precis, oonker, 0, strings.Join(onts, " "))
+	bonk.Format = "html"
+
+	err = savehonk(&bonk)
 	if err != nil {
-		log.Printf("error saving bonk: %s", err)
+		log.Printf("uh oh")
 		return
-	}
-	bonk.ID, _ = res.LastInsertId()
-	for _, d := range bonk.Donks {
-		_, err = stmtSaveDonk.Exec(bonk.ID, d.FileID)
-		if err != nil {
-			log.Printf("err saving donk: %s", err)
-			return
-		}
-	}
-	for _, o := range onts {
-		_, err = stmtSaveOnts.Exec(strings.ToLower(o), bonk.ID)
-		if err != nil {
-			log.Printf("error saving ont: %s", err)
-		}
 	}
 
 	go honkworldwide(user, &bonk)
@@ -859,7 +847,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func savehonk(w http.ResponseWriter, r *http.Request) {
+func submithonk(w http.ResponseWriter, r *http.Request) {
 	rid := r.FormValue("rid")
 	noise := r.FormValue("noise")
 
@@ -1016,10 +1004,10 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 	}
 	memetize(&honk)
 
-	aud := strings.Join(honk.Audience, " ")
-	whofore := 2
-	if !honk.Public {
-		whofore = 3
+	if honk.Public {
+		honk.Whofore = 2
+	} else {
+		honk.Whofore = 3
 	}
 	if r.FormValue("preview") == "preview" {
 		honks := []*Honk{&honk}
@@ -1038,29 +1026,21 @@ func savehonk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	honk.Onts = oneofakind(ontologies(honk.Noise))
-	res, err := stmtSaveHonk.Exec(userinfo.UserID, what, honk.Honker, xid, rid,
-		dt.Format(dbtimeformat), "", aud, honk.Noise, convoy, whofore, "html",
-		honk.Precis, honk.Oonker, 0, strings.Join(honk.Onts, " "))
+	honk.UserID = userinfo.UserID
+	honk.What = what
+	honk.XID = xid
+	honk.RID = rid
+	honk.Date = dt
+	honk.Convoy = convoy
+	honk.Format = "html"
+
+	err := savehonk(&honk)
 	if err != nil {
-		log.Printf("error saving honk: %s", err)
-		http.Error(w, "something bad happened while saving", http.StatusInternalServerError)
+		log.Printf("uh oh")
 		return
 	}
-	honk.ID, _ = res.LastInsertId()
-	for _, d := range honk.Donks {
-		_, err = stmtSaveDonk.Exec(honk.ID, d.FileID)
-		if err != nil {
-			log.Printf("err saving donk: %s", err)
-			http.Error(w, "something bad happened while saving", http.StatusInternalServerError)
-			return
-		}
-	}
-	for _, o := range honk.Onts {
-		_, err = stmtSaveOnts.Exec(strings.ToLower(o), honk.ID)
-		if err != nil {
-			log.Printf("error saving ont: %s", err)
-		}
-	}
+
+	// reload for consistency
 	honk.Donks = nil
 	donksforhonks([]*Honk{&honk})
 
@@ -1073,7 +1053,7 @@ func showhonkers(w http.ResponseWriter, r *http.Request) {
 	userinfo := login.GetUserInfo(r)
 	templinfo := getInfo(r)
 	templinfo["Honkers"] = gethonkers(userinfo.UserID)
-	templinfo["HonkerCSRF"] = login.GetCSRF("savehonker", r)
+	templinfo["HonkerCSRF"] = login.GetCSRF("submithonker", r)
 	err := readviews.Execute(w, "honkers.html", templinfo)
 	if err != nil {
 		log.Print(err)
@@ -1102,7 +1082,7 @@ func showcombos(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func savehonker(w http.ResponseWriter, r *http.Request) {
+func submithonker(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	name := r.FormValue("name")
 	url := r.FormValue("url")
@@ -1455,8 +1435,8 @@ func serve() {
 	loggedin.HandleFunc("/atme", homepage)
 	loggedin.HandleFunc("/zonkzone", zonkzone)
 	loggedin.HandleFunc("/xzone", xzone)
-	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(savehonk)))
-	loggedin.Handle("/bonk", login.CSRFWrap("honkhonk", http.HandlerFunc(savebonk)))
+	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(submithonk)))
+	loggedin.Handle("/bonk", login.CSRFWrap("honkhonk", http.HandlerFunc(submitbonk)))
 	loggedin.Handle("/zonkit", login.CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
 	loggedin.Handle("/zonkzonk", login.CSRFWrap("zonkzonk", http.HandlerFunc(zonkzonk)))
 	loggedin.Handle("/saveuser", login.CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
@@ -1468,7 +1448,7 @@ func serve() {
 	loggedin.HandleFunc("/c", showcombos)
 	loggedin.HandleFunc("/t", showconvoy)
 	loggedin.HandleFunc("/q", showsearch)
-	loggedin.Handle("/savehonker", login.CSRFWrap("savehonker", http.HandlerFunc(savehonker)))
+	loggedin.Handle("/submithonker", login.CSRFWrap("submithonker", http.HandlerFunc(submithonker)))
 
 	err = http.Serve(listener, mux)
 	if err != nil {

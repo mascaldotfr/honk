@@ -48,6 +48,7 @@ type Honk struct {
 	URL      string
 	Noise    string
 	Precis   string
+	Format   string
 	Convoy   string
 	Audience []string
 	Public   bool

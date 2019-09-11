@@ -246,6 +246,35 @@ func donksforhonks(honks []*Honk) {
 	}
 }
 
+func savehonk(h *Honk) error {
+	dt := h.Date.UTC().Format(dbtimeformat)
+	aud := strings.Join(h.Audience, " ")
+
+	res, err := stmtSaveHonk.Exec(h.UserID, h.What, h.Honker, h.XID, h.RID, dt, h.URL,
+		aud, h.Noise, h.Convoy, h.Whofore, h.Format, h.Precis,
+		h.Oonker, h.Flags, strings.Join(h.Onts, " "))
+	if err != nil {
+		log.Printf("err saving honk: %s", err)
+		return err
+	}
+	h.ID, _ = res.LastInsertId()
+	for _, d := range h.Donks {
+		_, err = stmtSaveDonk.Exec(h.ID, d.FileID)
+		if err != nil {
+			log.Printf("err saving donk: %s", err)
+			return err
+		}
+	}
+	for _, o := range h.Onts {
+		_, err = stmtSaveOnts.Exec(strings.ToLower(o), h.ID)
+		if err != nil {
+			log.Printf("error saving ont: %s", err)
+			return err
+		}
+	}
+	return nil
+}
+
 func cleanupdb(arg string) {
 	db := opendatabase()
 	days, err := strconv.Atoi(arg)

@@ -229,10 +229,10 @@ func needxonkid(user *WhatAbout, xid string) bool {
 	return true
 }
 
-func savexonk(user *WhatAbout, x *Honk) {
+func savexonk(x *Honk) {
 	if x.What == "eradicate" {
 		log.Printf("eradicating %s by %s", x.XID, x.Honker)
-		xonk := getxonk(user.ID, x.XID)
+		xonk := getxonk(x.UserID, x.XID)
 		if xonk != nil {
 			_, err := stmtZonkDonks.Exec(xonk.ID)
 			if err != nil {
@@ -243,42 +243,16 @@ func savexonk(user *WhatAbout, x *Honk) {
 				log.Printf("error eradicating: %s", err)
 			}
 		}
-		_, err := stmtSaveZonker.Exec(user.ID, x.XID, "zonk")
+		_, err := stmtSaveZonker.Exec(x.UserID, x.XID, "zonk")
 		if err != nil {
 			log.Printf("error eradicating: %s", err)
 		}
 		return
 	}
 	log.Printf("saving xonk: %s", x.XID)
-	dt := x.Date.UTC().Format(dbtimeformat)
-	aud := strings.Join(x.Audience, " ")
-	whofore := 0
-	if strings.Contains(aud, user.URL) {
-		whofore = 1
-	}
 	go prehandle(x.Honker)
 	go prehandle(x.Oonker)
-	res, err := stmtSaveHonk.Exec(x.UserID, x.What, x.Honker, x.XID, x.RID, dt, x.URL, aud,
-		x.Noise, x.Convoy, whofore, "html", x.Precis, x.Oonker, 0, strings.Join(x.Onts, " "))
-	if err != nil {
-		log.Printf("err saving xonk: %s", err)
-		return
-	}
-	x.ID, _ = res.LastInsertId()
-	for _, d := range x.Donks {
-		_, err = stmtSaveDonk.Exec(x.ID, d.FileID)
-		if err != nil {
-			log.Printf("err saving donk: %s", err)
-			return
-		}
-	}
-	for _, o := range x.Onts {
-		_, err = stmtSaveOnts.Exec(strings.ToLower(o), x.ID)
-		if err != nil {
-			log.Printf("error saving ont: %s", err)
-		}
-	}
-
+	savehonk(x)
 }
 
 type Box struct {
@@ -377,7 +351,7 @@ func gimmexonks(user *WhatAbout, outbox string) {
 			}
 			xonk := xonkxonk(user, obj, origin)
 			if xonk != nil {
-				savexonk(user, xonk)
+				savexonk(xonk)
 			}
 		}
 	}
@@ -458,7 +432,7 @@ func extractattrto(obj junk.Junk) string {
 func consumeactivity(user *WhatAbout, j junk.Junk, origin string) {
 	xonk := xonkxonk(user, j, origin)
 	if xonk != nil {
-		savexonk(user, xonk)
+		savexonk(xonk)
 	}
 }
 
@@ -482,7 +456,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		depth++
 		xonk := xonkxonkfn(obj, originate(xid))
 		if xonk != nil {
-			savexonk(user, xonk)
+			savexonk(xonk)
 		}
 		depth--
 	}
@@ -710,6 +684,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		if oonker == who {
 			oonker = ""
 		}
+		// init xonk
 		xonk.UserID = user.ID
 		xonk.What = what
 		xonk.Honker = who
@@ -721,6 +696,12 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		xonk.Precis = precis
 		xonk.Audience = audience
 		xonk.Oonker = oonker
+		xonk.Format = "html"
+		for _, a := range audience {
+			if a == user.URL {
+				xonk.Whofore = 1
+			}
+		}
 
 		if needxonk(user, &xonk) {
 			if rid != "" {
