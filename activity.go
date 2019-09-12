@@ -616,7 +616,6 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				u, _ := att.GetString("url")
 				name, _ := att.GetString("name")
 				desc, _ := att.GetString("summary")
-				log.Printf("att: %s %s %s", name, desc, u)
 				if desc == "" {
 					desc = name
 				}
