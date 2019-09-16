@@ -484,7 +484,6 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			origin = originate(xid)
 			what = "bonk"
 		case "Update":
-			log.Printf("should be updating")
 			isUpdate = true
 			fallthrough
 		case "Create":
@@ -701,6 +700,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		}
 
 		if isUpdate {
+			log.Printf("something has changed! %s", xonk.XID)
 			prev := getxonk(user.ID, xonk.XID)
 			if prev == nil {
 				log.Printf("didn't find old version for update: %s", xonk.XID)
