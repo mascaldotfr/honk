@@ -90,35 +90,14 @@ func allusers() []login.UserInfo {
 	return users
 }
 
-func scanxonk(row *sql.Row) *Honk {
-	h := new(Honk)
-	var dt, aud, onts string
-
-	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker, &h.XID, &h.RID,
-		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy, &h.Whofore, &h.Flags, &onts)
-	if err != nil {
-		if err != sql.ErrNoRows {
-			log.Printf("error scanning xonk: %s", err)
-		}
-		return nil
-	}
-	h.Date, _ = time.Parse(dbtimeformat, dt)
-	h.Audience = strings.Split(aud, " ")
-	h.Public = !keepitquiet(h.Audience)
-	if len(onts) > 0 {
-		h.Onts = strings.Split(onts, " ")
-	}
-	return h
-}
-
 func getxonk(userid int64, xid string) *Honk {
 	row := stmtOneXonk.QueryRow(userid, xid)
-	return scanxonk(row)
+	return scanhonk(row)
 }
 
 func getbonk(userid int64, xid string) *Honk {
 	row := stmtOneBonk.QueryRow(userid, xid)
-	return scanxonk(row)
+	return scanhonk(row)
 }
 
 func getpublichonks() []*Honk {
@@ -186,25 +165,38 @@ func getsomehonks(rows *sql.Rows, err error) []*Honk {
 	defer rows.Close()
 	var honks []*Honk
 	for rows.Next() {
-		var h Honk
-		var dt, aud, onts string
-		err = rows.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker, &h.XID,
-			&h.RID, &dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy, &h.Whofore, &h.Flags, &onts)
-		if err != nil {
-			log.Printf("error scanning honks: %s", err)
-			return nil
+		h := scanhonk(rows)
+		if h != nil {
+			honks = append(honks, h)
 		}
-		h.Date, _ = time.Parse(dbtimeformat, dt)
-		h.Audience = strings.Split(aud, " ")
-		h.Public = !keepitquiet(h.Audience)
-		if len(onts) > 0 {
-			h.Onts = strings.Split(onts, " ")
-		}
-		honks = append(honks, &h)
 	}
 	rows.Close()
 	donksforhonks(honks)
 	return honks
+}
+
+type RowLike interface {
+	Scan(dest ...interface{}) error
+}
+
+func scanhonk(row RowLike) *Honk {
+	h := new(Honk)
+	var dt, aud, onts string
+	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker, &h.XID, &h.RID,
+		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy, &h.Whofore, &h.Flags, &onts)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			log.Printf("error scanning honk: %s", err)
+		}
+		return nil
+	}
+	h.Date, _ = time.Parse(dbtimeformat, dt)
+	h.Audience = strings.Split(aud, " ")
+	h.Public = !keepitquiet(h.Audience)
+	if len(onts) > 0 {
+		h.Onts = strings.Split(onts, " ")
+	}
+	return h
 }
 
 func donksforhonks(honks []*Honk) {
