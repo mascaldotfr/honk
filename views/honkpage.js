@@ -92,34 +92,44 @@ function refreshhonks(btn) {
 		btn.parentElement.children[1].innerHTML = " " + lenhonks + " new"
 	})
 }
+function statechanger(evt) {
+	var name = evt.state
+	if (!name) {
+		return
+	}
+	switchtopage(name)
+}
+function switchtopage(name, evt) {
+	var honksonpage = document.getElementById("honksonpage")
+	var holder = honksonpage.children[0]
+	holder.remove()
+	if (thispagename != "convoy") {
+		honksforpage[thispagename] = holder
+	}
+	thispagename = name
+	holder = honksforpage[name]
+	if (holder) {
+		honksonpage.prepend(holder)
+	} else {
+		honksonpage.prepend(document.createElement("div"))
+		var args = { "page" : name }
+		if (name == "convoy") {
+			var c = evt.srcElement.text
+			args["c"] = c
+		} else {
+			args["topxid"] = topxid[name]
+		}
+		get("/hydra?" + encode(args), fillinhonks)
+	}
+}
 function pageswitcher(name) {
 	return function(evt) {
 		if (name == thispagename) {
 			return false
 		}
-		var honksonpage = document.getElementById("honksonpage")
-		var holder = honksonpage.children[0]
-		holder.remove()
-		if (thispagename != "convoy") {
-			honksforpage[thispagename] = holder
-		}
-
-		thispagename = name
-		holder = honksforpage[name]
-		if (holder) {
-			honksonpage.prepend(holder)
-		} else {
-			honksonpage.prepend(document.createElement("div"))
-			var args = { "page" : name }
-			if (name == "convoy") {
-				console.log("convoy page")
-				var c = evt.srcElement.text
-				args["c"] = c
-			} else {
-				args["topxid"] = topxid[name]
-			}
-			get("/hydra?" + encode(args), fillinhonks)
-		}
+		switchtopage(name, evt)
+		var url = evt.srcElement.href
+		history.pushState(name, "some title", url)
 		return false
 	}
 }
@@ -130,10 +140,10 @@ function relinkconvoys() {
 	}
 }
 (function() {
-	console.log("ok")
 	var el = document.getElementById("homelink")
 	el.onclick = pageswitcher("home")
 	var el = document.getElementById("atmelink")
 	el.onclick = pageswitcher("atme")
 	relinkconvoys()
+	window.onpopstate = statechanger
 })();
