@@ -90,10 +90,10 @@ func allusers() []login.UserInfo {
 	return users
 }
 
-func getxonk(userid int64, xid string) *Honk {
+func scanxonk(row *sql.Row) *Honk {
 	h := new(Honk)
 	var dt, aud, onts string
-	row := stmtOneXonk.QueryRow(userid, xid)
+
 	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker, &h.XID, &h.RID,
 		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy, &h.Whofore, &h.Flags, &onts)
 	if err != nil {
@@ -111,25 +111,14 @@ func getxonk(userid int64, xid string) *Honk {
 	return h
 }
 
+func getxonk(userid int64, xid string) *Honk {
+	row := stmtOneXonk.QueryRow(userid, xid)
+	return scanxonk(row)
+}
+
 func getbonk(userid int64, xid string) *Honk {
-	h := new(Honk)
-	var dt, aud, onts string
 	row := stmtOneBonk.QueryRow(userid, xid)
-	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker, &h.XID, &h.RID,
-		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy, &h.Whofore, &h.Flags, &onts)
-	if err != nil {
-		if err != sql.ErrNoRows {
-			log.Printf("error scanning xonk: %s", err)
-		}
-		return nil
-	}
-	h.Date, _ = time.Parse(dbtimeformat, dt)
-	h.Audience = strings.Split(aud, " ")
-	h.Public = !keepitquiet(h.Audience)
-	if len(onts) > 0 {
-		h.Onts = strings.Split(onts, " ")
-	}
-	return h
+	return scanxonk(row)
 }
 
 func getpublichonks() []*Honk {
