@@ -234,14 +234,7 @@ func savexonk(x *Honk) {
 		log.Printf("eradicating %s by %s", x.XID, x.Honker)
 		xonk := getxonk(x.UserID, x.XID)
 		if xonk != nil {
-			_, err := stmtZonkDonks.Exec(xonk.ID)
-			if err != nil {
-				log.Printf("error eradicating: %s", err)
-			}
-			_, err = stmtZonkIt.Exec(xonk.ID)
-			if err != nil {
-				log.Printf("error eradicating: %s", err)
-			}
+			deletehonk(xonk.ID)
 		}
 		_, err := stmtSaveZonker.Exec(x.UserID, x.XID, "zonk")
 		if err != nil {

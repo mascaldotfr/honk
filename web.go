@@ -794,16 +794,9 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	if wherefore == "unbonk" {
 		xonk := getbonk(userinfo.UserID, what)
 		if xonk != nil {
-			_, err := stmtZonkDonks.Exec(xonk.ID)
-			if err != nil {
-				log.Printf("error zonking: %s", err)
-			}
-			_, err = stmtZonkIt.Exec(xonk.ID)
-			if err != nil {
-				log.Printf("error zonking: %s", err)
-			}
+			deletehonk(xonk.ID)
 			xonk = getxonk(userinfo.UserID, what)
-			_, err = stmtClearFlags.Exec(flagIsBonked, xonk.ID)
+			_, err := stmtClearFlags.Exec(flagIsBonked, xonk.ID)
 			if err != nil {
 				log.Printf("error unbonking: %s", err)
 			}
@@ -816,14 +809,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	if wherefore == "zonk" {
 		xonk := getxonk(userinfo.UserID, what)
 		if xonk != nil {
-			_, err := stmtZonkDonks.Exec(xonk.ID)
-			if err != nil {
-				log.Printf("error zonking: %s", err)
-			}
-			_, err = stmtZonkIt.Exec(xonk.ID)
-			if err != nil {
-				log.Printf("error zonking: %s", err)
-			}
+			deletehonk(xonk.ID)
 			if xonk.Whofore == 2 || xonk.Whofore == 3 {
 				sendzonkofsorts(xonk, user, "zonk")
 			}

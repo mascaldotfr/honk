@@ -247,13 +247,28 @@ func savehonk(h *Honk) error {
 		}
 	}
 	for _, o := range h.Onts {
-		_, err = stmtSaveOnts.Exec(strings.ToLower(o), h.ID)
+		_, err = stmtSaveOnt.Exec(strings.ToLower(o), h.ID)
 		if err != nil {
 			log.Printf("error saving ont: %s", err)
 			return err
 		}
 	}
 	return nil
+}
+
+func deletehonk(honkid int64) {
+	_, err := stmtDeleteDonks.Exec(honkid)
+	if err != nil {
+		log.Printf("error deleting: %s", err)
+	}
+	_, err = stmtDeleteOnts.Exec(honkid)
+	if err != nil {
+		log.Printf("error deleting: %s", err)
+	}
+	_, err = stmtDeleteHonk.Exec(honkid)
+	if err != nil {
+		log.Printf("error deleting: %s", err)
+	}
 }
 
 func cleanupdb(arg string) {
@@ -281,9 +296,9 @@ var stmtHonksByOntology, stmtHonksForUser, stmtHonksForMe, stmtSaveDub, stmtHonk
 var stmtHonksBySearch, stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
 var stmtOneBonk, stmtFindZonk, stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover, stmtOneHonker *sql.Stmt
-var stmtThumbBiters, stmtZonkIt, stmtZonkDonks, stmtSaveZonker *sql.Stmt
+var stmtThumbBiters, stmtDeleteHonk, stmtDeleteDonks, stmtDeleteOnts, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
-var stmtSelectOnts, stmtSaveOnts, stmtUpdateFlags, stmtClearFlags *sql.Stmt
+var stmtSelectOnts, stmtSaveOnt, stmtUpdateFlags, stmtClearFlags *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -318,14 +333,15 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where onts.ontology = ? and (honks.userid = ? or (? = -1 and honks.whofore = 2))"+limit)
 
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags, onts) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-	stmtSaveOnts = preparetodie(db, "insert into onts (ontology, honkid) values (?, ?)")
+	stmtDeleteHonk = preparetodie(db, "delete from honks where honkid = ?")
+	stmtSaveOnt = preparetodie(db, "insert into onts (ontology, honkid) values (?, ?)")
+	stmtDeleteOnts = preparetodie(db, "delete from onts where honkid = ?")
+	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")
+	stmtDeleteDonks = preparetodie(db, "delete from donks where honkid = ?")
+	stmtSaveFile = preparetodie(db, "insert into files (xid, name, description, url, media, local, content) values (?, ?, ?, ?, ?, ?, ?)")
 	stmtFileData = preparetodie(db, "select media, content from files where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
-	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")
-	stmtZonkIt = preparetodie(db, "delete from honks where honkid = ?")
-	stmtZonkDonks = preparetodie(db, "delete from donks where honkid = ?")
 	stmtFindFile = preparetodie(db, "select fileid from files where url = ? and local = 1")
-	stmtSaveFile = preparetodie(db, "insert into files (xid, name, description, url, media, local, content) values (?, ?, ?, ?, ?, ?, ?)")
 	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey, options from users where username = ?")
 	stmtSaveDub = preparetodie(db, "insert into honkers (userid, name, xid, flavor) values (?, ?, ?, ?)")
 	stmtAddDoover = preparetodie(db, "insert into doovers (dt, tries, username, rcpt, msg) values (?, ?, ?, ?, ?)")
