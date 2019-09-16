@@ -489,7 +489,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		case "Create":
 			obj, ok = item.GetMap("object")
 			if !ok {
-				xid, _ = obj.GetString("object")
+				xid, _ = item.GetString("object")
 				log.Printf("getting created honk: %s", xid)
 				obj, err = GetJunkHardMode(xid)
 				if err != nil {
