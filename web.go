@@ -107,17 +107,6 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tname := "honkpage.html"
-	if topxid := r.FormValue("topxid"); topxid != "" {
-		for i, h := range honks {
-			if h.XID == topxid {
-				honks = honks[0:i]
-				break
-			}
-		}
-		log.Printf("topxid %d frags", len(honks))
-		tname = "honkfrags.html"
-	}
-
 	reverbolate(userid, honks)
 
 	templinfo["Honks"] = honks
@@ -1357,6 +1346,46 @@ func nomoroboto(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func webhydra(w http.ResponseWriter, r *http.Request) {
+	u := login.GetUserInfo(r)
+	userid := u.UserID
+	templinfo := getInfo(r)
+	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+	page := r.FormValue("page")
+	var honks []*Honk
+	switch page {
+	case "atme":
+		honks = gethonksforme(userid)
+	case "home":
+		honks = gethonksforuser(userid)
+		honks = osmosis(honks, userid)
+	case "convoy":
+		c := r.FormValue("c")
+		honks = gethonksbyconvoy(userid, c)
+	default:
+		http.NotFound(w, r)
+	}
+	if len(honks) > 0 {
+		templinfo["TopXID"] = honks[0].XID
+	}
+	if topxid := r.FormValue("topxid"); topxid != "" {
+		for i, h := range honks {
+			if h.XID == topxid {
+				honks = honks[0:i]
+				break
+			}
+		}
+		log.Printf("topxid %d frags", len(honks))
+	}
+	reverbolate(userid, honks)
+	templinfo["Honks"] = honks
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	err := readviews.Execute(w, "honkfrags.html", templinfo)
+	if err != nil {
+		log.Printf("frag error: %s", err)
+	}
+}
+
 func serve() {
 	db := opendatabase()
 	login.Init(db)
@@ -1384,6 +1413,7 @@ func serve() {
 		"views/xzone.html",
 		"views/header.html",
 		"views/onts.html",
+		"views/honkpage.js",
 	)
 	if !debug {
 		s := "views/style.css"
@@ -1448,6 +1478,7 @@ func serve() {
 	loggedin.HandleFunc("/c", showcombos)
 	loggedin.HandleFunc("/t", showconvoy)
 	loggedin.HandleFunc("/q", showsearch)
+	loggedin.HandleFunc("/hydra", webhydra)
 	loggedin.Handle("/submithonker", login.CSRFWrap("submithonker", http.HandlerFunc(submithonker)))
 
 	err = http.Serve(listener, mux)
