@@ -464,6 +464,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		var xid, rid, url, content, precis, convoy, oonker string
 		var obj junk.Junk
 		var ok bool
+		isUpdate := false
 		switch what {
 		case "Announce":
 			obj, ok = item.GetMap("object")
@@ -482,6 +483,10 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			}
 			origin = originate(xid)
 			what = "bonk"
+		case "Update":
+			log.Printf("should be updating")
+			isUpdate = true
+			fallthrough
 		case "Create":
 			obj, ok = item.GetMap("object")
 			if !ok {
@@ -695,6 +700,19 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			}
 		}
 
+		if isUpdate {
+			prev := getxonk(user.ID, xonk.XID)
+			if prev == nil {
+				log.Printf("didn't find old version for update: %s", xonk.XID)
+				return nil
+			}
+			prev.Noise = xonk.Noise
+			prev.Precis = xonk.Precis
+			prev.Date = xonk.Date
+			updatehonk(prev)
+			return nil
+		}
+
 		if needxonk(user, &xonk) {
 			if rid != "" {
 				if needxonkid(user, rid) {
@@ -789,10 +807,16 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 	}
 
 	switch h.What {
+	case "update":
+		fallthrough
 	case "tonk":
 		fallthrough
 	case "honk":
-		j["type"] = "Create"
+		if h.What == "update" {
+			j["type"] = "Update"
+		} else {
+			j["type"] = "Create"
+		}
 
 		jo = junk.New()
 		jo["id"] = h.XID

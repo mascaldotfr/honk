@@ -7,6 +7,7 @@ create table xonkers (xonkerid integer primary key, name text, info text, flavor
 create table zonkers (zonkerid integer primary key, userid integer, name text, wherefore text);
 create table doovers(dooverid integer primary key, dt text, tries integer, username text, rcpt text, msg blob);
 create table onts (ontology text, honkid integer);
+create table forsaken (honkid integer, precis text, noise text);
 
 create index idx_honksxid on honks(xid);
 create index idx_honksconvoy on honks(convoy);

@@ -348,6 +348,9 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 				return
 			case "Question":
 				return
+			case "Note":
+				go consumeactivity(user, j, origin)
+				return
 			}
 		}
 		log.Printf("unknown Update activity")
@@ -822,6 +825,30 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func edithonkpage(w http.ResponseWriter, r *http.Request) {
+	u := login.GetUserInfo(r)
+	user, _ := butwhatabout(u.Username)
+	xid := r.FormValue("xid")
+	honk := getxonk(u.UserID, xid)
+	if honk == nil || honk.Honker != user.URL || honk.What != "honk" {
+		log.Printf("no edit")
+		return
+	}
+
+	honks := []*Honk{honk}
+	reverbolate(u.UserID, honks)
+	templinfo := getInfo(r)
+	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+	templinfo["Honks"] = honks
+	templinfo["Noise"] = honk.Noise
+	templinfo["ServerMessage"] = "honk edit"
+	templinfo["UpdateXID"] = honk.XID
+	err := readviews.Execute(w, "honkpage.html", templinfo)
+	if err != nil {
+		log.Print(err)
+	}
+}
+
 func submithonk(w http.ResponseWriter, r *http.Request) {
 	rid := r.FormValue("rid")
 	noise := r.FormValue("noise")
@@ -830,18 +857,30 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 	user, _ := butwhatabout(userinfo.Username)
 
 	dt := time.Now().UTC()
-	xid := fmt.Sprintf("%s/%s/%s", user.URL, honkSep, xfiltrate())
-	what := "honk"
-	if rid != "" {
-		what = "tonk"
-	}
-	honk := Honk{
-		UserID:   userinfo.UserID,
-		Username: userinfo.Username,
-		What:     "honk",
-		Honker:   user.URL,
-		XID:      xid,
-		Date:     dt,
+	updatexid := r.FormValue("updatexid")
+	var honk *Honk
+	if updatexid != "" {
+		honk = getxonk(userinfo.UserID, updatexid)
+		if honk == nil || honk.Honker != user.URL || honk.What != "honk" {
+			log.Printf("not saving edit")
+			return
+		}
+		honk.Date = dt
+		honk.What = "update"
+	} else {
+		xid := fmt.Sprintf("%s/%s/%s", user.URL, honkSep, xfiltrate())
+		what := "honk"
+		if rid != "" {
+			what = "tonk"
+		}
+		honk = &Honk{
+			UserID:   userinfo.UserID,
+			Username: userinfo.Username,
+			What:     what,
+			Honker:   user.URL,
+			XID:      xid,
+			Date:     dt,
+		}
 	}
 	if strings.HasPrefix(noise, "DZ:") {
 		idx := strings.Index(noise, "\n")
@@ -977,7 +1016,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 			honk.Donks = append(honk.Donks, donk)
 		}
 	}
-	memetize(&honk)
+	memetize(honk)
 
 	if honk.Public {
 		honk.Whofore = 2
@@ -985,7 +1024,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 		honk.Whofore = 3
 	}
 	if r.FormValue("preview") == "preview" {
-		honks := []*Honk{&honk}
+		honks := []*Honk{honk}
 		reverbolate(userinfo.UserID, honks)
 		templinfo := getInfo(r)
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
@@ -1002,26 +1041,30 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 	}
 	honk.Onts = oneofakind(ontologies(honk.Noise))
 	honk.UserID = userinfo.UserID
-	honk.What = what
-	honk.XID = xid
 	honk.RID = rid
 	honk.Date = dt
 	honk.Convoy = convoy
 	honk.Format = "html"
 
-	err := savehonk(&honk)
-	if err != nil {
-		log.Printf("uh oh")
-		return
+	if updatexid != "" {
+		updatehonk(honk)
+
+	} else {
+
+		err := savehonk(honk)
+		if err != nil {
+			log.Printf("uh oh")
+			return
+		}
 	}
 
 	// reload for consistency
 	honk.Donks = nil
-	donksforhonks([]*Honk{&honk})
+	donksforhonks([]*Honk{honk})
 
-	go honkworldwide(user, &honk)
+	go honkworldwide(user, honk)
 
-	http.Redirect(w, r, xid, http.StatusSeeOther)
+	http.Redirect(w, r, honk.XID, http.StatusSeeOther)
 }
 
 func showhonkers(w http.ResponseWriter, r *http.Request) {
@@ -1451,6 +1494,7 @@ func serve() {
 	loggedin.HandleFunc("/atme", homepage)
 	loggedin.HandleFunc("/zonkzone", zonkzone)
 	loggedin.HandleFunc("/xzone", xzone)
+	loggedin.HandleFunc("/edit", edithonkpage)
 	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(submithonk)))
 	loggedin.Handle("/bonk", login.CSRFWrap("honkhonk", http.HandlerFunc(submitbonk)))
 	loggedin.Handle("/zonkit", login.CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))

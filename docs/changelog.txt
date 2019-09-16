@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++++ Editing honks (Update activity).
+
 + Quick mention @alias.
 
 + Image descriptions.

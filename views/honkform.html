@@ -4,6 +4,7 @@
 <p>
 in reply to: <input type="text" name="rid" id="ridinput" value="{{ .InReplyTo }}" autocomplete=off>
 <input type="hidden" name="CSRF" value="{{ .HonkCSRF }}">
+<input type="hidden" name="updatexid" value = "{{ .UpdateXID }}">
 <p>
 <label id="donker">attach: {{ if .SavedFile }} {{ .SavedFile }} {{ else }} <input onchange="updatedonker();" type="file" name="donk"><span></span> {{ end }}</label>
 <input type="hidden" name="donkxid" value="{{ .SavedFile }}">

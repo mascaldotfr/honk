@@ -239,15 +239,20 @@ func savehonk(h *Honk) error {
 		return err
 	}
 	h.ID, _ = res.LastInsertId()
+	err = saveextras(h)
+	return err
+}
+
+func saveextras(h *Honk) error {
 	for _, d := range h.Donks {
-		_, err = stmtSaveDonk.Exec(h.ID, d.FileID)
+		_, err := stmtSaveDonk.Exec(h.ID, d.FileID)
 		if err != nil {
 			log.Printf("err saving donk: %s", err)
 			return err
 		}
 	}
 	for _, o := range h.Onts {
-		_, err = stmtSaveOnt.Exec(strings.ToLower(o), h.ID)
+		_, err := stmtSaveOnt.Exec(strings.ToLower(o), h.ID)
 		if err != nil {
 			log.Printf("error saving ont: %s", err)
 			return err
@@ -256,7 +261,7 @@ func savehonk(h *Honk) error {
 	return nil
 }
 
-func deletehonk(honkid int64) {
+func deleteextras(honkid int64) {
 	_, err := stmtDeleteDonks.Exec(honkid)
 	if err != nil {
 		log.Printf("error deleting: %s", err)
@@ -265,10 +270,29 @@ func deletehonk(honkid int64) {
 	if err != nil {
 		log.Printf("error deleting: %s", err)
 	}
-	_, err = stmtDeleteHonk.Exec(honkid)
+}
+
+func deletehonk(honkid int64) {
+	deleteextras(honkid)
+	_, err := stmtDeleteHonk.Exec(honkid)
 	if err != nil {
 		log.Printf("error deleting: %s", err)
 	}
+}
+
+func updatehonk(h *Honk) {
+	old := getxonk(h.UserID, h.XID)
+	_, err := stmtSaveOld.Exec(old.ID, old.Precis, old.Noise)
+	if err != nil {
+		log.Printf("error saving old: %s", err)
+		return
+	}
+	deleteextras(h.ID)
+
+	dt := h.Date.UTC().Format(dbtimeformat)
+	stmtUpdateHonk.Exec(h.Precis, h.Noise, dt, h.ID)
+
+	saveextras(h)
 }
 
 func cleanupdb(arg string) {
@@ -299,6 +323,7 @@ var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover, stmtOneHonker 
 var stmtThumbBiters, stmtDeleteHonk, stmtDeleteDonks, stmtDeleteOnts, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
 var stmtSelectOnts, stmtSaveOnt, stmtUpdateFlags, stmtClearFlags *sql.Stmt
+var stmtSaveOld, stmtUpdateHonk *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -332,8 +357,10 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or (? = -1 and whofore = 2)) and convoy = ?"+limit)
 	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where onts.ontology = ? and (honks.userid = ? or (? = -1 and honks.whofore = 2))"+limit)
 
+	stmtSaveOld = preparetodie(db, "insert into forsaken (honkid, precis, noise) values (?, ?, ?)")
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags, onts) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	stmtDeleteHonk = preparetodie(db, "delete from honks where honkid = ?")
+	stmtUpdateHonk = preparetodie(db, "update honks set precis = ?, noise = ?, dt = ? where honkid = ?")
 	stmtSaveOnt = preparetodie(db, "insert into onts (ontology, honkid) values (?, ?)")
 	stmtDeleteOnts = preparetodie(db, "delete from onts where honkid = ?")
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")

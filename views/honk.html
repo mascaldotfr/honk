@@ -87,6 +87,7 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ else }}
 <button onclick="ackit(this, '{{ .Honk.XID }}');">ack</button>
 {{ end }}
+<button><a href="/edit?xid={{ .Honk.XID }}">edit</a></button>
 </div>
 </details>
 <p>

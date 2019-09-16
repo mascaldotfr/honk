@@ -189,6 +189,10 @@ func upgradedb() {
 		doordie(db, "update config set value = 17 where key = 'dbversion'")
 		fallthrough
 	case 17:
+		doordie(db, "create table forsaken (xid text, noise text)")
+		doordie(db, "update config set value = 18 where key = 'dbversion'")
+		fallthrough
+	case 18:
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
 	}
