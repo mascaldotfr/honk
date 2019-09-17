@@ -659,7 +659,11 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					}
 				}
 				if tt == "Hashtag" {
-					xonk.Onts = append(xonk.Onts, name)
+					if len(name) > 1 && name[0] == '#' {
+						xonk.Onts = append(xonk.Onts, name)
+					} else {
+						log.Printf("bogus hashtag name: %s", name)
+					}
 				}
 			}
 			xonk.Onts = oneofakind(xonk.Onts)
