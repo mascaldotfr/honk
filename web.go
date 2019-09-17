@@ -106,23 +106,9 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	}
 
-	tname := "honkpage.html"
-	reverbolate(userid, honks)
-
-	templinfo["Honks"] = honks
 	templinfo["ShowRSS"] = true
 	templinfo["ServerMessage"] = serverMsg
-	if u == nil {
-		w.Header().Set("Cache-Control", "max-age=60")
-	} else {
-		w.Header().Set("Cache-Control", "max-age=0")
-	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	err := readviews.Execute(w, tname, templinfo)
-	if err != nil {
-		log.Print(err)
-	}
+	honkpage(w, u, honks, templinfo)
 }
 
 func showfunzone(w http.ResponseWriter, r *http.Request) {
@@ -149,7 +135,6 @@ func showfunzone(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Print(err)
 	}
-
 }
 
 func showrss(w http.ResponseWriter, r *http.Request) {
@@ -517,7 +502,15 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 	}
 	u := login.GetUserInfo(r)
 	honks := gethonksbyuser(name, u != nil && u.Username == name)
-	honkpage(w, r, u, user, honks, "")
+	templinfo := getInfo(r)
+	filt := htfilter.New()
+	templinfo["Name"] = user.Name
+	whatabout := user.About
+	whatabout = obfusbreak(user.About)
+	templinfo["WhatAbout"], _ = filt.String(whatabout)
+	templinfo["ServerMessage"] = ""
+	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+	honkpage(w, u, honks, templinfo)
 }
 
 func showhonker(w http.ResponseWriter, r *http.Request) {
@@ -532,7 +525,10 @@ func showhonker(w http.ResponseWriter, r *http.Request) {
 	}
 	name = html.EscapeString(name)
 	msg := fmt.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>`, name, name)
-	honkpage(w, r, u, nil, honks, template.HTML(msg))
+	templinfo := getInfo(r)
+	templinfo["ServerMessage"] = template.HTML(msg)
+	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+	honkpage(w, u, honks, templinfo)
 }
 
 func showcombo(w http.ResponseWriter, r *http.Request) {
@@ -540,19 +536,28 @@ func showcombo(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	honks := gethonksbycombo(u.UserID, name)
 	honks = osmosis(honks, u.UserID)
-	honkpage(w, r, u, nil, honks, template.HTML(html.EscapeString("honks by combo: "+name)))
+	templinfo := getInfo(r)
+	templinfo["ServerMessage"] = "honks by combo: " + name
+	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+	honkpage(w, u, honks, templinfo)
 }
 func showconvoy(w http.ResponseWriter, r *http.Request) {
 	c := r.FormValue("c")
 	u := login.GetUserInfo(r)
 	honks := gethonksbyconvoy(u.UserID, c)
-	honkpage(w, r, u, nil, honks, template.HTML(html.EscapeString("honks in convoy: "+c)))
+	templinfo := getInfo(r)
+	templinfo["ServerMessage"] = "honks in convoy: " + c
+	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+	honkpage(w, u, honks, templinfo)
 }
 func showsearch(w http.ResponseWriter, r *http.Request) {
 	q := r.FormValue("q")
 	u := login.GetUserInfo(r)
 	honks := gethonksbysearch(u.UserID, q)
-	honkpage(w, r, u, nil, honks, template.HTML(html.EscapeString("honks for search: "+q)))
+	templinfo := getInfo(r)
+	templinfo["ServerMessage"] = "honks for search: " + q
+	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+	honkpage(w, u, honks, templinfo)
 }
 func showontology(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
@@ -562,7 +567,10 @@ func showontology(w http.ResponseWriter, r *http.Request) {
 		userid = u.UserID
 	}
 	honks := gethonksbyontology(userid, "#"+name)
-	honkpage(w, r, u, nil, honks, template.HTML(html.EscapeString("honks by ontology: "+name)))
+	templinfo := getInfo(r)
+	templinfo["ServerMessage"] = "honks by ontology: " + name
+	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+	honkpage(w, u, honks, templinfo)
 }
 
 func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
@@ -625,7 +633,10 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 			return
 
 		}
-		honkpage(w, r, u, nil, []*Honk{honk}, "one honk maybe more")
+		templinfo := getInfo(r)
+		templinfo["ServerMessage"] = "one honk maybe more"
+		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+		honkpage(w, u, []*Honk{honk}, templinfo)
 		return
 	}
 	rawhonks := gethonksbyconvoy(honk.UserID, honk.Convoy)
@@ -649,30 +660,22 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	honkpage(w, r, u, nil, honks, "one honk maybe more")
+	templinfo := getInfo(r)
+	templinfo["ServerMessage"] = "one honk maybe more"
+	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+	honkpage(w, u, honks, templinfo)
 }
 
-func honkpage(w http.ResponseWriter, r *http.Request, u *login.UserInfo, user *WhatAbout,
-	honks []*Honk, infomsg template.HTML) {
-	templinfo := getInfo(r)
+func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo map[string]interface{}) {
 	var userid int64 = -1
 	if u != nil {
-		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 		userid = u.UserID
 	}
 	if u == nil {
 		w.Header().Set("Cache-Control", "max-age=60")
 	}
 	reverbolate(userid, honks)
-	if user != nil {
-		filt := htfilter.New()
-		templinfo["Name"] = user.Name
-		whatabout := user.About
-		whatabout = obfusbreak(user.About)
-		templinfo["WhatAbout"], _ = filt.String(whatabout)
-	}
 	templinfo["Honks"] = honks
-	templinfo["ServerMessage"] = infomsg
 	err := readviews.Execute(w, "honkpage.html", templinfo)
 	if err != nil {
 		log.Print(err)
