@@ -526,6 +526,7 @@ func showhonker(w http.ResponseWriter, r *http.Request) {
 	name = html.EscapeString(name)
 	msg := fmt.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>`, name, name)
 	templinfo := getInfo(r)
+	templinfo["PageName"] = "honker"
 	templinfo["ServerMessage"] = template.HTML(msg)
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	honkpage(w, u, honks, templinfo)
