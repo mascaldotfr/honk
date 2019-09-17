@@ -537,6 +537,7 @@ func showcombo(w http.ResponseWriter, r *http.Request) {
 	honks := gethonksbycombo(u.UserID, name)
 	honks = osmosis(honks, u.UserID)
 	templinfo := getInfo(r)
+	templinfo["PageName"] = "combo"
 	templinfo["ServerMessage"] = "honks by combo: " + name
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	honkpage(w, u, honks, templinfo)
