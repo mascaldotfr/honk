@@ -841,12 +841,17 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	noise := honk.Noise
+	if honk.Precis != "" {
+		noise = honk.Precis + "\n\n" + noise
+	}
+
 	honks := []*Honk{honk}
 	reverbolate(u.UserID, honks)
 	templinfo := getInfo(r)
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	templinfo["Honks"] = honks
-	templinfo["Noise"] = honk.Noise
+	templinfo["Noise"] = noise
 	templinfo["ServerMessage"] = "honk edit"
 	templinfo["UpdateXID"] = honk.XID
 	err := readviews.Execute(w, "honkpage.html", templinfo)
@@ -855,6 +860,7 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// what a hot mess this function is
 func submithonk(w http.ResponseWriter, r *http.Request) {
 	rid := r.FormValue("rid")
 	noise := r.FormValue("noise")
@@ -1054,9 +1060,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 
 	if updatexid != "" {
 		updatehonk(honk)
-
 	} else {
-
 		err := savehonk(honk)
 		if err != nil {
 			log.Printf("uh oh")
