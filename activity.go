@@ -628,7 +628,6 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				} else {
 					log.Printf("unknown attachment: %s", at)
 				}
-				log.Printf("saving a donk: %s is %s", name, desc)
 				donk := savedonk(u, name, desc, mt, localize)
 				if donk != nil {
 					xonk.Donks = append(xonk.Donks, donk)
