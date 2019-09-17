@@ -713,6 +713,8 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			prev.Noise = xonk.Noise
 			prev.Precis = xonk.Precis
 			prev.Date = xonk.Date
+			prev.Donks = xonk.Donks
+			prev.Onts = xonk.Onts
 			updatehonk(prev)
 			return nil
 		}

@@ -847,6 +847,7 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	honks := []*Honk{honk}
+	donksforhonks(honks)
 	reverbolate(u.UserID, honks)
 	templinfo := getInfo(r)
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
@@ -854,6 +855,9 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	templinfo["Noise"] = noise
 	templinfo["ServerMessage"] = "honk edit"
 	templinfo["UpdateXID"] = honk.XID
+	if len(honk.Donks) > 0 {
+		templinfo["SavedFile"] = honk.Donks[0].XID
+	}
 	err := readviews.Execute(w, "honkpage.html", templinfo)
 	if err != nil {
 		log.Print(err)
