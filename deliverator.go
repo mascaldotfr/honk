@@ -109,6 +109,29 @@ func deliverate(goarounds int, username string, rcpt string, msg []byte) {
 
 var pokechan = make(chan int)
 
+func getdoovers() []Doover {
+	rows, err := stmtGetDoovers.Query()
+	if err != nil {
+		log.Printf("wat?")
+		time.Sleep(1 * time.Minute)
+		return nil
+	}
+	defer rows.Close()
+	var doovers []Doover
+	for rows.Next() {
+		var d Doover
+		var dt string
+		err := rows.Scan(&d.ID, &dt)
+		if err != nil {
+			log.Printf("error scanning dooverid: %s", err)
+			continue
+		}
+		d.When, _ = time.Parse(dbtimeformat, dt)
+		doovers = append(doovers, d)
+	}
+	return doovers
+}
+
 func redeliverator() {
 	sleeper := time.NewTimer(0)
 	for {
@@ -121,25 +144,8 @@ func redeliverator() {
 		case <-sleeper.C:
 		}
 
-		rows, err := stmtGetDoovers.Query()
-		if err != nil {
-			log.Printf("wat?")
-			time.Sleep(1 * time.Minute)
-			continue
-		}
-		var doovers []Doover
-		for rows.Next() {
-			var d Doover
-			var dt string
-			err := rows.Scan(&d.ID, &dt)
-			if err != nil {
-				log.Printf("error scanning dooverid: %s", err)
-				continue
-			}
-			d.When, _ = time.Parse(dbtimeformat, dt)
-			doovers = append(doovers, d)
-		}
-		rows.Close()
+		doovers := getdoovers()
+
 		now := time.Now().UTC()
 		nexttime := now.Add(24 * time.Hour)
 		for _, d := range doovers {

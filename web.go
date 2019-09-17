@@ -586,6 +586,7 @@ func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
 		log.Printf("selection error: %s", err)
 		return
 	}
+	defer rows.Close()
 	var onts [][]string
 	for rows.Next() {
 		var o string
