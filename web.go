@@ -1479,7 +1479,7 @@ func serve() {
 	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/following", emptiness)
 	getters.HandleFunc("/a", avatate)
 	getters.HandleFunc("/o", thelistingoftheontologies)
-	getters.HandleFunc("/o/{name:[a-z0-9-]+}", showontology)
+	getters.HandleFunc("/o/{name:[a-z0-9_-]+}", showontology)
 	getters.HandleFunc("/d/{xid:[[:alnum:].]+}", servefile)
 	getters.HandleFunc("/emu/{xid:[[:alnum:]_.-]+}", serveemu)
 	getters.HandleFunc("/meme/{xid:[[:alnum:]_.-]+}", servememe)
