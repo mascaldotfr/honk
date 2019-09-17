@@ -146,5 +146,5 @@ function relinkconvoys() {
 	el.onclick = pageswitcher("atme")
 	relinkconvoys()
 	window.onpopstate = statechanger
-	history.replaceState(thispagename, "some title", thispagename)
+	history.replaceState(thispagename, "some title", "")
 })();
