@@ -1142,6 +1142,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		http.Redirect(w, r, "/honkers", http.StatusSeeOther)
+		return
 	}
 
 	flavor := "presub"
