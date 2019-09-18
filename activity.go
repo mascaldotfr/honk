@@ -165,7 +165,12 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 				goto saveit
 			}
 			data = img.Data
-			media = "image/" + img.Format
+			format := img.Format
+			media = "image/" + format
+			if format == "jpeg" {
+				format = "jpg"
+			}
+			xid = xid + "." + format
 		} else if len(data) > 100000 {
 			log.Printf("not saving large attachment")
 			localize = false
