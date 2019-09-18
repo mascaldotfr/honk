@@ -183,7 +183,7 @@ func scanhonk(row RowLike) *Honk {
 	h := new(Honk)
 	var dt, aud, onts string
 	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker, &h.XID, &h.RID,
-		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Convoy, &h.Whofore, &h.Flags, &onts)
+		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Format, &h.Convoy, &h.Whofore, &h.Flags, &onts)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			log.Printf("error scanning honk: %s", err)
@@ -290,7 +290,7 @@ func updatehonk(h *Honk) {
 	deleteextras(h.ID)
 
 	dt := h.Date.UTC().Format(dbtimeformat)
-	stmtUpdateHonk.Exec(h.Precis, h.Noise, dt, h.ID)
+	stmtUpdateHonk.Exec(h.Precis, h.Noise, h.Format, dt, h.ID)
 
 	saveextras(h)
 }
@@ -341,7 +341,7 @@ func prepareStatements(db *sql.DB) {
 	stmtOneHonker = preparetodie(db, "select xid from honkers where name = ? and userid = ?")
 	stmtDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
 
-	selecthonks := "select honks.honkid, honks.userid, username, what, honker, oonker, honks.xid, rid, dt, url, audience, noise, precis, convoy, whofore, flags, onts from honks join users on honks.userid = users.userid "
+	selecthonks := "select honks.honkid, honks.userid, username, what, honker, oonker, honks.xid, rid, dt, url, audience, noise, precis, format, convoy, whofore, flags, onts from honks join users on honks.userid = users.userid "
 	limit := " order by honks.honkid desc limit 250"
 	butnotthose := " and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"
 	stmtOneXonk = preparetodie(db, selecthonks+"where honks.userid = ? and xid = ?")
@@ -360,7 +360,7 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveOld = preparetodie(db, "insert into forsaken (honkid, precis, noise) values (?, ?, ?)")
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags, onts) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	stmtDeleteHonk = preparetodie(db, "delete from honks where honkid = ?")
-	stmtUpdateHonk = preparetodie(db, "update honks set precis = ?, noise = ?, dt = ? where honkid = ?")
+	stmtUpdateHonk = preparetodie(db, "update honks set precis = ?, noise = ?, format = ?, dt = ? where honkid = ?")
 	stmtSaveOnt = preparetodie(db, "insert into onts (ontology, honkid) values (?, ?)")
 	stmtDeleteOnts = preparetodie(db, "delete from onts where honkid = ?")
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")

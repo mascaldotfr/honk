@@ -44,6 +44,7 @@ func reverbolate(userid int64, honks []*Honk) {
 		if !h.Public {
 			h.Style += " limited"
 		}
+		translate(h)
 		if h.Whofore == 2 || h.Whofore == 3 {
 			h.URL = h.XID
 			if h.What != "bonked" {
@@ -98,6 +99,32 @@ func reverbolate(userid int64, honks []*Honk) {
 		}
 		h.Donks = h.Donks[:j]
 	}
+}
+
+func translate(honk *Honk) {
+	if honk.Format == "html" {
+		return
+	}
+	noise := honk.Noise
+	if strings.HasPrefix(noise, "DZ:") {
+		idx := strings.Index(noise, "\n")
+		if idx == -1 {
+			honk.Precis = noise
+			noise = ""
+		} else {
+			honk.Precis = noise[:idx]
+			noise = noise[idx+1:]
+		}
+	}
+	honk.Precis = strings.TrimSpace(honk.Precis)
+
+	noise = strings.TrimSpace(noise)
+	noise = quickrename(noise, honk.UserID)
+	noise = obfusbreak(noise)
+	noise = re_memes.ReplaceAllString(noise, "")
+
+	honk.Noise = noise
+	honk.Onts = oneofakind(ontologies(honk.Noise))
 }
 
 func unsee(zilences []*regexp.Regexp, precis string, noise string) string {

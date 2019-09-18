@@ -883,6 +883,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 		}
 		honk.Date = dt
 		honk.What = "update"
+		honk.Format = "markdown"
 	} else {
 		xid := fmt.Sprintf("%s/%s/%s", user.URL, honkSep, xfiltrate())
 		what := "honk"
@@ -896,22 +897,13 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 			Honker:   user.URL,
 			XID:      xid,
 			Date:     dt,
+			Format:   "markdown",
 		}
 	}
-	if strings.HasPrefix(noise, "DZ:") {
-		idx := strings.Index(noise, "\n")
-		if idx == -1 {
-			honk.Precis = noise
-			noise = ""
-		} else {
-			honk.Precis = noise[:idx]
-			noise = noise[idx+1:]
-		}
-	}
-	noise = quickrename(noise, userinfo.UserID)
+
 	noise = hooterize(noise)
-	noise = strings.TrimSpace(noise)
-	honk.Precis = strings.TrimSpace(honk.Precis)
+	honk.Noise = noise
+	translate(honk)
 
 	var convoy string
 	if rid != "" {
@@ -936,11 +928,12 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 	} else {
 		honk.Audience = []string{thewholeworld}
 	}
-	if noise != "" && noise[0] == '@' {
-		honk.Audience = append(grapevine(noise), honk.Audience...)
+	if honk.Noise != "" && honk.Noise[0] == '@' {
+		honk.Audience = append(grapevine(honk.Noise), honk.Audience...)
 	} else {
-		honk.Audience = append(honk.Audience, grapevine(noise)...)
+		honk.Audience = append(honk.Audience, grapevine(honk.Noise)...)
 	}
+
 	if convoy == "" {
 		convoy = "data:,electrichonkytonk-" + xfiltrate()
 	}
@@ -952,8 +945,6 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	honk.Public = !keepitquiet(honk.Audience)
-	noise = obfusbreak(noise)
-	honk.Noise = noise
 	honk.Convoy = convoy
 
 	donkxid := r.FormValue("donkxid")
@@ -1055,12 +1046,13 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	honk.Onts = oneofakind(ontologies(honk.Noise))
 	honk.UserID = userinfo.UserID
 	honk.RID = rid
 	honk.Date = dt
 	honk.Convoy = convoy
-	honk.Format = "html"
+
+	// back to markdown
+	honk.Noise = noise
 
 	if updatexid != "" {
 		updatehonk(honk)

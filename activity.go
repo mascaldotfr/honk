@@ -843,6 +843,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		if !h.Public {
 			jo["directMessage"] = true
 		}
+		translate(h)
 		jo["summary"] = h.Precis
 		jo["content"] = ontologize(mentionize(h.Noise))
 		if strings.HasPrefix(h.Precis, "DZ:") {
