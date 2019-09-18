@@ -1030,6 +1030,10 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 	} else {
 		honk.Whofore = 3
 	}
+
+	// back to markdown
+	honk.Noise = noise
+
 	if r.FormValue("preview") == "preview" {
 		honks := []*Honk{honk}
 		reverbolate(userinfo.UserID, honks)
@@ -1046,13 +1050,6 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	honk.UserID = userinfo.UserID
-	honk.RID = rid
-	honk.Date = dt
-	honk.Convoy = convoy
-
-	// back to markdown
-	honk.Noise = noise
 
 	if updatexid != "" {
 		updatehonk(honk)
