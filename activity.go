@@ -844,6 +844,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			jo["directMessage"] = true
 		}
 		translate(h)
+		h.Noise = re_memes.ReplaceAllString(h.Noise, "")
 		jo["summary"] = h.Precis
 		jo["content"] = ontologize(mentionize(h.Noise))
 		if strings.HasPrefix(h.Precis, "DZ:") {

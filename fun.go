@@ -45,6 +45,7 @@ func reverbolate(userid int64, honks []*Honk) {
 			h.Style += " limited"
 		}
 		translate(h)
+		h.Noise = re_memes.ReplaceAllString(h.Noise, "")
 		if h.Whofore == 2 || h.Whofore == 3 {
 			h.URL = h.XID
 			if h.What != "bonked" {
@@ -121,7 +122,6 @@ func translate(honk *Honk) {
 	noise = strings.TrimSpace(noise)
 	noise = quickrename(noise, honk.UserID)
 	noise = obfusbreak(noise)
-	noise = re_memes.ReplaceAllString(noise, "")
 
 	honk.Noise = noise
 	honk.Onts = oneofakind(ontologies(honk.Noise))
@@ -277,7 +277,7 @@ func memetize(honk *Honk) {
 		fd.Close()
 
 		url := fmt.Sprintf("https://%s/meme/%s", serverName, name)
-		res, err := stmtSaveFile.Exec("", name, url, ct, 0, "")
+		res, err := stmtSaveFile.Exec("", name, name, url, ct, 0, "")
 		if err != nil {
 			log.Printf("error saving meme: %s", err)
 			return x
