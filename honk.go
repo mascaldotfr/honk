@@ -55,6 +55,7 @@ type Honk struct {
 	Whofore  int64
 	Replies  []*Honk
 	Flags    int64
+	HTPrecis template.HTML
 	HTML     template.HTML
 	Style    string
 	Open     string

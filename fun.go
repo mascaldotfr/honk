@@ -67,6 +67,7 @@ func reverbolate(userid int64, honks []*Honk) {
 			_, h.Oondle = handles(h.Oonker)
 		}
 		zap := make(map[*Donk]bool)
+		h.Precis = unpucker(h.Precis)
 		h.Noise = unpucker(h.Noise)
 		h.Open = "open"
 		if badword := unsee(zilences, h.Precis, h.Noise); badword != "" {
@@ -77,7 +78,7 @@ func reverbolate(userid int64, honks []*Honk) {
 		} else if h.Precis == "unspecified horror" {
 			h.Precis = ""
 		}
-		h.Precis = unpucker(h.Precis)
+		h.HTPrecis, _ = filt.String(h.Precis)
 		h.HTML, _ = filt.String(h.Noise)
 		emuxifier := func(e string) string {
 			for _, d := range h.Donks {
@@ -90,6 +91,7 @@ func reverbolate(userid int64, honks []*Honk) {
 			}
 			return e
 		}
+		h.HTPrecis = template.HTML(re_emus.ReplaceAllStringFunc(string(h.HTPrecis), emuxifier))
 		h.HTML = template.HTML(re_emus.ReplaceAllStringFunc(string(h.HTML), emuxifier))
 		j := 0
 		for i := 0; i < len(h.Donks); i++ {
