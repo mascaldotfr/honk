@@ -148,3 +148,31 @@ function relinkconvoys() {
 	window.onpopstate = statechanger
 	history.replaceState(thispagename, "some title", "")
 })();
+(function() {
+	var el = document.getElementById("donkdescriptor")
+	el.style.display = "none"
+})();
+function showhonkform(elem, rid, hname) {
+	var form = document.getElementById("honkform")
+	form.style = "display: block"
+	if (elem) {
+		form.remove()
+		elem.parentElement.insertAdjacentElement('beforebegin', form)
+	} else {
+		elem = document.getElementById("honkformhost")
+		elem.insertAdjacentElement('afterend', form)
+	}
+	var ridinput = document.getElementById("ridinput")
+	var honknoise = document.getElementById("honknoise")
+	if (rid) {
+		ridinput.value = rid
+		honknoise.value = "@" + hname + " "
+	}
+	document.getElementById("honknoise").focus()
+}
+function updatedonker() {
+	var el = document.getElementById("donker")
+	el.children[1].textContent = el.children[0].value.slice(-20)
+	var el = document.getElementById("donkdescriptor")
+	el.style.display = ""
+}
