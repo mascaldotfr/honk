@@ -45,10 +45,10 @@ func reverbolate(userid int64, honks []*Honk) {
 			h.Style += " limited"
 		}
 		translate(h)
-		h.Noise = re_memes.ReplaceAllString(h.Noise, "")
 		if h.Whofore == 2 || h.Whofore == 3 {
 			h.URL = h.XID
 			if h.What != "bonked" {
+				h.Noise = re_memes.ReplaceAllString(h.Noise, "")
 				h.Noise = mentionize(h.Noise)
 				h.Noise = ontologize(h.Noise)
 			}
