@@ -19,7 +19,6 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"fmt"
-	"html"
 	"html/template"
 	"log"
 	"net/http"
@@ -28,12 +27,14 @@ import (
 	"strings"
 	"sync"
 
+	"golang.org/x/net/html"
 	"humungus.tedunangst.com/r/webs/htfilter"
 	"humungus.tedunangst.com/r/webs/httpsig"
 )
 
 func reverbolate(userid int64, honks []*Honk) {
 	filt := htfilter.New()
+	filt.Imager = replaceimg
 	zilences := getzilences(userid)
 	for _, h := range honks {
 		h.What += "ed"
@@ -102,6 +103,18 @@ func reverbolate(userid int64, honks []*Honk) {
 		}
 		h.Donks = h.Donks[:j]
 	}
+}
+
+func replaceimg(node *html.Node) string {
+	src := htfilter.GetAttr(node, "src")
+	alt := htfilter.GetAttr(node, "alt")
+	//title := GetAttr(node, "title")
+	if htfilter.HasClass(node, "Emoji") && alt != "" {
+		return alt
+	}
+	alt = html.EscapeString(alt)
+	src = html.EscapeString(src)
+	return fmt.Sprintf(`&lt;img alt="%s" src="<a href="%s">%s<a>"&gt;`, alt, src, src)
 }
 
 func translate(honk *Honk) {
