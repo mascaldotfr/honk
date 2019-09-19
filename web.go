@@ -73,8 +73,9 @@ func getuserstyle(u *login.UserInfo) template.CSS {
 func getInfo(r *http.Request) map[string]interface{} {
 	u := login.GetUserInfo(r)
 	templinfo := make(map[string]interface{})
-	templinfo["StyleParam"] = getstyleparam("views/style.css")
-	templinfo["LocalStyleParam"] = getstyleparam("views/local.css")
+	templinfo["StyleParam"] = getassetparam("views/style.css")
+	templinfo["LocalStyleParam"] = getassetparam("views/local.css")
+	templinfo["JSParam"] = getassetparam("views/honkpage.js")
 	templinfo["UserStyle"] = getuserstyle(u)
 	templinfo["ServerName"] = serverName
 	templinfo["IconName"] = iconName
@@ -1334,6 +1335,10 @@ func servecss(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/css; charset=utf-8")
 	w.Write([]byte(s))
 }
+func serveasset(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "max-age=7776000")
+	http.ServeFile(w, r, "views"+r.URL.Path)
+}
 func servehtml(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
 	err := readviews.Execute(w, r.URL.Path[1:]+".html", templinfo)
@@ -1449,10 +1454,10 @@ func serve() {
 		"views/honkpage.js",
 	)
 	if !debug {
-		s := "views/style.css"
-		savedstyleparams[s] = getstyleparam(s)
-		s = "views/local.css"
-		savedstyleparams[s] = getstyleparam(s)
+		assets := []string{"views/style.css", "views/local.css", "views/honkpage.js"}
+		for _, s := range assets {
+			savedassetparams[s] = getassetparam(s)
+		}
 	}
 
 	bitethethumbs()
@@ -1485,6 +1490,7 @@ func serve() {
 
 	getters.HandleFunc("/style.css", servecss)
 	getters.HandleFunc("/local.css", servecss)
+	getters.HandleFunc("/honkpage.js", serveasset)
 	getters.HandleFunc("/about", servehtml)
 	getters.HandleFunc("/login", servehtml)
 	posters.HandleFunc("/dologin", login.LoginFunc)

@@ -1,4 +1,3 @@
-{{ $BonkCSRF := .HonkCSRF }}
 function encode(hash) {
         var s = []
         for (var key in hash) {
@@ -23,17 +22,17 @@ function get(url, whendone) {
 function bonk(el, xid) {
 	el.innerHTML = "bonked"
 	el.disabled = true
-	post("/bonk", "CSRF={{ $BonkCSRF }}&xid=" + escape(xid))
+	post("/bonk", encode({"CSRF": csrftoken, "xid": xid}))
 }
 function unbonk(el, xid) {
 	el.innerHTML = "unbonked"
 	el.disabled = true
-	post("/zonkit", "CSRF={{ $BonkCSRF }}&wherefore=unbonk&what=" + escape(xid))
+	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": "unbonk", "what": xid}))
 }
 function muteit(el, convoy) {
 	el.innerHTML = "muted"
 	el.disabled = true
-	post("/zonkit", "CSRF={{ $BonkCSRF }}&wherefore=zonvoy&what=" + escape(convoy))
+	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": "zonvoy", "what": convoy}))
 	var els = document.querySelectorAll('article.honk')
 	for (var i = 0; i < els.length; i++) {
 		var e = els[i]
@@ -45,7 +44,7 @@ function muteit(el, convoy) {
 function zonkit(el, xid) {
 	el.innerHTML = "zonked"
 	el.disabled = true
-	post("/zonkit", "CSRF={{ $BonkCSRF }}&wherefore=zonk&what=" + escape(xid))
+	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": "zonk", "what": xid}))
 	var p = el
 	while (p && p.tagName != "ARTICLE") {
 		p = p.parentElement
@@ -57,16 +56,13 @@ function zonkit(el, xid) {
 function ackit(el, xid) {
 	el.innerHTML = "acked"
 	el.disabled = true
-	post("/zonkit", "CSRF={{ $BonkCSRF }}&wherefore=ack&what=" + escape(xid))
+	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": "ack", "what": xid}))
 }
 function deackit(el, xid) {
 	el.innerHTML = "deacked"
 	el.disabled = true
-	post("/zonkit", "CSRF={{ $BonkCSRF }}&wherefore=deack&what=" + escape(xid))
+	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": "deack", "what": xid}))
 }
-var topxid = { "{{ .PageName }}" : "{{ .TopXID }}" }
-var honksforpage = { }
-var thispagename = "{{ .PageName }}"
 function fillinhonks(xhr) {
 	var doc = xhr.responseXML
 	topxid[thispagename] = doc.children[0].children[1].children[0].innerText

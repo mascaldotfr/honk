@@ -10,7 +10,6 @@
 {{ template "honkform.html" . }}
 {{ end }}
 </div>
-{{ $BonkCSRF := .HonkCSRF }}
 {{ if .TopXID }}
 <div class="info" id="refreshbox">
 <p><button onclick="refreshhonks(this)">refresh</button><span></span>
@@ -18,14 +17,19 @@
 {{ end }}
 <div id="honksonpage">
 <div>
+{{ $BonkCSRF := .HonkCSRF }}
 {{ range .Honks }}
 {{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF }}
 {{ end }}
 </div>
 </div>
 </main>
-{{ if $BonkCSRF }}
+{{ if .HonkCSRF }}
 <script>
-{{ template "honkpage.js" . }}
+var csrftoken = {{ .HonkCSRF }}
+var topxid = { "{{ .PageName }}" : "{{ .TopXID }}" }
+var honksforpage = { }
+var thispagename = "{{ .PageName }}"
 </script>
+<script src="/honkpage.js{{ .JSParam }}"></script>
 {{ end }}

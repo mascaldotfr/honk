@@ -51,10 +51,10 @@ import (
 	"humungus.tedunangst.com/r/webs/httpsig"
 )
 
-var savedstyleparams = make(map[string]string)
+var savedassetparams = make(map[string]string)
 
-func getstyleparam(file string) string {
-	if p, ok := savedstyleparams[file]; ok {
+func getassetparam(file string) string {
+	if p, ok := savedassetparams[file]; ok {
 		return p
 	}
 	data, err := ioutil.ReadFile(file)
