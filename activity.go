@@ -550,6 +550,10 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			oonker = extractattrto(obj)
 			ot, _ := obj.GetString("type")
 			url, _ = obj.GetString("url")
+			dt2, ok := obj.GetString("published")
+			if ok {
+				dt = dt2
+			}
 			if ot == "Tombstone" {
 				xid, _ = obj.GetString("id")
 			} else {
