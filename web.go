@@ -48,17 +48,6 @@ var readviews *templates.Template
 var userSep = "u"
 var honkSep = "h"
 
-var donotfedafterdark = make(map[string]bool)
-
-func stealthed(r *http.Request) bool {
-	addr := r.Header.Get("X-Forwarded-For")
-	fake := donotfedafterdark[addr]
-	if fake {
-		log.Printf("faking 404 for %s", addr)
-	}
-	return fake
-}
-
 func getuserstyle(u *login.UserInfo) template.CSS {
 	if u == nil {
 		return ""
@@ -438,7 +427,7 @@ func outbox(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	if stealthed(r) {
+	if stealthmode(user.ID, r) {
 		http.NotFound(w, r)
 		return
 	}
@@ -492,6 +481,10 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 	user, err := butwhatabout(name)
 	if err != nil {
 		log.Printf("user not found %s: %s", name, err)
+		http.NotFound(w, r)
+		return
+	}
+	if stealthmode(user.ID, r) {
 		http.NotFound(w, r)
 		return
 	}
@@ -616,7 +609,7 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	if stealthed(r) {
+	if stealthmode(user.ID, r) {
 		http.NotFound(w, r)
 		return
 	}

@@ -461,7 +461,7 @@ func ontologize(s string) string {
 }
 
 var re_unurl = regexp.MustCompile("https://([^/]+).*/([^/]+)")
-var re_urlhost = regexp.MustCompile("https://([^/]+)")
+var re_urlhost = regexp.MustCompile("https://([^/ ]+)")
 
 func originate(u string) string {
 	m := re_urlhost.FindStringSubmatch(u)
@@ -742,6 +742,20 @@ func thoudostbitethythumb(userid int64, who []string, objid string) bool {
 		}
 	}
 	return false
+}
+
+func stealthmode(userid int64, r *http.Request) bool {
+	agent := r.UserAgent()
+	agent = originate(agent)
+	addr := r.Header.Get("X-Forwarded-For")
+	thumblock.Lock()
+	biters := thumbbiters[userid]
+	thumblock.Unlock()
+	fake := (agent != "" && biters[agent]) || (addr != "" && biters[addr])
+	if fake {
+		log.Printf("faking 404 for %s from %s", agent, addr)
+	}
+	return fake
 }
 
 func keymatch(keyname string, actor string) string {

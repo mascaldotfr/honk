@@ -131,7 +131,6 @@ func main() {
 	getconfig("servername", &serverName)
 	getconfig("usersep", &userSep)
 	getconfig("honksep", &honkSep)
-	getconfig("dnf", &donotfedafterdark)
 	prepareStatements(db)
 	switch cmd {
 	case "adduser":
