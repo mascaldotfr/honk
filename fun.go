@@ -71,7 +71,7 @@ func reverbolate(userid int64, honks []*Honk) {
 		h.Precis = unpucker(h.Precis)
 		h.Noise = unpucker(h.Noise)
 		h.Open = "open"
-		if badword := unsee(zilences, h.Precis, h.Noise); badword != "" {
+		if badword := unsee(zilences, h.Precis, h.Noise, h.Donks); badword != "" {
 			if h.Precis == "" {
 				h.Precis = badword
 			}
@@ -142,7 +142,7 @@ func translate(honk *Honk) {
 	honk.Onts = oneofakind(ontologies(honk.Noise))
 }
 
-func unsee(zilences []*regexp.Regexp, precis string, noise string) string {
+func unsee(zilences []*regexp.Regexp, precis string, noise string, donks []*Donk) string {
 	for _, z := range zilences {
 		if z.MatchString(precis) || z.MatchString(noise) {
 			if precis == "" {
@@ -150,6 +150,15 @@ func unsee(zilences []*regexp.Regexp, precis string, noise string) string {
 				return w[6 : len(w)-3]
 			}
 			return precis
+		}
+		for _, d := range donks {
+			if z.MatchString(d.Desc) {
+				if precis == "" {
+					w := z.String()
+					return w[6 : len(w)-3]
+				}
+				return precis
+			}
 		}
 	}
 	return ""
@@ -163,6 +172,11 @@ outer:
 		for _, z := range zords {
 			if z.MatchString(h.Precis) || z.MatchString(h.Noise) {
 				continue outer
+			}
+			for _, d := range h.Donks {
+				if z.MatchString(d.Desc) {
+					continue outer
+				}
 			}
 		}
 		honks[j] = h
