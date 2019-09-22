@@ -63,7 +63,7 @@ header details[open] {
 	border: 1px solid $fg;
 }
 header details li {
-	margin: 1em;
+	margin: 1em 0em 1em 0em;
 }
 main {
 	max-width: 1200px;
