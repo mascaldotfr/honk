@@ -248,6 +248,10 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	if stealthmode(user.ID, r) {
+		http.NotFound(w, r)
+		return
+	}
 	var buf bytes.Buffer
 	io.Copy(&buf, r.Body)
 	payload := buf.Bytes()
