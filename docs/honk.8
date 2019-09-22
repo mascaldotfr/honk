@@ -28,18 +28,47 @@ daemon processes messages from other federated servers.
 This is the admin manual.
 For user operation, see
 .Xr honk 1 .
+.Ss SETUP
 .Pp
 Set up a TLS reverse proxy.
+.Nm
+can listen on TCP or unix sockets, but will not terminate TLS.
+https is a required component for federation.
+.Pp
+Make sure to pass the Host header, if necessary (as for nginx).
+.Bd -literal -offset indent
+proxy_set_header Host $http_host;
+.Ed
+.Ss INIT
+Run the init command.
+.Dl ./honk init
+This will create the database and ask four questions, as well as creating
+the initial user.
+.Bd -literal -offset indent
+username: (desired username)
+password: (desired password)
+listenaddr: (tcp or unix: localhost:31337, /var/www/honk.sock, etc.)
+servername: (public DNS name: honk.example.com)
+.Ed
+.Ss OPERATION
+Run honk.
+.Dl ./honk
+Log messages are sent to stderr and should probably be redirected to a file.
+.Ss MAINTENANCE
+The database may grow large over time.
+The cleanup command exists to purge old data, by default 30 days.
+.Ss UPGRADE
+Stop the old honk process.
+.Dl pkill honk
+Backup the database.
+.Dl cp honk.db backup.db
+Upgrade.
+.Dl ./honk upgrade
+Restart.
+.Dl ./honk
 .\" .Sh EXAMPLES
 .Sh SEE ALSO
 .Xr honk 1
-.Sh STANDARDS
-ActivityPub.
-.Sh HISTORY
-It's been six months.
-.Sh AUTHORS
-Ted Unangst.
 .Sh CAVEATS
-ActivityPub.
-.Sh BUGS
-Only features.
+There's no online upgrade capability.
+Upgrades may result in minutes of downtime.
