@@ -15,22 +15,26 @@
 </head>
 <body>
 <header>
-<span><a id="homelink" href="/">home</a></span>
 {{ if .UserInfo }}
-<span><a id="atmelink" href="/atme">@me</a></span>
-<span><a href="/{{ .UserSep }}/{{ .UserInfo.Username }}">{{ .UserInfo.Username }}</a></span>
-<span><a href="/honkers">honkers</a></span>
-<span><a href="/c">combos</a></span>
 <details>
-<summary>more</summary>
-<span><a href="/about">about</a></span>
-<span><a href="/front">front</a></span>
-<span><a href="/xzone">xzone</a></span>
-<span><a href="/zonkzone">zonkzone</a></span>
-<span><a href="/funzone">funzone</a></span>
-<span><a href="/account">account</a></span>
+<summary>menu</summary>
+<p>
+<ul>
+<li><a href="/{{ .UserSep }}/{{ .UserInfo.Username }}">{{ .UserInfo.Username }}</a></span>
+<li><a href="/honkers">honkers</a></span>
+<li><a href="/c">combos</a></span>
+<li><a href="/about">about</a></span>
+<li><a href="/front">front</a></span>
+<li><a href="/xzone">xzone</a></span>
+<li><a href="/zonkzone">zonkzone</a></span>
+<li><a href="/funzone">funzone</a></span>
+<li><a href="/account">account</a></span>
 </details>
+<p>
+<span><a id="homelink" href="/">home</a></span>
+<span><a id="atmelink" href="/atme">@me</a></span>
 {{ else }}
+<span><a id="homelink" href="/">home</a></span>
 <span><a href="/about">about</a></span>
 {{ if .ShowRSS }}
 <span><a href="/rss">rss</a></span>
