@@ -122,13 +122,11 @@ func upgradedb() {
 		doordie(db, "update config set value = 14 where key = 'dbversion'")
 		fallthrough
 	case 14:
-		doordie(db, "alter table honks add column onts text")
 		doordie(db, "create table onts (ontology text, honkid integer)")
 		doordie(db, "create index idx_ontology on onts(ontology)")
 		doordie(db, "update config set value = 15 where key = 'dbversion'")
 		fallthrough
 	case 15:
-		doordie(db, "update honks set onts = ''")
 		doordie(db, "delete from onts")
 		ontmap := make(map[int64][]string)
 		rows, err := db.Query("select honkid, noise from honks")
@@ -157,19 +155,11 @@ func upgradedb() {
 		if err != nil {
 			log.Fatalf("can't begin: %s", err)
 		}
-		stmtHonk, err := tx.Prepare("update honks set onts = ? where honkid = ?")
-		if err != nil {
-			log.Fatal(err)
-		}
 		stmtOnts, err := tx.Prepare("insert into onts (ontology, honkid) values (?, ?)")
 		if err != nil {
 			log.Fatal(err)
 		}
 		for honkid, onts := range ontmap {
-			_, err = stmtHonk.Exec(strings.Join(onts, " "), honkid)
-			if err != nil {
-				log.Fatal(err)
-			}
 			for _, o := range onts {
 				_, err = stmtOnts.Exec(strings.ToLower(o), honkid)
 				if err != nil {
@@ -193,6 +183,9 @@ func upgradedb() {
 		doordie(db, "update config set value = 18 where key = 'dbversion'")
 		fallthrough
 	case 18:
+		doordie(db, "create index idx_onthonkid on onts(honkid)")
+		doordie(db, "update config set value = 19 where key = 'dbversion'")
+	case 19:
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
 	}

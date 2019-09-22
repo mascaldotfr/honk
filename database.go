@@ -181,9 +181,9 @@ type RowLike interface {
 
 func scanhonk(row RowLike) *Honk {
 	h := new(Honk)
-	var dt, aud, onts string
+	var dt, aud string
 	err := row.Scan(&h.ID, &h.UserID, &h.Username, &h.What, &h.Honker, &h.Oonker, &h.XID, &h.RID,
-		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Format, &h.Convoy, &h.Whofore, &h.Flags, &onts)
+		&dt, &h.URL, &aud, &h.Noise, &h.Precis, &h.Format, &h.Convoy, &h.Whofore, &h.Flags)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			log.Printf("error scanning honk: %s", err)
@@ -193,9 +193,6 @@ func scanhonk(row RowLike) *Honk {
 	h.Date, _ = time.Parse(dbtimeformat, dt)
 	h.Audience = strings.Split(aud, " ")
 	h.Public = !keepitquiet(h.Audience)
-	if len(onts) > 0 {
-		h.Onts = strings.Split(onts, " ")
-	}
 	return h
 }
 
@@ -207,6 +204,7 @@ func donksforhonks(honks []*Honk) {
 		ids = append(ids, fmt.Sprintf("%d", h.ID))
 		hmap[h.ID] = h
 	}
+	// grab donks
 	q := fmt.Sprintf("select honkid, donks.fileid, xid, name, description, url, media, local from donks join files on donks.fileid = files.fileid where honkid in (%s)", strings.Join(ids, ","))
 	rows, err := db.Query(q)
 	if err != nil {
@@ -225,6 +223,28 @@ func donksforhonks(honks []*Honk) {
 		h := hmap[hid]
 		h.Donks = append(h.Donks, &d)
 	}
+	rows.Close()
+
+	// grab onts
+	q = fmt.Sprintf("select honkid, ontology from onts where honkid in (%s)", strings.Join(ids, ","))
+	rows, err = db.Query(q)
+	if err != nil {
+		log.Printf("error querying onts: %s", err)
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var hid int64
+		var o string
+		err = rows.Scan(&hid, &o)
+		if err != nil {
+			log.Printf("error scanning donk: %s", err)
+			continue
+		}
+		h := hmap[hid]
+		h.Onts = append(h.Onts, o)
+	}
+	rows.Close()
 }
 
 func savehonk(h *Honk) error {
@@ -233,7 +253,7 @@ func savehonk(h *Honk) error {
 
 	res, err := stmtSaveHonk.Exec(h.UserID, h.What, h.Honker, h.XID, h.RID, dt, h.URL,
 		aud, h.Noise, h.Convoy, h.Whofore, h.Format, h.Precis,
-		h.Oonker, h.Flags, strings.Join(h.Onts, " "))
+		h.Oonker, h.Flags)
 	if err != nil {
 		log.Printf("err saving honk: %s", err)
 		return err
@@ -341,7 +361,7 @@ func prepareStatements(db *sql.DB) {
 	stmtOneHonker = preparetodie(db, "select xid from honkers where name = ? and userid = ?")
 	stmtDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
 
-	selecthonks := "select honks.honkid, honks.userid, username, what, honker, oonker, honks.xid, rid, dt, url, audience, noise, precis, format, convoy, whofore, flags, onts from honks join users on honks.userid = users.userid "
+	selecthonks := "select honks.honkid, honks.userid, username, what, honker, oonker, honks.xid, rid, dt, url, audience, noise, precis, format, convoy, whofore, flags from honks join users on honks.userid = users.userid "
 	limit := " order by honks.honkid desc limit 250"
 	butnotthose := " and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"
 	stmtOneXonk = preparetodie(db, selecthonks+"where honks.userid = ? and xid = ?")
@@ -358,7 +378,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where onts.ontology = ? and (honks.userid = ? or (? = -1 and honks.whofore = 2))"+limit)
 
 	stmtSaveOld = preparetodie(db, "insert into forsaken (honkid, precis, noise) values (?, ?, ?)")
-	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags, onts) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	stmtDeleteHonk = preparetodie(db, "delete from honks where honkid = ?")
 	stmtUpdateHonk = preparetodie(db, "update honks set precis = ?, noise = ?, format = ?, dt = ? where honkid = ?")
 	stmtSaveOnt = preparetodie(db, "insert into onts (ontology, honkid) values (?, ?)")

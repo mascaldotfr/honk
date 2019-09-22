@@ -1,5 +1,5 @@
 
-create table honks (honkid integer primary key, userid integer, what text, honker text, xid text, rid text, dt text, url text, audience text, noise text, convoy text, whofore integer, format text, precis text, oonker text, flags integer, onts text);
+create table honks (honkid integer primary key, userid integer, what text, honker text, xid text, rid text, dt text, url text, audience text, noise text, convoy text, whofore integer, format text, precis text, oonker text, flags integer);
 create table donks (honkid integer, fileid integer);
 create table files(fileid integer primary key, xid text, name text, description text, url text, media text, local integer, content blob);
 create table honkers (honkerid integer primary key, userid integer, name text, xid text, flavor text, combos text);
@@ -19,6 +19,7 @@ create index idx_zonkersname on zonkers(name);
 create index idx_filesxid on files(xid);
 create index idx_filesurl on files(url);
 create index idx_ontology on onts(ontology);
+create index idx_onthonkid on onts(honkid);
 
 create table config (key text, value text);
 
