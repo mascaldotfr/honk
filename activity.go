@@ -804,6 +804,7 @@ func subsub(user *WhatAbout, xid string) {
 	deliverate(0, user.Name, xid, msg)
 }
 
+// returns activity, object
 func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 	dt := h.Date.Format(time.RFC3339)
 	var jo junk.Junk
@@ -932,6 +933,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		b := junk.New()
 		b["id"] = user.URL + "/" + "bonk" + "/" + shortxid(h.XID)
 		b["type"] = "Announce"
+		b["actor"] = user.URL
 		if h.Convoy != "" {
 			b["context"] = h.Convoy
 		}
@@ -945,8 +947,13 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		j["type"] = "Read"
 		j["object"] = h.XID
 	case "deack":
-		j["type"] = "Ignore"
-		j["object"] = h.XID
+		b := junk.New()
+		b["id"] = user.URL + "/" + "ack" + "/" + shortxid(h.XID)
+		b["type"] = "Read"
+		b["actor"] = user.URL
+		b["object"] = h.XID
+		j["type"] = "Undo"
+		j["object"] = b
 	}
 
 	return j, jo
