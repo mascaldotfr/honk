@@ -470,6 +470,10 @@ func emptiness(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	if stealthmode(user.ID, r) {
+		http.NotFound(w, r)
+		return
+	}
 	colname := "/followers"
 	if strings.HasSuffix(r.URL.Path, "/following") {
 		colname = "/following"
@@ -1306,6 +1310,10 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := butwhatabout(name)
 	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	if stealthmode(user.ID, r) {
 		http.NotFound(w, r)
 		return
 	}
