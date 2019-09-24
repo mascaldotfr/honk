@@ -16,7 +16,7 @@
 <body>
 <header>
 {{ if .UserInfo }}
-<details>
+<details id="topmenu">
 <summary>menu</summary>
 <p>
 <ul>
@@ -27,7 +27,7 @@
 <summary>combos</summary>
 <ul>
 {{ range .Combos }}
-<li><a href="/c/{{ . }}">{{ . }}</a>
+<li><a class="combolink" href="/c/{{ . }}">{{ . }}</a>
 {{ end }}
 </ul>
 </details>

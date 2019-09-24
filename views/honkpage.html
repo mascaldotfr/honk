@@ -27,9 +27,10 @@
 {{ if .HonkCSRF }}
 <script>
 var csrftoken = {{ .HonkCSRF }}
-var topxid = { "{{ .PageName }}" : "{{ .TopXID }}" }
 var honksforpage = { }
-var thispagename = "{{ .PageName }}"
+var curpagestate = { name: "{{ .PageName }}", arg : "{{ .PageArg }}" }
+var topxid = { }
+topxid[curpagestate.name + ":" + curpagestate.arg] = "{{ .TopXID }}"
 </script>
 <script src="/honkpage.js{{ .JSParam }}"></script>
 {{ end }}

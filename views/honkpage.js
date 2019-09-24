@@ -65,7 +65,8 @@ function deackit(el, xid) {
 }
 function fillinhonks(xhr) {
 	var doc = xhr.responseXML
-	topxid[thispagename] = doc.children[0].children[1].children[0].innerText
+	var stash = curpagestate.name + ":" + curpagestate.arg
+	topxid[stash] = doc.children[0].children[1].children[0].innerText
 	var honks = doc.children[0].children[1].children[1].children
 	var honksonpage = document.getElementById("honksonpage")
 	var holder = honksonpage.children[0]
@@ -73,14 +74,30 @@ function fillinhonks(xhr) {
 	for (var i = honks.length; i > 0; i--) {
 		holder.prepend(honks[i-1])
 	}
-	relinkconvoys()
+	relinklinks()
 	return lenhonks
+}
+function hydrargs() {
+	var name = curpagestate.name
+	var arg = curpagestate.arg
+	var args = { "page" : name }
+	if (name == "convoy") {
+		args["c"] = arg
+	} else if (name == "combo") {
+		console.log("loading combo " + arg)
+		args["c"] = arg
+	} else {
+		var stash = name + ":" + arg
+		args["topxid"] = topxid[stash]
+	}
+	return args
 }
 function refreshhonks(btn) {
 	btn.innerHTML = "refreshing"
 	btn.disabled = true
-	var args = { "page" : thispagename }
-	args["topxid"] = topxid[thispagename]
+	var args = hydrargs()
+	var stash = curpagestate.name + ":" + curpagestate.arg
+	args["topxid"] = topxid[stash]
 	get("/hydra?" + encode(args), function(xhr) {
 		var lenhonks = fillinhonks(xhr)
 		btn.innerHTML = "refresh"
@@ -89,60 +106,71 @@ function refreshhonks(btn) {
 	})
 }
 function statechanger(evt) {
-	var name = evt.state
-	if (!name) {
+	var data = evt.state
+	if (!data) {
 		return
 	}
-	switchtopage(name)
+	switchtopage(data.name, data.arg)
 }
-function switchtopage(name, evt) {
+function switchtopage(name, arg) {
 	var honksonpage = document.getElementById("honksonpage")
 	var holder = honksonpage.children[0]
 	holder.remove()
-	if (thispagename != "convoy") {
-		honksforpage[thispagename] = holder
+	// if not convoy, save current page
+	if (name != "convoy") {
+		var stash = curpagestate.name + ":" + curpagestate.arg
+		honksforpage[stash] = holder
 	}
-	thispagename = name
-	holder = honksforpage[name]
+	curpagestate.name = name
+	curpagestate.arg = arg
+	// get the holder for the target page
+	var stash = name + ":" + arg
+	holder = honksforpage[stash]
 	if (holder) {
 		honksonpage.prepend(holder)
 	} else {
+		// or create one and fill it
 		honksonpage.prepend(document.createElement("div"))
-		var args = { "page" : name }
-		if (name == "convoy") {
-			var c = evt.srcElement.text
-			args["c"] = c
-		} else {
-			args["topxid"] = topxid[name]
-		}
+		var args = hydrargs()
 		get("/hydra?" + encode(args), fillinhonks)
 	}
+	var topmenu = document.getElementById("topmenu")
+	topmenu.open = false
 }
-function pageswitcher(name) {
+function newpagestate(name, arg) {
+	return { "name": name, "arg": arg }
+}
+function pageswitcher(name, arg) {
 	return function(evt) {
-		if (name == thispagename) {
+		console.log("switching to", name +":"+arg)
+		if (name == curpagestate.name && arg == curpagestate.arg) {
+			console.log("skipping nav")
 			return false
 		}
-		switchtopage(name, evt)
+		switchtopage(name, arg)
 		var url = evt.srcElement.href
-		history.pushState(name, "some title", url)
+		history.pushState(newpagestate(name, arg), "some title", url)
 		return false
 	}
 }
-function relinkconvoys() {
+function relinklinks() {
 	var els = document.getElementsByClassName("convoylink")
 	for (var i = 0; i < els.length; i++) {
-		els[i].onclick = pageswitcher("convoy")
+		els[i].onclick = pageswitcher("convoy", els[i].text)
+	}
+	els = document.getElementsByClassName("combolink")
+	for (var i = 0; i < els.length; i++) {
+		els[i].onclick = pageswitcher("combo", els[i].text)
 	}
 }
 (function() {
 	var el = document.getElementById("homelink")
-	el.onclick = pageswitcher("home")
+	el.onclick = pageswitcher("home", "")
 	var el = document.getElementById("atmelink")
-	el.onclick = pageswitcher("atme")
-	relinkconvoys()
+	el.onclick = pageswitcher("atme", "")
+	relinklinks()
 	window.onpopstate = statechanger
-	history.replaceState(thispagename, "some title", "")
+	history.replaceState(curpagestate, "some title", "")
 })();
 (function() {
 	var el = document.getElementById("donkdescriptor")

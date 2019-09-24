@@ -546,8 +546,12 @@ func showcombo(w http.ResponseWriter, r *http.Request) {
 	honks = osmosis(honks, u.UserID)
 	templinfo := getInfo(r)
 	templinfo["PageName"] = "combo"
+	templinfo["PageArg"] = "name"
 	templinfo["ServerMessage"] = "honks by combo: " + name
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+	if len(honks) > 0 {
+		templinfo["TopXID"] = honks[0].XID
+	}
 	honkpage(w, u, honks, templinfo)
 }
 func showconvoy(w http.ResponseWriter, r *http.Request) {
@@ -1415,6 +1419,9 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	case "home":
 		honks = gethonksforuser(userid)
 		honks = osmosis(honks, userid)
+	case "combo":
+		c := r.FormValue("c")
+		honks = gethonksbycombo(userid, c)
 	case "convoy":
 		c := r.FormValue("c")
 		honks = gethonksbyconvoy(userid, c)
