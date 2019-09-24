@@ -1079,10 +1079,9 @@ func showhonkers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func showcombos(w http.ResponseWriter, r *http.Request) {
-	userinfo := login.GetUserInfo(r)
-	templinfo := getInfo(r)
-	honkers := gethonkers(userinfo.UserID)
+var combocache = cacheNew(func(key interface{}) (interface{}, bool) {
+	userid := key.(int64)
+	honkers := gethonkers(userid)
 	var combos []string
 	for _, h := range honkers {
 		combos = append(combos, h.Combos...)
@@ -1094,6 +1093,14 @@ func showcombos(w http.ResponseWriter, r *http.Request) {
 	}
 	combos = oneofakind(combos)
 	sort.Strings(combos)
+	return combos, true
+})
+
+func showcombos(w http.ResponseWriter, r *http.Request) {
+	userinfo := login.GetUserInfo(r)
+	var combos []string
+	combocache.Get(userinfo.UserID, &combos)
+	templinfo := getInfo(r)
 	templinfo["Combos"] = combos
 	err := readviews.Execute(w, "combos.html", templinfo)
 	if err != nil {
@@ -1108,6 +1115,8 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	peep := r.FormValue("peep")
 	combos := r.FormValue("combos")
 	honkerid, _ := strconv.ParseInt(r.FormValue("honkerid"), 10, 0)
+
+	defer combocache.Clear(u.UserID)
 
 	if honkerid > 0 {
 		goodbye := r.FormValue("goodbye")
