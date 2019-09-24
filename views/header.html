@@ -22,12 +22,15 @@
 <ul>
 <li><a href="/{{ .UserSep }}/{{ .UserInfo.Username }}">{{ .UserInfo.Username }}</a>
 <li><a href="/honkers">honkers</a>
-<li>combos
+<li style="list-style-type:none; margin-left:-1em">
+<details>
+<summary>combos</summary>
 <ul>
 {{ range .Combos }}
 <li><a href="/c/{{ . }}">{{ . }}</a>
 {{ end }}
 </ul>
+</details>
 <li><a href="/o">tags</a>
 <li><a href="/about">about</a>
 <li><a href="/front">front</a>
