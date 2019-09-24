@@ -51,18 +51,18 @@ body > header p {
 body > header span {
 	margin-left: 2em;
 }
-header details {
+header > details {
 	background: $bg-page;
 	padding: 1em;
 	position: fixed;
 	top: 0;
 	display: inline;
 }
-header details[open] {
+header > details[open] {
 	background: $bg-dark;
 	border: 1px solid $fg;
 }
-header details li {
+header > details li {
 	margin: 1em 0em 1em 0em;
 }
 main {

@@ -70,6 +70,11 @@ func getInfo(r *http.Request) map[string]interface{} {
 	templinfo["IconName"] = iconName
 	templinfo["UserInfo"] = u
 	templinfo["UserSep"] = userSep
+	if u != nil {
+		var combos []string
+		combocache.Get(u.UserID, &combos)
+		templinfo["Combos"] = combos
+	}
 	return templinfo
 }
 
@@ -1101,7 +1106,6 @@ func showcombos(w http.ResponseWriter, r *http.Request) {
 	var combos []string
 	combocache.Get(userinfo.UserID, &combos)
 	templinfo := getInfo(r)
-	templinfo["Combos"] = combos
 	err := readviews.Execute(w, "combos.html", templinfo)
 	if err != nil {
 		log.Print(err)
