@@ -579,6 +579,11 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					}
 				}
 				convoy, _ = obj.GetString("context")
+				if strings.HasSuffix(convoy, "#context") &&
+					originate(convoy) != originate(xid) {
+					// friendica...
+					convoy = ""
+				}
 				if convoy == "" {
 					convoy, _ = obj.GetString("conversation")
 				}
@@ -731,6 +736,12 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if rid != "" {
 				if needxonkid(user, rid) {
 					saveoneup(rid)
+				}
+				if convoy == "" {
+					xx := getxonk(user.ID, rid)
+					if xx != nil {
+						convoy = xx.Convoy
+					}
 				}
 			}
 			if convoy == "" {
