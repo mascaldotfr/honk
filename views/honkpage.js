@@ -117,7 +117,7 @@ function switchtopage(name, arg) {
 	var holder = honksonpage.children[0]
 	holder.remove()
 	// if not convoy, save current page
-	if (name != "convoy") {
+	if (curpagestate.name != "convoy") {
 		var stash = curpagestate.name + ":" + curpagestate.arg
 		honksforpage[stash] = holder
 	}
