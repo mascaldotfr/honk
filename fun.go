@@ -324,8 +324,8 @@ func memetize(honk *Honk) {
 	honk.Noise = re_memes.ReplaceAllStringFunc(honk.Noise, repl)
 }
 
-var re_bolder = regexp.MustCompile(`(^|\W)\*\*([\w\s,.!?'-]+)\*\*($|\W)`)
-var re_italicer = regexp.MustCompile(`(^|\W)\*([\w\s,.!?'-]+)\*($|\W)`)
+var re_bolder = regexp.MustCompile(`(^|\W)\*\*([\w\s,.!?':_-]+)\*\*($|\W)`)
+var re_italicer = regexp.MustCompile(`(^|\W)\*([\w\s,.!?':_-]+)\*($|\W)`)
 var re_bigcoder = regexp.MustCompile("```\n?((?s:.*?))\n?```\n?")
 var re_coder = regexp.MustCompile("`([^`]*)`")
 var re_quoter = regexp.MustCompile(`(?m:^&gt; (.*)\n?)`)
