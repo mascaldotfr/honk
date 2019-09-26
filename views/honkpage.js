@@ -166,8 +166,10 @@ function relinklinks() {
 (function() {
 	var el = document.getElementById("homelink")
 	el.onclick = pageswitcher("home", "")
-	var el = document.getElementById("atmelink")
+	el = document.getElementById("atmelink")
 	el.onclick = pageswitcher("atme", "")
+	el = document.getElementById("firstlink")
+	el.onclick = pageswitcher("first", "")
 	relinklinks()
 	window.onpopstate = statechanger
 	history.replaceState(curpagestate, "some title", "")

@@ -90,6 +90,10 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/atme" {
 			templinfo["PageName"] = "atme"
 			honks = gethonksforme(userid)
+		} else if r.URL.Path == "/first" {
+			templinfo["PageName"] = "first"
+			honks = gethonksforuser(userid)
+			honks = osmosis(honks, userid)
 		} else {
 			templinfo["PageName"] = "home"
 			honks = gethonksforuser(userid)
@@ -1418,6 +1422,9 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 		honks = gethonksforme(userid)
 	case "home":
 		honks = gethonksforuser(userid)
+		honks = osmosis(honks, userid)
+	case "first":
+		honks = gethonksforuserfirstclass(userid)
 		honks = osmosis(honks, userid)
 	case "combo":
 		c := r.FormValue("c")
