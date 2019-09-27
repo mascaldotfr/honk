@@ -58,8 +58,8 @@ var re_alltheshitz = regexp.MustCompile(`([` +
 var allUppers = []string{bigboldshitz, moeboldshitz, biggothshitz, bigwideshitz, moegothshitz, bigitalshitz, moeitalshitz, bigbangshitz, bigblokshitz, evenmoeshitz}
 var allLowers = []string{lilboldshitz, morboldshitz, lilgothshitz, lilwideshitz, morgothshitz, lilitalshitz, moritalshitz, lilbangshitz, evenmorshitz}
 
-var re_skinTones = regexp.MustCompile("[\U0001F3FB\U0001F3FC\U0001F3FD\U0001F3FE\U0001F3FF]")
-var re_moredumb = regexp.MustCompile("[\U0001f44f\U0001f6a8\U000026a0]\ufe0f?")
+var skinTones = "\U0001F3FB\U0001F3FC\U0001F3FD\U0001F3FE\U0001F3FF"
+var re_moredumb = regexp.MustCompile("[\U0001f44f\U0001f6a8\U000026a0][" + skinTones + "\ufe0f]*")
 
 // this may not be especially fast
 func unpucker(s string) string {
@@ -99,7 +99,6 @@ func unpucker(s string) string {
 	}
 	s = re_alltheshitz.ReplaceAllStringFunc(s, fixer)
 
-	s = re_skinTones.ReplaceAllString(s, "")
 	s = re_moredumb.ReplaceAllString(s, ".")
 
 	zw := false
