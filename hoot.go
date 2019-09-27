@@ -71,7 +71,11 @@ func hootfixer(r io.Reader, url string) string {
 	}
 	divs := tweetsel.MatchAll(root)
 
-	wanted := ""
+	wantmatch := authorregex.FindStringSubmatch(url)
+	if len(wantmatch) < 2 {
+		log.Printf("no wanted author?")
+	}
+	wanted := wantmatch[1]
 	var buf strings.Builder
 
 	filt := htfilter.New()
@@ -90,9 +94,6 @@ func hootfixer(r io.Reader, url string) string {
 			continue
 		}
 		author := authormatch[1]
-		if wanted == "" {
-			wanted = author
-		}
 		if author != wanted {
 			continue
 		}
