@@ -10,6 +10,7 @@ body {
 	font-size: 1em;
 	word-wrap: break-word;
 	font-family: sans-serif, "Noto Color Emoji";
+	line-height: 1.1;
 }
 pre, code {
 	white-space: pre-wrap;
