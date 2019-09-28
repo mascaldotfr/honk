@@ -202,16 +202,17 @@ function updatedonker() {
 	var el = document.getElementById("donkdescriptor")
 	el.style.display = ""
 }
+var checkinprec = 500.0
 function fillcheckin() {
 	if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(function(pos) {
-			var precision = 500.0
 			var el = document.getElementById("placedescriptor")
 			el.style.display = "block"
 			el = document.getElementById("placelatinput")
-			el.value = Math.round(pos.coords.latitude * precision) / precision
+			el.value = Math.round(pos.coords.latitude * checkinprec) / checkinprec
 			el = document.getElementById("placelonginput")
-			el.value = Math.round(pos.coords.longitude * precision) / precision
+			el.value = Math.round(pos.coords.longitude * checkinprec) / checkinprec
+			checkinprec = 10000.0
 		}, function(err) {
 			var el = document.getElementById("placedescriptor")
 			el.style.display = "block"
