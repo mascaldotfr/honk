@@ -678,6 +678,14 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 						log.Printf("bogus hashtag name: %s", name)
 					}
 				}
+				if tt == "Place" {
+					p := new(Place)
+					p.Name = name
+					p.Latitude, _ = tag["latitude"].(float64)
+					p.Longitude, _ = tag["longitude"].(float64)
+					log.Printf("place: %v", p)
+					xonk.Place = p
+				}
 			}
 			xonk.Onts = oneofakind(xonk.Onts)
 		}
