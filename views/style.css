@@ -10,7 +10,7 @@ body {
 	font-size: 1em;
 	word-wrap: break-word;
 	font-family: sans-serif, "Noto Color Emoji";
-	line-height: 1.1;
+	line-height: 1.2;
 }
 pre, code {
 	white-space: pre-wrap;
@@ -150,6 +150,7 @@ input[type=file] {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	font-size: 0.8em;
+	line-height: 1.1;
 	margin-top: 1em;
 	height: 64px;
 }
