@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Location checkin. Welcome to the... danger zone!
+
 +++ Editing honks (Update activity).
 
 + Quick mention @alias.

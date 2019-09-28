@@ -10,6 +10,12 @@ in reply to: <input type="text" name="rid" id="ridinput" value="{{ .InReplyTo }}
 <input type="hidden" name="donkxid" value="{{ .SavedFile }}">
 <p id="donkdescriptor">
 description: <input type="text" name="donkdesc" value="{{ .DonkDesc }}" autocomplete=off>
+<p><button id=checkinbutton type=button onclick="fillcheckin()">checkin</button>
+<div id=placedescriptor style="display: none">
+<p>name: <input type="text" name="placename" id=placenameinput value="">
+<p>latitude: <input type="text" name="placelat" id=placelatinput value="">
+<p>longitude: <input type="text" name="placelong" id=placelonginput value="">
+</div>
 <p>
 <textarea name="noise" id="honknoise">{{ .Noise }}</textarea>
 <p>

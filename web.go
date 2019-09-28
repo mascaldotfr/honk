@@ -1039,6 +1039,17 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 	}
 	memetize(honk)
 
+	placename := r.FormValue("placename")
+	placelat := r.FormValue("placelat")
+	placelong := r.FormValue("placelong")
+	if placename != "" || placelat != "" || placelong != "" {
+		p := new(Place)
+		p.Name = placename
+		p.Latitude, _ = strconv.ParseFloat(placelat, 64)
+		p.Longitude, _ = strconv.ParseFloat(placelong, 64)
+		honk.Place = p
+	}
+
 	if honk.Public {
 		honk.Whofore = 2
 	} else {

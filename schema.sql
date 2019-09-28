@@ -8,6 +8,7 @@ create table zonkers (zonkerid integer primary key, userid integer, name text, w
 create table doovers(dooverid integer primary key, dt text, tries integer, username text, rcpt text, msg blob);
 create table onts (ontology text, honkid integer);
 create table forsaken (honkid integer, precis text, noise text);
+create table places (honkid integer, name text, latitude real, longitude real);
 
 create index idx_honksxid on honks(xid);
 create index idx_honksconvoy on honks(convoy);
@@ -20,6 +21,7 @@ create index idx_filesxid on files(xid);
 create index idx_filesurl on files(url);
 create index idx_ontology on onts(ontology);
 create index idx_onthonkid on onts(honkid);
+create index idx_placehonkid on places(honkid);
 
 create table config (key text, value text);
 

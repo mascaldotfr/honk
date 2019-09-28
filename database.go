@@ -250,6 +250,26 @@ func donksforhonks(honks []*Honk) {
 		h.Onts = append(h.Onts, o)
 	}
 	rows.Close()
+	// grab places
+	q = fmt.Sprintf("select honkid, name, latitude, longitude from places where honkid in (%s)", strings.Join(ids, ","))
+	rows, err = db.Query(q)
+	if err != nil {
+		log.Printf("error querying places: %s", err)
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var hid int64
+		p := new(Place)
+		err = rows.Scan(&hid, &p.Name, &p.Latitude, &p.Longitude)
+		if err != nil {
+			log.Printf("error scanning place: %s", err)
+			continue
+		}
+		h := hmap[hid]
+		h.Place = p
+	}
+	rows.Close()
 }
 
 func savehonk(h *Honk) error {
@@ -283,6 +303,14 @@ func saveextras(h *Honk) error {
 			return err
 		}
 	}
+	if h.Place != nil {
+		_, err := stmtSavePlace.Exec(h.ID, h.Place.Name, h.Place.Latitude, h.Place.Longitude)
+		if err != nil {
+			log.Printf("error saving ont: %s", err)
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -292,6 +320,10 @@ func deleteextras(honkid int64) {
 		log.Printf("error deleting: %s", err)
 	}
 	_, err = stmtDeleteOnts.Exec(honkid)
+	if err != nil {
+		log.Printf("error deleting: %s", err)
+	}
+	_, err = stmtDeletePlace.Exec(honkid)
 	if err != nil {
 		log.Printf("error deleting: %s", err)
 	}
@@ -348,7 +380,7 @@ var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover, stmtOneHonker 
 var stmtThumbBiters, stmtDeleteHonk, stmtDeleteDonks, stmtDeleteOnts, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
 var stmtSelectOnts, stmtSaveOnt, stmtUpdateFlags, stmtClearFlags *sql.Stmt
-var stmtHonksForUserFirstClass, stmtSaveOld, stmtUpdateHonk *sql.Stmt
+var stmtSavePlace, stmtDeletePlace, stmtHonksForUserFirstClass, stmtSaveOld, stmtUpdateHonk *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -387,6 +419,8 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	stmtDeleteHonk = preparetodie(db, "delete from honks where honkid = ?")
 	stmtUpdateHonk = preparetodie(db, "update honks set precis = ?, noise = ?, format = ?, dt = ? where honkid = ?")
+	stmtSavePlace = preparetodie(db, "insert into places (honkid, name, latitude, longitude) values (?, ?, ?, ?)")
+	stmtDeletePlace = preparetodie(db, "delete from places where honkid = ?")
 	stmtSaveOnt = preparetodie(db, "insert into onts (ontology, honkid) values (?, ?)")
 	stmtDeleteOnts = preparetodie(db, "delete from onts where honkid = ?")
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")

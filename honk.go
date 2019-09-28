@@ -61,6 +61,7 @@ type Honk struct {
 	Open     string
 	Donks    []*Donk
 	Onts     []string
+	Place    *Place
 }
 
 const (
@@ -85,6 +86,12 @@ type Donk struct {
 	Media   string
 	Local   bool
 	Content []byte
+}
+
+type Place struct {
+	Name      string
+	Latitude  float64
+	Longitude float64
 }
 
 type Honker struct {

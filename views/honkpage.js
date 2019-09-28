@@ -202,3 +202,19 @@ function updatedonker() {
 	var el = document.getElementById("donkdescriptor")
 	el.style.display = ""
 }
+function fillcheckin() {
+	if (navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(function(pos) {
+			var precision = 500.0
+			var el = document.getElementById("placedescriptor")
+			el.style.display = "block"
+			el = document.getElementById("placelatinput")
+			el.value = Math.round(pos.coords.latitude * precision) / precision
+			el = document.getElementById("placelonginput")
+			el.value = Math.round(pos.coords.longitude * precision) / precision
+		}, function(err) {
+			var el = document.getElementById("placenamenput")
+			el.innerHTML = err.message
+		})
+	}
+}

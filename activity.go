@@ -914,6 +914,14 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			t["icon"] = i
 			tags = append(tags, t)
 		}
+		if p := h.Place; p != nil {
+			t := junk.New()
+			t["type"] = "Place"
+			t["name"] = p.Name
+			t["latitude"] = p.Latitude
+			t["longitude"] = p.Longitude
+			tags = append(tags, t)
+		}
 		if len(tags) > 0 {
 			jo["tag"] = tags
 		}
