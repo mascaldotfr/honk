@@ -735,6 +735,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			prev.Date = xonk.Date
 			prev.Donks = xonk.Donks
 			prev.Onts = xonk.Onts
+			prev.Place = xonk.Place
 			updatehonk(prev)
 			return nil
 		}
