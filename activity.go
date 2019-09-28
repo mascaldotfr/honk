@@ -464,9 +464,8 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		what, _ := item.GetString("type")
 		dt, _ := item.GetString("published")
 
-		var audience []string
 		var err error
-		var xid, rid, url, content, precis, convoy, oonker string
+		var xid, rid, url, content, precis, convoy string
 		var obj junk.Junk
 		var ok bool
 		isUpdate := false
@@ -542,12 +541,27 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		}
 
 		var xonk Honk
-		who, _ := item.GetString("actor")
+		// early init
+		xonk.Honker, _ = item.GetString("actor")
 		if obj != nil {
-			if who == "" {
-				who = extractattrto(obj)
+			if xonk.Honker == "" {
+				xonk.Honker = extractattrto(obj)
 			}
-			oonker = extractattrto(obj)
+			xonk.Oonker = extractattrto(obj)
+			if xonk.Oonker == xonk.Honker {
+				xonk.Oonker = ""
+			}
+			xonk.Audience = newphone(nil, obj)
+		}
+		xonk.Audience = append(xonk.Audience, xonk.Honker)
+		xonk.Audience = oneofakind(xonk.Audience)
+		for _, a := range xonk.Audience {
+			if a == user.URL {
+				xonk.Whofore = 1
+			}
+		}
+
+		if obj != nil {
 			ot, _ := obj.GetString("type")
 			url, _ = obj.GetString("url")
 			dt2, ok := obj.GetString("published")
@@ -557,7 +571,6 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if ot == "Tombstone" {
 				xid, _ = obj.GetString("id")
 			} else {
-				audience = newphone(audience, obj)
 				xid, _ = obj.GetString("id")
 				precis, _ = obj.GetString("summary")
 				if precis == "" {
@@ -694,35 +707,21 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			item.Write(os.Stdout)
 			return nil
 		}
-		audience = append(audience, who)
-
-		audience = oneofakind(audience)
 
 		if currenttid == "" {
 			currenttid = convoy
 		}
 
-		if oonker == who {
-			oonker = ""
-		}
 		// init xonk
 		xonk.UserID = user.ID
 		xonk.What = what
-		xonk.Honker = who
 		xonk.XID = xid
 		xonk.RID = rid
 		xonk.Date, _ = time.Parse(time.RFC3339, dt)
 		xonk.URL = url
 		xonk.Noise = content
 		xonk.Precis = precis
-		xonk.Audience = audience
-		xonk.Oonker = oonker
 		xonk.Format = "html"
-		for _, a := range audience {
-			if a == user.URL {
-				xonk.Whofore = 1
-			}
-		}
 
 		if isUpdate {
 			log.Printf("something has changed! %s", xonk.XID)
