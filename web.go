@@ -21,7 +21,6 @@ import (
 	"html"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"log"
 	notrand "math/rand"
 	"net/http"
@@ -1355,11 +1354,17 @@ func avatate(w http.ResponseWriter, r *http.Request) {
 }
 
 func servecss(w http.ResponseWriter, r *http.Request) {
-	data, _ := ioutil.ReadFile("views" + r.URL.Path)
-	s := css.Process(string(data))
-	w.Header().Set("Cache-Control", "max-age=7776000")
+	fd, err := os.Open("views" + r.URL.Path)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Set("Cache-Control", "max-age=0")
 	w.Header().Set("Content-Type", "text/css; charset=utf-8")
-	w.Write([]byte(s))
+	err = css.Filter(fd, w)
+	if err != nil {
+		log.Printf("error filtering css: %s", err)
+	}
 }
 func serveasset(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "max-age=7776000")
