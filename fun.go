@@ -659,6 +659,7 @@ func makeitworksomehowwithoutregardforkeycontinuity(keyname string, r *http.Requ
 }
 
 var thumbbiters map[int64]map[string]bool
+var zoggles map[int64]map[string]bool
 var zordses map[int64][]*regexp.Regexp
 var zilences map[int64][]*regexp.Regexp
 var thumblock sync.Mutex
@@ -674,6 +675,7 @@ func bitethethumbs() {
 	thumblock.Lock()
 	defer thumblock.Unlock()
 	thumbbiters = make(map[int64]map[string]bool)
+	zoggles = make(map[int64]map[string]bool)
 	zordses = make(map[int64][]*regexp.Regexp)
 	zilences = make(map[int64][]*regexp.Regexp)
 	for rows.Next() {
@@ -696,14 +698,23 @@ func bitethethumbs() {
 					zilences[userid] = append(zilences[userid], re)
 				}
 			}
-			continue
 		}
-		m := thumbbiters[userid]
-		if m == nil {
-			m = make(map[string]bool)
-			thumbbiters[userid] = m
+		if wherefore == "zoggle" {
+			m := zoggles[userid]
+			if m == nil {
+				m = make(map[string]bool)
+				zoggles[userid] = m
+			}
+			m[name] = true
 		}
-		m[name] = true
+		if wherefore == "zonker" || wherefore == "zomain" {
+			m := thumbbiters[userid]
+			if m == nil {
+				m = make(map[string]bool)
+				thumbbiters[userid] = m
+			}
+			m[name] = true
+		}
 	}
 }
 

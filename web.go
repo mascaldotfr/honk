@@ -1265,13 +1265,15 @@ func zonkzonk(w http.ResponseWriter, r *http.Request) {
 	case "zonvoy":
 	case "zord":
 	case "zilence":
+	case "zoggle":
 	default:
 		return
 	}
 	db := opendatabase()
 	db.Exec("insert into zonkers (userid, name, wherefore) values (?, ?, ?)",
 		userinfo.UserID, name, wherefore)
-	if wherefore == "zonker" || wherefore == "zomain" || wherefore == "zord" || wherefore == "zilence" {
+
+	if wherefore != "zonvoy" {
 		bitethethumbs()
 	}
 

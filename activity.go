@@ -542,6 +542,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 
 		var xonk Honk
 		// early init
+		xonk.UserID = user.ID
 		xonk.Honker, _ = item.GetString("actor")
 		if obj != nil {
 			if xonk.Honker == "" {
@@ -655,6 +656,9 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				} else {
 					log.Printf("unknown attachment: %s", at)
 				}
+				if skipMedia(&xonk) {
+					localize = false
+				}
 				donk := savedonk(u, name, desc, mt, localize)
 				if donk != nil {
 					xonk.Donks = append(xonk.Donks, donk)
@@ -713,7 +717,6 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		}
 
 		// init xonk
-		xonk.UserID = user.ID
 		xonk.What = what
 		xonk.XID = xid
 		xonk.RID = rid
