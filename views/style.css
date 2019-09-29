@@ -58,6 +58,8 @@ header > details {
 	position: fixed;
 	top: 0;
 	display: inline;
+	max-height: 100%;
+	overflow: auto;
 }
 header > details[open] {
 	background: $bg-dark;
