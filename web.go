@@ -1047,6 +1047,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 		p.Name = placename
 		p.Latitude, _ = strconv.ParseFloat(placelat, 64)
 		p.Longitude, _ = strconv.ParseFloat(placelong, 64)
+		p.Url = r.FormValue("placeurl")
 		honk.Place = p
 	}
 

@@ -92,6 +92,7 @@ type Place struct {
 	Name      string
 	Latitude  float64
 	Longitude float64
+	Url       string
 }
 
 type Honker struct {

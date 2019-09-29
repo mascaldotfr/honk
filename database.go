@@ -251,7 +251,7 @@ func donksforhonks(honks []*Honk) {
 	}
 	rows.Close()
 	// grab places
-	q = fmt.Sprintf("select honkid, name, latitude, longitude from places where honkid in (%s)", strings.Join(ids, ","))
+	q = fmt.Sprintf("select honkid, name, latitude, longitude, url from places where honkid in (%s)", strings.Join(ids, ","))
 	rows, err = db.Query(q)
 	if err != nil {
 		log.Printf("error querying places: %s", err)
@@ -261,7 +261,7 @@ func donksforhonks(honks []*Honk) {
 	for rows.Next() {
 		var hid int64
 		p := new(Place)
-		err = rows.Scan(&hid, &p.Name, &p.Latitude, &p.Longitude)
+		err = rows.Scan(&hid, &p.Name, &p.Latitude, &p.Longitude, &p.Url)
 		if err != nil {
 			log.Printf("error scanning place: %s", err)
 			continue
@@ -303,10 +303,10 @@ func saveextras(h *Honk) error {
 			return err
 		}
 	}
-	if h.Place != nil {
-		_, err := stmtSavePlace.Exec(h.ID, h.Place.Name, h.Place.Latitude, h.Place.Longitude)
+	if p := h.Place; p != nil {
+		_, err := stmtSavePlace.Exec(h.ID, p.Name, p.Latitude, p.Longitude, p.Url)
 		if err != nil {
-			log.Printf("error saving ont: %s", err)
+			log.Printf("error saving place: %s", err)
 			return err
 		}
 	}
@@ -419,7 +419,7 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	stmtDeleteHonk = preparetodie(db, "delete from honks where honkid = ?")
 	stmtUpdateHonk = preparetodie(db, "update honks set precis = ?, noise = ?, format = ?, dt = ? where honkid = ?")
-	stmtSavePlace = preparetodie(db, "insert into places (honkid, name, latitude, longitude) values (?, ?, ?, ?)")
+	stmtSavePlace = preparetodie(db, "insert into places (honkid, name, latitude, longitude, url) values (?, ?, ?, ?, ?)")
 	stmtDeletePlace = preparetodie(db, "delete from places where honkid = ?")
 	stmtSaveOnt = preparetodie(db, "insert into onts (ontology, honkid) values (?, ?)")
 	stmtDeleteOnts = preparetodie(db, "delete from onts where honkid = ?")

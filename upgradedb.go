@@ -188,8 +188,11 @@ func upgradedb() {
 	case 19:
 		doordie(db, "create table places (honkid integer, name text, latitude real, longitude real)")
 		doordie(db, "create index idx_placehonkid on places(honkid)")
-		doordie(db, "update config set value = 20 where key = 'dbversion'")
 	case 20:
+		doordie(db, "alter table places add column url text")
+		doordie(db, "update places set url = ''")
+		doordie(db, "update config set value = 21 where key = 'dbversion'")
+	case 21:
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
 	}

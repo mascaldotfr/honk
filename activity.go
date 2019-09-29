@@ -700,6 +700,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					p.Name = name
 					p.Latitude, _ = tag["latitude"].(float64)
 					p.Longitude, _ = tag["longitude"].(float64)
+					p.Url, _ = tag.GetString("url")
 					log.Printf("place: %v", p)
 					xonk.Place = p
 				}
@@ -931,6 +932,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			t["name"] = p.Name
 			t["latitude"] = p.Latitude
 			t["longitude"] = p.Longitude
+			t["url"] = p.Url
 			tags = append(tags, t)
 		}
 		if len(tags) > 0 {
