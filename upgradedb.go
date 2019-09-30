@@ -213,7 +213,7 @@ func upgradedb() {
 		doordie(db, "create index idx_filesxid on filemeta(xid)")
 		doordie(db, "create index idx_filesurl on filemeta(url)")
 
-		rows, err := db.Query("select xid, media, content from files")
+		rows, err := db.Query("select xid, media, content from files where local = 1")
 		if err != nil {
 			log.Fatal(err)
 		}
