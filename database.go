@@ -368,19 +368,67 @@ func updatehonk(h *Honk) {
 func cleanupdb(arg string) {
 	db := opendatabase()
 	days, err := strconv.Atoi(arg)
+	var sqlargs []interface{}
+	var where string
 	if err != nil {
 		honker := arg
 		expdate := time.Now().UTC().Add(-3 * 24 * time.Hour).Format(dbtimeformat)
-		doordie(db, "delete from donks where honkid in (select honkid from honks where dt < ? and whofore = 0 and honker = ?)", expdate, honker)
-		doordie(db, "delete from honks where dt < ? and whofore = 0 and honker = ?", expdate, honker)
+		where = "dt < ? and whofore = 0 and honker = ?"
+		sqlargs = append(sqlargs, expdate)
+		sqlargs = append(sqlargs, honker)
 	} else {
 		expdate := time.Now().UTC().Add(-time.Duration(days) * 24 * time.Hour).Format(dbtimeformat)
-		doordie(db, "delete from donks where honkid in (select honkid from honks where dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3))", expdate)
-		doordie(db, "delete from honks where dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3)", expdate)
+		where = "dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3)"
+		sqlargs = append(sqlargs, expdate)
 	}
+	doordie(db, "delete from honks where " + where, sqlargs...)
+	doordie(db, "delete from donks where honkid not in (select honkid from honks)")
+	doordie(db, "delete from onts where honkid not in (select honkid from honks)")
+	doordie(db, "delete from places where honkid not in (select honkid from honks)")
+
 	doordie(db, "delete from filemeta where fileid not in (select fileid from donks)")
 	for _, u := range allusers() {
 		doordie(db, "delete from zonkers where userid = ? and wherefore = 'zonvoy' and zonkerid < (select zonkerid from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 1 offset 200)", u.UserID, u.UserID)
+	}
+
+	filexids := make(map[string]bool)
+	blobdb := openblobdb()
+	rows, err := blobdb.Query("select xid from filedata")
+	if err != nil {
+		log.Fatal(err)
+	}
+	for rows.Next() {
+		var xid string
+		err = rows.Scan(&xid)
+		if err != nil {
+			log.Fatal(err)
+		}
+		filexids[xid] = true
+	}
+	rows.Close()
+	rows, err = db.Query("select xid from filemeta")
+	for rows.Next() {
+		var xid string
+		err = rows.Scan(&xid)
+		if err != nil {
+			log.Fatal(err)
+		}
+		delete(filexids, xid)
+	}
+	rows.Close()
+	tx, err := blobdb.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+	for xid, _ := range filexids {
+		_, err = tx.Exec("delete from filedata where xid = ?", xid)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
@@ -440,10 +488,7 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")
 	stmtDeleteDonks = preparetodie(db, "delete from donks where honkid = ?")
 	stmtSaveFile = preparetodie(db, "insert into filemeta (xid, name, description, url, media, local) values (?, ?, ?, ?, ?, ?)")
-	blobdb, err := sql.Open("sqlite3", blobdbname)
-	if err != nil {
-		log.Fatal(err)
-	}
+	blobdb := openblobdb()
 	stmtSaveFileData = preparetodie(blobdb, "insert into filedata (xid, media, content) values (?, ?, ?)")
 	stmtGetFileData = preparetodie(blobdb, "select media, content from filedata where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")

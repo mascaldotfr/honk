@@ -287,6 +287,19 @@ func opendatabase() *sql.DB {
 	return db
 }
 
+func openblobdb() *sql.DB {
+	var err error
+	_, err = os.Stat(blobdbname)
+	if err != nil {
+		log.Fatalf("unable to open database: %s", err)
+	}
+	db, err := sql.Open("sqlite3", blobdbname)
+	if err != nil {
+		log.Fatalf("unable to open database: %s", err)
+	}
+	return db
+}
+
 func getconfig(key string, value interface{}) error {
 	m, ok := value.(*map[string]bool)
 	if ok {
