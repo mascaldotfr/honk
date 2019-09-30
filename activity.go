@@ -483,6 +483,18 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			log.Printf("eradicating %s", xid)
 			eradicatexonk(user.ID, xid)
 			return nil
+		case "Tombstone":
+			xid, _ = item.GetString("id")
+			if xid == "" {
+				return nil
+			}
+			if originate(xid) != origin {
+				log.Printf("forged delete: %s", xid)
+				return nil
+			}
+			log.Printf("eradicating %s", xid)
+			eradicatexonk(user.ID, xid)
+			return nil
 		case "Announce":
 			obj, ok = item.GetMap("object")
 			if ok {
