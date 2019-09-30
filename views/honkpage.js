@@ -183,7 +183,7 @@ function showhonkform(elem, rid, hname) {
 	form.style = "display: block"
 	if (elem) {
 		form.remove()
-		elem.parentElement.insertAdjacentElement('beforebegin', form)
+		elem.parentElement.parentElement.parentElement.insertAdjacentElement('beforebegin', form)
 	} else {
 		elem = document.getElementById("honkformhost")
 		elem.insertAdjacentElement('afterend', form)

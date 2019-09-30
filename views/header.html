@@ -18,8 +18,9 @@
 {{ if .UserInfo }}
 <details id="topmenu">
 <summary>menu</summary>
-<p>
 <ul>
+<li><a id="homelink" href="/">home</a>
+<li><a id="atmelink" href="/atme">@me</a>
 <li><a id="firstlink" href="/first">first</a>
 <li><a href="/{{ .UserSep }}/{{ .UserInfo.Username }}">{{ .UserInfo.Username }}</a>
 <li><a href="/honkers">honkers</a>
@@ -45,9 +46,7 @@
 </form>
 </ul>
 </details>
-<p>
-<span><a id="homelink" href="/">home</a></span>
-<span><a id="atmelink" href="/atme">@me</a></span>
+<p></p>
 {{ else }}
 <span><a id="homelink" href="/">home</a></span>
 <span><a href="/about">about</a></span>

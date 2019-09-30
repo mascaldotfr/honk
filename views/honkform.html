@@ -1,10 +1,9 @@
 <p id="honkformhost">
 <button onclick="showhonkform(); return false"><a href="/newhonk">it's honking time</a></button>
 <form id="honkform" action="/honk" method="POST" enctype="multipart/form-data" style="display: none">
-<p>
-in reply to: <input type="text" name="rid" id="ridinput" value="{{ .InReplyTo }}" autocomplete=off>
 <input type="hidden" name="CSRF" value="{{ .HonkCSRF }}">
 <input type="hidden" name="updatexid" value = "{{ .UpdateXID }}">
+<input type="hidden" name="rid" id="ridinput" value="{{ .InReplyTo }}">
 <p>
 <label id="donker">attach: {{ if .SavedFile }} {{ .SavedFile }} {{ else }} <input onchange="updatedonker();" type="file" name="donk"><span></span> {{ end }}</label>
 <input type="hidden" name="donkxid" value="{{ .SavedFile }}">
@@ -20,6 +19,6 @@ description: <input type="text" name="donkdesc" value="{{ .DonkDesc }}" autocomp
 <p>
 <textarea name="noise" id="honknoise">{{ .Noise }}</textarea>
 <p>
-<input type="submit" value="it's gonna be honked">
-<input type="submit" name="preview" value="preview">
+<button>it's gonna be honked</button>
+<button name="preview" value="preview">preview</button>
 </form>

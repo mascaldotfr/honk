@@ -600,7 +600,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			}
 			convoy, _ = obj.GetString("context")
 			if strings.HasSuffix(convoy, "#context") &&
-			originate(convoy) != originate(xid) {
+				originate(convoy) != originate(xid) {
 				// friendica...
 				convoy = ""
 			}

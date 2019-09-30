@@ -46,24 +46,32 @@ body > header {
 	margin: 1em auto;
 	font-size: 1.5em;
 }
-body > header p {
-	margin-left: 4em;
-}
 body > header span {
 	margin-left: 2em;
 }
+body > header p {
+	padding: 1em;
+}
 header > details {
 	background: $bg-page;
-	padding: 1em;
+	padding: 1em 1em 1em 1em;
 	position: fixed;
 	top: 0;
+	left: 0;
 	display: inline;
-	max-height: 100%;
+	max-height: calc(100% - 1em);
 	overflow: auto;
+	opacity: 0.7;
 }
 header > details[open] {
+	padding: 1em 1em 0em 1em;
 	background: $bg-dark;
 	border: 1px solid $fg;
+	margin-bottom: 1em;
+	opacity: 1.0;
+}
+header > details ul {
+	margin-left: -1em;
 }
 header > details li {
 	margin: 1em 0em 1em 0em;
@@ -83,7 +91,7 @@ main {
 	margin-top: 1em;
 	margin-bottom: 1em;
 }
-label, button, form input[type=submit], select {
+label, button, select {
 	font-size: 16px;
 	font-family: monospace;
 	color: $fg;
@@ -165,7 +173,7 @@ input[type=file] {
 .honk header p {
 	margin-top: 0px;
 }
-.honk button {
+.honk .actions button {
 	margin-left: 4em;
 	margin-top: 2em;
 }
