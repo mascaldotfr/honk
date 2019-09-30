@@ -177,6 +177,9 @@ input[type=file] {
 	margin-left: 4em;
 	margin-top: 2em;
 }
+.honk .noise {
+	line-height: 1.4;
+}
 .subtle {
 }
 .subtle .noise {
