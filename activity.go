@@ -201,9 +201,6 @@ func iszonked(userid int64, xid string) bool {
 }
 
 func needxonk(user *WhatAbout, x *Honk) bool {
-	if x.What == "eradicate" {
-		return true
-	}
 	if thoudostbitethythumb(user.ID, x.Audience, x.XID) {
 		log.Printf("not saving thumb biter? %s via %s", x.XID, x.Honker)
 		return false
@@ -234,19 +231,18 @@ func needxonkid(user *WhatAbout, xid string) bool {
 	return true
 }
 
-func savexonk(x *Honk) {
-	if x.What == "eradicate" {
-		log.Printf("eradicating %s by %s", x.XID, x.Honker)
-		xonk := getxonk(x.UserID, x.XID)
-		if xonk != nil {
-			deletehonk(xonk.ID)
-		}
-		_, err := stmtSaveZonker.Exec(x.UserID, x.XID, "zonk")
-		if err != nil {
-			log.Printf("error eradicating: %s", err)
-		}
-		return
+func eradicatexonk(userid int64, xid string) {
+	xonk := getxonk(userid, xid)
+	if xonk != nil {
+		deletehonk(xonk.ID)
 	}
+	_, err := stmtSaveZonker.Exec(userid, xid, "zonk")
+	if err != nil {
+		log.Printf("error eradicating: %s", err)
+	}
+}
+
+func savexonk(x *Honk) {
 	log.Printf("saving xonk: %s", x.XID)
 	go prehandle(x.Honker)
 	go prehandle(x.Oonker)
@@ -470,6 +466,23 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		var ok bool
 		isUpdate := false
 		switch what {
+		case "Delete":
+			obj, ok = item.GetMap("object")
+			if ok {
+				xid, _ = obj.GetString("id")
+			} else {
+				xid, _ = item.GetString("object")
+			}
+			if xid == "" {
+				return nil
+			}
+			if originate(xid) != origin {
+				log.Printf("forged delete: %s", xid)
+				return nil
+			}
+			log.Printf("eradicating %s", xid)
+			eradicatexonk(user.ID, xid)
+			return nil
 		case "Announce":
 			obj, ok = item.GetMap("object")
 			if ok {
@@ -501,10 +514,6 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				}
 			}
 			what = "honk"
-		case "Delete":
-			obj, _ = item.GetMap("object")
-			xid, _ = item.GetString("object")
-			what = "eradicate"
 		case "Read":
 			xid, ok = item.GetString("object")
 			if ok {
@@ -569,66 +578,62 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if ok {
 				dt = dt2
 			}
-			if ot == "Tombstone" {
-				xid, _ = obj.GetString("id")
-			} else {
-				xid, _ = obj.GetString("id")
-				precis, _ = obj.GetString("summary")
-				if precis == "" {
-					precis, _ = obj.GetString("name")
+			xid, _ = obj.GetString("id")
+			precis, _ = obj.GetString("summary")
+			if precis == "" {
+				precis, _ = obj.GetString("name")
+			}
+			content, _ = obj.GetString("content")
+			if !strings.HasPrefix(content, "<p>") {
+				content = "<p>" + content
+			}
+			sens, _ := obj["sensitive"].(bool)
+			if sens && precis == "" {
+				precis = "unspecified horror"
+			}
+			rid, ok = obj.GetString("inReplyTo")
+			if !ok {
+				robj, ok := obj.GetMap("inReplyTo")
+				if ok {
+					rid, _ = robj.GetString("id")
 				}
-				content, _ = obj.GetString("content")
-				if !strings.HasPrefix(content, "<p>") {
-					content = "<p>" + content
+			}
+			convoy, _ = obj.GetString("context")
+			if strings.HasSuffix(convoy, "#context") &&
+			originate(convoy) != originate(xid) {
+				// friendica...
+				convoy = ""
+			}
+			if convoy == "" {
+				convoy, _ = obj.GetString("conversation")
+			}
+			if ot == "Question" {
+				if what == "honk" {
+					what = "qonk"
 				}
-				sens, _ := obj["sensitive"].(bool)
-				if sens && precis == "" {
-					precis = "unspecified horror"
-				}
-				rid, ok = obj.GetString("inReplyTo")
-				if !ok {
-					robj, ok := obj.GetMap("inReplyTo")
-					if ok {
-						rid, _ = robj.GetString("id")
+				content += "<ul>"
+				ans, _ := obj.GetArray("oneOf")
+				for _, ai := range ans {
+					a, ok := ai.(junk.Junk)
+					if !ok {
+						continue
 					}
+					as, _ := a.GetString("name")
+					content += "<li>" + as
 				}
-				convoy, _ = obj.GetString("context")
-				if strings.HasSuffix(convoy, "#context") &&
-					originate(convoy) != originate(xid) {
-					// friendica...
-					convoy = ""
-				}
-				if convoy == "" {
-					convoy, _ = obj.GetString("conversation")
-				}
-				if ot == "Question" {
-					if what == "honk" {
-						what = "qonk"
+				ans, _ = obj.GetArray("anyOf")
+				for _, ai := range ans {
+					a, ok := ai.(junk.Junk)
+					if !ok {
+						continue
 					}
-					content += "<ul>"
-					ans, _ := obj.GetArray("oneOf")
-					for _, ai := range ans {
-						a, ok := ai.(junk.Junk)
-						if !ok {
-							continue
-						}
-						as, _ := a.GetString("name")
-						content += "<li>" + as
-					}
-					ans, _ = obj.GetArray("anyOf")
-					for _, ai := range ans {
-						a, ok := ai.(junk.Junk)
-						if !ok {
-							continue
-						}
-						as, _ := a.GetString("name")
-						content += "<li>" + as
-					}
-					content += "</ul>"
+					as, _ := a.GetString("name")
+					content += "<li>" + as
 				}
-				if what == "honk" && rid != "" {
-					what = "tonk"
-				}
+				content += "</ul>"
+			}
+			if what == "honk" && rid != "" {
+				what = "tonk"
 			}
 			atts, _ := obj.GetArray("attachment")
 			for i, atti := range atts {
