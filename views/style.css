@@ -70,9 +70,6 @@ header > details[open] {
 	margin-bottom: 1em;
 	opacity: 1.0;
 }
-header > details ul {
-	margin-left: -1em;
-}
 header > details li {
 	margin: 1em 0em 1em 0em;
 }
