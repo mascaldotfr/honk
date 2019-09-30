@@ -10,7 +10,7 @@
 <p><input tabindex=1 type="text" name="combos" value="" placeholder="optional"> - combos
 <p><span><label for="peep">just peeping:</label>
 <input tabindex=1 type="checkbox" id="peep" name="peep" value="peep"><span></span></span>
-<p><input tabindex=1 type="submit" name="add honker" value="add honker">
+<p><button tabindex=1 name="add honker" value="add honker">add honker</button>
 </form>
 </div>
 {{ $honkercsrf := .HonkerCSRF }}
@@ -40,7 +40,7 @@ function expandstuff() {
 <input type="hidden" name="honkerid" value="{{ .ID }}">
 <p>combos: <input type="text" name="combos" value="{{ range .Combos }}{{ . }} {{end}}">
 <p>depart: <input type="text" name="goodbye" placeholder="press F" value="" autocomplete=off>
-<p><input type="submit" name="save" value="save">
+<p><button name="save" value="save">save</button>
 </form>
 </details>
 <p>

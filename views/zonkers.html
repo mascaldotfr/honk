@@ -25,7 +25,7 @@
 <p>
 <input type="radio" id="iszoggle" name="wherefore" value="zoggle">
 <label for="iszoggle">Zoggle</label>
-<p><br><input tabindex=1 type="submit" name="zonk" value="zonk!">
+<p><br><button tabindex=1 name="zonk" value="zonk!">zonk!</button>
 </form>
 </div>
 {{ $zonkcsrf := .ZonkCSRF }}
@@ -37,7 +37,7 @@
 <input type="hidden" name="CSRF" value="{{ $zonkcsrf }}">
 <input type="hidden" name="zonkerid" value="{{ .ID }}">
 <input type="hidden" name="itsok" value="iforgiveyou">
-<input type="submit" name="pardon" value="pardon">
+<button name="pardon" value="pardon">pardon</button>
 </form>
 <p>
 </section>
