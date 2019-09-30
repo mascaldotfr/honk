@@ -178,12 +178,12 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 		}
 	}
 saveit:
-	res, err := stmtSaveFile.Exec(xid, name, desc, url, media, localize, data)
+	fileid, err := savefile(xid, name, desc, url, media, localize, data)
 	if err != nil {
 		log.Printf("error saving file %s: %s", url, err)
 		return nil
 	}
-	donk.FileID, _ = res.LastInsertId()
+	donk.FileID = fileid
 	return &donk
 }
 

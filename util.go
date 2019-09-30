@@ -71,8 +71,9 @@ var dbtimeformat = "2006-01-02 15:04:05"
 
 var alreadyopendb *sql.DB
 var dbname = "honk.db"
+var blobdbname = "blob.db"
 var stmtConfig *sql.Stmt
-var myVersion = 21
+var myVersion = 22
 
 func initdb() {
 	schema, err := ioutil.ReadFile("schema.sql")
@@ -162,10 +163,36 @@ func initdb() {
 		log.Print(err)
 		return
 	}
+
+	initblobdb()
+
 	prepareStatements(db)
 	db.Close()
 	fmt.Printf("done.\n")
 	os.Exit(0)
+}
+
+func initblobdb() {
+	_, err := os.Stat(blobdbname)
+	if err == nil {
+		log.Fatalf("%s already exists", blobdbname)
+	}
+	blobdb, err := sql.Open("sqlite3", blobdbname)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	_, err = blobdb.Exec("create table filedata (xid text, media text, content blob)")
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	_, err = blobdb.Exec("create index idx_filexid on filedata(xid)")
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	blobdb.Close()
 }
 
 func adduser() {

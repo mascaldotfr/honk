@@ -1007,13 +1007,13 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 				desc = name
 			}
 			url := fmt.Sprintf("https://%s/d/%s", serverName, xid)
-			res, err := stmtSaveFile.Exec(xid, name, desc, url, media, 1, data)
+			fileid, err := savefile(xid, name, desc, url, media, true, data)
 			if err != nil {
 				log.Printf("unable to save image: %s", err)
 				return
 			}
 			var d Donk
-			d.FileID, _ = res.LastInsertId()
+			d.FileID = fileid
 			honk.Donks = append(honk.Donks, &d)
 			donkxid = d.XID
 		}
@@ -1404,7 +1404,7 @@ func servememe(w http.ResponseWriter, r *http.Request) {
 
 func servefile(w http.ResponseWriter, r *http.Request) {
 	xid := mux.Vars(r)["xid"]
-	row := stmtFileData.QueryRow(xid)
+	row := stmtGetFileData.QueryRow(xid)
 	var media string
 	var data []byte
 	err := row.Scan(&media, &data)

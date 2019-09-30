@@ -185,14 +185,60 @@ func upgradedb() {
 	case 18:
 		doordie(db, "create index idx_onthonkid on onts(honkid)")
 		doordie(db, "update config set value = 19 where key = 'dbversion'")
+		fallthrough
 	case 19:
 		doordie(db, "create table places (honkid integer, name text, latitude real, longitude real)")
 		doordie(db, "create index idx_placehonkid on places(honkid)")
+		fallthrough
 	case 20:
 		doordie(db, "alter table places add column url text")
 		doordie(db, "update places set url = ''")
 		doordie(db, "update config set value = 21 where key = 'dbversion'")
+		fallthrough
 	case 21:
+		// here we go...
+		initblobdb()
+		blobdb, err := sql.Open("sqlite3", blobdbname)
+		if err != nil {
+			log.Fatal(err)
+		}
+		tx, err := blobdb.Begin()
+		if err != nil {
+			log.Fatalf("can't begin: %s", err)
+		}
+		doordie(db, "drop index idx_filesxid")
+		doordie(db, "drop index idx_filesurl")
+		doordie(db, "create table filemeta (fileid integer primary key, xid text, name text, description text, url text, media text, local integer)")
+		doordie(db, "insert into filemeta select fileid, xid, name, description, url, media, local from files")
+		doordie(db, "create index idx_filesxid on filemeta(xid)")
+		doordie(db, "create index idx_filesurl on filemeta(url)")
+
+		rows, err := db.Query("select xid, media, content from files")
+		if err != nil {
+			log.Fatal(err)
+		}
+		for rows.Next() {
+			var xid, media string
+			var data []byte
+			err = rows.Scan(&xid, &media, &data)
+			if err != nil {
+				log.Fatal(err)
+			}
+			_, err = tx.Exec("insert into filedata (xid, media, content) values (?, ?, ?)", xid, media, data)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+		rows.Close()
+		err = tx.Commit()
+		if err != nil {
+			log.Fatalf("can't commit: %s", err)
+		}
+		doordie(db, "drop table files")
+		doordie(db, "vacuum")
+		doordie(db, "update config set value = 22 where key = 'dbversion'")
+		fallthrough
+	case 22:
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
 	}

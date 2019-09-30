@@ -210,7 +210,7 @@ func donksforhonks(honks []*Honk) {
 		hmap[h.ID] = h
 	}
 	// grab donks
-	q := fmt.Sprintf("select honkid, donks.fileid, xid, name, description, url, media, local from donks join files on donks.fileid = files.fileid where honkid in (%s)", strings.Join(ids, ","))
+	q := fmt.Sprintf("select honkid, donks.fileid, xid, name, description, url, media, local from donks join filemeta on donks.fileid = filemeta.fileid where honkid in (%s)", strings.Join(ids, ","))
 	rows, err := db.Query(q)
 	if err != nil {
 		log.Printf("error querying donks: %s", err)
@@ -270,6 +270,19 @@ func donksforhonks(honks []*Honk) {
 		h.Place = p
 	}
 	rows.Close()
+}
+
+func savefile(xid string, name string, desc string, url string, media string, local bool, data []byte) (int64, error) {
+	res, err := stmtSaveFile.Exec(xid, name, desc, url, media, local)
+	if err != nil {
+		return 0, err
+	}
+	fileid, _ := res.LastInsertId()
+	_, err = stmtSaveFileData.Exec(xid, media, data)
+	if err != nil {
+		return 0, err
+	}
+	return fileid, nil
 }
 
 func savehonk(h *Honk) error {
@@ -365,7 +378,7 @@ func cleanupdb(arg string) {
 		doordie(db, "delete from donks where honkid in (select honkid from honks where dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3))", expdate)
 		doordie(db, "delete from honks where dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3)", expdate)
 	}
-	doordie(db, "delete from files where fileid not in (select fileid from donks)")
+	doordie(db, "delete from filemeta where fileid not in (select fileid from donks)")
 	for _, u := range allusers() {
 		doordie(db, "delete from zonkers where userid = ? and wherefore = 'zonvoy' and zonkerid < (select zonkerid from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 1 offset 200)", u.UserID, u.UserID)
 	}
@@ -374,8 +387,9 @@ func cleanupdb(arg string) {
 var stmtHonkers, stmtDubbers, stmtSaveHonker, stmtUpdateFlavor, stmtUpdateCombos *sql.Stmt
 var stmtOneXonk, stmtPublicHonks, stmtUserHonks, stmtHonksByCombo, stmtHonksByConvoy *sql.Stmt
 var stmtHonksByOntology, stmtHonksForUser, stmtHonksForMe, stmtSaveDub, stmtHonksByXonker *sql.Stmt
-var stmtHonksBySearch, stmtHonksByHonker, stmtSaveHonk, stmtFileData, stmtWhatAbout *sql.Stmt
-var stmtOneBonk, stmtFindZonk, stmtFindXonk, stmtSaveDonk, stmtFindFile, stmtSaveFile *sql.Stmt
+var stmtHonksBySearch, stmtHonksByHonker, stmtSaveHonk, stmtWhatAbout *sql.Stmt
+var stmtOneBonk, stmtFindZonk, stmtFindXonk, stmtSaveDonk *sql.Stmt
+var stmtFindFile, stmtGetFileData, stmtSaveFileData, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover, stmtOneHonker *sql.Stmt
 var stmtThumbBiters, stmtDeleteHonk, stmtDeleteDonks, stmtDeleteOnts, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
@@ -425,10 +439,15 @@ func prepareStatements(db *sql.DB) {
 	stmtDeleteOnts = preparetodie(db, "delete from onts where honkid = ?")
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")
 	stmtDeleteDonks = preparetodie(db, "delete from donks where honkid = ?")
-	stmtSaveFile = preparetodie(db, "insert into files (xid, name, description, url, media, local, content) values (?, ?, ?, ?, ?, ?, ?)")
-	stmtFileData = preparetodie(db, "select media, content from files where xid = ?")
+	stmtSaveFile = preparetodie(db, "insert into filemeta (xid, name, description, url, media, local) values (?, ?, ?, ?, ?, ?)")
+	blobdb, err := sql.Open("sqlite3", blobdbname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	stmtSaveFileData = preparetodie(blobdb, "insert into filedata (xid, media, content) values (?, ?, ?)")
+	stmtGetFileData = preparetodie(blobdb, "select media, content from filedata where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
-	stmtFindFile = preparetodie(db, "select fileid from files where url = ? and local = 1")
+	stmtFindFile = preparetodie(db, "select fileid from filemeta where url = ? and local = 1")
 	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey, options from users where username = ?")
 	stmtSaveDub = preparetodie(db, "insert into honkers (userid, name, xid, flavor) values (?, ?, ?, ?)")
 	stmtAddDoover = preparetodie(db, "insert into doovers (dt, tries, username, rcpt, msg) values (?, ?, ?, ?, ?)")

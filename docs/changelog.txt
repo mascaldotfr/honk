@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Split media database into separate blob.db.
+
 + Location checkin. Welcome to the... danger zone!
 
 +++ Editing honks (Update activity).
