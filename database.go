@@ -381,7 +381,7 @@ func cleanupdb(arg string) {
 		where = "dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3)"
 		sqlargs = append(sqlargs, expdate)
 	}
-	doordie(db, "delete from honks where " + where, sqlargs...)
+	doordie(db, "delete from honks where "+where, sqlargs...)
 	doordie(db, "delete from donks where honkid not in (select honkid from honks)")
 	doordie(db, "delete from onts where honkid not in (select honkid from honks)")
 	doordie(db, "delete from places where honkid not in (select honkid from honks)")
