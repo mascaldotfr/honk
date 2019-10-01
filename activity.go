@@ -718,7 +718,6 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					p.Latitude, _ = tag["latitude"].(float64)
 					p.Longitude, _ = tag["longitude"].(float64)
 					p.Url, _ = tag.GetString("url")
-					log.Printf("place: %v", p)
 					xonk.Place = p
 				}
 			}
