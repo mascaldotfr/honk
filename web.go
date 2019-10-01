@@ -336,7 +336,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			case "Question":
 				return
 			case "Note":
-				go consumeactivity(user, j, origin)
+				go xonksaver(user, j, origin)
 				return
 			}
 		}
@@ -369,7 +369,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	default:
-		go consumeactivity(user, j, origin)
+		go xonksaver(user, j, origin)
 	}
 }
 
@@ -396,11 +396,10 @@ func ximport(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/h?xid="+url.QueryEscape(xid), http.StatusSeeOther)
 		return
 	}
-	xonk := xonkxonk(user, j, originate(xid))
+	xonk := xonksaver(user, j, originate(xid))
 	convoy := ""
 	if xonk != nil {
 		convoy = xonk.Convoy
-		savexonk(xonk)
 	}
 	http.Redirect(w, r, "/t?c="+url.QueryEscape(convoy), http.StatusSeeOther)
 }

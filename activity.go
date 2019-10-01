@@ -343,10 +343,7 @@ func gimmexonks(user *WhatAbout, outbox string) {
 			if !ok {
 				continue
 			}
-			xonk := xonkxonk(user, obj, origin)
-			if xonk != nil {
-				savexonk(xonk)
-			}
+			xonksaver(user, obj, origin)
 		}
 	}
 }
@@ -423,35 +420,25 @@ func extractattrto(obj junk.Junk) string {
 	return ""
 }
 
-func consumeactivity(user *WhatAbout, j junk.Junk, origin string) {
-	xonk := xonkxonk(user, j, origin)
-	if xonk != nil {
-		savexonk(xonk)
-	}
-}
-
-func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
+func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 	depth := 0
 	maxdepth := 10
 	currenttid := ""
 	var xonkxonkfn func(item junk.Junk, origin string) *Honk
 
-	saveoneup := func(xid string) {
-		log.Printf("getting oneup: %s", xid)
+	saveonemore := func(xid string) {
+		log.Printf("getting onemore: %s", xid)
 		if depth >= maxdepth {
 			log.Printf("in too deep")
 			return
 		}
 		obj, err := GetJunkHardMode(xid)
 		if err != nil {
-			log.Printf("error getting oneup: %s: %s", xid, err)
+			log.Printf("error getting onemore: %s: %s", xid, err)
 			return
 		}
 		depth++
-		xonk := xonkxonkfn(obj, originate(xid))
-		if xonk != nil {
-			savexonk(xonk)
-		}
+		xonkxonkfn(obj, originate(xid))
 		depth--
 	}
 
@@ -754,6 +741,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		xonk.Noise = content
 		xonk.Precis = precis
 		xonk.Format = "html"
+		xonk.Convoy = convoy
 
 		if isUpdate {
 			log.Printf("something has changed! %s", xonk.XID)
@@ -769,13 +757,10 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			prev.Onts = xonk.Onts
 			prev.Place = xonk.Place
 			updatehonk(prev)
-			return nil
-		}
-
-		if needxonk(user, &xonk) {
+		} else if needxonk(user, &xonk) {
 			if rid != "" {
 				if needxonkid(user, rid) {
-					saveoneup(rid)
+					saveonemore(rid)
 				}
 				if convoy == "" {
 					xx := getxonk(user.ID, rid)
@@ -787,15 +772,15 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if convoy == "" {
 				convoy = currenttid
 			}
-			xonk.Convoy = convoy
-			for _, replid := range replies {
-				if needxonkid(user, replid) {
-					log.Printf("missing a reply: %s", replid)
-				}
-			}
-			return &xonk
+			savexonk(&xonk)
 		}
-		return nil
+		for _, replid := range replies {
+			if needxonkid(user, replid) {
+				log.Printf("missing a reply: %s", replid)
+				saveonemore(replid)
+			}
+		}
+		return &xonk
 	}
 
 	return xonkxonkfn(item, origin)
