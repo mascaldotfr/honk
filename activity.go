@@ -462,6 +462,7 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 
 		var err error
 		var xid, rid, url, content, precis, convoy string
+		var replies []string
 		var obj junk.Junk
 		var ok bool
 		isUpdate := false
@@ -722,6 +723,17 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				}
 			}
 			xonk.Onts = oneofakind(xonk.Onts)
+			replyobj, ok := obj.GetMap("replies")
+			if ok {
+				items, _ := replyobj.GetArray("items")
+				for _, repl := range items {
+					s, ok := repl.(string)
+					if ok {
+						replies = append(replies, s)
+					}
+				}
+			}
+
 		}
 		if originate(xid) != origin {
 			log.Printf("original sin: %s <> %s", xid, origin)
@@ -776,6 +788,11 @@ func xonkxonk(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				convoy = currenttid
 			}
 			xonk.Convoy = convoy
+			for _, replid := range replies {
+				if needxonkid(user, replid) {
+					log.Printf("missing a reply: %s", replid)
+				}
+			}
 			return &xonk
 		}
 		return nil
