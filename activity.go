@@ -424,6 +424,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 	depth := 0
 	maxdepth := 10
 	currenttid := ""
+	goingup := 0
 	var xonkxonkfn func(item junk.Junk, origin string) *Honk
 
 	saveonemore := func(xid string) {
@@ -712,7 +713,13 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			xonk.Onts = oneofakind(xonk.Onts)
 			replyobj, ok := obj.GetMap("replies")
 			if ok {
-				items, _ := replyobj.GetArray("items")
+				items, ok := replyobj.GetArray("items")
+				if !ok {
+					first, ok := replyobj.GetMap("first")
+					if ok {
+						items, _ = first.GetArray("items")
+					}
+				}
 				for _, repl := range items {
 					s, ok := repl.(string)
 					if ok {
@@ -760,7 +767,9 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		} else if needxonk(user, &xonk) {
 			if rid != "" {
 				if needxonkid(user, rid) {
+					goingup++
 					saveonemore(rid)
+					goingup--
 				}
 				if convoy == "" {
 					xx := getxonk(user.ID, rid)
@@ -774,10 +783,12 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			}
 			savexonk(&xonk)
 		}
-		for _, replid := range replies {
-			if needxonkid(user, replid) {
-				log.Printf("missing a reply: %s", replid)
-				saveonemore(replid)
+		if goingup == 0 {
+			for _, replid := range replies {
+				if needxonkid(user, replid) {
+					log.Printf("missing a reply: %s", replid)
+					saveonemore(replid)
+				}
 			}
 		}
 		return &xonk
