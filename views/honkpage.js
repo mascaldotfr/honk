@@ -150,6 +150,7 @@ function pageswitcher(name, arg) {
 		switchtopage(name, arg)
 		var url = evt.srcElement.href
 		history.pushState(newpagestate(name, arg), "some title", url)
+		window.scrollTo(0, 0)
 		return false
 	}
 }
