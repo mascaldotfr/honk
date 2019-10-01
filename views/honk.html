@@ -8,7 +8,7 @@
 {{ end }}
 <p>
 {{ if $bonkcsrf }}
-<a href="/h?xid={{ .Honker }}" rel=noreferrer>{{ .Username }}</a>
+<a class="honkerlink" href="/h?xid={{ .Honker }}">{{ .Username }}</a>
 {{ else }}
 <a href="{{ .Honker }}" rel=noreferrer>{{ .Username }}</a>
 {{ end }}
@@ -17,7 +17,7 @@
 <br>
 <span style="margin-left: 1em;" class="clip">
 {{ if $bonkcsrf }}
-original: <a href="/h?xid={{ .Oonker }}" rel=noreferrer>{{ .Oondle }}</a>
+original: <a class="honkerlink" href="/h?xid={{ .Oonker }}">{{ .Oondle }}</a>
 {{ else }}
 original: <a href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }}</a>
 {{ end }}

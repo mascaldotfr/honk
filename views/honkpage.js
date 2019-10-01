@@ -86,6 +86,9 @@ function hydrargs() {
 	} else if (name == "combo") {
 		console.log("loading combo " + arg)
 		args["c"] = arg
+	} else if (name == "honker") {
+		console.log("loading honker " + arg)
+		args["xid"] = arg
 	} else {
 		var stash = name + ":" + arg
 		args["topxid"] = topxid[stash]
@@ -156,12 +159,19 @@ function pageswitcher(name, arg) {
 }
 function relinklinks() {
 	var els = document.getElementsByClassName("convoylink")
-	for (var i = 0; i < els.length; i++) {
-		els[i].onclick = pageswitcher("convoy", els[i].text)
+	while (els.length) {
+		els[0].onclick = pageswitcher("convoy", els[0].text)
+		els[0].classList.remove("convoylink")
 	}
 	els = document.getElementsByClassName("combolink")
-	for (var i = 0; i < els.length; i++) {
-		els[i].onclick = pageswitcher("combo", els[i].text)
+	while (els.length) {
+		els[0].onclick = pageswitcher("combo", els[0].text)
+		els[0].classList.remove("combolink")
+	}
+	els = document.getElementsByClassName("honkerlink")
+	while (els.length) {
+		els[0].onclick = pageswitcher("honker", els[0].text)
+		els[0].classList.remove("honkerlink")
 	}
 }
 (function() {

@@ -1450,6 +1450,12 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	case "convoy":
 		c := r.FormValue("c")
 		honks = gethonksbyconvoy(userid, c)
+	case "honker":
+		xid := r.FormValue("xid")
+		if strings.IndexByte(xid, '@') != -1 {
+			xid = gofish(xid)
+		}
+		honks = gethonksbyxonker(userid, xid)
 	default:
 		http.NotFound(w, r)
 	}
