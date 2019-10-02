@@ -42,6 +42,9 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 <summary>{{ .HTPrecis }}<p></summary>
 <p>{{ .HTPrecis }}
 <p>{{ .HTML }}
+{{ with .Time }}
+<p>Time: {{ .StartTime.Local }}
+{{ end }}
 {{ with .Place }}
 <p>Location: {{ with .Url }}<a href="{{ . }}" rel=noreferrer>{{ end }}{{ .Name }}{{ if .Url }}</a>{{ end }} <a href="https://www.openstreetmap.org/?mlat={{ .Latitude }}&mlon={{ .Longitude}}" rel=noreferrer>{{ .Latitude }} {{ .Longitude }}</a>
 {{ end }}

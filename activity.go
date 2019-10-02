@@ -541,6 +541,9 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		case "Page":
 			obj = item
 			what = "honk"
+		case "Event":
+			obj = item
+			what = "event"
 		default:
 			log.Printf("unknown activity: %s", what)
 			fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -710,6 +713,16 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					xonk.Place = p
 				}
 			}
+			starttime, ok := obj.GetString("startTime")
+			if ok {
+				start, err := time.Parse(time.RFC3339, starttime)
+				if err == nil {
+					t := new(Time)
+					t.StartTime = start
+					xonk.Time = t
+				}
+			}
+
 			xonk.Onts = oneofakind(xonk.Onts)
 			replyobj, ok := obj.GetMap("replies")
 			if ok {
@@ -878,16 +891,20 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		fallthrough
 	case "tonk":
 		fallthrough
+	case "event":
+		fallthrough
 	case "honk":
+		j["type"] = "Create"
 		if h.What == "update" {
 			j["type"] = "Update"
-		} else {
-			j["type"] = "Create"
 		}
 
 		jo = junk.New()
 		jo["id"] = h.XID
 		jo["type"] = "Note"
+		if h.What == "event" {
+			jo["type"] = "Event"
+		}
 		jo["published"] = dt
 		jo["url"] = h.XID
 		jo["attributedTo"] = user.URL
@@ -966,6 +983,9 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		}
 		if len(tags) > 0 {
 			jo["tag"] = tags
+		}
+		if t := h.Time; t != nil {
+			jo["startTime"] = t.StartTime.Format(time.RFC3339)
 		}
 		var atts []junk.Junk
 		for _, d := range h.Donks {

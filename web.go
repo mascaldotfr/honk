@@ -1052,6 +1052,25 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 		p.Url = r.FormValue("placeurl")
 		honk.Place = p
 	}
+	timestart := r.FormValue("timestart")
+	if timestart != "" {
+		t := new(Time)
+		now := time.Now().Local()
+		for _, layout := range []string{"3:04pm", "15:04"} {
+			start, err := time.Parse(layout, timestart)
+			if err == nil {
+				if start.Year() == 0 {
+					start = time.Date(now.Year(), now.Month(), now.Day(), start.Hour(), start.Minute(), 0, 0, now.Location())
+				}
+				t.StartTime = start
+				break
+			}
+		}
+		if !t.StartTime.IsZero() {
+			honk.What = "event"
+			honk.Time = t
+		}
+	}
 
 	if honk.Public {
 		honk.Whofore = 2

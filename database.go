@@ -278,6 +278,14 @@ func donksforhonks(honks []*Honk) {
 				continue
 			}
 			h.Place = p
+		case "time":
+			t := new(Time)
+			err = unjsonify(j, t)
+			if err != nil {
+				log.Printf("error parsing time: %s", err)
+				continue
+			}
+			h.Time = t
 		case "oldrev":
 		default:
 			log.Printf("unknown meta genus: %s", genus)
@@ -334,7 +342,7 @@ func saveextras(h *Honk) error {
 	}
 	if p := h.Place; p != nil {
 		j, err := jsonify(p)
-		if err != nil {
+		if err == nil {
 			_, err = stmtSaveMeta.Exec(h.ID, "place", j)
 		}
 		if err != nil {
@@ -342,9 +350,9 @@ func saveextras(h *Honk) error {
 			return err
 		}
 	}
-	if p := h.Time; p != nil {
-		j, err := jsonify(p)
-		if err != nil {
+	if t := h.Time; t != nil {
+		j, err := jsonify(t)
+		if err == nil {
 			_, err = stmtSaveMeta.Exec(h.ID, "time", j)
 		}
 		if err != nil {

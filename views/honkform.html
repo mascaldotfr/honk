@@ -5,6 +5,9 @@
 <input type="hidden" name="updatexid" value = "{{ .UpdateXID }}">
 <input type="hidden" name="rid" id="ridinput" value="{{ .InReplyTo }}">
 <p>
+<details>
+<summary>more options</summary>
+<p>
 <label id="donker">attach: {{ if .SavedFile }} {{ .SavedFile }} {{ else }} <input onchange="updatedonker();" type="file" name="donk"><span></span> {{ end }}</label>
 <input type="hidden" name="donkxid" value="{{ .SavedFile }}">
 <p id="donkdescriptor">
@@ -16,6 +19,12 @@ desc: <input type="text" name="donkdesc" value="{{ .DonkDesc }}" autocomplete=of
 <p>lat: <input type="text" size=9 name="placelat" id=placelatinput value="">
 lon: <input type="text" size=9 name="placelong" id=placelonginput value="">
 </div>
+<p><button id=addtimebutton type=button onclick="showelement('timedescriptor')">add time</button>
+<div id=timedescriptor style="display: none">
+<p>start: <input type="text" name="timestart" value="">
+<p>end: <input type="text" name="timeend" value="">
+</div>
+</details>
 <p>
 <textarea name="noise" id="honknoise">{{ .Noise }}</textarea>
 <p>

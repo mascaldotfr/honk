@@ -207,6 +207,10 @@ function showhonkform(elem, rid, hname) {
 	}
 	document.getElementById("honknoise").focus()
 }
+function showelement(id) {
+	var el = document.getElementById(id)
+	el.style.display = "block"
+}
 function updatedonker() {
 	var el = document.getElementById("donker")
 	el.children[1].textContent = el.children[0].value.slice(-20)
@@ -217,16 +221,14 @@ var checkinprec = 500.0
 function fillcheckin() {
 	if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(function(pos) {
-			var el = document.getElementById("placedescriptor")
-			el.style.display = "block"
-			el = document.getElementById("placelatinput")
+			showelement("placedescriptor")
+			var el = document.getElementById("placelatinput")
 			el.value = Math.round(pos.coords.latitude * checkinprec) / checkinprec
 			el = document.getElementById("placelonginput")
 			el.value = Math.round(pos.coords.longitude * checkinprec) / checkinprec
 			checkinprec = 10000.0
 		}, function(err) {
-			var el = document.getElementById("placedescriptor")
-			el.style.display = "block"
+			showelement("placedescriptor")
 			el = document.getElementById("placenameinput")
 			el.value = err.message
 		})
