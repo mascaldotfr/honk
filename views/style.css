@@ -40,7 +40,10 @@ input {
 	color: $fg;
 	font-size: 1.0em;
 	line-height: 1.2em;
-	padding: 0.5em;
+	padding: 0.4em;
+}
+#honkform input {
+	font-size: 0.8em;
 }
 body > header {
 	margin: 1em auto;
