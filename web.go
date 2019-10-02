@@ -374,29 +374,32 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 }
 
 func ximport(w http.ResponseWriter, r *http.Request) {
-	xid := r.FormValue("xid")
-	p, _ := investigate(xid)
-	if p != nil {
-		xid = p.XID
-	}
-	j, err := GetJunk(xid)
-	if err != nil {
-		http.Error(w, "error getting external object", http.StatusInternalServerError)
-		log.Printf("error getting external object: %s", err)
-		return
-	}
-	log.Printf("importing %s", xid)
 	u := login.GetUserInfo(r)
-	user, _ := butwhatabout(u.Username)
+	xid := r.FormValue("xid")
+	xonk := getxonk(u.UserID, xid)
+	if xonk == nil {
+		p, _ := investigate(xid)
+		if p != nil {
+			xid = p.XID
+		}
+		j, err := GetJunk(xid)
+		if err != nil {
+			http.Error(w, "error getting external object", http.StatusInternalServerError)
+			log.Printf("error getting external object: %s", err)
+			return
+		}
+		log.Printf("importing %s", xid)
+		user, _ := butwhatabout(u.Username)
 
-	what, _ := j.GetString("type")
-	if isactor(what) {
-		outbox, _ := j.GetString("outbox")
-		gimmexonks(user, outbox)
-		http.Redirect(w, r, "/h?xid="+url.QueryEscape(xid), http.StatusSeeOther)
-		return
+		what, _ := j.GetString("type")
+		if isactor(what) {
+			outbox, _ := j.GetString("outbox")
+			gimmexonks(user, outbox)
+			http.Redirect(w, r, "/h?xid="+url.QueryEscape(xid), http.StatusSeeOther)
+			return
+		}
+		xonk = xonksaver(user, j, originate(xid))
 	}
-	xonk := xonksaver(user, j, originate(xid))
 	convoy := ""
 	if xonk != nil {
 		convoy = xonk.Convoy
