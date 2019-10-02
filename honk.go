@@ -64,6 +64,11 @@ type Honk struct {
 	Place    *Place
 }
 
+type OldRevision struct {
+	Precis string
+	Noise  string
+}
+
 const (
 	flagIsAcked  = 1
 	flagIsBonked = 2

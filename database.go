@@ -22,6 +22,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"bytes"
+	"encoding/json"
 
 	"humungus.tedunangst.com/r/webs/login"
 )
@@ -250,24 +252,36 @@ func donksforhonks(honks []*Honk) {
 		h.Onts = append(h.Onts, o)
 	}
 	rows.Close()
-	// grab places
-	q = fmt.Sprintf("select honkid, name, latitude, longitude, url from places where honkid in (%s)", strings.Join(ids, ","))
+	// grab meta
+	q = fmt.Sprintf("select honkid, genus, json from honkmeta where honkid in (%s)", strings.Join(ids, ","))
 	rows, err = db.Query(q)
 	if err != nil {
-		log.Printf("error querying places: %s", err)
+		log.Printf("error querying honkmeta: %s", err)
 		return
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var hid int64
-		p := new(Place)
-		err = rows.Scan(&hid, &p.Name, &p.Latitude, &p.Longitude, &p.Url)
+		var genus, j string
+		err = rows.Scan(&hid, &genus, &j)
 		if err != nil {
-			log.Printf("error scanning place: %s", err)
+			log.Printf("error scanning honkmeta: %s", err)
 			continue
 		}
 		h := hmap[hid]
-		h.Place = p
+		switch genus {
+		case "place":
+			p := new(Place)
+			err = unjsonify(j, p)
+			if err != nil {
+				log.Printf("error parsing place: %s", err)
+				continue
+			}
+			h.Place = p
+		case "oldrev":
+		default:
+			log.Printf("unknown meta genus: %s", genus)
+		}
 	}
 	rows.Close()
 }
@@ -317,7 +331,10 @@ func saveextras(h *Honk) error {
 		}
 	}
 	if p := h.Place; p != nil {
-		_, err := stmtSavePlace.Exec(h.ID, p.Name, p.Latitude, p.Longitude, p.Url)
+		j, err := jsonify(p)
+		if err != nil {
+			_, err = stmtSaveMeta.Exec(h.ID, "genus", j)
+		}
 		if err != nil {
 			log.Printf("error saving place: %s", err)
 			return err
@@ -336,7 +353,7 @@ func deleteextras(honkid int64) {
 	if err != nil {
 		log.Printf("error deleting: %s", err)
 	}
-	_, err = stmtDeletePlace.Exec(honkid)
+	_, err = stmtDeleteMeta.Exec(honkid)
 	if err != nil {
 		log.Printf("error deleting: %s", err)
 	}
@@ -350,19 +367,41 @@ func deletehonk(honkid int64) {
 	}
 }
 
+func jsonify(what interface{}) (string, error) {
+	var buf bytes.Buffer
+	e := json.NewEncoder(&buf)
+	e.SetEscapeHTML(false)
+	e.SetIndent("", "")
+	err := e.Encode(what)
+	return buf.String(), err
+}
+
+func unjsonify(s string, dest interface{}) error {
+	d := json.NewDecoder(strings.NewReader(s))
+	err := d.Decode(dest)
+	return err
+}
+
 func updatehonk(h *Honk) {
 	old := getxonk(h.UserID, h.XID)
-	_, err := stmtSaveOld.Exec(old.ID, old.Precis, old.Noise)
-	if err != nil {
-		log.Printf("error saving old: %s", err)
-		return
-	}
+	oldrev := OldRevision{Precis: old.Precis, Noise: old.Noise}
+
 	deleteextras(h.ID)
 
 	dt := h.Date.UTC().Format(dbtimeformat)
 	stmtUpdateHonk.Exec(h.Precis, h.Noise, h.Format, dt, h.ID)
 
 	saveextras(h)
+	j, err := jsonify(&oldrev)
+	if err != nil {
+		log.Printf("error jsonify oldrev: %s", err)
+		return
+	}
+	_, err = stmtSaveMeta.Exec(old.ID, "oldrev", j)
+	if err != nil {
+		log.Printf("error saving oldrev: %s", err)
+		return
+	}
 }
 
 func cleanupdb(arg string) {
@@ -384,7 +423,7 @@ func cleanupdb(arg string) {
 	doordie(db, "delete from honks where "+where, sqlargs...)
 	doordie(db, "delete from donks where honkid not in (select honkid from honks)")
 	doordie(db, "delete from onts where honkid not in (select honkid from honks)")
-	doordie(db, "delete from places where honkid not in (select honkid from honks)")
+	doordie(db, "delete from honkmeta where honkid not in (select honkid from honks)")
 
 	doordie(db, "delete from filemeta where fileid not in (select fileid from donks)")
 	for _, u := range allusers() {
@@ -442,7 +481,7 @@ var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover, stmtOneHonker 
 var stmtThumbBiters, stmtDeleteHonk, stmtDeleteDonks, stmtDeleteOnts, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
 var stmtSelectOnts, stmtSaveOnt, stmtUpdateFlags, stmtClearFlags *sql.Stmt
-var stmtSavePlace, stmtDeletePlace, stmtHonksForUserFirstClass, stmtSaveOld, stmtUpdateHonk *sql.Stmt
+var stmtHonksForUserFirstClass, stmtSaveMeta, stmtDeleteMeta, stmtUpdateHonk *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -477,12 +516,11 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or (? = -1 and whofore = 2)) and convoy = ?"+limit)
 	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where onts.ontology = ? and (honks.userid = ? or (? = -1 and honks.whofore = 2))"+limit)
 
-	stmtSaveOld = preparetodie(db, "insert into forsaken (honkid, precis, noise) values (?, ?, ?)")
+	stmtSaveMeta = preparetodie(db, "insert into honkmeta (honkid, genus, json) values (?, ?, ?)")
+	stmtDeleteMeta = preparetodie(db, "delete from honkmeta where honkid = ?")
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	stmtDeleteHonk = preparetodie(db, "delete from honks where honkid = ?")
 	stmtUpdateHonk = preparetodie(db, "update honks set precis = ?, noise = ?, format = ?, dt = ? where honkid = ?")
-	stmtSavePlace = preparetodie(db, "insert into places (honkid, name, latitude, longitude, url) values (?, ?, ?, ?, ?)")
-	stmtDeletePlace = preparetodie(db, "delete from places where honkid = ?")
 	stmtSaveOnt = preparetodie(db, "insert into onts (ontology, honkid) values (?, ?)")
 	stmtDeleteOnts = preparetodie(db, "delete from onts where honkid = ?")
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")

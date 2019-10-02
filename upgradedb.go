@@ -27,7 +27,7 @@ import (
 func doordie(db *sql.DB, s string, args ...interface{}) {
 	_, err := db.Exec(s, args...)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("can't run %s: %s", s, err)
 	}
 }
 
@@ -239,6 +239,44 @@ func upgradedb() {
 		doordie(db, "update config set value = 22 where key = 'dbversion'")
 		fallthrough
 	case 22:
+		doordie(db, "create table honkmeta (honkid integer, genus text, json text)")
+		doordie(db, "create index idx_honkmetaid on honkmeta(honkid)")
+		doordie(db, "drop table forsaken") // don't bother saving this one
+		rows, err := db.Query("select honkid, name, latitude, longitude, url from places")
+		if err != nil {
+			log.Fatal(err)
+		}
+		places := make(map[int64]*Place)
+		for rows.Next() {
+			var honkid int64
+			p := new(Place)
+			err = rows.Scan(&honkid, &p.Name, &p.Latitude, &p.Longitude, &p.Url)
+			if err != nil {
+				log.Fatal(err)
+			}
+			places[honkid] = p
+		}
+		rows.Close()
+		tx, err := db.Begin()
+		if err != nil {
+			log.Fatalf("can't begin: %s", err)
+		}
+		for honkid, p := range places {
+			j, err := jsonify(p)
+			_, err = tx.Exec("insert into honkmeta (honkid, genus, json) values (?, ?, ?)",
+				honkid, "place", j)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+		err = tx.Commit()
+		if err != nil {
+			log.Fatalf("can't commit: %s", err)
+		}
+		doordie(db, "update config set value = 23 where key = 'dbversion'")
+		fallthrough
+	case 23:
+
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
 	}
