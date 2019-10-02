@@ -30,9 +30,9 @@ For administration, see
 .Xr honk 8 .
 .Pp
 This manual is very incomplete.
-Refer to the text files.
+It'll get there eventually.
 .Ss Following
-In order to receive posts from other users, one must follow them.
+In order to receive regular updates from other users, one must first follow them.
 Begin at the
 .Pa honkers
 tab.
@@ -58,30 +58,63 @@ The special combo name of one hyphen
 .Sq -
 will remove a honker's posts from the primary feed.
 .Ss Viewing
-The primary feed is accessed via the home tab, labelled
-.Pa honk .
+The primary feed is accessed via the home tab.
 It will contain posts from all followed honkers.
 Posts mentioning the user, both followed and not, are collected under the
 .Pa @me
 tab.
 .Pp
-.Lk screenshot-honk.png screen of one honk
-.Ss Honking
-On the home page and most other pages, there will be a button marked
-.Dq it's honking time
-which activates the honk form.
+Individual honks contain a visual representation of the honker's ID,
+their name, the activity (with a link back to origin), a link to the
+parent post if applicable, and the convoy (thread) identifier.
 .Pp
-The in reply to field is an advanced feature.
+.Lk screenshot-honk.png screenshot of one honk
+.Ss Honking
+Begin by pressin button marked
+.Dq it's honking time
+to activate the honk form.
 .Pp
 One may attach a file to a post.
 Images are automatically rescaled and reduced in size for federation.
+A description, or caption, is encouraged.
+Text files are also supported as attachments.
 .Pp
-A limited subset of markdown is supported.
-Bold, italics, and code blocks.
-Mentioning a specfic user
+One may also check in to a location.
+The available fields, all optional, are
+.Ar name ,
+.Ar url ,
+.Ar latitude ,
+and
+.Ar longitude .
+By default, location data is rounded to approximately 1/500 decimal degree
+accuracy.
+Pressing the check in button a second time will refine this to more a
+precise location.
+.Pp
+A limited subset of markdown is supported, including bold, italics, quotes,
+and code blocks.
+Mentioning a specfic user such as
 .Pq @user@example.social
 will send a copy of the message to them.
 When replying, the author of the parent post is automatically mentioned.
+.Pp
+Threads from the tiny bird site may be included as quotes in a post via the
+.Ar hoot
+operator.
+.Dl hoot: https://twitter.com/tedunangst/status/835172824734175234
+.Pp
+Custom emoji may included via colon wrapping
+.Pq :hellsyeah: .
+A meme (sticker, reacion gif) may be included with the
+.Ar meme
+operator.
+.Dl meme: honk.mp4
+A full list of emoji and memes may be found in the
+.Pa funzone .
+.Pp
+When everything is at last ready to go, press the
+.Dq it's gonna be honked
+button.
 .Ss zonkzone
 Sometimes other users of the federation can get unruly.
 The zonkzone can be of great use to restore order to one's timeline.
