@@ -70,8 +70,30 @@ parent post if applicable, and the convoy (thread) identifier.
 Screenshot below.
 .Pp
 .Lk screenshot-honk.png screenshot of one honk
+.Pp
+Available actions are:
+.Bl -tag -width tenletters
+.It bonk
+Share with followers.
+Not available for nonpublic honks.
+.It honk back
+Reply.
+.It mute
+Mute this entire thread.
+Existing posts are hidden, and future posts will not appear in any feed.
+.It zonk
+Delete this post.
+When deleting one's own post, other servers will be requested to remove it,
+but this is unreliable.
+.It ack
+Acknowledge reading this post.
+Typically if it's a reply to one's own post.
+.It edit
+Change it up.
+Alas, Update activities do not federate reliably.
+.El
 .Ss Honking
-Begin by pressin button marked
+Begin by pressing the button marked
 .Dq it's honking time
 to activate the honk form.
 .Pp
@@ -94,10 +116,15 @@ precise location.
 .Pp
 A limited subset of markdown is supported, including bold, italics, quotes,
 and code blocks.
+URLs beginning with
+.Sq http
+or
+.Sq https
+will be autolinked.
 Mentioning a specfic user such as
 .Pq @user@example.social
 will send a copy of the message to them.
-When replying, the author of the parent post is automatically mentioned.
+When honking back, the author of the parent post is automatically mentioned.
 .Pp
 Threads from the tiny bird site may be included as quotes in a post via the
 .Ar hoot
