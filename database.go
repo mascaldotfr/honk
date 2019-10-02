@@ -16,14 +16,14 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
 	"time"
-	"bytes"
-	"encoding/json"
 
 	"humungus.tedunangst.com/r/webs/login"
 )
@@ -335,7 +335,7 @@ func saveextras(h *Honk) error {
 	if p := h.Place; p != nil {
 		j, err := jsonify(p)
 		if err != nil {
-			_, err = stmtSaveMeta.Exec(h.ID, "genus", j)
+			_, err = stmtSaveMeta.Exec(h.ID, "place", j)
 		}
 		if err != nil {
 			log.Printf("error saving place: %s", err)

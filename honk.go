@@ -62,6 +62,7 @@ type Honk struct {
 	Donks    []*Donk
 	Onts     []string
 	Place    *Place
+	Time     *Time
 }
 
 type OldRevision struct {
@@ -98,6 +99,12 @@ type Place struct {
 	Latitude  float64
 	Longitude float64
 	Url       string
+}
+
+type Time struct {
+	StartTime time.Time
+	EndTime   time.Time
+	Duration  time.Duration
 }
 
 type Honker struct {
