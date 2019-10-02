@@ -342,6 +342,16 @@ func saveextras(h *Honk) error {
 			return err
 		}
 	}
+	if p := h.Time; p != nil {
+		j, err := jsonify(p)
+		if err != nil {
+			_, err = stmtSaveMeta.Exec(h.ID, "time", j)
+		}
+		if err != nil {
+			log.Printf("error saving time: %s", err)
+			return err
+		}
+	}
 
 	return nil
 }
@@ -355,7 +365,7 @@ func deleteextras(honkid int64) {
 	if err != nil {
 		log.Printf("error deleting: %s", err)
 	}
-	_, err = stmtDeleteMeta.Exec(honkid)
+	_, err = stmtDeleteMeta.Exec(honkid, "oldrev")
 	if err != nil {
 		log.Printf("error deleting: %s", err)
 	}
@@ -519,7 +529,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where onts.ontology = ? and (honks.userid = ? or (? = -1 and honks.whofore = 2))"+limit)
 
 	stmtSaveMeta = preparetodie(db, "insert into honkmeta (honkid, genus, json) values (?, ?, ?)")
-	stmtDeleteMeta = preparetodie(db, "delete from honkmeta where honkid = ?")
+	stmtDeleteMeta = preparetodie(db, "delete from honkmeta where honkid = ? and genus <> ?")
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	stmtDeleteHonk = preparetodie(db, "delete from honks where honkid = ?")
 	stmtUpdateHonk = preparetodie(db, "update honks set precis = ?, noise = ?, format = ?, dt = ? where honkid = ?")
