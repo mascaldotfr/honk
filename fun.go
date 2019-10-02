@@ -312,13 +312,13 @@ func memetize(honk *Honk) {
 		fd.Close()
 
 		url := fmt.Sprintf("https://%s/meme/%s", serverName, name)
-		res, err := stmtSaveFile.Exec("", name, name, url, ct, 0, "")
+		fileid, err := savefile("", name, name, url, ct, false, nil)
 		if err != nil {
 			log.Printf("error saving meme: %s", err)
 			return x
 		}
 		var d Donk
-		d.FileID, _ = res.LastInsertId()
+		d.FileID = fileid
 		d.XID = ""
 		d.Name = name
 		d.Media = ct

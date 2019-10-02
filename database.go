@@ -292,9 +292,11 @@ func savefile(xid string, name string, desc string, url string, media string, lo
 		return 0, err
 	}
 	fileid, _ := res.LastInsertId()
-	_, err = stmtSaveFileData.Exec(xid, media, data)
-	if err != nil {
-		return 0, err
+	if local {
+		_, err = stmtSaveFileData.Exec(xid, media, data)
+		if err != nil {
+			return 0, err
+		}
 	}
 	return fileid, nil
 }
