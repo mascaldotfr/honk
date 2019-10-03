@@ -717,6 +717,12 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if err == nil {
 					t := new(Time)
 					t.StartTime = start
+					dura, _ := obj.GetString("duration")
+					if strings.HasPrefix(dura, "PT") {
+						dura = strings.ToLower(dura[2:])
+						d, _ := time.ParseDuration(dura)
+						t.Duration = Duration(d)
+					}
 					xonk.Time = t
 				}
 			}
@@ -1002,6 +1008,9 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		}
 		if t := h.Time; t != nil {
 			jo["startTime"] = t.StartTime.Format(time.RFC3339)
+			if t.Duration != 0 {
+				jo["duration"] = "PT" + strings.ToUpper(t.Duration.String())
+			}
 		}
 		var atts []junk.Junk
 		for _, d := range h.Donks {

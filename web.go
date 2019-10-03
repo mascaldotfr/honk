@@ -1054,8 +1054,8 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 	if timestart != "" {
 		t := new(Time)
 		now := time.Now().Local()
-		for _, layout := range []string{"3:04pm", "15:04"} {
-			start, err := time.Parse(layout, timestart)
+		for _, layout := range []string{"2006-01-02 3:04pm", "2006-01-02 15:04", "3:04pm", "15:04"} {
+			start, err := time.ParseInLocation(layout, timestart, now.Location())
 			if err == nil {
 				if start.Year() == 0 {
 					start = time.Date(now.Year(), now.Month(), now.Day(), start.Hour(), start.Minute(), 0, 0, now.Location())
@@ -1063,6 +1063,11 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 				t.StartTime = start
 				break
 			}
+		}
+		timeend := r.FormValue("timeend")
+		dur, err := time.ParseDuration(timeend)
+		if err == nil {
+			t.Duration = Duration(dur)
 		}
 		if !t.StartTime.IsZero() {
 			honk.What = "event"

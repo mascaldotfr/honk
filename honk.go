@@ -20,6 +20,7 @@ import (
 	"html/template"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -101,10 +102,23 @@ type Place struct {
 	Url       string
 }
 
+type Duration int64
+
+func (d Duration) String() string {
+	s := time.Duration(d).String()
+	if strings.HasSuffix(s, "m0s") {
+		s = s[:len(s)-2]
+	}
+	if strings.HasSuffix(s, "h0m") {
+		s = s[:len(s)-2]
+	}
+	return s
+}
+
 type Time struct {
 	StartTime time.Time
 	EndTime   time.Time
-	Duration  time.Duration
+	Duration  Duration
 }
 
 type Honker struct {
