@@ -46,7 +46,7 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 <p>Time: {{ .StartTime.Local.Format "03:04PM EDT Mon Jan 02"}}
 {{ end }}
 {{ with .Place }}
-<p>Location: {{ with .Url }}<a href="{{ . }}" rel=noreferrer>{{ end }}{{ .Name }}{{ if .Url }}</a>{{ end }} <a href="https://www.openstreetmap.org/?mlat={{ .Latitude }}&mlon={{ .Longitude}}" rel=noreferrer>{{ .Latitude }} {{ .Longitude }}</a>
+<p>Location: {{ with .Url }}<a href="{{ . }}" rel=noreferrer>{{ end }}{{ .Name }}{{ if .Url }}</a>{{ end }}{{ if or .Latitude .Longitude }} <a href="https://www.openstreetmap.org/?mlat={{ .Latitude }}&mlon={{ .Longitude}}" rel=noreferrer>{{ .Latitude }} {{ .Longitude }}</a>{{ end }}
 {{ end }}
 {{ range .Donks }}
 {{ if .Local }}
