@@ -722,6 +722,19 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					xonk.Time = t
 				}
 			}
+			loca, ok := obj.GetMap("location")
+			if ok {
+				tt, _ := loca.GetString("type")
+				name, _ := loca.GetString("name")
+				if tt == "Place" {
+					p := new(Place)
+					p.Name = name
+					p.Latitude, _ = loca["latitude"].(float64)
+					p.Longitude, _ = loca["longitude"].(float64)
+					p.Url, _ = loca.GetString("url")
+					xonk.Place = p
+				}
+			}
 
 			xonk.Onts = oneofakind(xonk.Onts)
 			replyobj, ok := obj.GetMap("replies")
