@@ -149,9 +149,13 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 			goto saveit
 		}
 		var buf bytes.Buffer
-		io.Copy(&buf, resp.Body)
+		limiter := io.LimitReader(resp.Body, 10 * 1024 * 1024)
+		io.Copy(&buf, limiter)
 
 		data = buf.Bytes()
+		if len(data) == 10 * 1024 * 1024 {
+			log.Printf("truncation likely")
+		}
 		if strings.HasPrefix(media, "image") {
 			img, err := image.Vacuum(&buf,
 				image.Params{LimitSize: 4800 * 4800, MaxWidth: 2048, MaxHeight: 2048})
