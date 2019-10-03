@@ -825,6 +825,9 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if convoy == "" {
 				convoy = currenttid
 			}
+			if convoy == "" {
+				convoy = "missing-" + xfiltrate()
+			}
 			xonk.Convoy = convoy
 			savexonk(&xonk)
 		}
