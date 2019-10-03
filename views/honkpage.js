@@ -89,9 +89,6 @@ function hydrargs() {
 	} else if (name == "honker") {
 		console.log("loading honker " + arg)
 		args["xid"] = arg
-	} else {
-		var stash = name + ":" + arg
-		args["topxid"] = topxid[stash]
 	}
 	return args
 }
