@@ -149,11 +149,11 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 			goto saveit
 		}
 		var buf bytes.Buffer
-		limiter := io.LimitReader(resp.Body, 10 * 1024 * 1024)
+		limiter := io.LimitReader(resp.Body, 10*1024*1024)
 		io.Copy(&buf, limiter)
 
 		data = buf.Bytes()
-		if len(data) == 10 * 1024 * 1024 {
+		if len(data) == 10*1024*1024 {
 			log.Printf("truncation likely")
 		}
 		if strings.HasPrefix(media, "image") {
@@ -827,6 +827,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			}
 			if convoy == "" {
 				convoy = "missing-" + xfiltrate()
+				currenttid = convoy
 			}
 			xonk.Convoy = convoy
 			savexonk(&xonk)
