@@ -76,6 +76,9 @@ header > details[open] {
 header > details li {
 	margin: 1em 0em 1em 0em;
 }
+details summary {
+	display: inline;
+}
 main {
 	max-width: 1200px;
 	margin: auto;
