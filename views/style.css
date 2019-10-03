@@ -228,6 +228,7 @@ img:not(.emu) {
 }
 img, video {
 	max-width: 100%;
+	max-height: 600px;
 }
 img.emu {
 	width: 2em;
