@@ -134,14 +134,14 @@ function switchtopage(name, arg) {
 		var args = hydrargs()
 		get("/hydra?" + encode(args), fillinhonks)
 	}
-	var topmenu = document.getElementById("topmenu")
-	topmenu.open = false
 }
 function newpagestate(name, arg) {
 	return { "name": name, "arg": arg }
 }
 function pageswitcher(name, arg) {
 	return function(evt) {
+		var topmenu = document.getElementById("topmenu")
+		topmenu.open = false
 		console.log("switching to", name +":"+arg)
 		if (name == curpagestate.name && arg == curpagestate.arg) {
 			console.log("skipping nav")
