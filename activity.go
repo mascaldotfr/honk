@@ -769,6 +769,11 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			currenttid = convoy
 		}
 
+		if len(content) > 90001 {
+			log.Printf("content too long. truncating")
+			content = content[:90001]
+		}
+
 		// grab any inline imgs
 		imgfilt := htfilter.New()
 		imgfilt.Imager = inlineimgs
