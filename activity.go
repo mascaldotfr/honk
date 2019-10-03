@@ -825,6 +825,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if convoy == "" {
 				convoy = currenttid
 			}
+			xonk.Convoy = convoy
 			savexonk(&xonk)
 		}
 		if goingup == 0 {
