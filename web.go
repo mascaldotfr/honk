@@ -1022,11 +1022,9 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 	} else {
 		xid := donkxid
 		url := fmt.Sprintf("https://%s/d/%s", serverName, xid)
-		var donk Donk
-		row := stmtFindFile.QueryRow(url)
-		err := row.Scan(&donk.FileID)
-		if err == nil {
-			honk.Donks = append(honk.Donks, &donk)
+		donk := finddonk(url)
+		if donk != nil {
+			honk.Donks = append(honk.Donks, donk)
 		} else {
 			log.Printf("can't find file: %s", xid)
 		}

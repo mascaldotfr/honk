@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Inline images in received posts.
+
 + Times for events.
 
 + Split media database into separate blob.db.

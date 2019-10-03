@@ -309,6 +309,19 @@ func savefile(xid string, name string, desc string, url string, media string, lo
 	return fileid, nil
 }
 
+func finddonk(url string) *Donk {
+	donk := new(Donk)
+	row := stmtFindFile.QueryRow(url)
+	err := row.Scan(&donk.FileID, &donk.XID)
+	if err == nil {
+		return donk
+	}
+	if err != sql.ErrNoRows {
+		log.Printf("error finding file: %s", err)
+	}
+	return nil
+}
+
 func savehonk(h *Honk) error {
 	dt := h.Date.UTC().Format(dbtimeformat)
 	aud := strings.Join(h.Audience, " ")
@@ -550,7 +563,7 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveFileData = preparetodie(blobdb, "insert into filedata (xid, media, content) values (?, ?, ?)")
 	stmtGetFileData = preparetodie(blobdb, "select media, content from filedata where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
-	stmtFindFile = preparetodie(db, "select fileid from filemeta where url = ? and local = 1")
+	stmtFindFile = preparetodie(db, "select fileid, xid from filemeta where url = ? and local = 1")
 	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey, options from users where username = ?")
 	stmtSaveDub = preparetodie(db, "insert into honkers (userid, name, xid, flavor) values (?, ?, ?, ?)")
 	stmtAddDoover = preparetodie(db, "insert into doovers (dt, tries, username, rcpt, msg) values (?, ?, ?, ?, ?)")

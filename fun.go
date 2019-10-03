@@ -120,7 +120,31 @@ func replaceimg(node *html.Node) string {
 	}
 	alt = html.EscapeString(alt)
 	src = html.EscapeString(src)
+	d := finddonk(src)
+	if d != nil {
+		src = fmt.Sprintf("https://%s/d/%s", serverName, d.XID)
+		return fmt.Sprintf(`<img alt="%s" title="%s" src="%s">`, alt, alt, src)
+	}
 	return fmt.Sprintf(`&lt;img alt="%s" src="<a href="%s">%s<a>"&gt;`, alt, src, src)
+}
+
+func inlineimgs(node *html.Node) string {
+	src := htfilter.GetAttr(node, "src")
+	alt := htfilter.GetAttr(node, "alt")
+	//title := GetAttr(node, "title")
+	if htfilter.HasClass(node, "Emoji") && alt != "" {
+		return alt
+	}
+	alt = html.EscapeString(alt)
+	src = html.EscapeString(src)
+	if !strings.HasPrefix(src, "https://"+serverName+"/") {
+		d := savedonk(src, "image", alt, "image", true)
+		if d != nil {
+			src = fmt.Sprintf("https://%s/d/%s", serverName, d.XID)
+		}
+	}
+	log.Printf("inline img with src: %s", src)
+	return fmt.Sprintf(`<img alt="%s" title="%s" src="%s>`, alt, alt, src)
 }
 
 func translate(honk *Honk) {

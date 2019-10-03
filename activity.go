@@ -30,6 +30,7 @@ import (
 	"sync"
 	"time"
 
+	"humungus.tedunangst.com/r/webs/htfilter"
 	"humungus.tedunangst.com/r/webs/httpsig"
 	"humungus.tedunangst.com/r/webs/image"
 	"humungus.tedunangst.com/r/webs/junk"
@@ -127,16 +128,12 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 	if url == "" {
 		return nil
 	}
-	var donk Donk
-	row := stmtFindFile.QueryRow(url)
-	err := row.Scan(&donk.FileID)
-	if err == nil {
-		return &donk
+	donk := finddonk(url)
+	if donk != nil {
+		return donk
 	}
+	donk = new(Donk)
 	log.Printf("saving donk: %s", url)
-	if err != nil && err != sql.ErrNoRows {
-		log.Printf("error querying: %s", err)
-	}
 	xid := xfiltrate()
 	data := []byte{}
 	if localize {
@@ -184,7 +181,8 @@ saveit:
 		return nil
 	}
 	donk.FileID = fileid
-	return &donk
+	donk.XID = xid
+	return donk
 }
 
 func iszonked(userid int64, xid string) bool {
@@ -764,6 +762,11 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		if currenttid == "" {
 			currenttid = convoy
 		}
+
+		// grab any inline imgs
+		imgfilt := htfilter.New()
+		imgfilt.Imager = inlineimgs
+		imgfilt.String(content)
 
 		// init xonk
 		xonk.What = what
