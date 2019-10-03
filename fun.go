@@ -85,6 +85,13 @@ func reverbolate(userid int64, honks []*Honk) {
 				h.Precis = ""
 			}
 		}
+		if len(h.Noise) > 4000 && h.Open == "open" {
+			if h.Precis == "" {
+				h.Precis = "really freaking long"
+			}
+			h.Open = ""
+		}
+
 		h.HTPrecis, _ = filt.String(h.Precis)
 		h.HTML, _ = filt.String(h.Noise)
 		emuxifier := func(e string) string {
