@@ -145,6 +145,7 @@ func stealthmode(userid int64, r *http.Request) bool {
 	return false
 }
 
+// todo
 func matchfilter(h *Honk, filts []*Filter) bool {
 	origin := originate(h.XID)
 	for _, f := range filts {
@@ -172,6 +173,7 @@ func skipMedia(xonk *Honk) bool {
 	return matchfilter(xonk, filts)
 }
 
+// todo
 func unsee(filts []*Filter, h *Honk) string {
 	return ""
 }

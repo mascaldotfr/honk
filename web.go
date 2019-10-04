@@ -1252,6 +1252,7 @@ func zonkzone(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// todo
 func zonkzonk(w http.ResponseWriter, r *http.Request) {
 	userinfo := login.GetUserInfo(r)
 	itsok := r.FormValue("itsok")
@@ -1263,28 +1264,6 @@ func zonkzonk(w http.ResponseWriter, r *http.Request) {
 		filtcache.Clear(userinfo.UserID)
 		http.Redirect(w, r, "/zonkzone", http.StatusSeeOther)
 		return
-	}
-	wherefore := r.FormValue("wherefore")
-	name := r.FormValue("name")
-	if name == "" {
-		return
-	}
-	switch wherefore {
-	case "zonker":
-	case "zomain":
-	case "zonvoy":
-	case "zord":
-	case "zilence":
-	case "zoggle":
-	default:
-		return
-	}
-	db := opendatabase()
-	db.Exec("insert into zonkers (userid, name, wherefore) values (?, ?, ?)",
-		userinfo.UserID, name, wherefore)
-
-	if wherefore != "zonvoy" {
-		filtcache.Clear(userinfo.UserID)
 	}
 
 	http.Redirect(w, r, "/zonkzone", http.StatusSeeOther)
