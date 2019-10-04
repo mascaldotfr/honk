@@ -35,7 +35,7 @@ import (
 func reverbolate(userid int64, honks []*Honk) {
 	filt := htfilter.New()
 	filt.Imager = replaceimg
-	zilences := getzilences(userid)
+	zilences := getfilters(userid, filtCollapse)
 	for _, h := range honks {
 		h.What += "ed"
 		if h.What == "tonked" {
@@ -76,7 +76,7 @@ func reverbolate(userid int64, honks []*Honk) {
 				h.Open = ""
 			}
 		} else {
-			if badword := unsee(zilences, h.Precis, h.Noise, h.Donks); badword != "" {
+			if badword := unsee(zilences, h); badword != "" {
 				if h.Precis == "" {
 					h.Precis = badword
 				}
@@ -177,50 +177,6 @@ func translate(honk *Honk) {
 
 	honk.Noise = noise
 	honk.Onts = oneofakind(ontologies(honk.Noise))
-}
-
-func unsee(zilences []*regexp.Regexp, precis string, noise string, donks []*Donk) string {
-	for _, z := range zilences {
-		if z.MatchString(precis) || z.MatchString(noise) {
-			if precis == "" {
-				w := z.String()
-				return w[6 : len(w)-3]
-			}
-			return precis
-		}
-		for _, d := range donks {
-			if z.MatchString(d.Desc) {
-				if precis == "" {
-					w := z.String()
-					return w[6 : len(w)-3]
-				}
-				return precis
-			}
-		}
-	}
-	return ""
-}
-
-func osmosis(honks []*Honk, userid int64) []*Honk {
-	zords := getzords(userid)
-	j := 0
-outer:
-	for _, h := range honks {
-		for _, z := range zords {
-			if z.MatchString(h.Precis) || z.MatchString(h.Noise) {
-				continue outer
-			}
-			for _, d := range h.Donks {
-				if z.MatchString(d.Desc) {
-					continue outer
-				}
-			}
-		}
-		honks[j] = h
-		j++
-	}
-	honks = honks[0:j]
-	return honks
 }
 
 func shortxid(xid string) string {
@@ -693,117 +649,6 @@ func makeitworksomehowwithoutregardforkeycontinuity(keyname string, r *http.Requ
 	delete(zaggies, keyname)
 	ziggylock.Unlock()
 	return httpsig.VerifyRequest(r, payload, zaggy)
-}
-
-var thumbbiters map[int64]map[string]bool
-var zoggles map[int64]map[string]bool
-var zordses map[int64][]*regexp.Regexp
-var zilences map[int64][]*regexp.Regexp
-var thumblock sync.Mutex
-
-func bitethethumbs() {
-	rows, err := stmtThumbBiters.Query()
-	if err != nil {
-		log.Printf("error getting thumbbiters: %s", err)
-		return
-	}
-	defer rows.Close()
-
-	thumblock.Lock()
-	defer thumblock.Unlock()
-	thumbbiters = make(map[int64]map[string]bool)
-	zoggles = make(map[int64]map[string]bool)
-	zordses = make(map[int64][]*regexp.Regexp)
-	zilences = make(map[int64][]*regexp.Regexp)
-	for rows.Next() {
-		var userid int64
-		var name, wherefore string
-		err = rows.Scan(&userid, &name, &wherefore)
-		if err != nil {
-			log.Printf("error scanning zonker: %s", err)
-			continue
-		}
-		if wherefore == "zord" || wherefore == "zilence" {
-			zord := "\\b(?i:" + name + ")\\b"
-			re, err := regexp.Compile(zord)
-			if err != nil {
-				log.Printf("error compiling zord: %s", err)
-			} else {
-				if wherefore == "zord" {
-					zordses[userid] = append(zordses[userid], re)
-				} else {
-					zilences[userid] = append(zilences[userid], re)
-				}
-			}
-		}
-		if wherefore == "zoggle" {
-			m := zoggles[userid]
-			if m == nil {
-				m = make(map[string]bool)
-				zoggles[userid] = m
-			}
-			m[name] = true
-		}
-		if wherefore == "zonker" || wherefore == "zomain" {
-			m := thumbbiters[userid]
-			if m == nil {
-				m = make(map[string]bool)
-				thumbbiters[userid] = m
-			}
-			m[name] = true
-		}
-	}
-}
-
-func getzords(userid int64) []*regexp.Regexp {
-	thumblock.Lock()
-	defer thumblock.Unlock()
-	return zordses[userid]
-}
-
-func getzilences(userid int64) []*regexp.Regexp {
-	thumblock.Lock()
-	defer thumblock.Unlock()
-	return zilences[userid]
-}
-
-func thoudostbitethythumb(userid int64, who []string, objid string) bool {
-	thumblock.Lock()
-	biters := thumbbiters[userid]
-	thumblock.Unlock()
-	objwhere := originate(objid)
-	if objwhere != "" && biters[objwhere] {
-		log.Printf("thumbbiter: %s", objid)
-		return true
-	}
-	for _, w := range who {
-		if biters[w] {
-			log.Printf("thumbbiter: %s", w)
-			return true
-		}
-		where := originate(w)
-		if where != "" {
-			if biters[where] {
-				log.Printf("thumbbiter: %s", w)
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func stealthmode(userid int64, r *http.Request) bool {
-	agent := r.UserAgent()
-	agent = originate(agent)
-	addr := r.Header.Get("X-Forwarded-For")
-	thumblock.Lock()
-	biters := thumbbiters[userid]
-	thumblock.Unlock()
-	fake := (agent != "" && biters[agent]) || (addr != "" && biters[addr])
-	if fake {
-		log.Printf("faking 404 for %s from %s", agent, addr)
-	}
-	return fake
 }
 
 func keymatch(keyname string, actor string) string {

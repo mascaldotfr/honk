@@ -53,11 +53,6 @@ You can zonk anything you like (or dislike), either your own honk or
 those of others that you're tired of seeing. Be advised that deletion
 works poorly in a federated environment. It's more like please disregard.
 
-The zonkzone supports muting unwanted contacts. One may mute an actor
-(zonker), a domain (zomain), thread (zonvoy), or word (zord).
-
-Posts can be collapsed, but not hidden, by specifying a zilence regex.
-
 -- privacy
 
 Posted honks are public. The federated environment lacks robust privacy

@@ -203,7 +203,7 @@ func iszonked(userid int64, xid string) bool {
 }
 
 func needxonk(user *WhatAbout, x *Honk) bool {
-	if thoudostbitethythumb(user.ID, x.Audience, x.XID) {
+	if rejectnote(x) {
 		log.Printf("not saving thumb biter? %s via %s", x.XID, x.Honker)
 		return false
 	}
@@ -213,7 +213,7 @@ func needxonkid(user *WhatAbout, xid string) bool {
 	if strings.HasPrefix(xid, user.URL+"/") {
 		return false
 	}
-	if thoudostbitethythumb(user.ID, nil, xid) {
+	if rejectorigin(user.ID, xid) {
 		log.Printf("don't need thumb biter? %s", xid)
 		return false
 	}

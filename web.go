@@ -307,8 +307,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		log.Printf("keyname actor mismatch: %s <> %s", keyname, who)
 		return
 	}
-	objid, _ := j.GetString("id")
-	if thoudostbitethythumb(user.ID, []string{who}, objid) {
+	if rejectactor(user.ID, who) {
 		log.Printf("ignoring thumb sucker %s", who)
 		return
 	}
@@ -1240,37 +1239,14 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 
 func zonkzone(w http.ResponseWriter, r *http.Request) {
 	userinfo := login.GetUserInfo(r)
-	rows, err := stmtGetZonkers.Query(userinfo.UserID)
-	if err != nil {
-		log.Printf("err: %s", err)
-		return
-	}
-	defer rows.Close()
-	var zonkers []Zonker
-	for rows.Next() {
-		var z Zonker
-		rows.Scan(&z.ID, &z.Name, &z.Wherefore)
-		zonkers = append(zonkers, z)
-	}
-	sort.Slice(zonkers, func(i, j int) bool {
-		w1 := zonkers[i].Wherefore
-		w2 := zonkers[j].Wherefore
-		if w1 == w2 {
-			return zonkers[i].Name < zonkers[j].Name
-		}
-		if w1 == "zonvoy" {
-			w1 = "zzzzzzz"
-		}
-		if w2 == "zonvoy" {
-			w2 = "zzzzzzz"
-		}
-		return w1 < w2
-	})
+
+	var filters afiltermap
+	filtcache.Get(userinfo.UserID, &filters)
 
 	templinfo := getInfo(r)
-	templinfo["Zonkers"] = zonkers
+	templinfo["Filters"] = filters
 	templinfo["ZonkCSRF"] = login.GetCSRF("zonkzonk", r)
-	err = readviews.Execute(w, "zonkers.html", templinfo)
+	err := readviews.Execute(w, "zonkers.html", templinfo)
 	if err != nil {
 		log.Print(err)
 	}
@@ -1282,9 +1258,9 @@ func zonkzonk(w http.ResponseWriter, r *http.Request) {
 	if itsok == "iforgiveyou" {
 		zonkerid, _ := strconv.ParseInt(r.FormValue("zonkerid"), 10, 0)
 		db := opendatabase()
-		db.Exec("delete from zonkers where userid = ? and zonkerid = ?",
+		db.Exec("delete from hfcs where userid = ? and hfcsid = ?",
 			userinfo.UserID, zonkerid)
-		bitethethumbs()
+		filtcache.Clear(userinfo.UserID)
 		http.Redirect(w, r, "/zonkzone", http.StatusSeeOther)
 		return
 	}
@@ -1308,7 +1284,7 @@ func zonkzonk(w http.ResponseWriter, r *http.Request) {
 		userinfo.UserID, name, wherefore)
 
 	if wherefore != "zonvoy" {
-		bitethethumbs()
+		filtcache.Clear(userinfo.UserID)
 	}
 
 	http.Redirect(w, r, "/zonkzone", http.StatusSeeOther)
@@ -1549,8 +1525,6 @@ func serve() {
 			savedassetparams[s] = getassetparam(s)
 		}
 	}
-
-	bitethethumbs()
 
 	mux := mux.NewRouter()
 	mux.Use(login.Checker)

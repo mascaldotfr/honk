@@ -221,12 +221,11 @@ func upgradedb() {
 			var xid, media string
 			var data []byte
 			err = rows.Scan(&xid, &media, &data)
-			if err != nil {
-				log.Fatal(err)
+			if err == nil {
+				_, err = tx.Exec("insert into filedata (xid, media, content) values (?, ?, ?)", xid, media, data)
 			}
-			_, err = tx.Exec("insert into filedata (xid, media, content) values (?, ?, ?)", xid, media, data)
 			if err != nil {
-				log.Fatal(err)
+				log.Fatalf("can't save filedata: %s", err)
 			}
 		}
 		rows.Close()
@@ -263,8 +262,10 @@ func upgradedb() {
 		}
 		for honkid, p := range places {
 			j, err := jsonify(p)
-			_, err = tx.Exec("insert into honkmeta (honkid, genus, json) values (?, ?, ?)",
-				honkid, "place", j)
+			if err == nil {
+				_, err = tx.Exec("insert into honkmeta (honkid, genus, json) values (?, ?, ?)",
+					honkid, "place", j)
+			}
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -276,6 +277,66 @@ func upgradedb() {
 		doordie(db, "update config set value = 23 where key = 'dbversion'")
 		fallthrough
 	case 23:
+		doordie(db, "create table hfcs (hfcsid integer primary key, userid integer, json text)")
+		doordie(db, "create index idx_hfcsuser on hfcs(userid)")
+		rows, err := db.Query("select userid, name, wherefore from zonkers where wherefore in ('zord', 'zilence', 'zoggle', 'zonker', 'zomain')")
+		if err != nil {
+			log.Fatalf("can't query zonkers: %s", err)
+		}
+		filtmap := make(map[int64][]*Filter)
+		for rows.Next() {
+			var userid int64
+			var name, wherefore string
+			err = rows.Scan(&userid, &name, &wherefore)
+			if err != nil {
+				log.Fatal("error scanning zonker: %s", err)
+			}
+			f := new(Filter)
+			switch wherefore {
+			case "zord":
+				f.Text = name
+				f.Hide = true
+			case "zilence":
+				f.Text = name
+				f.Collapse = true
+			case "zoggle":
+				f.Actor = name
+				f.SkipMedia = true
+			case "zonker":
+				f.Actor = name
+				f.IncludeAudience = true
+				f.Reject = true
+			case "zomain":
+				f.Actor = name
+				f.IncludeAudience = true
+				f.Reject = true
+			}
+			filtmap[userid] = append(filtmap[userid], f)
+		}
+		rows.Close()
+		tx, err := db.Begin()
+		if err != nil {
+			log.Fatalf("can't begin: %s", err)
+		}
+		for userid, filts := range filtmap {
+			for _, f := range filts {
+				j, err := jsonify(f)
+				if err == nil {
+					_, err = tx.Exec("insert into hfcs (userid, json) values (?, ?)", userid, j)
+				}
+				if err != nil {
+					log.Fatalf("can't save filter: %s", err)
+				}
+			}
+		}
+		err = tx.Commit()
+		if err != nil {
+			log.Fatalf("can't commit: %s", err)
+		}
+		doordie(db, "delete from zonkers where wherefore in ('zord', 'zilence', 'zoggle', 'zonker', 'zomain')")
+		doordie(db, "update config set value = 24 where key = 'dbversion'")
+		fallthrough
+	case 24:
 
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
