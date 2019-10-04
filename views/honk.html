@@ -8,7 +8,7 @@
 {{ end }}
 <p>
 {{ if $bonkcsrf }}
-<a class="honkerlink" href="/h?xid={{ .Honker }}">{{ .Username }}</a>
+<a class="honkerlink" href="/h?xid={{ .Honker }}" data-xid="{{ .Honker }}">{{ .Username }}</a>
 {{ else }}
 <a href="{{ .Honker }}" rel=noreferrer>{{ .Username }}</a>
 {{ end }}
