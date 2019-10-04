@@ -28,10 +28,22 @@ type Cache struct {
 	lock   sync.Mutex
 }
 
-func cacheNew(filler cacheFiller) *Cache {
+func cacheNew(fillfn interface{}) *Cache {
 	c := new(Cache)
 	c.cache = make(map[interface{}]interface{})
-	c.filler = filler
+	ftype := reflect.TypeOf(fillfn)
+	if ftype.Kind() != reflect.Func {
+		panic("cache filler is not function")
+	}
+	if ftype.NumIn() != 1 || ftype.NumOut() != 2 {
+		panic("cache filler has wrong argument count")
+	}
+	c.filler = func(key interface{}) (interface{}, bool) {
+		vfn := reflect.ValueOf(fillfn)
+		args := []reflect.Value{reflect.ValueOf(key)}
+		rv := vfn.Call(args)
+		return rv[0].Interface(), rv[1].Bool()
+	}
 	return c
 }
 

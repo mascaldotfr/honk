@@ -1141,8 +1141,7 @@ func showhonkers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-var combocache = cacheNew(func(key interface{}) (interface{}, bool) {
-	userid := key.(int64)
+var combocache = cacheNew(func(userid int64) ([]string, bool) {
 	honkers := gethonkers(userid)
 	var combos []string
 	for _, h := range honkers {
