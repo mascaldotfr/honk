@@ -158,7 +158,7 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 		}
 		if strings.HasPrefix(media, "image") {
 			img, err := image.Vacuum(&buf,
-				image.Params{LimitSize: 4800 * 4800, MaxWidth: 2048, MaxHeight: 2048})
+				image.Params{LimitSize: 4200 * 4200, MaxWidth: 2048, MaxHeight: 2048})
 			if err != nil {
 				log.Printf("unable to decode image: %s", err)
 				localize = false
