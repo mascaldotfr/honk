@@ -184,7 +184,7 @@ func matchfilter(h *Honk, f *Filter) bool {
 func rejectxonk(xonk *Honk) bool {
 	filts := getfilters(xonk.UserID, filtReject)
 	for _, f := range filts {
-		if matchfilter(xonk, filts) {
+		if matchfilter(xonk, f) {
 			return true
 		}
 	}
@@ -194,7 +194,7 @@ func rejectxonk(xonk *Honk) bool {
 func skipMedia(xonk *Honk) bool {
 	filts := getfilters(xonk.UserID, filtSkipMedia)
 	for _, f := range filts {
-		if matchfilter(xonk, filts) {
+		if matchfilter(xonk, f) {
 			return true
 		}
 	}
@@ -211,8 +211,10 @@ func osmosis(honks []*Honk, userid int64) []*Honk {
 	j := 0
 outer:
 	for _, h := range honks {
-		if matchfilter(h, filts) {
-			continue outer
+		for _, f := range filts {
+			if matchfilter(h, f) {
+				continue outer
+			}
 		}
 		honks[j] = h
 		j++
