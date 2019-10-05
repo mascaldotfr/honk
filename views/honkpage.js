@@ -216,7 +216,7 @@ function updatedonker() {
 	var el = document.getElementById("donkdescriptor")
 	el.style.display = ""
 }
-var checkinprec = 500.0
+var checkinprec = 100.0
 var gpsoptions = {
 	enableHighAccuracy: false,
 	timeout: 1000,
