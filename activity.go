@@ -751,6 +751,8 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if err == nil {
 					t := new(Time)
 					t.StartTime = start
+					endtime, _ := obj.GetString("endTime")
+					t.EndTime, _ = time.Parse(time.RFC3339, endtime)
 					dura, _ := obj.GetString("duration")
 					if strings.HasPrefix(dura, "PT") {
 						dura = strings.ToLower(dura[2:])
@@ -1045,7 +1047,11 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			t["latitude"] = p.Latitude
 			t["longitude"] = p.Longitude
 			t["url"] = p.Url
-			tags = append(tags, t)
+			if h.What == "event" {
+				jo["location"] = t
+			} else {
+				tags = append(tags, t)
+			}
 		}
 		if len(tags) > 0 {
 			jo["tag"] = tags
