@@ -171,10 +171,6 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		desc := string(honk.HTML)
-		for _, d := range honk.Donks {
-			desc += fmt.Sprintf(`<p><a href="%s">Attachment: %s</a>`,
-				d.URL, html.EscapeString(d.Name))
-		}
 		if t := honk.Time; t != nil {
 			desc += fmt.Sprintf(`<p>Time: %s`, t.StartTime.Local().Format("03:04PM EDT Mon Jan 02"))
 			if t.Duration != 0 {
@@ -184,6 +180,10 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 		if p := honk.Place; p != nil {
 			desc += fmt.Sprintf(`<p>Location: <a href="%s">%s</a> %f %f`,
 				html.EscapeString(p.Url), html.EscapeString(p.Name), p.Latitude, p.Longitude)
+		}
+		for _, d := range honk.Donks {
+			desc += fmt.Sprintf(`<p><a href="%s">Attachment: %s</a>`,
+				d.URL, html.EscapeString(d.Name))
 		}
 
 		feed.Items = append(feed.Items, &rss.Item{
