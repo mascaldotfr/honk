@@ -146,31 +146,59 @@ func stealthmode(userid int64, r *http.Request) bool {
 }
 
 // todo
-func matchfilter(h *Honk, filts []*Filter) bool {
-	origin := originate(h.XID)
-	for _, f := range filts {
-		if f.Actor == origin || f.Actor == h.Honker {
-			return true
+func matchfilter(h *Honk, f *Filter) bool {
+	match := true
+	if match && f.Actor != "" {
+		match = false
+		if f.Actor == h.Honker || f.Actor == h.Oonker {
+			match = true
 		}
-		if f.Text != "" {
-			for _, d := range h.Donks {
-				if d.Desc == f.Text {
-					return true
+		if !match && (f.Actor == originate(h.Honker) ||
+			f.Actor == originate(h.Oonker) ||
+			f.Actor == originate(h.XID)) {
+			match = true
+		}
+		if !match && f.IncludeAudience {
+			for _, a := range h.Audience {
+				if f.Actor == a || f.Actor == originate(a) {
+					match = true
+					break
 				}
 			}
+		}
+	}
+	if match && f.Text != "" {
+		match = false
+		for _, d := range h.Donks {
+			if d.Desc == f.Text {
+				match = true
+			}
+		}
+	}
+	if match {
+		return true
+	}
+	return false
+}
+
+func rejectxonk(xonk *Honk) bool {
+	filts := getfilters(xonk.UserID, filtReject)
+	for _, f := range filts {
+		if matchfilter(xonk, filts) {
+			return true
 		}
 	}
 	return false
 }
 
-func rejectnote(xonk *Honk) bool {
-	filts := getfilters(xonk.UserID, filtReject)
-	return matchfilter(xonk, filts)
-}
-
 func skipMedia(xonk *Honk) bool {
 	filts := getfilters(xonk.UserID, filtSkipMedia)
-	return matchfilter(xonk, filts)
+	for _, f := range filts {
+		if matchfilter(xonk, filts) {
+			return true
+		}
+	}
+	return false
 }
 
 // todo

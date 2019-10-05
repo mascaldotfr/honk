@@ -203,7 +203,7 @@ func iszonked(userid int64, xid string) bool {
 }
 
 func needxonk(user *WhatAbout, x *Honk) bool {
-	if rejectnote(x) {
+	if rejectxonk(x) {
 		log.Printf("not saving thumb biter? %s via %s", x.XID, x.Honker)
 		return false
 	}
