@@ -35,7 +35,6 @@ import (
 func reverbolate(userid int64, honks []*Honk) {
 	filt := htfilter.New()
 	filt.Imager = replaceimg
-	zilences := getfilters(userid, filtCollapse)
 	for _, h := range honks {
 		h.What += "ed"
 		if h.What == "tonked" {
@@ -76,7 +75,7 @@ func reverbolate(userid int64, honks []*Honk) {
 				h.Open = ""
 			}
 		} else {
-			if badword := unsee(zilences, h); badword != "" {
+			if badword := unsee(userid, h); badword != "" {
 				if h.Precis == "" {
 					h.Precis = badword
 				}

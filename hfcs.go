@@ -26,6 +26,7 @@ type Filter struct {
 	Actor           string
 	IncludeAudience bool
 	Text            string
+	re_text         *regexp.Regexp
 	IsAnnounce      bool
 	Reject          bool
 	SkipMedia       bool
@@ -76,6 +77,13 @@ var filtcache = cacheNew(func(userid int64) (afiltermap, bool) {
 		if err != nil {
 			log.Printf("error scanning filter: %s", err)
 			continue
+		}
+		if filt.Text != "" {
+			filt.re_text, err = regexp.Compile("\\b(?i:" + filt.Text + ")\\b")
+			if err != nil {
+				log.Printf("error compiling filter text: %s", err)
+				continue
+			}
 		}
 		filt.ID = filterid
 		if filt.Reject {
@@ -169,9 +177,15 @@ func matchfilter(h *Honk, f *Filter) bool {
 	}
 	if match && f.Text != "" {
 		match = false
-		for _, d := range h.Donks {
-			if d.Desc == f.Text {
-				match = true
+		re := f.re_text
+		if re.MatchString(h.Noise) || re.MatchString(h.Precis) {
+			match = true
+		}
+		if !match {
+			for _, d := range h.Donks {
+				if re.MatchString(d.Desc) {
+					match = true
+				}
 			}
 		}
 	}
@@ -202,7 +216,13 @@ func skipMedia(xonk *Honk) bool {
 }
 
 // todo
-func unsee(filts []*Filter, h *Honk) string {
+func unsee(userid int64, h *Honk) string {
+	filts := getfilters(userid, filtCollapse)
+	for _, f := range filts {
+		if matchfilter(h, f) {
+			return f.Text
+		}
+	}
 	return ""
 }
 
