@@ -217,6 +217,11 @@ function updatedonker() {
 	el.style.display = ""
 }
 var checkinprec = 500.0
+var gpsoptions = {
+	enableHighAccuracy: false,
+	timeout: 1000,
+	maximumAge: 0
+};
 function fillcheckin() {
 	if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(function(pos) {
@@ -226,10 +231,12 @@ function fillcheckin() {
 			el = document.getElementById("placelonginput")
 			el.value = Math.round(pos.coords.longitude * checkinprec) / checkinprec
 			checkinprec = 10000.0
+			gpsoptions.enableHighAccuracy = true
+			gpsoptions.timeout = 2000
 		}, function(err) {
 			showelement("placedescriptor")
 			el = document.getElementById("placenameinput")
 			el.value = err.message
-		})
+		}, gpsoptions)
 	}
 }
