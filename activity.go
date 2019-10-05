@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -555,10 +556,39 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			return nil
 		}
 
+		if obj != nil {
+			_, ok := obj.GetString("diaspora:guid")
+			if ok {
+				// frienda does the silliest bonks
+				c, ok := item.FindString([]string{"source", "content"})
+				if ok {
+					re_link := regexp.MustCompile(`link='([^']*)'`)
+					m := re_link.FindStringSubmatch(c)
+					if len(m) > 1 {
+						xid := m[1]
+						log.Printf("getting friendica flavored bonk: %s", xid)
+						if !needxonkid(user, xid) {
+							return nil
+						}
+						newobj, err := GetJunkHardMode(xid)
+						if err != nil {
+							log.Printf("error getting bonk: %s: %s", xid, err)
+						} else {
+							obj = newobj
+							origin = originate(xid)
+							what = "bonk"
+						}
+					}
+				}
+			}
+		}
 		var xonk Honk
 		// early init
 		xonk.UserID = user.ID
 		xonk.Honker, _ = item.GetString("actor")
+		if xonk.Honker == "" {
+			xonk.Honker, _ = item.GetString("attributedTo")
+		}
 		if obj != nil {
 			if xonk.Honker == "" {
 				xonk.Honker = extractattrto(obj)
