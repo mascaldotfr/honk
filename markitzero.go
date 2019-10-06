@@ -23,7 +23,6 @@ import (
 	"golang.org/x/net/html"
 )
 
-
 var re_bolder = regexp.MustCompile(`(^|\W)\*\*([\w\s,.!?':_-]+)\*\*($|\W)`)
 var re_italicer = regexp.MustCompile(`(^|\W)\*([\w\s,.!?':_-]+)\*($|\W)`)
 var re_bigcoder = regexp.MustCompile("```\n?((?s:.*?))\n?```\n?")

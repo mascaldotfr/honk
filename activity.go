@@ -20,6 +20,7 @@ import (
 	"crypto/rsa"
 	"database/sql"
 	"fmt"
+	"html"
 	"io"
 	"log"
 	notrand "math/rand"
@@ -992,7 +993,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		}
 		translate(h)
 		h.Noise = re_memes.ReplaceAllString(h.Noise, "")
-		jo["summary"] = h.Precis
+		jo["summary"] = html.EscapeString(h.Precis)
 		jo["content"] = ontologize(mentionize(h.Noise))
 		if strings.HasPrefix(h.Precis, "DZ:") {
 			jo["sensitive"] = true
@@ -1070,7 +1071,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			jd := junk.New()
 			jd["mediaType"] = d.Media
 			jd["name"] = d.Name
-			jd["summary"] = d.Desc
+			jd["summary"] = html.EscapeString(d.Desc)
 			jd["type"] = "Document"
 			jd["url"] = d.URL
 			atts = append(atts, jd)
