@@ -289,7 +289,7 @@ func upgradedb() {
 			var name, wherefore string
 			err = rows.Scan(&userid, &name, &wherefore)
 			if err != nil {
-				log.Fatal("error scanning zonker: %s", err)
+				log.Fatalf("error scanning zonker: %s", err)
 			}
 			f := new(Filter)
 			switch wherefore {
