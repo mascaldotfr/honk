@@ -188,7 +188,7 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 
 		feed.Items = append(feed.Items, &rss.Item{
 			Title:       fmt.Sprintf("%s %s %s", honk.Username, honk.What, honk.XID),
-			Description: rss.CData{desc},
+			Description: rss.CData{Data: desc},
 			Link:        honk.URL,
 			PubDate:     honk.Date.Format(time.RFC1123),
 			Guid:        &rss.Guid{IsPermaLink: true, Value: honk.URL},
