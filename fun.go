@@ -172,7 +172,7 @@ func translate(honk *Honk) {
 
 	noise = strings.TrimSpace(noise)
 	noise = quickrename(noise, honk.UserID)
-	noise = obfusbreak(noise)
+	noise = markitzero(noise)
 
 	honk.Noise = noise
 	honk.Onts = oneofakind(ontologies(honk.Noise))
@@ -314,82 +314,6 @@ func memetize(honk *Honk) {
 		return ""
 	}
 	honk.Noise = re_memes.ReplaceAllStringFunc(honk.Noise, repl)
-}
-
-var re_bolder = regexp.MustCompile(`(^|\W)\*\*([\w\s,.!?':_-]+)\*\*($|\W)`)
-var re_italicer = regexp.MustCompile(`(^|\W)\*([\w\s,.!?':_-]+)\*($|\W)`)
-var re_bigcoder = regexp.MustCompile("```\n?((?s:.*?))\n?```\n?")
-var re_coder = regexp.MustCompile("`([^`]*)`")
-var re_quoter = regexp.MustCompile(`(?m:^&gt; (.*)\n?)`)
-
-func markitzero(s string) string {
-	var bigcodes []string
-	bigsaver := func(code string) string {
-		bigcodes = append(bigcodes, code)
-		return "``````"
-	}
-	s = re_bigcoder.ReplaceAllStringFunc(s, bigsaver)
-	var lilcodes []string
-	lilsaver := func(code string) string {
-		lilcodes = append(lilcodes, code)
-		return "`x`"
-	}
-	s = re_coder.ReplaceAllStringFunc(s, lilsaver)
-	s = re_bolder.ReplaceAllString(s, "$1<b>$2</b>$3")
-	s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
-	s = re_quoter.ReplaceAllString(s, "<blockquote>$1</blockquote><p>")
-	lilun := func(s string) string {
-		code := lilcodes[0]
-		lilcodes = lilcodes[1:]
-		return code
-	}
-	s = re_coder.ReplaceAllStringFunc(s, lilun)
-	bigun := func(s string) string {
-		code := bigcodes[0]
-		bigcodes = bigcodes[1:]
-		return code
-	}
-	s = re_bigcoder.ReplaceAllStringFunc(s, bigun)
-	s = re_bigcoder.ReplaceAllString(s, "<pre><code>$1</code></pre><p>")
-	s = re_coder.ReplaceAllString(s, "<code>$1</code>")
-	return s
-}
-
-func obfusbreak(s string) string {
-	s = strings.TrimSpace(s)
-	s = strings.Replace(s, "\r", "", -1)
-	s = html.EscapeString(s)
-	// dammit go
-	s = strings.Replace(s, "&#39;", "'", -1)
-	linkfn := func(url string) string {
-		if url[0] == '@' {
-			return url
-		}
-		addparen := false
-		adddot := false
-		if strings.HasSuffix(url, ")") && strings.IndexByte(url, '(') == -1 {
-			url = url[:len(url)-1]
-			addparen = true
-		}
-		if strings.HasSuffix(url, ".") {
-			url = url[:len(url)-1]
-			adddot = true
-		}
-		url = fmt.Sprintf(`<a class="mention u-url" href="%s">%s</a>`, url, url)
-		if adddot {
-			url += "."
-		}
-		if addparen {
-			url += ")"
-		}
-		return url
-	}
-	s = re_link.ReplaceAllStringFunc(s, linkfn)
-
-	s = markitzero(s)
-
-	s = strings.Replace(s, "\n", "<br>", -1)
-	return s
 }
 
 var re_quickmention = regexp.MustCompile("(^| )@[[:alnum:]]+ ")

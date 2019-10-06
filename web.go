@@ -527,7 +527,7 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 	filt := htfilter.New()
 	templinfo["Name"] = user.Name
 	whatabout := user.About
-	whatabout = obfusbreak(user.About)
+	whatabout = markitzero(user.About)
 	templinfo["WhatAbout"], _ = filt.String(whatabout)
 	templinfo["ServerMessage"] = ""
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)

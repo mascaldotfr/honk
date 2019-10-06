@@ -1153,7 +1153,7 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 }
 
 func asjonker(user *WhatAbout) junk.Junk {
-	about := obfusbreak(user.About)
+	about := markitzero(user.About)
 
 	j := junk.New()
 	j["@context"] = itiswhatitis
