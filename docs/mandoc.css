@@ -56,6 +56,13 @@ table.results {	margin-top: 1em;
 		font-size: smaller; }
 
 img { max-width: 100%; }
+code, pre {
+	word-break: break-word;
+}
+pre {
+	white-space: pre-wrap;
+}
+
 
 /* Header and footer lines. */
 
