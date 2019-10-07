@@ -71,7 +71,9 @@ function fillinhonks(xhr) {
 	var honks = doc.children[0].children[1].children[2].children
 
 	var srvel = document.getElementById("srvmsg")
-	srvel.children[0].remove()
+	if (srvel.children[0]) {
+		srvel.children[0].remove()
+	}
 	srvel.prepend(srvmsg)
 
 	var honksonpage = document.getElementById("honksonpage")
@@ -90,10 +92,8 @@ function hydrargs() {
 	if (name == "convoy") {
 		args["c"] = arg
 	} else if (name == "combo") {
-		console.log("loading combo " + arg)
 		args["c"] = arg
 	} else if (name == "honker") {
-		console.log("loading honker " + arg)
 		args["xid"] = arg
 	}
 	return args
@@ -119,14 +119,19 @@ function statechanger(evt) {
 	switchtopage(data.name, data.arg)
 }
 function switchtopage(name, arg) {
+	var stash = curpagestate.name + ":" + curpagestate.arg
 	var honksonpage = document.getElementById("honksonpage")
 	var holder = honksonpage.children[0]
 	holder.remove()
-	// if not convoy, save current page
-	if (curpagestate.name != "convoy") {
-		var stash = curpagestate.name + ":" + curpagestate.arg
-		honksforpage[stash] = holder
+	var srvel = document.getElementById("srvmsg")
+	var msg = srvel.children[0]
+	if (msg) {
+		msg.remove()
+		servermsgs[stash] = msg
 	}
+
+	honksforpage[stash] = holder
+
 	curpagestate.name = name
 	curpagestate.arg = arg
 	// get the holder for the target page
@@ -134,6 +139,10 @@ function switchtopage(name, arg) {
 	holder = honksforpage[stash]
 	if (holder) {
 		honksonpage.prepend(holder)
+		msg = servermsgs[stash]
+		if (msg) {
+			srvel.prepend(msg)
+		}
 	} else {
 		// or create one and fill it
 		honksonpage.prepend(document.createElement("div"))

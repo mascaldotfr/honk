@@ -31,6 +31,9 @@ var honksforpage = { }
 var curpagestate = { name: "{{ .PageName }}", arg : "{{ .PageArg }}" }
 var topxid = { }
 topxid[curpagestate.name + ":" + curpagestate.arg] = "{{ .TopXID }}"
+var servermsgs = { }
+servermsgs[curpagestate.name + ":" + curpagestate.arg] = "{{ .ServerMessage }}"
+
 </script>
 <script src="/honkpage.js{{ .JSParam }}"></script>
 {{ end }}
