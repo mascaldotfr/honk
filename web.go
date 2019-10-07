@@ -659,8 +659,18 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-
 	xid := fmt.Sprintf("https://%s%s", serverName, r.URL.Path)
+
+	if friendorfoe(r.Header.Get("Accept")) {
+		j, ok := gimmejonk(xid)
+		if ok {
+			w.Header().Set("Content-Type", theonetruename)
+			w.Write(j)
+		} else {
+			http.NotFound(w, r)
+		}
+		return
+	}
 	honk := getxonk(user.ID, xid)
 	if honk == nil {
 		http.NotFound(w, r)
@@ -683,19 +693,6 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rawhonks := gethonksbyconvoy(honk.UserID, honk.Convoy)
-	if friendorfoe(r.Header.Get("Accept")) {
-		for _, h := range rawhonks {
-			if h.RID == honk.XID && h.Public && (h.Whofore == 2 || h.IsAcked()) {
-				honk.Replies = append(honk.Replies, h)
-			}
-		}
-		donksforhonks([]*Honk{honk})
-		_, j := jonkjonk(user, honk)
-		j["@context"] = itiswhatitis
-		w.Header().Set("Content-Type", theonetruename)
-		j.Write(w)
-		return
-	}
 	var honks []*Honk
 	for _, h := range rawhonks {
 		if h.Public && (h.Whofore == 2 || h.IsAcked()) {
@@ -815,6 +812,9 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	what := r.FormValue("what")
 	userinfo := login.GetUserInfo(r)
 	user, _ := butwhatabout(userinfo.Username)
+
+	// my hammer is too big, oh well
+	defer oldjonks.Flush()
 
 	if wherefore == "ack" {
 		xonk := getxonk(userinfo.UserID, what)
@@ -1127,6 +1127,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 
 	if updatexid != "" {
 		updatehonk(honk)
+		oldjonks.Clear(honk.XID)
 	} else {
 		err := savehonk(honk)
 		if err != nil {

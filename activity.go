@@ -1101,6 +1101,33 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 	return j, jo
 }
 
+var oldjonks = cacheNew(cacheOptions{Filler: func(xid string) ([]byte, bool) {
+	row := stmtAnyXonk.QueryRow(xid)
+	honk := scanhonk(row)
+	if honk == nil || !honk.Public {
+		return nil, true
+	}
+	user, _ := butwhatabout(honk.Username)
+	rawhonks := gethonksbyconvoy(honk.UserID, honk.Convoy)
+	for _, h := range rawhonks {
+		if h.RID == honk.XID && h.Public && (h.Whofore == 2 || h.IsAcked()) {
+			honk.Replies = append(honk.Replies, h)
+		}
+	}
+	donksforhonks([]*Honk{honk})
+	_, j := jonkjonk(user, honk)
+	j["@context"] = itiswhatitis
+	var buf bytes.Buffer
+	j.Write(&buf)
+	return buf.Bytes(), true
+}})
+
+func gimmejonk(xid string) ([]byte, bool) {
+	var j []byte
+	ok := oldjonks.Get(xid, &j)
+	return j, ok
+}
+
 func honkworldwide(user *WhatAbout, honk *Honk) {
 	jonk, _ := jonkjonk(user, honk)
 	jonk["@context"] = itiswhatitis
