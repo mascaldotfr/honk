@@ -1449,6 +1449,11 @@ func serveasset(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "max-age=7776000")
 	http.ServeFile(w, r, "views"+r.URL.Path)
 }
+func servehelp(w http.ResponseWriter, r *http.Request) {
+	name := mux.Vars(r)["name"]
+	w.Header().Set("Cache-Control", "max-age=0")
+	http.ServeFile(w, r, "docs/" + name)
+}
 func servehtml(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
 	err := readviews.Execute(w, r.URL.Path[1:]+".html", templinfo)
@@ -1615,6 +1620,7 @@ func serve() {
 	getters.HandleFunc("/login", servehtml)
 	posters.HandleFunc("/dologin", login.LoginFunc)
 	getters.HandleFunc("/logout", login.LogoutFunc)
+	getters.HandleFunc("/help/{name:[[:alnum:]_.-]+}", servehelp)
 
 	loggedin := mux.NewRoute().Subrouter()
 	loggedin.Use(login.Required)

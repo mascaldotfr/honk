@@ -52,6 +52,8 @@ table.results {	margin-top: 1em;
 		margin-left: 2em;
 		font-size: smaller; }
 
+img { max-width: 100%; }
+
 /* Header and footer lines. */
 
 table.head {	width: 100%;
