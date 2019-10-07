@@ -206,7 +206,6 @@ func iszonked(userid int64, xid string) bool {
 
 func needxonk(user *WhatAbout, x *Honk) bool {
 	if rejectxonk(x) {
-		log.Printf("not saving thumb biter? %s via %s", x.XID, x.Honker)
 		return false
 	}
 	return needxonkid(user, x.XID)
@@ -216,7 +215,6 @@ func needxonkid(user *WhatAbout, xid string) bool {
 		return false
 	}
 	if rejectorigin(user.ID, xid) {
-		log.Printf("don't need thumb biter? %s", xid)
 		return false
 	}
 	if iszonked(user.ID, xid) {

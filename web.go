@@ -309,7 +309,6 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if rejectactor(user.ID, who) {
-		log.Printf("ignoring thumb sucker %s", who)
 		return
 	}
 	switch what {

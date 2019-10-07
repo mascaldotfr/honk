@@ -225,6 +225,7 @@ func rejectxonk(xonk *Honk) bool {
 	filts := getfilters(xonk.UserID, filtReject)
 	for _, f := range filts {
 		if matchfilter(xonk, f) {
+			log.Printf("rejecting %s because %s", xonk.XID, f.Actor)
 			return true
 		}
 	}
