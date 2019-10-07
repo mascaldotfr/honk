@@ -394,7 +394,11 @@ func deleteextras(honkid int64) {
 
 func deletehonk(honkid int64) {
 	deleteextras(honkid)
-	_, err := stmtDeleteHonk.Exec(honkid)
+	_, err := stmtDeleteMeta.Exec(honkid, "nonsense")
+	if err != nil {
+		log.Printf("error deleting: %s", err)
+	}
+	_, err = stmtDeleteHonk.Exec(honkid)
 	if err != nil {
 		log.Printf("error deleting: %s", err)
 	}
