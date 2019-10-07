@@ -1509,24 +1509,32 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	switch page {
 	case "atme":
 		honks = gethonksforme(userid)
+		templinfo["ServerMessage"] = "at me!"
 	case "home":
 		honks = gethonksforuser(userid)
 		honks = osmosis(honks, userid)
+		templinfo["ServerMessage"] = serverMsg
 	case "first":
 		honks = gethonksforuserfirstclass(userid)
 		honks = osmosis(honks, userid)
+		templinfo["ServerMessage"] = "first class only"
 	case "combo":
 		c := r.FormValue("c")
 		honks = gethonksbycombo(userid, c)
+		templinfo["ServerMessage"] = "honks by combo: " + c
 	case "convoy":
 		c := r.FormValue("c")
 		honks = gethonksbyconvoy(userid, c)
+		templinfo["ServerMessage"] = "honks in convoy: " + c
 	case "honker":
 		xid := r.FormValue("xid")
 		if strings.IndexByte(xid, '@') != -1 {
 			xid = gofish(xid)
 		}
 		honks = gethonksbyxonker(userid, xid)
+		xid = html.EscapeString(xid)
+		msg := fmt.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>`, xid, xid)
+		templinfo["ServerMessage"] = template.HTML(msg)
 	default:
 		http.NotFound(w, r)
 	}

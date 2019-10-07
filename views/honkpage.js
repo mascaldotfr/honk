@@ -67,7 +67,13 @@ function fillinhonks(xhr) {
 	var doc = xhr.responseXML
 	var stash = curpagestate.name + ":" + curpagestate.arg
 	topxid[stash] = doc.children[0].children[1].children[0].innerText
-	var honks = doc.children[0].children[1].children[1].children
+	var srvmsg = doc.children[0].children[1].children[1]
+	var honks = doc.children[0].children[1].children[2].children
+
+	var srvel = document.getElementById("srvmsg")
+	srvel.children[0].remove()
+	srvel.prepend(srvmsg)
+
 	var honksonpage = document.getElementById("honksonpage")
 	var holder = honksonpage.children[0]
 	var lenhonks = honks.length

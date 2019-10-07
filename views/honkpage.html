@@ -5,7 +5,7 @@
 <p>{{ .Name }} <span style="margin-left:1em;"><a href="/u/{{ .Name }}/rss">rss</a></span>
 <p>{{ .WhatAbout }}
 {{ end }}
-<p>{{ .ServerMessage }}
+<div id="srvmsg"><p>{{ .ServerMessage }}</div>
 {{ if .HonkCSRF }}
 {{ template "honkform.html" . }}
 {{ end }}
