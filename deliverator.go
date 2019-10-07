@@ -91,9 +91,10 @@ func deliverate(goarounds int, username string, rcpt string, msg []byte) {
 	if rcpt[0] == '%' {
 		inbox = rcpt[1:]
 	} else {
-		box, err := getboxes(rcpt)
-		if err != nil {
-			log.Printf("error getting inbox %s: %s", rcpt, err)
+		var box *Box
+		ok := boxofboxes.Get(rcpt, &box)
+		if !ok {
+			log.Printf("failed getting inbox for %s", rcpt)
 			sayitagain(goarounds+1, username, rcpt, msg)
 			return
 		}

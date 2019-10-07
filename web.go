@@ -219,9 +219,10 @@ func crappola(j junk.Junk) bool {
 }
 
 func ping(user *WhatAbout, who string) {
-	box, err := getboxes(who)
-	if err != nil {
-		log.Printf("no inbox for ping: %s", err)
+	var box *Box
+	ok := boxofboxes.Get(who, &box)
+	if !ok {
+		log.Printf("no inbox to ping %s", who)
 		return
 	}
 	j := junk.New()
@@ -231,7 +232,7 @@ func ping(user *WhatAbout, who string) {
 	j["actor"] = user.URL
 	j["to"] = who
 	keyname, key := ziggy(user.Name)
-	err = PostJunk(keyname, key, box.In, j)
+	err := PostJunk(keyname, key, box.In, j)
 	if err != nil {
 		log.Printf("can't send ping: %s", err)
 		return
@@ -240,9 +241,10 @@ func ping(user *WhatAbout, who string) {
 }
 
 func pong(user *WhatAbout, who string, obj string) {
-	box, err := getboxes(who)
-	if err != nil {
-		log.Printf("no inbox for pong %s : %s", who, err)
+	var box *Box
+	ok := boxofboxes.Get(who, &box)
+	if !ok {
+		log.Printf("no inbox to pong %s", who)
 		return
 	}
 	j := junk.New()
@@ -253,7 +255,7 @@ func pong(user *WhatAbout, who string, obj string) {
 	j["to"] = who
 	j["object"] = obj
 	keyname, key := ziggy(user.Name)
-	err = PostJunk(keyname, key, box.In, j)
+	err := PostJunk(keyname, key, box.In, j)
 	if err != nil {
 		log.Printf("can't send pong: %s", err)
 		return
@@ -1153,7 +1155,7 @@ func showhonkers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-var combocache = cacheNew(func(userid int64) ([]string, bool) {
+var combocache = cacheNew(cacheOptions{Filler: func(userid int64) ([]string, bool) {
 	honkers := gethonkers(userid)
 	var combos []string
 	for _, h := range honkers {
@@ -1167,7 +1169,7 @@ var combocache = cacheNew(func(userid int64) ([]string, bool) {
 	combos = oneofakind(combos)
 	sort.Strings(combos)
 	return combos, true
-})
+}})
 
 func showcombos(w http.ResponseWriter, r *http.Request) {
 	userinfo := login.GetUserInfo(r)

@@ -22,15 +22,20 @@ import (
 
 type cacheFiller func(key interface{}) (interface{}, bool)
 
+type cacheOptions struct {
+	Filler interface{}
+}
+
 type Cache struct {
 	cache  map[interface{}]interface{}
 	filler cacheFiller
 	lock   sync.Mutex
 }
 
-func cacheNew(fillfn interface{}) *Cache {
+func cacheNew(options cacheOptions) *Cache {
 	c := new(Cache)
 	c.cache = make(map[interface{}]interface{})
+	fillfn := options.Filler
 	ftype := reflect.TypeOf(fillfn)
 	if ftype.Kind() != reflect.Func {
 		panic("cache filler is not function")

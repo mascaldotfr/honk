@@ -63,7 +63,7 @@ func (ft filtType) String() string {
 
 type afiltermap map[filtType][]*Filter
 
-var filtcache = cacheNew(func(userid int64) (afiltermap, bool) {
+var filtcache = cacheNew(cacheOptions{Filler: func(userid int64) (afiltermap, bool) {
 	rows, err := stmtGetFilters.Query(userid)
 	if err != nil {
 		log.Printf("error querying filters: %s", err)
@@ -126,7 +126,7 @@ var filtcache = cacheNew(func(userid int64) (afiltermap, bool) {
 		return sorting[i].Name < sorting[j].Name
 	})
 	return filtmap, true
-})
+}})
 
 func getfilters(userid int64, scope filtType) []*Filter {
 	var filtmap afiltermap

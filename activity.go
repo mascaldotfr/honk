@@ -29,7 +29,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"humungus.tedunangst.com/r/webs/htfilter"
@@ -257,57 +256,33 @@ type Box struct {
 	Shared string
 }
 
-var boxofboxes = make(map[string]*Box)
-var boxlock sync.Mutex
-var boxinglock sync.Mutex
-
-func getboxes(ident string) (*Box, error) {
-	boxlock.Lock()
-	b, ok := boxofboxes[ident]
-	boxlock.Unlock()
-	if ok {
-		return b, nil
-	}
-
-	boxinglock.Lock()
-	defer boxinglock.Unlock()
-
-	boxlock.Lock()
-	b, ok = boxofboxes[ident]
-	boxlock.Unlock()
-	if ok {
-		return b, nil
-	}
-
+var boxofboxes = cacheNew(cacheOptions{Filler: func(ident string) (*Box, bool) {
 	var info string
 	row := stmtGetXonker.QueryRow(ident, "boxes")
 	err := row.Scan(&info)
-	if err != nil {
-		j, err := GetJunk(ident)
-		if err != nil {
-			return nil, err
-		}
-		inbox, _ := j.GetString("inbox")
-		outbox, _ := j.GetString("outbox")
-		sbox, _ := j.FindString([]string{"endpoints", "sharedInbox"})
-		b = &Box{In: inbox, Out: outbox, Shared: sbox}
-		if inbox != "" {
-			m := strings.Join([]string{inbox, outbox, sbox}, " ")
-			_, err = stmtSaveXonker.Exec(ident, m, "boxes")
-			if err != nil {
-				log.Printf("error saving boxes: %s", err)
-			}
-		}
-	} else {
+	if err == nil {
 		m := strings.Split(info, " ")
-		b = &Box{In: m[0], Out: m[1], Shared: m[2]}
+		b := &Box{In: m[0], Out: m[1], Shared: m[2]}
+		return b, true
 	}
-
-	boxlock.Lock()
-	boxofboxes[ident] = b
-	boxlock.Unlock()
-	return b, nil
-}
+	j, err := GetJunk(ident)
+	if err != nil {
+		log.Printf("error getting boxes: %s", err)
+		return nil, false
+	}
+	inbox, _ := j.GetString("inbox")
+	outbox, _ := j.GetString("outbox")
+	sbox, _ := j.FindString([]string{"endpoints", "sharedInbox"})
+	b := &Box{In: inbox, Out: outbox, Shared: sbox}
+	if inbox != "" {
+		m := strings.Join([]string{inbox, outbox, sbox}, " ")
+		_, err = stmtSaveXonker.Exec(ident, m, "boxes")
+		if err != nil {
+			log.Printf("error saving boxes: %s", err)
+		}
+	}
+	return b, true
+}})
 
 func gimmexonks(user *WhatAbout, outbox string) {
 	log.Printf("getting outbox: %s", outbox)
@@ -358,9 +333,10 @@ func peeppeep() {
 			continue
 		}
 		log.Printf("getting updates: %s", f.XID)
-		box, err := getboxes(f.XID)
-		if err != nil {
-			log.Printf("error getting outbox: %s", err)
+		var box *Box
+		ok := boxofboxes.Get(f.XID, &box)
+		if !ok {
+			log.Printf("error getting outbox")
 			continue
 		}
 		gimmexonks(user, box.Out)
@@ -1137,8 +1113,9 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 		if a == thewholeworld || a == user.URL || strings.HasSuffix(a, "/followers") {
 			continue
 		}
-		box, _ := getboxes(a)
-		if box != nil && honk.Public && box.Shared != "" {
+		var box *Box
+		ok := boxofboxes.Get(a, &box)
+		if ok && honk.Public && box.Shared != "" {
 			rcpts["%"+box.Shared] = true
 		} else {
 			rcpts[a] = true
@@ -1149,8 +1126,9 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 			if f.XID == user.URL {
 				continue
 			}
-			box, _ := getboxes(f.XID)
-			if box != nil && box.Shared != "" {
+			var box *Box
+			ok := boxofboxes.Get(f.XID, &box)
+			if ok && box.Shared != "" {
 				rcpts["%"+box.Shared] = true
 			} else {
 				rcpts[f.XID] = true
@@ -1191,41 +1169,23 @@ func asjonker(user *WhatAbout) junk.Junk {
 	return j
 }
 
-var handfull = make(map[string]string)
-var handlock sync.Mutex
-
-func gofish(name string) string {
-	if name[0] == '@' {
-		name = name[1:]
-	}
+var handfull = cacheNew(cacheOptions{Filler: func(name string) (string, bool) {
 	m := strings.Split(name, "@")
 	if len(m) != 2 {
 		log.Printf("bad fish name: %s", name)
-		return ""
-	}
-	handlock.Lock()
-	ref, ok := handfull[name]
-	handlock.Unlock()
-	if ok {
-		return ref
+		return "", true
 	}
 	row := stmtGetXonker.QueryRow(name, "fishname")
 	var href string
 	err := row.Scan(&href)
 	if err == nil {
-		handlock.Lock()
-		handfull[name] = href
-		handlock.Unlock()
-		return href
+		return href, true
 	}
 	log.Printf("fishing for %s", name)
 	j, err := GetJunkFast(fmt.Sprintf("https://%s/.well-known/webfinger?resource=acct:%s", m[1], name))
 	if err != nil {
 		log.Printf("failed to go fish %s: %s", name, err)
-		handlock.Lock()
-		handfull[name] = ""
-		handlock.Unlock()
-		return ""
+		return "", true
 	}
 	links, _ := j.GetArray("links")
 	for _, li := range links {
@@ -1241,16 +1201,19 @@ func gofish(name string) string {
 			if err != nil {
 				log.Printf("error saving fishname: %s", err)
 			}
-			handlock.Lock()
-			handfull[name] = href
-			handlock.Unlock()
-			return href
+			return href, true
 		}
 	}
-	handlock.Lock()
-	handfull[name] = ""
-	handlock.Unlock()
-	return ""
+	return href, true
+}})
+
+func gofish(name string) string {
+	if name[0] == '@' {
+		name = name[1:]
+	}
+	var href string
+	handfull.Get(name, &href)
+	return href
 }
 
 func isactor(t string) bool {
