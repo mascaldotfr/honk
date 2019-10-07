@@ -1182,7 +1182,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		goodbye := r.FormValue("goodbye")
 		if goodbye == "F" {
 			db := opendatabase()
-			row := db.QueryRow("select xid from honkers where honkerid = ? and userid = ? and flavor in ('dub')",
+			row := db.QueryRow("select xid from honkers where honkerid = ? and userid = ? and flavor in ('sub')",
 				honkerid, u.UserID)
 			err := row.Scan(&url)
 			if err != nil {
