@@ -2,9 +2,21 @@
 {{ $bonkcsrf := .BonkCSRF }}
 {{ with .Honk }}
 <header>
+{{ if $bonkcsrf }}
+<a class="honkerlink" href="/h?xid={{ .Honker }}" data-xid="{{ .Honker }}">
+{{ else }}
+<a href="{{ .Honker }}" rel=noreferrer>
+{{ end }}
 <img alt="" src="/a?a={{ .Honker}}">
+{{ if $bonkcsrf }} </a> {{ end }}
 {{ if .Oonker }}
+{{ if $bonkcsrf }}
+<a class="honkerlink" href="/h?xid={{ .Oonker }}" data-xid="{{ .Oonker }}">
+{{ else }}
+<a href="{{ .Oonker }}" rel=noreferrer>
+{{ end }}
 <img alt="" src="/a?a={{ .Oonker}}">
+{{ if $bonkcsrf }} </a> {{ end }}
 {{ end }}
 <p>
 {{ if $bonkcsrf }}
@@ -17,7 +29,7 @@
 <br>
 <span style="margin-left: 1em;" class="clip">
 {{ if $bonkcsrf }}
-original: <a class="honkerlink" href="/h?xid={{ .Oonker }}">{{ .Oondle }}</a>
+original: <a class="honkerlink" href="/h?xid={{ .Oonker }}" data-xid="{{ .Oonker }}">{{ .Oondle }}</a>
 {{ else }}
 original: <a href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }}</a>
 {{ end }}
