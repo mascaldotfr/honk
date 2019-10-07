@@ -99,6 +99,10 @@ func unpucker(s string) string {
 	}
 	s = re_alltheshitz.ReplaceAllStringFunc(s, fixer)
 
+	return demoji(s)
+}
+
+func demoji(s string) string {
 	s = re_moredumb.ReplaceAllString(s, ".")
 
 	zw := false

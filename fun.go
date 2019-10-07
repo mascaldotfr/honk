@@ -67,8 +67,8 @@ func reverbolate(userid int64, honks []*Honk) {
 			_, h.Oondle = handles(h.Oonker)
 		}
 		zap := make(map[*Donk]bool)
-		h.Precis = unpucker(h.Precis)
-		h.Noise = unpucker(h.Noise)
+		h.Precis = demoji(h.Precis)
+		h.Noise = demoji(h.Noise)
 		h.Open = "open"
 		if userid == -1 {
 			if h.Precis != "" {
