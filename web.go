@@ -99,9 +99,6 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 			honks = gethonksforuser(userid)
 			honks = osmosis(honks, userid)
 		}
-		if len(honks) > 0 {
-			templinfo["TopXID"] = honks[0].XID
-		}
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	}
 
@@ -582,9 +579,6 @@ func showcombo(w http.ResponseWriter, r *http.Request) {
 	templinfo["PageArg"] = "name"
 	templinfo["ServerMessage"] = "honks by combo: " + name
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
-	if len(honks) > 0 {
-		templinfo["TopXID"] = honks[0].XID
-	}
 	honkpage(w, u, honks, templinfo)
 }
 func showconvoy(w http.ResponseWriter, r *http.Request) {
@@ -720,6 +714,9 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 	}
 	reverbolate(userid, honks)
 	templinfo["Honks"] = honks
+	if len(honks) > 0 {
+		templinfo["TopXID"] = honks[0].XID
+	}
 	err := readviews.Execute(w, "honkpage.html", templinfo)
 	if err != nil {
 		log.Print(err)
