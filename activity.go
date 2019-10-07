@@ -922,6 +922,10 @@ func itakeitallback(user *WhatAbout, xid string) {
 }
 
 func subsub(user *WhatAbout, xid string) {
+	if xid == "" {
+		log.Printf("can't subscribe to empty")
+		return
+	}
 	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["id"] = user.URL + "/sub/" + url.QueryEscape(xid)

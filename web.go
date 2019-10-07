@@ -1183,20 +1183,43 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 			db := opendatabase()
 			row := db.QueryRow("select xid from honkers where honkerid = ? and userid = ?",
 				honkerid, u.UserID)
-			var xid string
-			err := row.Scan(&xid)
+			err := row.Scan(&url)
 			if err != nil {
 				log.Printf("can't get honker xid: %s", err)
 				return
 			}
-			log.Printf("unsubscribing from %s", xid)
+			log.Printf("unsubscribing from %s", url)
 			user, _ := butwhatabout(u.Username)
-			go itakeitallback(user, xid)
-			_, err = stmtUpdateFlavor.Exec("unsub", u.UserID, xid, "sub")
+			_, err = stmtUpdateFlavor.Exec("unsub", u.UserID, url, "sub")
 			if err != nil {
 				log.Printf("error updating honker: %s", err)
 				return
 			}
+			go itakeitallback(user, url)
+
+			http.Redirect(w, r, "/honkers", http.StatusSeeOther)
+			return
+		}
+		if goodbye == "X" {
+			db := opendatabase()
+			row := db.QueryRow("select xid from honkers where honkerid = ? and userid = ?",
+				honkerid, u.UserID)
+			err := row.Scan(&url)
+			if err != nil {
+				log.Printf("can't get honker xid: %s", err)
+				return
+			}
+			log.Printf("resubscribing to %s", url)
+			user, _ := butwhatabout(u.Username)
+			_, err = stmtUpdateFlavor.Exec("presub", u.UserID, url, "unsub")
+			if err == nil {
+				_, err = stmtUpdateFlavor.Exec("presub", u.UserID, url, "peep")
+			}
+			if err != nil {
+				log.Printf("error updating honker: %s", err)
+				return
+			}
+			go subsub(user, url)
 
 			http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 			return
