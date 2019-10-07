@@ -75,12 +75,8 @@ func reverbolate(userid int64, honks []*Honk) {
 				h.Open = ""
 			}
 		} else {
-			if badword := unsee(userid, h); badword != "" {
-				if h.Precis == "" {
-					h.Precis = badword
-				}
-				h.Open = ""
-			} else if h.Precis == "unspecified horror" {
+			unsee(userid, h)
+			if h.Open == "open" && h.Precis == "unspecified horror" {
 				h.Precis = ""
 			}
 		}

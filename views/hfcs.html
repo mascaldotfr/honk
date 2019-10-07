@@ -1,0 +1,51 @@
+{{ template "header.html" . }}
+<main>
+<div class="info">
+<p>
+Honk Filtering and Censoring System
+<form action="/savehfcs" method="POST">
+<input type="hidden" name="CSRF" value="{{ .FilterCSRF }}">
+<h3>new filter</h3>
+<p><input tabindex=1 type="text" name="name" value="" autocomplete=off> - name
+<h3>match</h3>
+<p><input tabindex=1 type="text" name="actor" value="" autocomplete=off> - who/where
+<p><span><label for="incaud">include audience:</label>
+<input tabindex=1 type="checkbox" id="incaud" name="incaud" value="yes"><span></span></span>
+<p><input tabindex=1 type="text" name="filttext" value="" autocomplete=off> - text
+<p><span><label for="isannounce">is announce:</label>
+<input tabindex=1 type="checkbox" id="isannounce" name="isannounce" value="yes"><span></span></span>
+<p><input tabindex=1 type="text" name="announceof" value="" autocomplete=off> - announce of
+<h3>action</h3>
+<p><span><label for="doreject">reject:</label>
+<input tabindex=1 type="checkbox" id="doreject" name="doreject" value="yes"><span></span></span>
+<span><label for="doskipmedia">skip media:</label>
+<input tabindex=1 type="checkbox" id="doskipmedia" name="doskipmedia" value="yes"><span></span></span>
+<span><label for="dohide">hide:</label>
+<input tabindex=1 type="checkbox" id="dohide" name="dohide" value="yes"><span></span></span>
+<span><label for="docollapse">collapse:</label>
+<input tabindex=1 type="checkbox" id="docollapse" name="docollapse" value="yes"><span></span></span>
+<p><input tabindex=1 type="text" name="filtrewrite" value="" autocomplete=off> - rewrite
+<p><input tabindex=1 type="text" name="filtreplace" value="" autocomplete=off> - replace
+<p><button>impose your will</button>
+</form>
+</div>
+{{ $csrf := .FilterCSRF }}
+{{ range .Filters }}
+<section class="honk">
+<p>Name: {{ .Name }}
+<p>Date: {{ .Date.Format "2006-01-02" }}
+{{ with .Actor }}<p>Who: {{ . }}{{ end }} {{ with .IncludeAudience }} (inclusive) {{ end }}
+{{ with .Text }}<p>Text: {{ . }}{{ end }}
+<p>Actions: {{ range .Actions }} {{ . }} {{ end }}
+{{ with .Rewrite }}<p>Rewrite: {{ . }}{{ end }}
+{{ with .Replace }}<p>Replace: {{ . }}{{ end }}
+<form action="/savehfcs" method="POST">
+<input type="hidden" name="CSRF" value="{{ $csrf }}">
+<input type="hidden" name="hfcsid" value="{{ .ID }}">
+<input type="hidden" name="itsok" value="iforgiveyou">
+<button name="pardon" value="pardon">pardon</button>
+</form>
+<p>
+</section>
+{{ end }}
+</main>

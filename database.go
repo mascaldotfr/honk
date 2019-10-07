@@ -515,7 +515,7 @@ var stmtThumbBiters, stmtDeleteHonk, stmtDeleteDonks, stmtDeleteOnts, stmtSaveZo
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
 var stmtSelectOnts, stmtSaveOnt, stmtUpdateFlags, stmtClearFlags *sql.Stmt
 var stmtHonksForUserFirstClass, stmtSaveMeta, stmtDeleteMeta, stmtUpdateHonk *sql.Stmt
-var stmtGetFilters *sql.Stmt
+var stmtGetFilters, stmtSaveFilter, stmtDeleteFilter *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -583,4 +583,6 @@ func prepareStatements(db *sql.DB) {
 	stmtClearFlags = preparetodie(db, "update honks set flags = flags & ~ ? where honkid = ?")
 	stmtSelectOnts = preparetodie(db, "select distinct(ontology) from onts join honks on onts.honkid = honks.honkid where (honks.userid = ? or honks.whofore = 2)")
 	stmtGetFilters = preparetodie(db, "select hfcsid, json from hfcs where userid = ?")
+	stmtSaveFilter = preparetodie(db, "insert into hfcs (userid, json) values (?, ?)")
+	stmtDeleteFilter = preparetodie(db, "delete from hfcs where userid = ? and hfcsid = ?")
 }

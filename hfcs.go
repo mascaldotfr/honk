@@ -19,22 +19,28 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"sort"
+	"time"
 )
 
 type Filter struct {
-	ID              int64
-	Actor           string
-	IncludeAudience bool
-	Text            string
+	ID              int64      `json:"-"`
+	Actions         []filtType `json:"-"`
+	Name            string
+	Date            time.Time
+	Actor           string `json:",omitempty"`
+	IncludeAudience bool   `json:",omitempty"`
+	Text            string `json:",omitempty"`
 	re_text         *regexp.Regexp
-	IsAnnounce      bool
-	Reject          bool
-	SkipMedia       bool
-	Hide            bool
-	Collapse        bool
-	Rewrite         string
+	IsAnnounce      bool   `json:",omitempty"`
+	AnnounceOf      string `json:",omitempty"`
+	Reject          bool   `json:",omitempty"`
+	SkipMedia       bool   `json:",omitempty"`
+	Hide            bool   `json:",omitempty"`
+	Collapse        bool   `json:",omitempty"`
+	Rewrite         string `json:",omitempty"`
 	re_rewrite      *regexp.Regexp
-	Replace         string
+	Replace         string `json:",omitempty"`
 }
 
 type filtType uint
@@ -85,23 +91,40 @@ var filtcache = cacheNew(func(userid int64) (afiltermap, bool) {
 				continue
 			}
 		}
+		if filt.Rewrite != "" {
+			filt.re_rewrite, err = regexp.Compile("\\b(?i:" + filt.Rewrite + ")\\b")
+			if err != nil {
+				log.Printf("error compiling filter rewrite: %s", err)
+				continue
+			}
+		}
 		filt.ID = filterid
 		if filt.Reject {
+			filt.Actions = append(filt.Actions, filtReject)
 			filtmap[filtReject] = append(filtmap[filtReject], filt)
 		}
 		if filt.SkipMedia {
+			filt.Actions = append(filt.Actions, filtSkipMedia)
 			filtmap[filtSkipMedia] = append(filtmap[filtSkipMedia], filt)
 		}
 		if filt.Hide {
+			filt.Actions = append(filt.Actions, filtHide)
 			filtmap[filtHide] = append(filtmap[filtHide], filt)
 		}
 		if filt.Collapse {
+			filt.Actions = append(filt.Actions, filtCollapse)
 			filtmap[filtCollapse] = append(filtmap[filtCollapse], filt)
 		}
 		if filt.Rewrite != "" {
+			filt.Actions = append(filt.Actions, filtRewrite)
 			filtmap[filtRewrite] = append(filtmap[filtRewrite], filt)
 		}
+		filtmap[filtAny] = append(filtmap[filtAny], filt)
 	}
+	sorting := filtmap[filtAny]
+	sort.Slice(filtmap[filtAny], func(i, j int) bool {
+		return sorting[i].Name < sorting[j].Name
+	})
 	return filtmap, true
 })
 
@@ -147,13 +170,12 @@ func stealthmode(userid int64, r *http.Request) bool {
 		fake := rejectorigin(userid, agent)
 		if fake {
 			log.Printf("faking 404 for %s", agent)
-			return fake
+			return true
 		}
 	}
 	return false
 }
 
-// todo
 func matchfilter(h *Honk, f *Filter) bool {
 	match := true
 	if match && f.Actor != "" {
@@ -175,6 +197,13 @@ func matchfilter(h *Honk, f *Filter) bool {
 			}
 		}
 	}
+	if match && f.IsAnnounce {
+		match = false
+		if (f.AnnounceOf == "" && h.Oonker != "") || f.AnnounceOf == h.Oonker ||
+			f.AnnounceOf == originate(h.Oonker) {
+			match = true
+		}
+	}
 	if match && f.Text != "" {
 		match = false
 		re := f.re_text
@@ -189,10 +218,7 @@ func matchfilter(h *Honk, f *Filter) bool {
 			}
 		}
 	}
-	if match {
-		return true
-	}
-	return false
+	return match
 }
 
 func rejectxonk(xonk *Honk) bool {
@@ -215,15 +241,27 @@ func skipMedia(xonk *Honk) bool {
 	return false
 }
 
-// todo
-func unsee(userid int64, h *Honk) string {
+func unsee(userid int64, h *Honk) {
 	filts := getfilters(userid, filtCollapse)
 	for _, f := range filts {
 		if matchfilter(h, f) {
-			return f.Text
+			bad := f.Text
+			if f.Actor != "" {
+				bad = f.Actor
+			}
+			if h.Precis == "" {
+				h.Precis = bad
+			}
+			h.Open = ""
+			break
 		}
 	}
-	return ""
+	filts = getfilters(userid, filtRewrite)
+	for _, f := range filts {
+		if matchfilter(h, f) {
+			h.Noise = f.re_rewrite.ReplaceAllString(h.Noise, f.Replace)
+		}
+	}
 }
 
 func osmosis(honks []*Honk, userid int64) []*Honk {

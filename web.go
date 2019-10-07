@@ -1237,36 +1237,64 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 }
 
-func zonkzone(w http.ResponseWriter, r *http.Request) {
+func hfcspage(w http.ResponseWriter, r *http.Request) {
 	userinfo := login.GetUserInfo(r)
 
-	var filters afiltermap
-	filtcache.Get(userinfo.UserID, &filters)
+	filters := getfilters(userinfo.UserID, filtAny)
 
 	templinfo := getInfo(r)
 	templinfo["Filters"] = filters
-	templinfo["ZonkCSRF"] = login.GetCSRF("zonkzonk", r)
-	err := readviews.Execute(w, "zonkers.html", templinfo)
+	templinfo["FilterCSRF"] = login.GetCSRF("filter", r)
+	err := readviews.Execute(w, "hfcs.html", templinfo)
 	if err != nil {
 		log.Print(err)
 	}
 }
 
-// todo
-func zonkzonk(w http.ResponseWriter, r *http.Request) {
+func savehfcs(w http.ResponseWriter, r *http.Request) {
 	userinfo := login.GetUserInfo(r)
 	itsok := r.FormValue("itsok")
 	if itsok == "iforgiveyou" {
-		zonkerid, _ := strconv.ParseInt(r.FormValue("zonkerid"), 10, 0)
-		db := opendatabase()
-		db.Exec("delete from hfcs where userid = ? and hfcsid = ?",
-			userinfo.UserID, zonkerid)
+		hfcsid, _ := strconv.ParseInt(r.FormValue("hfcsid"), 10, 0)
+		_, err := stmtDeleteFilter.Exec(userinfo.UserID, hfcsid)
+		if err != nil {
+			log.Printf("error deleting filter: %s", err)
+		}
 		filtcache.Clear(userinfo.UserID)
-		http.Redirect(w, r, "/zonkzone", http.StatusSeeOther)
+		http.Redirect(w, r, "/hfcs", http.StatusSeeOther)
 		return
 	}
 
-	http.Redirect(w, r, "/zonkzone", http.StatusSeeOther)
+	filt := new(Filter)
+	filt.Name = r.FormValue("name")
+	filt.Date = time.Now().UTC()
+	filt.Actor = r.FormValue("actor")
+	filt.IncludeAudience = r.FormValue("incaud") == "yes"
+	filt.Text = r.FormValue("filttext")
+	filt.IsAnnounce = r.FormValue("isannounce") == "yes"
+	filt.AnnounceOf = r.FormValue("announceof")
+	filt.Reject = r.FormValue("doreject") == "yes"
+	filt.SkipMedia = r.FormValue("doskipmedia") == "yes"
+	filt.Hide = r.FormValue("dohide") == "yes"
+	filt.Collapse = r.FormValue("docollapse") == "yes"
+	filt.Rewrite = r.FormValue("filtrewrite")
+	filt.Replace = r.FormValue("filtreplace")
+
+	if filt.Actor == "" && filt.Text == "" {
+		log.Printf("blank filter")
+		return
+	}
+
+	j, err := jsonify(filt)
+	if err == nil {
+		_, err = stmtSaveFilter.Exec(userinfo.UserID, j)
+	}
+	if err != nil {
+		log.Printf("error saving filter: %s", err)
+	}
+
+	filtcache.Clear(userinfo.UserID)
+	http.Redirect(w, r, "/hfcs", http.StatusSeeOther)
 }
 
 func accountpage(w http.ResponseWriter, r *http.Request) {
@@ -1485,7 +1513,7 @@ func serve() {
 		"views/honkpage.html",
 		"views/honkfrags.html",
 		"views/honkers.html",
-		"views/zonkers.html",
+		"views/hfcs.html",
 		"views/combos.html",
 		"views/honkform.html",
 		"views/honk.html",
@@ -1545,13 +1573,13 @@ func serve() {
 	loggedin.HandleFunc("/funzone", showfunzone)
 	loggedin.HandleFunc("/chpass", dochpass)
 	loggedin.HandleFunc("/atme", homepage)
-	loggedin.HandleFunc("/zonkzone", zonkzone)
+	loggedin.HandleFunc("/hfcs", hfcspage)
 	loggedin.HandleFunc("/xzone", xzone)
 	loggedin.HandleFunc("/edit", edithonkpage)
 	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(submithonk)))
 	loggedin.Handle("/bonk", login.CSRFWrap("honkhonk", http.HandlerFunc(submitbonk)))
 	loggedin.Handle("/zonkit", login.CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
-	loggedin.Handle("/zonkzonk", login.CSRFWrap("zonkzonk", http.HandlerFunc(zonkzonk)))
+	loggedin.Handle("/savehfcs", login.CSRFWrap("filter", http.HandlerFunc(savehfcs)))
 	loggedin.Handle("/saveuser", login.CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
 	loggedin.Handle("/ximport", login.CSRFWrap("ximport", http.HandlerFunc(ximport)))
 	loggedin.HandleFunc("/honkers", showhonkers)
