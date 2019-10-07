@@ -79,6 +79,11 @@ header > details li {
 details summary {
 	display: inline;
 }
+@supports (-moz-appearance:none) {
+	details summary {
+		display: list-item;
+	}
+}
 main {
 	max-width: 1200px;
 	margin: auto;
