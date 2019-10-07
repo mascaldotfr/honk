@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Improved honker management.
+
 + Better markdown output.
 
 +++ Add Honk Filtering and Censoring System (HFCS).
@@ -31,8 +33,6 @@ changelog
 ++ Reply control. Ack replies to show them on the site.
 
 + Schema change. (add flags to honks table)
-
-+ Better understanding of ActivityPub Persons. No need to enter names!
 
 + More robust retries for fetching objects.
 
