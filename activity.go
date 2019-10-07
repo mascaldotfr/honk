@@ -560,9 +560,11 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		if obj != nil {
 			_, ok := obj.GetString("diaspora:guid")
 			if ok {
-				// frienda does the silliest bonks
+				log.Printf("looks like friendica")
+				// friendica does the silliest bonks
 				c, ok := item.FindString([]string{"source", "content"})
 				if ok {
+					log.Printf("got content")
 					re_link := regexp.MustCompile(`link='([^']*)'`)
 					m := re_link.FindStringSubmatch(c)
 					if len(m) > 1 {
@@ -579,10 +581,15 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 							origin = originate(xid)
 							what = "bonk"
 						}
+					} else {
+						log.Printf("can't find link")
 					}
+				} else {
+					log.Printf("no source content")
 				}
 			}
 		}
+
 		var xonk Honk
 		// early init
 		xonk.UserID = user.ID
