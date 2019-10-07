@@ -455,18 +455,11 @@ func xzone(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func outbox(w http.ResponseWriter, r *http.Request) {
-	name := mux.Vars(r)["name"]
+var oldoutbox = cacheNew(cacheOptions{ Filler: func(name string) ([]byte, bool) {
 	user, err := butwhatabout(name)
 	if err != nil {
-		http.NotFound(w, r)
-		return
+		return nil, false
 	}
-	if stealthmode(user.ID, r) {
-		http.NotFound(w, r)
-		return
-	}
-
 	honks := gethonksbyuser(name, false)
 	if len(honks) > 20 {
 		honks = honks[0:20]
@@ -485,8 +478,30 @@ func outbox(w http.ResponseWriter, r *http.Request) {
 	j["totalItems"] = len(jonks)
 	j["orderedItems"] = jonks
 
-	w.Header().Set("Content-Type", theonetruename)
-	j.Write(w)
+	var buf bytes.Buffer
+	j.Write(&buf)
+	return buf.Bytes(), true
+}, Duration: 1*time.Minute})
+
+func outbox(w http.ResponseWriter, r *http.Request) {
+	name := mux.Vars(r)["name"]
+	user, err := butwhatabout(name)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	if stealthmode(user.ID, r) {
+		http.NotFound(w, r)
+		return
+	}
+	var j []byte
+	ok := oldoutbox.Get(name, &j)
+	if ok {
+		w.Header().Set("Content-Type", theonetruename)
+		w.Write(j)
+	} else {
+		http.NotFound(w, r)
+	}
 }
 
 func emptiness(w http.ResponseWriter, r *http.Request) {
