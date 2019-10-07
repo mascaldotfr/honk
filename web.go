@@ -17,6 +17,7 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"fmt"
 	"html"
 	"html/template"
@@ -1181,7 +1182,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		goodbye := r.FormValue("goodbye")
 		if goodbye == "F" {
 			db := opendatabase()
-			row := db.QueryRow("select xid from honkers where honkerid = ? and userid = ?",
+			row := db.QueryRow("select xid from honkers where honkerid = ? and userid = ? and flavor in ('dub')",
 				honkerid, u.UserID)
 			err := row.Scan(&url)
 			if err != nil {
@@ -1202,7 +1203,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		}
 		if goodbye == "X" {
 			db := opendatabase()
-			row := db.QueryRow("select xid from honkers where honkerid = ? and userid = ?",
+			row := db.QueryRow("select xid from honkers where honkerid = ? and userid = ? and flavor in ('unsub', 'peep')",
 				honkerid, u.UserID)
 			err := row.Scan(&url)
 			if err != nil {
@@ -1241,10 +1242,23 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	p, err := investigate(url)
 	if err != nil {
 		http.Error(w, "error investigating: "+err.Error(), http.StatusInternalServerError)
-		log.Printf("failed to investigate honker")
+		log.Printf("failed to investigate honker: %s", err)
 		return
 	}
 	url = p.XID
+
+	db := opendatabase()
+	row := db.QueryRow("select xid from honkers where xid = ? and userid = ? and flavor in ('sub', 'unsub', 'peep')", url, u.UserID)
+	var x string
+	err = row.Scan(&x)
+	if err != sql.ErrNoRows {
+		http.Error(w, "it seems you are already subscribed to them", http.StatusInternalServerError)
+		if err != nil {
+			log.Printf("honker scan err: %s", err)
+		}
+		return
+	}
+
 	if name == "" {
 		name = p.Handle
 	}
