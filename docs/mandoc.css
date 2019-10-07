@@ -11,10 +11,13 @@
 /* Global defaults. */
 
 html {		max-width: 65em;
+		background: #305;
 		--bg: #002;
 		--fg: #dde; }
 body {		background: var(--bg);
 		color: var(--fg);
+		margin: 2em;
+		padding: 1em;
 		font-size: 18px;
 		font-family: Helvetica,Arial,sans-serif; }
 a { color: var(--fg); }
