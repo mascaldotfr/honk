@@ -734,6 +734,7 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("error bouting what: %s", err)
 	}
+	someusers.Clear(u.Username)
 
 	http.Redirect(w, r, "/account", http.StatusSeeOther)
 }

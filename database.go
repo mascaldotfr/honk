@@ -28,14 +28,26 @@ import (
 	"humungus.tedunangst.com/r/webs/login"
 )
 
-func butwhatabout(name string) (*WhatAbout, error) {
+var someusers = cacheNew(cacheOptions { Filler: func(name string) (*WhatAbout, bool) {
 	row := stmtWhatAbout.QueryRow(name)
-	var user WhatAbout
+	user := new (WhatAbout)
 	var options string
 	err := row.Scan(&user.ID, &user.Name, &user.Display, &user.About, &user.Key, &options)
+	if err != nil {
+		return nil, false
+	}
 	user.URL = fmt.Sprintf("https://%s/%s/%s", serverName, userSep, user.Name)
 	user.SkinnyCSS = strings.Contains(options, " skinny ")
-	return &user, err
+	return user, true
+}})
+
+func butwhatabout(name string) (*WhatAbout, error) {
+	var user *WhatAbout
+	ok := someusers.Get(name, &user)
+	if !ok {
+		return nil, fmt.Errorf("no user: %s", name)
+	}
+	return user, nil
 }
 
 func gethonkers(userid int64) []*Honker {
