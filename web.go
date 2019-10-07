@@ -324,7 +324,20 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		obj, _ := j.GetString("object")
 		if obj == user.URL {
 			log.Printf("updating honker follow: %s", who)
-			stmtSaveDub.Exec(user.ID, who, who, "dub")
+
+			db := opendatabase()
+			row := db.QueryRow("select xid from honkers where xid = ? and userid = ? and flavor in ('dub', 'undub')", who, user.ID)
+			var x string
+			err = row.Scan(&x)
+			if err != sql.ErrNoRows {
+				log.Printf("duplicate follow request: %s", who)
+				_, err = stmtUpdateFlavor.Exec("dub", user.ID, who, "undub")
+				if err != nil {
+					log.Printf("error updating honker: %s", err)
+				}
+			} else {
+				stmtSaveDub.Exec(user.ID, who, who, "dub")
+			}
 			go rubadubdub(user, j)
 		} else {
 			log.Printf("can't follow %s", obj)
