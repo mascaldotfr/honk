@@ -38,6 +38,7 @@ function expandstuff() {
 <form action="/submithonker" method="POST">
 <input type="hidden" name="CSRF" value="{{ $honkercsrf }}">
 <input type="hidden" name="honkerid" value="{{ .ID }}">
+<p>name: <input type="text" name="name" value="{{ .Name }}">
 <p>combos: <input type="text" name="combos" value="{{ range .Combos }}{{ . }} {{end}}">
 {{ if eq .Flavor "sub" }}
 <p>unsub: <input type="text" name="goodbye" placeholder="press F" value="" autocomplete=off>

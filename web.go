@@ -1226,7 +1226,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		combos = " " + strings.TrimSpace(combos) + " "
-		_, err := stmtUpdateCombos.Exec(combos, honkerid, u.UserID)
+		_, err := stmtUpdateHonker.Exec(name, combos, honkerid, u.UserID)
 		if err != nil {
 			log.Printf("update honker err: %s", err)
 			return
