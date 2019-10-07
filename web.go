@@ -531,9 +531,13 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if friendorfoe(r.Header.Get("Accept")) {
-		j := asjonker(user)
-		w.Header().Set("Content-Type", theonetruename)
-		j.Write(w)
+		j, ok := asjonker(name)
+		if ok {
+			w.Header().Set("Content-Type", theonetruename)
+			w.Write(j)
+		} else {
+			http.NotFound(w, r)
+		}
 		return
 	}
 	u := login.GetUserInfo(r)

@@ -1167,7 +1167,11 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 	}
 }
 
-func asjonker(user *WhatAbout) junk.Junk {
+var oldjonkers = cacheNew(cacheOptions{Filler: func(name string) ([]byte, bool) {
+	user, err := butwhatabout(name)
+	if err != nil {
+		return nil, false
+	}
 	about := markitzero(user.About)
 
 	j := junk.New()
@@ -1193,7 +1197,15 @@ func asjonker(user *WhatAbout) junk.Junk {
 	k["publicKeyPem"] = user.Key
 	j["publicKey"] = k
 
-	return j
+	var buf bytes.Buffer
+	j.Write(&buf)
+	return buf.Bytes(), true
+}, Duration: 1 * time.Minute})
+
+func asjonker(name string) ([]byte, bool) {
+	var j []byte
+	ok := oldjonkers.Get(name, &j)
+	return j, ok
 }
 
 var handfull = cacheNew(cacheOptions{Filler: func(name string) (string, bool) {

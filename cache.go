@@ -18,18 +18,22 @@ package main
 import (
 	"reflect"
 	"sync"
+	"time"
 )
 
 type cacheFiller func(key interface{}) (interface{}, bool)
 
 type cacheOptions struct {
-	Filler interface{}
+	Filler   interface{}
+	Duration time.Duration
 }
 
 type Cache struct {
-	cache  map[interface{}]interface{}
-	filler cacheFiller
-	lock   sync.Mutex
+	cache    map[interface{}]interface{}
+	filler   cacheFiller
+	lock     sync.Mutex
+	stale    time.Time
+	duration time.Duration
 }
 
 func cacheNew(options cacheOptions) *Cache {
@@ -49,12 +53,20 @@ func cacheNew(options cacheOptions) *Cache {
 		rv := vfn.Call(args)
 		return rv[0].Interface(), rv[1].Bool()
 	}
+	if options.Duration != 0 {
+		c.duration = options.Duration
+		c.stale = time.Now().Add(c.duration)
+	}
 	return c
 }
 
 func (cache *Cache) Get(key interface{}, value interface{}) bool {
 	cache.lock.Lock()
 	defer cache.lock.Unlock()
+	if !cache.stale.IsZero() && cache.stale.Before(time.Now()) {
+		cache.stale = time.Now().Add(cache.duration)
+		cache.cache = make(map[interface{}]interface{})
+	}
 	v, ok := cache.cache[key]
 	if !ok {
 		v, ok = cache.filler(key)

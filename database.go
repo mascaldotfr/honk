@@ -28,9 +28,9 @@ import (
 	"humungus.tedunangst.com/r/webs/login"
 )
 
-var someusers = cacheNew(cacheOptions { Filler: func(name string) (*WhatAbout, bool) {
+var someusers = cacheNew(cacheOptions{Filler: func(name string) (*WhatAbout, bool) {
 	row := stmtWhatAbout.QueryRow(name)
-	user := new (WhatAbout)
+	user := new(WhatAbout)
 	var options string
 	err := row.Scan(&user.ID, &user.Name, &user.Display, &user.About, &user.Key, &options)
 	if err != nil {
