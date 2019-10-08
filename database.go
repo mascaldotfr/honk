@@ -341,28 +341,107 @@ func savehonk(h *Honk) error {
 	dt := h.Date.UTC().Format(dbtimeformat)
 	aud := strings.Join(h.Audience, " ")
 
-	res, err := stmtSaveHonk.Exec(h.UserID, h.What, h.Honker, h.XID, h.RID, dt, h.URL,
-		aud, h.Noise, h.Convoy, h.Whofore, h.Format, h.Precis,
-		h.Oonker, h.Flags)
+	db := opendatabase()
+	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("err saving honk: %s", err)
+		log.Printf("can't begin tx: %s", err)
 		return err
 	}
-	h.ID, _ = res.LastInsertId()
-	err = saveextras(h)
+
+	res, err := tx.Stmt(stmtSaveHonk).Exec(h.UserID, h.What, h.Honker, h.XID, h.RID, dt, h.URL,
+		aud, h.Noise, h.Convoy, h.Whofore, h.Format, h.Precis,
+		h.Oonker, h.Flags)
+	if err == nil {
+		h.ID, _ = res.LastInsertId()
+		err = saveextras(tx, h)
+	}
+	if err == nil {
+		err = tx.Commit()
+	} else {
+		tx.Rollback()
+	}
+	if err != nil {
+		log.Printf("err saving honk: %s", err)
+	}
 	return err
 }
 
-func saveextras(h *Honk) error {
+func updatehonk(h *Honk) error {
+	old := getxonk(h.UserID, h.XID)
+	oldrev := OldRevision{Precis: old.Precis, Noise: old.Noise}
+	dt := h.Date.UTC().Format(dbtimeformat)
+
+	db := opendatabase()
+	tx, err := db.Begin()
+	if err != nil {
+		log.Printf("can't begin tx: %s", err)
+		return err
+	}
+
+	err = deleteextras(tx, h.ID)
+	if err == nil {
+		_, err = tx.Stmt(stmtUpdateHonk).Exec(h.Precis, h.Noise, h.Format, dt, h.ID)
+	}
+	if err == nil {
+		err = saveextras(tx, h)
+	}
+	if err == nil {
+		var j string
+		j, err = jsonify(&oldrev)
+		if err == nil {
+			_, err = tx.Stmt(stmtSaveMeta).Exec(old.ID, "oldrev", j)
+		}
+		if err != nil {
+			log.Printf("error saving oldrev: %s", err)
+		}
+	}
+	if err == nil {
+		err = tx.Commit()
+	} else {
+		tx.Rollback()
+	}
+	if err != nil {
+		log.Printf("error updating honk %d: %s", h.ID, err)
+	}
+	return err
+}
+
+func deletehonk(honkid int64) error {
+	db := opendatabase()
+	tx, err := db.Begin()
+	if err != nil {
+		log.Printf("can't begin tx: %s", err)
+		return err
+	}
+
+	err = deleteextras(tx, honkid)
+	if err == nil {
+		_, err = tx.Stmt(stmtDeleteMeta).Exec(honkid, "nonsense")
+	}
+	if err == nil {
+		_, err = tx.Stmt(stmtDeleteHonk).Exec(honkid)
+	}
+	if err == nil {
+		err = tx.Commit()
+	} else {
+		tx.Rollback()
+	}
+	if err != nil {
+		log.Printf("error deleting honk %d: %s", honkid, err)
+	}
+	return err
+}
+
+func saveextras(tx *sql.Tx, h *Honk) error {
 	for _, d := range h.Donks {
-		_, err := stmtSaveDonk.Exec(h.ID, d.FileID)
+		_, err := tx.Stmt(stmtSaveDonk).Exec(h.ID, d.FileID)
 		if err != nil {
 			log.Printf("err saving donk: %s", err)
 			return err
 		}
 	}
 	for _, o := range h.Onts {
-		_, err := stmtSaveOnt.Exec(strings.ToLower(o), h.ID)
+		_, err := tx.Stmt(stmtSaveOnt).Exec(strings.ToLower(o), h.ID)
 		if err != nil {
 			log.Printf("error saving ont: %s", err)
 			return err
@@ -371,7 +450,7 @@ func saveextras(h *Honk) error {
 	if p := h.Place; p != nil {
 		j, err := jsonify(p)
 		if err == nil {
-			_, err = stmtSaveMeta.Exec(h.ID, "place", j)
+			_, err = tx.Stmt(stmtSaveMeta).Exec(h.ID, "place", j)
 		}
 		if err != nil {
 			log.Printf("error saving place: %s", err)
@@ -381,42 +460,30 @@ func saveextras(h *Honk) error {
 	if t := h.Time; t != nil {
 		j, err := jsonify(t)
 		if err == nil {
-			_, err = stmtSaveMeta.Exec(h.ID, "time", j)
+			_, err = tx.Stmt(stmtSaveMeta).Exec(h.ID, "time", j)
 		}
 		if err != nil {
 			log.Printf("error saving time: %s", err)
 			return err
 		}
 	}
-
 	return nil
 }
 
-func deleteextras(honkid int64) {
-	_, err := stmtDeleteDonks.Exec(honkid)
+func deleteextras(tx *sql.Tx, honkid int64) error {
+	_, err := tx.Stmt(stmtDeleteDonks).Exec(honkid)
 	if err != nil {
-		log.Printf("error deleting: %s", err)
+		return err
 	}
-	_, err = stmtDeleteOnts.Exec(honkid)
+	_, err = tx.Stmt(stmtDeleteOnts).Exec(honkid)
 	if err != nil {
-		log.Printf("error deleting: %s", err)
+		return err
 	}
-	_, err = stmtDeleteMeta.Exec(honkid, "oldrev")
+	_, err = tx.Stmt(stmtDeleteMeta).Exec(honkid, "oldrev")
 	if err != nil {
-		log.Printf("error deleting: %s", err)
+		return err
 	}
-}
-
-func deletehonk(honkid int64) {
-	deleteextras(honkid)
-	_, err := stmtDeleteMeta.Exec(honkid, "nonsense")
-	if err != nil {
-		log.Printf("error deleting: %s", err)
-	}
-	_, err = stmtDeleteHonk.Exec(honkid)
-	if err != nil {
-		log.Printf("error deleting: %s", err)
-	}
+	return nil
 }
 
 func jsonify(what interface{}) (string, error) {
@@ -432,28 +499,6 @@ func unjsonify(s string, dest interface{}) error {
 	d := json.NewDecoder(strings.NewReader(s))
 	err := d.Decode(dest)
 	return err
-}
-
-func updatehonk(h *Honk) {
-	old := getxonk(h.UserID, h.XID)
-	oldrev := OldRevision{Precis: old.Precis, Noise: old.Noise}
-
-	deleteextras(h.ID)
-
-	dt := h.Date.UTC().Format(dbtimeformat)
-	stmtUpdateHonk.Exec(h.Precis, h.Noise, h.Format, dt, h.ID)
-
-	saveextras(h)
-	j, err := jsonify(&oldrev)
-	if err != nil {
-		log.Printf("error jsonify oldrev: %s", err)
-		return
-	}
-	_, err = stmtSaveMeta.Exec(old.ID, "oldrev", j)
-	if err != nil {
-		log.Printf("error saving oldrev: %s", err)
-		return
-	}
 }
 
 func cleanupdb(arg string) {
