@@ -293,6 +293,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			os.Stdout.Write(payload)
 			io.WriteString(os.Stdout, "\n")
 		}
+		http.Error(w, "what did you call me?", http.StatusTeapot)
 		return
 	}
 	what, _ := j.GetString("type")
