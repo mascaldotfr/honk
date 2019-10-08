@@ -536,7 +536,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if ok {
 				log.Printf("looks like friendica")
 				// friendica does the silliest bonks
-				c, ok := item.FindString([]string{"source", "content"})
+				c, ok := obj.FindString([]string{"source", "content"})
 				if ok {
 					log.Printf("got content")
 					re_link := regexp.MustCompile(`link='([^']*)'`)
