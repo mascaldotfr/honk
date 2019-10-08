@@ -740,7 +740,6 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 	reverbolate(userid, honks)
 	templinfo["Honks"] = honks
 	if templinfo["TopXID"] == nil && len(honks) > 0 {
-		log.Printf("setting topxid")
 		templinfo["TopXID"] = honks[0].XID
 	}
 	err := readviews.Execute(w, "honkpage.html", templinfo)
@@ -1552,6 +1551,7 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	case "combo":
 		c := r.FormValue("c")
 		honks = gethonksbycombo(userid, c)
+		honks = osmosis(honks, userid)
 		templinfo["ServerMessage"] = "honks by combo: " + c
 	case "convoy":
 		c := r.FormValue("c")
