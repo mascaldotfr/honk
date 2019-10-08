@@ -1217,6 +1217,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	url := r.FormValue("url")
 	peep := r.FormValue("peep")
 	combos := r.FormValue("combos")
+	combos = " " + strings.TrimSpace(combos) + " "
 	honkerid, _ := strconv.ParseInt(r.FormValue("honkerid"), 10, 0)
 
 	defer combocache.Clear(u.UserID)
@@ -1268,7 +1269,6 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 			return
 		}
-		combos = " " + strings.TrimSpace(combos) + " "
 		_, err := stmtUpdateHonker.Exec(name, combos, honkerid, u.UserID)
 		if err != nil {
 			log.Printf("update honker err: %s", err)
