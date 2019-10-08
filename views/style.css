@@ -99,7 +99,10 @@ main {
 	margin-top: 1em;
 	margin-bottom: 1em;
 }
-label, button, select {
+label {
+	font-size: 1.0em;
+}
+label.button, button, select {
 	font-size: 16px;
 	font-family: monospace;
 	color: $fg;
@@ -127,6 +130,12 @@ textarea {
 input[type="checkbox"] {
 	position: fixed;
 	top: -9999px;
+}
+.buttonarray {
+	line-height: 2.5em;
+}
+label.button {
+	white-space: nowrap;
 }
 input[type="checkbox"] + span:after {
 	content: "no";

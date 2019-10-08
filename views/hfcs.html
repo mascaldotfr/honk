@@ -5,27 +5,37 @@
 Honk Filtering and Censoring System
 <form action="/savehfcs" method="POST">
 <input type="hidden" name="CSRF" value="{{ .FilterCSRF }}">
+<hr>
 <h3>new filter</h3>
-<p><input tabindex=1 type="text" name="name" value="" autocomplete=off> - name
+<p><label for="name">filter name:</label><br>
+<input tabindex=1 type="text" name="name" value="" autocomplete=off>
+<hr>
 <h3>match</h3>
-<p><input tabindex=1 type="text" name="actor" value="" autocomplete=off> - who/where
-<p><span><label for="incaud">include audience:</label>
-<input tabindex=1 type="checkbox" id="incaud" name="incaud" value="yes"><span></span></span>
-<p><input tabindex=1 type="text" name="filttext" value="" autocomplete=off> - text
-<p><span><label for="isannounce">is announce:</label>
-<input tabindex=1 type="checkbox" id="isannounce" name="isannounce" value="yes"><span></span></span>
-<p><input tabindex=1 type="text" name="announceof" value="" autocomplete=off> - announce of
+<p><label for="actor">who or where:</label><br>
+<input tabindex=1 type="text" name="actor" value="" autocomplete=off>
+<p><span><label class=button for="incaud">include audience:
+<input tabindex=1 type="checkbox" id="incaud" name="incaud" value="yes"><span></span></label></span>
+<p><label for="filttext">text matches:</label><br>
+<input tabindex=1 type="text" name="filttext" value="" autocomplete=off>
+<p><span><label class=button for="isannounce">is announce:
+<input tabindex=1 type="checkbox" id="isannounce" name="isannounce" value="yes"><span></span></label></span>
+<p><label for="announceof">announce of:</label><br>
+<input tabindex=1 type="text" name="announceof" value="" autocomplete=off>
+<hr>
 <h3>action</h3>
-<p><span><label for="doreject">reject:</label>
-<input tabindex=1 type="checkbox" id="doreject" name="doreject" value="yes"><span></span></span>
-<span><label for="doskipmedia">skip media:</label>
-<input tabindex=1 type="checkbox" id="doskipmedia" name="doskipmedia" value="yes"><span></span></span>
-<span><label for="dohide">hide:</label>
-<input tabindex=1 type="checkbox" id="dohide" name="dohide" value="yes"><span></span></span>
-<span><label for="docollapse">collapse:</label>
-<input tabindex=1 type="checkbox" id="docollapse" name="docollapse" value="yes"><span></span></span>
-<p><input tabindex=1 type="text" name="filtrewrite" value="" autocomplete=off> - rewrite
-<p><input tabindex=1 type="text" name="filtreplace" value="" autocomplete=off> - replace
+<p class=buttonarray><span><label class=button for="doreject">reject:
+<input tabindex=1 type="checkbox" id="doreject" name="doreject" value="yes"><span></span></label></span>
+<span><label class=button for="doskipmedia">skip media:
+<input tabindex=1 type="checkbox" id="doskipmedia" name="doskipmedia" value="yes"><span></span></label></span>
+<span><label class=button for="dohide">hide:
+<input tabindex=1 type="checkbox" id="dohide" name="dohide" value="yes"><span></span></label></span>
+<span><label class=button for="docollapse">collapse:
+<input tabindex=1 type="checkbox" id="docollapse" name="docollapse" value="yes"><span></span></label></span>
+<p><label for="rewrite">rewrite:</label><br>
+<input tabindex=1 type="text" name="filtrewrite" value="" autocomplete=off>
+<p><label for="replace">replace:</label><br>
+<input tabindex=1 type="text" name="filtreplace" value="" autocomplete=off>
+<hr>
 <p><button>impose your will</button>
 </form>
 </div>
