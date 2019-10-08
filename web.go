@@ -286,16 +286,14 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	}
 	keyname, err := httpsig.VerifyRequest(r, payload, zaggy)
 	if err != nil {
-		log.Printf("inbox message failed signature: %s", err)
+		log.Printf("inbox message failed signature for %s from %s", keyname, r.Header.Get("X-Forwarded-For"))
 		if keyname != "" {
-			keyname, err = makeitworksomehowwithoutregardforkeycontinuity(keyname, r, payload)
-			if err != nil {
-				log.Printf("still failed: %s", err)
-			}
+			log.Printf("bad signature from %s", keyname)
+			io.WriteString(os.Stdout, "bad payload\n")
+			os.Stdout.Write(payload)
+			io.WriteString(os.Stdout, "\n")
 		}
-		if err != nil {
-			return
-		}
+		return
 	}
 	what, _ := j.GetString("type")
 	if what == "Like" {
