@@ -76,11 +76,21 @@ function fillinhonks(xhr) {
 	}
 	srvel.prepend(srvmsg)
 
+	var frontload = true
+	if (curpagestate.name == "convoy") {
+		frontload = false
+	}
+
 	var honksonpage = document.getElementById("honksonpage")
 	var holder = honksonpage.children[0]
 	var lenhonks = honks.length
 	for (var i = honks.length; i > 0; i--) {
-		holder.prepend(honks[i-1])
+		if (frontload) {
+			holder.prepend(honks[i-1])
+		} else {
+			holder.append(honks[i-1])
+		}
+			
 	}
 	relinklinks()
 	return lenhonks
@@ -157,9 +167,7 @@ function pageswitcher(name, arg) {
 	return function(evt) {
 		var topmenu = document.getElementById("topmenu")
 		topmenu.open = false
-		console.log("switching to", name +":"+arg)
 		if (name == curpagestate.name && arg == curpagestate.arg) {
-			console.log("skipping nav")
 			return false
 		}
 		switchtopage(name, arg)

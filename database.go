@@ -159,9 +159,6 @@ func gethonksbycombo(userid int64, combo string) []*Honk {
 func gethonksbyconvoy(userid int64, convoy string) []*Honk {
 	rows, err := stmtHonksByConvoy.Query(userid, userid, convoy)
 	honks := getsomehonks(rows, err)
-	for i, j := 0, len(honks)-1; i < j; i, j = i+1, j-1 {
-		honks[i], honks[j] = honks[j], honks[i]
-	}
 	return honks
 }
 func gethonksbysearch(userid int64, q string) []*Honk {
@@ -174,6 +171,12 @@ func gethonksbyontology(userid int64, name string) []*Honk {
 	rows, err := stmtHonksByOntology.Query(name, userid, userid)
 	honks := getsomehonks(rows, err)
 	return honks
+}
+
+func reversehonks(honks []*Honk) {
+	for i, j := 0, len(honks)-1; i < j; i, j = i+1, j-1 {
+		honks[i], honks[j] = honks[j], honks[i]
+	}
 }
 
 func getsomehonks(rows *sql.Rows, err error) []*Honk {
