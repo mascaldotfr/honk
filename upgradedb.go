@@ -21,6 +21,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 )
 
 func doordie(db *sql.DB, s string, args ...interface{}) {
@@ -208,6 +209,7 @@ func upgradedb() {
 			log.Fatalf("can't query zonkers: %s", err)
 		}
 		filtmap := make(map[int64][]*Filter)
+		now := time.Now().UTC()
 		for rows.Next() {
 			var userid int64
 			var name, wherefore string
@@ -216,21 +218,27 @@ func upgradedb() {
 				log.Fatalf("error scanning zonker: %s", err)
 			}
 			f := new(Filter)
+			f.Date = now
 			switch wherefore {
 			case "zord":
+				f.Name = "hide " + name
 				f.Text = name
 				f.Hide = true
 			case "zilence":
+				f.Name = "silence " + name
 				f.Text = name
 				f.Collapse = true
 			case "zoggle":
+				f.Name = "skip " + name
 				f.Actor = name
 				f.SkipMedia = true
 			case "zonker":
+				f.Name = "reject " + name
 				f.Actor = name
 				f.IncludeAudience = true
 				f.Reject = true
 			case "zomain":
+				f.Name = "reject " + name
 				f.Actor = name
 				f.IncludeAudience = true
 				f.Reject = true
