@@ -361,7 +361,7 @@ func savehonk(h *Honk) error {
 		tx.Rollback()
 	}
 	if err != nil {
-		log.Printf("err saving honk: %s", err)
+		log.Printf("error saving honk: %s", err)
 	}
 	return err
 }
@@ -436,7 +436,7 @@ func saveextras(tx *sql.Tx, h *Honk) error {
 	for _, d := range h.Donks {
 		_, err := tx.Stmt(stmtSaveDonk).Exec(h.ID, d.FileID)
 		if err != nil {
-			log.Printf("err saving donk: %s", err)
+			log.Printf("error saving donk: %s", err)
 			return err
 		}
 	}

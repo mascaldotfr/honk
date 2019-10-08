@@ -198,7 +198,7 @@ func iszonked(userid int64, xid string) bool {
 		return true
 	}
 	if err != sql.ErrNoRows {
-		log.Printf("err querying zonk: %s", err)
+		log.Printf("error querying zonk: %s", err)
 	}
 	return false
 }
@@ -227,7 +227,7 @@ func needxonkid(user *WhatAbout, xid string) bool {
 		return false
 	}
 	if err != sql.ErrNoRows {
-		log.Printf("err querying xonk: %s", err)
+		log.Printf("error querying xonk: %s", err)
 	}
 	return true
 }
