@@ -256,7 +256,6 @@ type Emu struct {
 	Name string
 }
 
-var re_link = regexp.MustCompile(`@?https?://[^\s"]+[\w/)]`)
 var re_emus = regexp.MustCompile(`:[[:alnum:]_-]+:`)
 
 func herdofemus(noise string) []Emu {

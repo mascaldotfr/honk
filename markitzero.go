@@ -28,6 +28,8 @@ var re_italicer = regexp.MustCompile(`(^|\W)\*([\w\s,.!?':_-]+)\*($|\W)`)
 var re_bigcoder = regexp.MustCompile("```\n?((?s:.*?))\n?```\n?")
 var re_coder = regexp.MustCompile("`([^`]*)`")
 var re_quoter = regexp.MustCompile(`(?m:^&gt; (.*)\n?)`)
+var re_link = regexp.MustCompile(`.?.?https?://[^\s"]+[\w/)]`)
+var re_zerolink = regexp.MustCompile(`\[([^]]*)\]\(([^)]*\)?)\)`)
 
 func markitzero(s string) string {
 	// prepare the string
@@ -52,6 +54,7 @@ func markitzero(s string) string {
 	s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
 	s = re_quoter.ReplaceAllString(s, "<blockquote>$1</blockquote><p>")
 	s = re_link.ReplaceAllStringFunc(s, linkreplacer)
+	s = re_zerolink.ReplaceAllString(s, `<a class="mention u-url" href="$2">$1</a>`)
 
 	// now restore the code blocks
 	s = re_coder.ReplaceAllStringFunc(s, func(s string) string {
@@ -76,8 +79,13 @@ func markitzero(s string) string {
 }
 
 func linkreplacer(url string) string {
-	if url[0] == '@' {
+	if url[0:2] == "](" {
 		return url
+	}
+	prefix := ""
+	for !strings.HasPrefix(url, "http") {
+		prefix += url[0:1]
+		url = url[1:]
 	}
 	addparen := false
 	adddot := false
@@ -96,5 +104,5 @@ func linkreplacer(url string) string {
 	if addparen {
 		url += ")"
 	}
-	return url
+	return prefix + url
 }
