@@ -902,7 +902,7 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	user, _ := butwhatabout(u.Username)
 	xid := r.FormValue("xid")
 	honk := getxonk(u.UserID, xid)
-	if honk == nil || honk.Honker != user.URL || honk.What == "bonk" {
+	if !canedithonk(user, honk) {
 		http.Error(w, "no editing that please", http.StatusInternalServerError)
 		return
 	}
@@ -930,6 +930,13 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func canedithonk(user *WhatAbout, honk *Honk) bool {
+	if honk == nil || honk.Honker != user.URL || honk.What == "bonk" {
+		return false
+	}
+	return true
+}
+
 // what a hot mess this function is
 func submithonk(w http.ResponseWriter, r *http.Request) {
 	rid := r.FormValue("rid")
@@ -943,8 +950,8 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 	var honk *Honk
 	if updatexid != "" {
 		honk = getxonk(userinfo.UserID, updatexid)
-		if honk == nil || honk.Honker != user.URL || honk.What != "honk" {
-			log.Printf("not saving edit")
+		if !canedithonk(user, honk) {
+			http.Error(w, "no editing that please", http.StatusInternalServerError)
 			return
 		}
 		honk.Date = dt
