@@ -22,7 +22,7 @@
 .Sh DESCRIPTION
 The
 .Nm
-utility processes status updates and other microblog activities.
+utility processes federated status updates and other microblog activities.
 This is the user manual.
 For administration, see
 .Xr honk 8 .
@@ -99,6 +99,14 @@ Sometimes other users of the federation can get unruly.
 The honk filtering and censorship system,
 .Xr hfcs 1 ,
 can be of great use to restore order to one's timeline.
+.Sh ENVIRONMENT
+.Nm
+is designed to work with most browsers, but for optimal results it is
+recommended to use a
+2015 or later Thinkpad X1 Carbon with 2560x1440 screen running
+.Ox
+and chromium at 150% scaling with the dwm window manager.
+This will enable the main menu to line up just right.
 .Sh SEE ALSO
 .Xr intro 1 ,
 .Xr honk 8
@@ -110,7 +118,7 @@ can be of great use to restore order to one's timeline.
 .Sh HISTORY
 Started March 2019.
 .Sh AUTHORS
-Ted Unangst.
+.An Ted Unangst Lk @tedu@honk.tedunangst.com https://honk.tedunangst.com/u/tedu
 .Sh CAVEATS
 The ActivityPub standard is subject to interpretation, and not all
 implementations are as enlightened as

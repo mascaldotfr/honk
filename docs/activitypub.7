@@ -49,7 +49,7 @@ Supported.
 Appears similar to a Note.
 Can be both created and received, but
 .Vt Invite
-ativities are ignored.
+activities are ignored.
 .It Vt Video
 Limited support.
 .It Vt Audio
@@ -93,6 +93,7 @@ and
 .Vt Undo
 require that the original request be quoted, not referred to by URI.
 .It Vt Update
+Supported.
 Honk sends and receives
 .Vt Update
 activities.
@@ -108,6 +109,7 @@ or
 .Fa attachment .
 .Bl -tag -width tenletters
 .It Mention
+Pretty @ machine.
 .It Emoji
 Inline text :emoji: with image replacement.
 .It Place
@@ -127,6 +129,7 @@ and
 .Fa longitude .
 .It Document
 Plain text and images in jpeg, gif, png, and webp formats are supported.
+Other formats are linked to origin.
 .El
 .Ss SECURITY
 Honk uses http signatures.
@@ -135,10 +138,16 @@ Honk implements the
 .Vt webfinger
 end point and will use it for @mention resolution.
 It is not required for federation.
+.Ss LD-JSON
+Not really.
 .Sh SEE ALSO
+.Xr intro 1 ,
 .Xr honk 1
 .Sh STANDARDS
 .Pp
 .Lk https://www.w3.org/TR/activitypub/ "ActivityPub"
 .Pp
 .Lk https://www.w3.org/TR/activitystreams-vocabulary/ "Activity Vocabulary"
+.Sh CAVEATS
+The ActivityPub standard is subject to interpretation, and not all
+implementations are as enlightened as honk.

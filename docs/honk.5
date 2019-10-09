@@ -55,6 +55,15 @@ will be autolinked.
 Mentioning a specfic user such as
 .Pq @user@example.social
 will send a copy of the message to them.
+Several forms are supported.
+.Ql @name
+will work using the short name from the
+.Pa honkers
+table and be expanded automatically.
+.Ql @handle@domain
+will work for anyone.
+.Ql @https://example.com
+works as well.
 When honking back, the author of the parent post is automatically mentioned.
 .Pp
 Threads from the tiny bird site may be included as quotes in a post via the
@@ -95,23 +104,8 @@ precise location.
 When everything is at last ready to go, press the
 .Dq it's gonna be honked
 button.
-.Ss zonkzone
-Sometimes other users of the federation can get unruly.
-The zonkzone can be of great use to restore order to one's timeline.
 .Sh SEE ALSO
-.Xr honk 8
-.Sh STANDARDS
-.Pp
-.Lk https://www.w3.org/TR/activitypub/ "ActivityPub"
-.Pp
-.Lk https://www.w3.org/TR/activitystreams-vocabulary/ "Activity Vocabulary"
-.Sh HISTORY
-Started March 2019.
-.Sh AUTHORS
-Ted Unangst.
+.Xr honk 1
 .Sh CAVEATS
-The ActivityPub standard is subject to interpretation, and not all
-implementations are as enlightened as
-.Nm .
-.Sh BUGS
-Only features.
+Markdown support is implemented with regexes.
+Preview is recommended.

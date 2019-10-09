@@ -38,7 +38,9 @@ Make sure to pass the Host header, if necessary (as for nginx).
 proxy_set_header Host $http_host;
 .Ed
 .Ss INIT
-Run the init command.
+Run the
+.Ic init
+command.
 .Dl ./honk init
 This will create the database and ask four questions, as well as creating
 the initial user.
@@ -54,18 +56,25 @@ Run honk.
 Log messages are sent to stderr and should probably be redirected to a file.
 .Ss MAINTENANCE
 The database may grow large over time.
-The cleanup command exists to purge old data, by default 30 days.
+The
+.Ic cleanup
+command exists to purge old data, by default 30 days.
 .Ss UPGRADE
 Stop the old honk process.
 .Dl pkill honk
 Backup the database.
 .Dl cp honk.db backup.db
-Upgrade.
+Perform the upgrade with the
+.Ic upgrade
+command.
 .Dl ./honk upgrade
 Restart.
 .Dl ./honk
-.\" .Sh EXAMPLES
+.Sh ENVIRONMENT
+Image processing and scaling requires considerable memory.
+It is recommended to adjust the datasize ulimit to at least 1GB.
 .Sh SEE ALSO
+.Xr intro 1 ,
 .Xr honk 1
 .Sh CAVEATS
 There's no online upgrade capability.
