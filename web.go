@@ -902,8 +902,8 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	user, _ := butwhatabout(u.Username)
 	xid := r.FormValue("xid")
 	honk := getxonk(u.UserID, xid)
-	if honk == nil || honk.Honker != user.URL || honk.What != "honk" {
-		log.Printf("no edit")
+	if honk == nil || honk.Honker != user.URL || honk.What == "bonk" {
+		http.Error(w, "no editing that please", http.StatusInternalServerError)
 		return
 	}
 
