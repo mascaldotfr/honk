@@ -508,6 +508,8 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				return xonkxonkfn(obj, originate(xid))
 			}
 			return nil
+		case "Audio":
+			fallthrough
 		case "Video":
 			fallthrough
 		case "Question":
