@@ -19,8 +19,6 @@
 .Sh NAME
 .Nm honk
 .Nd federated status conveyance
-.Sh SYNOPSIS
-.Nm honk
 .Sh DESCRIPTION
 The
 .Nm
@@ -29,7 +27,7 @@ This is the user manual.
 For administration, see
 .Xr honk 8 .
 .Pp
-This manual is very incomplete.
+This manual is still incomplete.
 It'll get there eventually.
 .Ss Following
 In order to receive regular updates from other users, one must first follow them.
@@ -73,82 +71,36 @@ Screenshot below.
 .Pp
 Available actions are:
 .Bl -tag -width tenletters
-.It bonk
+.It Ic bonk
 Share with followers.
 Not available for nonpublic honks.
-.It honk back
+.It Ic honk back
 Reply.
-.It mute
+.It Ic mute
 Mute this entire thread.
 Existing posts are hidden, and future posts will not appear in any feed.
-.It zonk
+.It Ic zonk
 Delete this post.
 When deleting one's own post, other servers will be requested to remove it,
 but this is unreliable.
-.It ack
+.It Ic ack
 Acknowledge reading this post.
 Typically if it's a reply to one's own post.
-.It edit
+.It Ic edit
 Change it up.
 Alas, Update activities do not federate reliably.
 .El
 .Ss Honking
-Begin by pressing the button marked
-.Dq it's honking time
-to activate the honk form.
-.Pp
-One may attach a file to a post.
-Images are automatically rescaled and reduced in size for federation.
-A description, or caption, is encouraged.
-Text files are also supported as attachments.
-.Pp
-One may also check in to a location.
-The available fields, all optional, are
-.Ar name ,
-.Ar url ,
-.Ar latitude ,
-and
-.Ar longitude .
-By default, location data is rounded to approximately 1/500 decimal degree
-accuracy.
-Pressing the check in button a second time will refine this to more a
-precise location.
-.Pp
-A limited subset of markdown is supported, including bold, italics, quotes,
-and code blocks.
-URLs beginning with
-.Sq http
-or
-.Sq https
-will be autolinked.
-Mentioning a specfic user such as
-.Pq @user@example.social
-will send a copy of the message to them.
-When honking back, the author of the parent post is automatically mentioned.
-.Pp
-Threads from the tiny bird site may be included as quotes in a post via the
-.Ar hoot
-operator.
-.Dl hoot: https://twitter.com/tedunangst/status/835172824734175234
-.Pp
-Custom emoji may included via colon wrapping
-.Pq :hellsyeah: .
-A meme (sticker, reaction gif) may be included with the
-.Ar meme
-operator.
-.Dl meme: honk.mp4
-A full list of emoji and memes may be found in the
-.Pa funzone .
-.Pp
-There are no length restrictions, but remember, somebody is going to have
-to read this noise.
-When everything is at last ready to go, press the
-.Dq it's gonna be honked
-button.
-.Ss zonkzone
+Refer to the
+.Xr honk 5
+section of the manual.
+.Ss HFCS
 Sometimes other users of the federation can get unruly.
-The zonkzone can be of great use to restore order to one's timeline.
+The honk filtering and censorship system,
+.Xr hfcs 1,
+can be of great use to restore order to one's timeline.
 .Sh SEE ALSO
+.Xr intro 1 ,
 .Xr honk 8
 .Sh STANDARDS
 .Pp
