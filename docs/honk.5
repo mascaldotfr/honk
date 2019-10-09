@@ -1,0 +1,117 @@
+.\"
+.\" Copyright (c) 2019 Ted Unangst
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.Dd $Mdocdate$
+.Dt HONK 5
+.Os
+.Sh NAME
+.Nm honk
+.Nd status composition
+.Sh DESCRIPTION
+Status updates composed in
+.Nm
+have many features beyond just plain text.
+.Pp
+The process begins by pressing the button marked
+.Dq it's honking time
+to activate the honk form.
+.Pp
+A subset of markdown is supported.
+.Bl -tag -width tenletters
+.It bold
+**bold text**
+.It italics
+*italicized text*
+.It quotes
+> This text is quoted.
+.It code
+Inline `code fragments` with single ticks.
+.Bd -literal
+```
+Large code blocks
+with triple ticks.
+```
+.Ed
+.It links
+URLs beginning with
+.Dq http
+or
+.Dq https
+will be autolinked.
+.El
+.Pp
+Mentioning a specfic user such as
+.Pq @user@example.social
+will send a copy of the message to them.
+When honking back, the author of the parent post is automatically mentioned.
+.Pp
+Threads from the tiny bird site may be included as quotes in a post via the
+.Ar hoot
+operator followed by the URL.
+.Dl hoot: https://twitter.com/tedunangst/status/835172824734175234
+.Pp
+Custom emoji may included by colon wrapping the image name.
+.Pq :hellsyeah:
+A meme (sticker, reaction gif) may be included with the
+.Ar meme
+operator followed by the file name.
+.Dl meme: honk.mp4
+A full list of emoji and memes may be found in the
+.Pa funzone .
+.Pp
+There are no length restrictions, but remember, somebody is going to have
+to read this noise.
+.Pp
+One may attach a file to a post.
+Images are automatically rescaled and reduced in size for federation.
+A description, or caption, is encouraged.
+Text files are also supported as attachments.
+Other formats are not supported.
+.Pp
+One may also check in to a location.
+The available fields, all optional, are
+.Ar name ,
+.Ar url ,
+.Ar latitude ,
+and
+.Ar longitude .
+By default, location data is rounded to approximately 1/100 decimal degree
+accuracy.
+Pressing the check in button a second time will refine this to more a
+precise location.
+.Pp
+When everything is at last ready to go, press the
+.Dq it's gonna be honked
+button.
+.Ss zonkzone
+Sometimes other users of the federation can get unruly.
+The zonkzone can be of great use to restore order to one's timeline.
+.Sh SEE ALSO
+.Xr honk 8
+.Sh STANDARDS
+.Pp
+.Lk https://www.w3.org/TR/activitypub/ "ActivityPub"
+.Pp
+.Lk https://www.w3.org/TR/activitystreams-vocabulary/ "Activity Vocabulary"
+.Sh HISTORY
+Started March 2019.
+.Sh AUTHORS
+Ted Unangst.
+.Sh CAVEATS
+The ActivityPub standard is subject to interpretation, and not all
+implementations are as enlightened as
+.Nm .
+.Sh BUGS
+Only features.
