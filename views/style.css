@@ -158,75 +158,70 @@ input[type=file] {
 	padding-right: 1em;
 	padding-top: 0;
 	overflow: hidden;
-}
-.honk #honkform {
-	padding: 1em;
-	border: 1px solid $fg;
-}
 
-.honk a {
-	color: $fg;
-}
-.honk header .clip a {
-	color: $fg-subtle;
-}
-.honk header {
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	font-size: 0.8em;
-	line-height: 1.1;
-	margin-top: 1em;
-	height: 64px;
-}
-.honk header img {
-	float: left;
-	margin-right: 1em;
-	width: 64px;
-	height: 64px;
-}
-.honk header p {
-	margin-top: 0px;
-}
-.honk .actions button {
-	margin-left: 4em;
-	margin-top: 2em;
-}
-.honk .noise {
-	line-height: 1.4;
+	#honkform {
+		padding: 1em;
+		border: 1px solid $fg;
+	}
+	a {
+		color: $fg;
+	}
+	header {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-size: 0.8em;
+		line-height: 1.1;
+		margin-top: 1em;
+		height: 64px;
+		.clip a {
+			color: $fg-subtle;
+		}
+		img {
+			float: left;
+			margin-right: 1em;
+			width: 64px;
+			height: 64px;
+		}
+		p {
+			margin-top: 0px;
+		}
+	}
+	.actions button {
+		margin-left: 4em;
+		margin-top: 2em;
+	}
+	.noise {
+		line-height: 1.4;
+	}
+	details.actions summary {
+		color: $fg-subtle;
+	}
 }
 .subtle {
-}
-.subtle .noise {
-	color: $fg-subtle;
-	font-size: 0.8em;
-}
-.subtle .noise a {
-	color: $fg-subtle;
+	.noise {
+		color: $fg-subtle;
+		font-size: 0.8em;
+	}
+	.noise a {
+		color: $fg-subtle;
+	}
 }
 .limited {
 	border: 1px solid $fg-limited;
 	color: $fg-limited;
-}
-.limited .noise {
-	color: $fg-limited;
-}
-.limited .noise a {
-	color: $fg-limited;
+	.noise {
+		color: $fg-limited;
+	}
+	.noise a {
+		color: $fg-limited;
+	}
+	details.actions summary {
+		color: $fg-limited;
+	}
 }
 details.noise[open] summary {
 	display: none;
-}
-.inlineform {
-	display: inline;
-}
-.inlineform select {
-}
-.honk details.actions summary {
-	color: $fg-subtle;
-}
-.limited details.actions summary {
-	color: $fg-limited;
 }
 h1, h2 {
 	font-size: 1.2em;
