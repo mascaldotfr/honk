@@ -70,7 +70,7 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ end }}
 {{ else }}
 {{ if .XID }}
-<p><a href="{{ .URL }}">External Attachment: {{ .Name }}</a>
+<p><a href="{{ .URL }}" rel=noreferrer>External Attachment: {{ .Name }}</a>
 {{ else }}
 {{ if eq .Media "video/mp4" }}
 <p><video controls src="{{ .URL }}">{{ .Name }}</video>
