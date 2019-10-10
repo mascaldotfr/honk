@@ -827,16 +827,18 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			prev := getxonk(user.ID, xonk.XID)
 			if prev == nil {
 				log.Printf("didn't find old version for update: %s", xonk.XID)
-				return nil
+				isUpdate = false
+			} else {
+				prev.Noise = xonk.Noise
+				prev.Precis = xonk.Precis
+				prev.Date = xonk.Date
+				prev.Donks = xonk.Donks
+				prev.Onts = xonk.Onts
+				prev.Place = xonk.Place
+				updatehonk(prev)
 			}
-			prev.Noise = xonk.Noise
-			prev.Precis = xonk.Precis
-			prev.Date = xonk.Date
-			prev.Donks = xonk.Donks
-			prev.Onts = xonk.Onts
-			prev.Place = xonk.Place
-			updatehonk(prev)
-		} else if needxonk(user, &xonk) {
+		}
+		if !isUpdate && needxonk(user, &xonk) {
 			if rid != "" {
 				if needxonkid(user, rid) {
 					goingup++
