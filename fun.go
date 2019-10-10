@@ -329,27 +329,34 @@ func memetize(honk *Honk) {
 var re_quickmention = regexp.MustCompile("(^| )@[[:alnum:]]+ ")
 
 func quickrename(s string, userid int64) string {
-	return re_quickmention.ReplaceAllStringFunc(s, func(m string) string {
-		prefix := ""
-		if m[0] == ' ' {
-			prefix = " "
-			m = m[1:]
-		}
-		prefix += "@"
-		m = m[1:]
-		m = m[:len(m)-1]
-
-		row := stmtOneHonker.QueryRow(m, userid)
-		var xid string
-		err := row.Scan(&xid)
-		if err == nil {
-			_, name := handles(xid)
-			if name != "" {
-				m = name
+	nonstop := true
+	for nonstop {
+		nonstop = false
+		s = re_quickmention.ReplaceAllStringFunc(s, func(m string) string {
+			log.Printf("m: %s", m)
+			prefix := ""
+			if m[0] == ' ' {
+				prefix = " "
+				m = m[1:]
 			}
-		}
-		return prefix + m + " "
-	})
+			prefix += "@"
+			m = m[1:]
+			m = m[:len(m)-1]
+
+			row := stmtOneHonker.QueryRow(m, userid)
+			var xid string
+			err := row.Scan(&xid)
+			if err == nil {
+				_, name := handles(xid)
+				if name != "" {
+					nonstop = true
+					m = name
+				}
+			}
+			return prefix + m + " "
+		})
+	}
+	return s
 }
 
 func mentionize(s string) string {
