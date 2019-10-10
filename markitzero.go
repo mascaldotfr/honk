@@ -21,22 +21,23 @@ import (
 	"strings"
 
 	"golang.org/x/net/html"
+	"humungus.tedunangst.com/r/webs/synlight"
 )
 
 var re_bolder = regexp.MustCompile(`(^|\W)\*\*([\w\s,.!?':_-]+)\*\*($|\W)`)
 var re_italicer = regexp.MustCompile(`(^|\W)\*([\w\s,.!?':_-]+)\*($|\W)`)
-var re_bigcoder = regexp.MustCompile("```\n?((?s:.*?))\n?```\n?")
+var re_bigcoder = regexp.MustCompile("```(.*)\n?((?s:.*?))\n?```\n?")
 var re_coder = regexp.MustCompile("`([^`]*)`")
 var re_quoter = regexp.MustCompile(`(?m:^&gt; (.*)\n?)`)
 var re_link = regexp.MustCompile(`.?.?https?://[^\s"]+[\w/)]`)
 var re_zerolink = regexp.MustCompile(`\[([^]]*)\]\(([^)]*\)?)\)`)
 
+var lighter = synlight.New(synlight.Options{Format: synlight.HTML})
+
 func markitzero(s string) string {
 	// prepare the string
 	s = strings.TrimSpace(s)
 	s = strings.Replace(s, "\r", "", -1)
-	s = html.EscapeString(s)
-	s = strings.Replace(s, "&#39;", "'", -1) // dammit go
 
 	// save away the code blocks so we don't mess them up further
 	var bigcodes, lilcodes []string
@@ -49,6 +50,9 @@ func markitzero(s string) string {
 		return "`x`"
 	})
 
+	s = html.EscapeString(s)
+	s = strings.Replace(s, "&#39;", "'", -1) // dammit go
+
 	// mark it zero
 	s = re_bolder.ReplaceAllString(s, "$1<b>$2</b>$3")
 	s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
@@ -57,17 +61,18 @@ func markitzero(s string) string {
 	s = re_zerolink.ReplaceAllString(s, `<a class="mention u-url" href="$2">$1</a>`)
 
 	// now restore the code blocks
-	s = re_coder.ReplaceAllStringFunc(s, func(s string) string {
+	s = re_coder.ReplaceAllStringFunc(s, func(string) string {
 		code := lilcodes[0]
 		lilcodes = lilcodes[1:]
+		code = html.EscapeString(code)
 		return code
 	})
-	s = re_bigcoder.ReplaceAllStringFunc(s, func(s string) string {
+	s = re_bigcoder.ReplaceAllStringFunc(s, func(string) string {
 		code := bigcodes[0]
 		bigcodes = bigcodes[1:]
-		return code
+		m := re_bigcoder.FindStringSubmatch(code)
+		return "<pre><code>" + lighter.HighlightString(m[2], m[1]) + "</code></pre><p>"
 	})
-	s = re_bigcoder.ReplaceAllString(s, "<pre><code>$1</code></pre><p>")
 	s = re_coder.ReplaceAllString(s, "<code>$1</code>")
 
 	// some final fixups

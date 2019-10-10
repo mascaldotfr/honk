@@ -193,6 +193,18 @@ input[type=file] {
 	}
 	.noise {
 		line-height: 1.4;
+		code {
+			.kw { font-weight: bold; }
+			.bi { font-weight: bold; }
+			.st { color: $fg-subtle; }
+			.nm { color: #ba88ff; }
+			.op { color: #ba88ff; }
+			.tp { font-weight: bold; }
+			.cm { color: $fg-subtle; font-style: italic; }
+			.al {  }
+			.dl {  }
+
+		}
 	}
 	details.actions summary {
 		color: $fg-subtle;

@@ -32,9 +32,24 @@ import (
 	"humungus.tedunangst.com/r/webs/httpsig"
 )
 
+var allowedclasses = make(map[string]bool)
+
+func init() {
+	allowedclasses["kw"] = true
+	allowedclasses["bi"] = true
+	allowedclasses["st"] = true
+	allowedclasses["nm"] = true
+	allowedclasses["tp"] = true
+	allowedclasses["op"] = true
+	allowedclasses["cm"] = true
+	allowedclasses["al"] = true
+	allowedclasses["dl"] = true
+}
+
 func reverbolate(userid int64, honks []*Honk) {
 	filt := htfilter.New()
 	filt.Imager = replaceimg
+	filt.SpanClasses = allowedclasses
 	for _, h := range honks {
 		h.What += "ed"
 		if h.What == "tonked" {
