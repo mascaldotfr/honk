@@ -718,10 +718,13 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					}
 				}
 				if tt == "Hashtag" {
-					if len(name) > 1 && name[0] == '#' {
-						xonk.Onts = append(xonk.Onts, name)
+					if name == "" || name == "#" {
+						// skip it
 					} else {
-						log.Printf("bogus hashtag name: %s", name)
+						if name[0] != '#' {
+							name = "#" + name
+						}
+						xonk.Onts = append(xonk.Onts, name)
 					}
 				}
 				if tt == "Place" {
