@@ -395,7 +395,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 
 func ximport(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
-	xid := r.FormValue("xid")
+	xid := strings.TrimSpace(r.FormValue("xid"))
 	xonk := getxonk(u.UserID, xid)
 	if xonk == nil {
 		p, _ := investigate(xid)
@@ -1061,7 +1061,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 				}
 				xid += ".txt"
 			}
-			desc := r.FormValue("donkdesc")
+			desc := strings.TrimSpace(r.FormValue("donkdesc"))
 			if desc == "" {
 				desc = name
 			}
@@ -1096,18 +1096,19 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 	}
 	memetize(honk)
 
-	placename := r.FormValue("placename")
-	placelat := r.FormValue("placelat")
-	placelong := r.FormValue("placelong")
-	if placename != "" || placelat != "" || placelong != "" {
+	placename := strings.TrimSpace(r.FormValue("placename"))
+	placelat := strings.TrimSpace(r.FormValue("placelat"))
+	placelong := strings.TrimSpace(r.FormValue("placelong"))
+	placeurl := strings.TrimSpace(r.FormValue("placeurl"))
+	if placename != "" || placelat != "" || placelong != "" || placeurl != "" {
 		p := new(Place)
 		p.Name = placename
 		p.Latitude, _ = strconv.ParseFloat(placelat, 64)
 		p.Longitude, _ = strconv.ParseFloat(placelong, 64)
-		p.Url = r.FormValue("placeurl")
+		p.Url = placeurl
 		honk.Place = p
 	}
-	timestart := r.FormValue("timestart")
+	timestart := strings.TrimSpace(r.FormValue("timestart"))
 	if timestart != "" {
 		t := new(Time)
 		now := time.Now().Local()
@@ -1218,11 +1219,11 @@ func showcombos(w http.ResponseWriter, r *http.Request) {
 
 func submithonker(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
-	name := r.FormValue("name")
-	url := r.FormValue("url")
+	name := strings.TrimSpace(r.FormValue("name"))
+	url := strings.TrimSpace(r.FormValue("url"))
 	peep := r.FormValue("peep")
-	combos := r.FormValue("combos")
-	combos = " " + strings.TrimSpace(combos) + " "
+	combos := strings.TrimSpace(r.FormValue("combos"))
+	combos = " " + combos + " "
 	honkerid, _ := strconv.ParseInt(r.FormValue("honkerid"), 10, 0)
 
 	defer combocache.Clear(u.UserID)
@@ -1351,19 +1352,19 @@ func savehfcs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filt := new(Filter)
-	filt.Name = r.FormValue("name")
+	filt.Name = strings.TrimSpace(r.FormValue("name"))
 	filt.Date = time.Now().UTC()
-	filt.Actor = r.FormValue("actor")
+	filt.Actor = strings.TrimSpace(r.FormValue("actor"))
 	filt.IncludeAudience = r.FormValue("incaud") == "yes"
-	filt.Text = r.FormValue("filttext")
+	filt.Text = strings.TrimSpace(r.FormValue("filttext"))
 	filt.IsAnnounce = r.FormValue("isannounce") == "yes"
-	filt.AnnounceOf = r.FormValue("announceof")
+	filt.AnnounceOf = strings.TrimSpace(r.FormValue("announceof"))
 	filt.Reject = r.FormValue("doreject") == "yes"
 	filt.SkipMedia = r.FormValue("doskipmedia") == "yes"
 	filt.Hide = r.FormValue("dohide") == "yes"
 	filt.Collapse = r.FormValue("docollapse") == "yes"
-	filt.Rewrite = r.FormValue("filtrewrite")
-	filt.Replace = r.FormValue("filtreplace")
+	filt.Rewrite = strings.TrimSpace(r.FormValue("filtrewrite"))
+	filt.Replace = strings.TrimSpace(r.FormValue("filtreplace"))
 
 	if filt.Actor == "" && filt.Text == "" {
 		log.Printf("blank filter")
