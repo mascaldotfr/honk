@@ -201,8 +201,8 @@ input[type=file] {
 			.op { color: #ba88ff; }
 			.tp { font-weight: bold; }
 			.cm { color: $fg-subtle; font-style: italic; }
-			.al {  }
-			.dl {  }
+			.al { color: #aaffbb; }
+			.dl { color: #ffaabb; }
 
 		}
 	}
