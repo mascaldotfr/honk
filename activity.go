@@ -394,6 +394,10 @@ func extractattrto(obj junk.Junk) string {
 				return id
 			}
 		}
+		s, ok := a.(string)
+		if ok {
+			return s
+		}
 	}
 	return ""
 }
