@@ -326,14 +326,13 @@ func memetize(honk *Honk) {
 	honk.Noise = re_memes.ReplaceAllStringFunc(honk.Noise, repl)
 }
 
-var re_quickmention = regexp.MustCompile("(^| )@[[:alnum:]]+ ")
+var re_quickmention = regexp.MustCompile("(^| )@[[:alnum:]]+( |$)")
 
 func quickrename(s string, userid int64) string {
 	nonstop := true
 	for nonstop {
 		nonstop = false
 		s = re_quickmention.ReplaceAllStringFunc(s, func(m string) string {
-			log.Printf("m: %s", m)
 			prefix := ""
 			if m[0] == ' ' {
 				prefix = " "
@@ -341,7 +340,9 @@ func quickrename(s string, userid int64) string {
 			}
 			prefix += "@"
 			m = m[1:]
-			m = m[:len(m)-1]
+			if m[len(m)-1] == ' ' {
+				m = m[:len(m)-1]
+			}
 
 			row := stmtOneHonker.QueryRow(m, userid)
 			var xid string
