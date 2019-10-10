@@ -296,17 +296,22 @@ func gimmexonks(user *WhatAbout, outbox string) {
 	if t == "OrderedCollection" {
 		items, _ := j.GetArray("orderedItems")
 		if items == nil {
+			items, _ = j.GetArray("items")
+		}
+		if items == nil {
 			obj, ok := j.GetMap("first")
 			if ok {
 				items, _ = obj.GetArray("orderedItems")
 			} else {
-				page1, _ := j.GetString("first")
-				j, err = GetJunk(page1)
-				if err != nil {
-					log.Printf("error gettings page1: %s", err)
-					return
+				page1, ok := j.GetString("first")
+				if ok {
+					j, err = GetJunk(page1)
+					if err != nil {
+						log.Printf("error gettings page1: %s", err)
+						return
+					}
+					items, _ = j.GetArray("orderedItems")
 				}
-				items, _ = j.GetArray("orderedItems")
 			}
 		}
 		if len(items) > 20 {
