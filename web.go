@@ -1086,8 +1086,12 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 			}
 			var d Donk
 			d.FileID = fileid
+			d.XID = xid
+			d.Desc = desc
+			d.URL = url
+			d.Local = true
 			honk.Donks = append(honk.Donks, &d)
-			donkxid = d.XID
+			donkxid = xid
 		}
 	} else {
 		xid := donkxid
