@@ -634,8 +634,9 @@ func prepareStatements(db *sql.DB) {
 	stmtPublicHonks = preparetodie(db, selecthonks+"where whofore = 2 and dt > ?"+limit)
 	stmtEventHonks = preparetodie(db, selecthonks+"where (whofore = 2 or honks.userid = ?) and what = 'event'"+limit)
 	stmtUserHonks = preparetodie(db, selecthonks+"where (whofore = 2 or whofore = ?) and username = ? and dt > ?"+limit)
-	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and honker in (select xid from honkers where userid = ? and flavor = 'sub' and combos not like '% - %')"+butnotthose+limit)
-	stmtHonksForUserFirstClass = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and (what <> 'tonk') and honker in (select xid from honkers where userid = ? and flavor = 'sub' and combos not like '% - %')"+butnotthose+limit)
+	myhonkers := " and honker in (select xid from honkers where userid = ? and (flavor = 'sub' or flavor = 'peep' or flavor = 'presub') and combos not like '% - %')"
+	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ?"+myhonkers+butnotthose+limit)
+	stmtHonksForUserFirstClass = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and (what <> 'tonk')"+myhonkers+butnotthose+limit)
 	stmtHonksForMe = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and whofore = 1"+butnotthose+limit)
 	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on (honkers.xid = honks.honker or honkers.xid = honks.oonker) where honks.userid = ? and honkers.name = ?"+butnotthose+limit)
 	stmtHonksByXonker = preparetodie(db, selecthonks+" where honks.userid = ? and (honker = ? or oonker = ?)"+butnotthose+limit)
