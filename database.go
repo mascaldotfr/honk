@@ -171,6 +171,10 @@ func gethonksforme(userid int64) []*Honk {
 	rows, err := stmtHonksForMe.Query(userid, dt, userid)
 	return getsomehonks(rows, err)
 }
+func getsavedhonks(userid int64) []*Honk {
+	rows, err := stmtHonksISaved.Query(userid)
+	return getsomehonks(rows, err)
+}
 func gethonksbyhonker(userid int64, honker string) []*Honk {
 	rows, err := stmtHonksByHonker.Query(userid, honker, userid)
 	return getsomehonks(rows, err)
@@ -537,15 +541,15 @@ func cleanupdb(arg string) {
 	if err != nil {
 		honker := arg
 		expdate := time.Now().UTC().Add(-3 * 24 * time.Hour).Format(dbtimeformat)
-		where = "dt < ? and whofore = 0 and honker = ?"
+		where = "dt < ? and honker = ?"
 		sqlargs = append(sqlargs, expdate)
 		sqlargs = append(sqlargs, honker)
 	} else {
 		expdate := time.Now().UTC().Add(-time.Duration(days) * 24 * time.Hour).Format(dbtimeformat)
-		where = "dt < ? and whofore = 0 and convoy not in (select convoy from honks where whofore = 2 or whofore = 3)"
+		where = "dt < ? and convoy not in (select convoy from honks where flags & 4 or whofore = 2 or whofore = 3)"
 		sqlargs = append(sqlargs, expdate)
 	}
-	doordie(db, "delete from honks where "+where, sqlargs...)
+	doordie(db, "delete from honks where flags & 4 = 0 and whofore = 0 and "+where, sqlargs...)
 	doordie(db, "delete from donks where honkid not in (select honkid from honks)")
 	doordie(db, "delete from onts where honkid not in (select honkid from honks)")
 	doordie(db, "delete from honkmeta where honkid not in (select honkid from honks)")
@@ -607,7 +611,7 @@ var stmtThumbBiters, stmtDeleteHonk, stmtDeleteDonks, stmtDeleteOnts, stmtSaveZo
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
 var stmtSelectOnts, stmtSaveOnt, stmtUpdateFlags, stmtClearFlags *sql.Stmt
 var stmtHonksForUserFirstClass, stmtSaveMeta, stmtDeleteMeta, stmtUpdateHonk *sql.Stmt
-var stmtGetFilters, stmtSaveFilter, stmtDeleteFilter *sql.Stmt
+var stmtHonksISaved, stmtGetFilters, stmtSaveFilter, stmtDeleteFilter *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -638,6 +642,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ?"+myhonkers+butnotthose+limit)
 	stmtHonksForUserFirstClass = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and (what <> 'tonk')"+myhonkers+butnotthose+limit)
 	stmtHonksForMe = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and whofore = 1"+butnotthose+limit)
+	stmtHonksISaved = preparetodie(db, selecthonks+"where honks.userid = ? and flags & 4")
 	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on (honkers.xid = honks.honker or honkers.xid = honks.oonker) where honks.userid = ? and honkers.name = ?"+butnotthose+limit)
 	stmtHonksByXonker = preparetodie(db, selecthonks+" where honks.userid = ? and (honker = ? or oonker = ?)"+butnotthose+limit)
 	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.combos like ?"+butnotthose+limit)

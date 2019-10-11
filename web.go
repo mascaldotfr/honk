@@ -109,6 +109,10 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 			templinfo["PageName"] = "first"
 			honks = gethonksforuser(userid)
 			honks = osmosis(honks, userid)
+		case "/saved":
+			templinfo["ServerMessage"] = "saved honks"
+			templinfo["PageName"] = "saved"
+			honks = getsavedhonks(userid)
 		default:
 			templinfo["PageName"] = "home"
 			honks = gethonksforuser(userid)
@@ -852,6 +856,28 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	userinfo := login.GetUserInfo(r)
 	user, _ := butwhatabout(userinfo.Username)
 
+	if wherefore == "save" {
+		xonk := getxonk(userinfo.UserID, what)
+		if xonk != nil {
+			_, err := stmtUpdateFlags.Exec(flagIsSaved, xonk.ID)
+			if err != nil {
+				log.Printf("error saving: %s", err)
+			}
+		}
+		return
+	}
+
+	if wherefore == "unsave" {
+		xonk := getxonk(userinfo.UserID, what)
+		if xonk != nil {
+			_, err := stmtClearFlags.Exec(flagIsSaved, xonk.ID)
+			if err != nil {
+				log.Printf("error unsaving: %s", err)
+			}
+		}
+		return
+	}
+
 	// my hammer is too big, oh well
 	defer oldjonks.Flush()
 
@@ -1572,6 +1598,10 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 		honks = gethonksforuserfirstclass(userid)
 		honks = osmosis(honks, userid)
 		templinfo["ServerMessage"] = "first class only"
+	case "saved":
+		honks = getsavedhonks(userid)
+		templinfo["PageName"] = "saved"
+		templinfo["ServerMessage"] = "saved honks"
 	case "combo":
 		c := r.FormValue("c")
 		honks = gethonksbycombo(userid, c)
@@ -1689,6 +1719,7 @@ func serve() {
 	loggedin := mux.NewRoute().Subrouter()
 	loggedin.Use(login.Required)
 	loggedin.HandleFunc("/first", homepage)
+	loggedin.HandleFunc("/saved", homepage)
 	loggedin.HandleFunc("/account", accountpage)
 	loggedin.HandleFunc("/funzone", showfunzone)
 	loggedin.HandleFunc("/chpass", dochpass)

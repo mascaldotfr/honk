@@ -53,15 +53,13 @@ function zonkit(el, xid) {
 		p.remove()
 	}
 }
-function ackit(el, xid) {
-	el.innerHTML = "acked"
+function flogit(el, how, xid) {
+	var s = how
+	if (s[s.length-1] != "e") { s += "e" }
+	s += "d"
+	el.innerHTML = s
 	el.disabled = true
-	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": "ack", "what": xid}))
-}
-function deackit(el, xid) {
-	el.innerHTML = "deacked"
-	el.disabled = true
-	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": "deack", "what": xid}))
+	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": how, "what": xid}))
 }
 function fillinhonks(xhr) {
 	var doc = xhr.responseXML
@@ -213,6 +211,8 @@ function relinklinks() {
 	el.onclick = pageswitcher("atme", "")
 	el = document.getElementById("firstlink")
 	el.onclick = pageswitcher("first", "")
+	el = document.getElementById("savedlink")
+	el.onclick = pageswitcher("saved", "")
 	relinklinks()
 	window.onpopstate = statechanger
 	history.replaceState(curpagestate, "some title", "")
