@@ -1688,6 +1688,7 @@ func serve() {
 
 	loggedin := mux.NewRoute().Subrouter()
 	loggedin.Use(login.Required)
+	loggedin.HandleFunc("/first", homepage)
 	loggedin.HandleFunc("/account", accountpage)
 	loggedin.HandleFunc("/funzone", showfunzone)
 	loggedin.HandleFunc("/chpass", dochpass)
