@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -118,6 +119,33 @@ func getpublichonks() []*Honk {
 	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
 	rows, err := stmtPublicHonks.Query(dt)
 	return getsomehonks(rows, err)
+}
+func geteventhonks(userid int64) []*Honk {
+	rows, err := stmtEventHonks.Query(userid)
+	honks := getsomehonks(rows, err)
+	sort.Slice(honks, func(i, j int) bool {
+		var t1, t2 time.Time
+		if honks[i].Time == nil {
+			t1 = honks[i].Date
+		} else {
+			t1 = honks[i].Time.StartTime
+		}
+		if honks[j].Time == nil {
+			t2 = honks[j].Date
+		} else {
+			t2 = honks[j].Time.StartTime
+		}
+		return t1.After(t2)
+	})
+	now := time.Now().Add(-24 * time.Hour)
+	for i, h := range honks {
+		if h.Time.StartTime.Before(now) {
+			honks = honks[:i]
+			break
+		}
+	}
+	reversehonks(honks)
+	return honks
 }
 func gethonksbyuser(name string, includeprivate bool) []*Honk {
 	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
@@ -572,7 +600,7 @@ var stmtHonkers, stmtDubbers, stmtSaveHonker, stmtUpdateFlavor, stmtUpdateHonker
 var stmtAnyXonk, stmtOneXonk, stmtPublicHonks, stmtUserHonks, stmtHonksByCombo, stmtHonksByConvoy *sql.Stmt
 var stmtHonksByOntology, stmtHonksForUser, stmtHonksForMe, stmtSaveDub, stmtHonksByXonker *sql.Stmt
 var stmtHonksBySearch, stmtHonksByHonker, stmtSaveHonk, stmtWhatAbout *sql.Stmt
-var stmtOneBonk, stmtFindZonk, stmtFindXonk, stmtSaveDonk *sql.Stmt
+var stmtEventHonks, stmtOneBonk, stmtFindZonk, stmtFindXonk, stmtSaveDonk *sql.Stmt
 var stmtFindFile, stmtGetFileData, stmtSaveFileData, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover, stmtOneHonker *sql.Stmt
 var stmtThumbBiters, stmtDeleteHonk, stmtDeleteDonks, stmtDeleteOnts, stmtSaveZonker *sql.Stmt
@@ -604,6 +632,7 @@ func prepareStatements(db *sql.DB) {
 	stmtAnyXonk = preparetodie(db, selecthonks+"where xid = ? order by honks.honkid asc")
 	stmtOneBonk = preparetodie(db, selecthonks+"where honks.userid = ? and xid = ? and what = 'bonk' and whofore = 2")
 	stmtPublicHonks = preparetodie(db, selecthonks+"where whofore = 2 and dt > ?"+limit)
+	stmtEventHonks = preparetodie(db, selecthonks+"where (whofore = 2 or honks.userid = ?) and what = 'event'"+limit)
 	stmtUserHonks = preparetodie(db, selecthonks+"where (whofore = 2 or whofore = ?) and username = ? and dt > ?"+limit)
 	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and honker in (select xid from honkers where userid = ? and flavor = 'sub' and combos not like '% - %')"+butnotthose+limit)
 	stmtHonksForUserFirstClass = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and (what <> 'tonk') and honker in (select xid from honkers where userid = ? and flavor = 'sub' and combos not like '% - %')"+butnotthose+limit)

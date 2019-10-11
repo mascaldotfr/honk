@@ -83,18 +83,33 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	var honks []*Honk
 	var userid int64 = -1
-	if r.URL.Path == "/front" || u == nil {
-		honks = getpublichonks()
+
+	templinfo["ServerMessage"] = serverMsg
+	if u == nil {
+		switch r.URL.Path {
+		case "/events":
+			honks = geteventhonks(userid)
+			templinfo["ServerMessage"] = "some recent and upcoming events"
+		default:
+			templinfo["ShowRSS"] = true
+			honks = getpublichonks()
+		}
 	} else {
 		userid = u.UserID
-		if r.URL.Path == "/atme" {
+		switch r.URL.Path {
+		case "/atme":
 			templinfo["PageName"] = "atme"
 			honks = gethonksforme(userid)
-		} else if r.URL.Path == "/first" {
+		case "/events":
+			templinfo["ServerMessage"] = "some recent and upcoming events"
+			templinfo["PageName"] = "events"
+			honks = geteventhonks(userid)
+			honks = osmosis(honks, userid)
+		case "/first":
 			templinfo["PageName"] = "first"
 			honks = gethonksforuser(userid)
 			honks = osmosis(honks, userid)
-		} else {
+		default:
 			templinfo["PageName"] = "home"
 			honks = gethonksforuser(userid)
 			honks = osmosis(honks, userid)
@@ -102,8 +117,6 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	}
 
-	templinfo["ShowRSS"] = true
-	templinfo["ServerMessage"] = serverMsg
 	honkpage(w, u, honks, templinfo)
 }
 
@@ -1642,6 +1655,7 @@ func serve() {
 	getters.HandleFunc("/", homepage)
 	getters.HandleFunc("/home", homepage)
 	getters.HandleFunc("/front", homepage)
+	getters.HandleFunc("/events", homepage)
 	getters.HandleFunc("/robots.txt", nomoroboto)
 	getters.HandleFunc("/rss", showrss)
 	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}", showuser)
