@@ -1,5 +1,6 @@
 <article class="honk {{ .Honk.Style }}" data-convoy="{{ .Honk.Convoy }}">
 {{ $bonkcsrf := .BonkCSRF }}
+{{ $IsPreview := .IsPreview }}
 {{ with .Honk }}
 <header>
 {{ if $bonkcsrf }}
@@ -82,7 +83,7 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ end }}
 </details>
 {{ end }}
-{{ if $bonkcsrf }}
+{{ if and $bonkcsrf (not $IsPreview) }}
 <p>
 <details class="actions">
 <summary>Actions
