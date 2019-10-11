@@ -108,6 +108,12 @@ function hydrargs() {
 	}
 	return args
 }
+function refreshupdate(msg) {
+	var el = document.querySelector("#refreshbox p span")
+	if (el) {
+		el.innerHTML = msg
+	}
+}
 function refreshhonks(btn) {
 	btn.innerHTML = "refreshing"
 	btn.disabled = true
@@ -118,7 +124,7 @@ function refreshhonks(btn) {
 		var lenhonks = fillinhonks(xhr)
 		btn.innerHTML = "refresh"
 		btn.disabled = false
-		btn.parentElement.children[1].innerHTML = " " + lenhonks + " new"
+		refreshupdate(" " + lenhonks + " new")
 	})
 }
 function statechanger(evt) {
@@ -159,6 +165,7 @@ function switchtopage(name, arg) {
 		var args = hydrargs()
 		get("/hydra?" + encode(args), fillinhonks)
 	}
+	refreshupdate("")
 }
 function newpagestate(name, arg) {
 	return { "name": name, "arg": arg }
