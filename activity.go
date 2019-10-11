@@ -500,6 +500,11 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if err != nil {
 					log.Printf("error getting creation: %s", err)
 				}
+			} else {
+				xid, _ = obj.GetString("id")
+			}
+			if obj != nil {
+				return xonkxonkfn(obj, originate(xid))
 			}
 			what = "honk"
 		case "Read":
