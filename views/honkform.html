@@ -1,6 +1,6 @@
 <p id="honkformhost">
 <button onclick="showhonkform(); return false"><a href="/newhonk">it's honking time</a></button>
-<form id="honkform" action="/honk" method="POST" enctype="multipart/form-data" style="display: none">
+<form id="honkform" action="/honk" method="POST" enctype="multipart/form-data" {{ if not .IsPreview }}style="display: none"{{ end }}>
 <input type="hidden" name="CSRF" value="{{ .HonkCSRF }}">
 <input type="hidden" name="updatexid" value = "{{ .UpdateXID }}">
 <input type="hidden" name="rid" id="ridinput" value="{{ .InReplyTo }}">

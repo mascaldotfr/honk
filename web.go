@@ -959,6 +959,7 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	templinfo["Honks"] = honks
 	templinfo["Noise"] = noise
 	templinfo["ServerMessage"] = "honk edit"
+	templinfo["IsPreview"] = true
 	templinfo["UpdateXID"] = honk.XID
 	if len(honk.Donks) > 0 {
 		templinfo["SavedFile"] = honk.Donks[0].XID
