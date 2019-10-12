@@ -174,6 +174,8 @@ func main() {
 	switch cmd {
 	case "adduser":
 		adduser()
+	case "chpass":
+		chpass()
 	case "cleanup":
 		arg := "30"
 		if len(os.Args) > 2 {

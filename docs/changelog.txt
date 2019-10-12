@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Add chpass command.
+
 + Improved honker management.
 
 + Better markdown output.

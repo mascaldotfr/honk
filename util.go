@@ -49,6 +49,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	_ "humungus.tedunangst.com/r/go-sqlite3"
 	"humungus.tedunangst.com/r/webs/httpsig"
+	"humungus.tedunangst.com/r/webs/login"
 )
 
 var savedassetparams = make(map[string]string)
@@ -221,6 +222,62 @@ func adduser() {
 	os.Exit(0)
 }
 
+func chpass() {
+	if len(os.Args) < 3 {
+		fmt.Printf("need a username\n")
+		os.Exit(1)
+	}
+	user, err := butwhatabout(os.Args[2])
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		os.Exit(1)
+	}()
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		C.termecho(1)
+		fmt.Printf("\n")
+		os.Exit(1)
+	}()
+
+	db := opendatabase()
+	login.Init(db)
+
+	r := bufio.NewReader(os.Stdin)
+
+	pass, err := askpassword(r)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = login.SetPassword(user.ID, pass)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	fmt.Printf("done\n")
+	os.Exit(0)
+}
+
+func askpassword(r *bufio.Reader) (string, error) {
+	C.termecho(0)
+	fmt.Printf("password: ")
+	pass, err := r.ReadString('\n')
+	C.termecho(1)
+	fmt.Printf("\n")
+	if err != nil {
+		return "", err
+	}
+	pass = pass[:len(pass)-1]
+	if len(pass) < 6 {
+		return "", fmt.Errorf("that's way too short")
+	}
+	return pass, nil
+}
+
 func createuser(db *sql.DB, r *bufio.Reader) error {
 	fmt.Printf("username: ")
 	name, err := r.ReadString('\n')
@@ -231,17 +288,9 @@ func createuser(db *sql.DB, r *bufio.Reader) error {
 	if len(name) < 1 {
 		return fmt.Errorf("that's way too short")
 	}
-	C.termecho(0)
-	fmt.Printf("password: ")
-	pass, err := r.ReadString('\n')
-	C.termecho(1)
-	fmt.Printf("\n")
+	pass, err := askpassword(r)
 	if err != nil {
 		return err
-	}
-	pass = pass[:len(pass)-1]
-	if len(pass) < 6 {
-		return fmt.Errorf("that's way too short")
 	}
 	hash, err := bcrypt.GenerateFromPassword([]byte(pass), 12)
 	if err != nil {

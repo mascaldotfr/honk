@@ -21,7 +21,5 @@ golang.org/x/sys v0.0.0-20190412213103-97732733099d/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 humungus.tedunangst.com/r/go-sqlite3 v1.1.3 h1:G2N4wzDS0NbuvrZtQJhh4F+3X+s7BF8b9ga8k38geUI=
 humungus.tedunangst.com/r/go-sqlite3 v1.1.3/go.mod h1:FtEEmQM7U2Ey1TuEEOyY1BmphTZnmiEjPsNLEAkpf/M=
-humungus.tedunangst.com/r/webs v0.6.8 h1:0Xn6+iHZO8F4R3jhkql0qBR8nh5v9D59xG2vWQJzoa8=
-humungus.tedunangst.com/r/webs v0.6.8/go.mod h1:Ho+nmafD/aUWF7LnH+Yl2/b0ob7f2pCkXm4onteWvLE=
-humungus.tedunangst.com/r/webs v0.6.9 h1:bW2rBRZTBgov2yNUCvQ09dAK9oLfQ9A84QkMRLwaXZM=
-humungus.tedunangst.com/r/webs v0.6.9/go.mod h1:Ho+nmafD/aUWF7LnH+Yl2/b0ob7f2pCkXm4onteWvLE=
+humungus.tedunangst.com/r/webs v0.6.10 h1:Qe4QW/7us8szAwL68zoIihfkaqsy/7Ys00bfdSPH5/g=
+humungus.tedunangst.com/r/webs v0.6.10/go.mod h1:Ho+nmafD/aUWF7LnH+Yl2/b0ob7f2pCkXm4onteWvLE=
