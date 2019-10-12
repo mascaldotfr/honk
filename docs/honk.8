@@ -52,8 +52,37 @@ servername: (public DNS name: honk.example.com)
 .Ed
 .Ss OPERATION
 Run honk.
-.Dl ./honk
+.Dl date; ./honk >> log 2>&1
 Log messages are sent to stderr and should probably be redirected to a file.
+.Ss CUSTOMIZATION
+Add custom memes (stickers) to the
+.Pa memes
+directory.
+Image and video files are supported.
+.Pp
+Add custom emus (emoji) to the
+.Pa emus
+directory.
+Image files are supported.
+.Pp
+Site CSS may be overridden by creating a
+.Pa views/local.css
+file.
+.Pp
+A custom message me be set by editing the database.
+(Sorry.)
+.Dl insert into config values ('servermsg', 'message');
+.Pp
+The
+.Pa views/about.html
+page doesn't change too frequently.
+It should be safe to edit.
+.Ss ADMIN
+New users can be added with the
+.Ic adduser
+command.
+This is discouraged.
+.Dl ./honk adduser
 .Ss MAINTENANCE
 The database may grow large over time.
 The
@@ -70,6 +99,10 @@ command.
 .Dl ./honk upgrade
 Restart.
 .Dl ./honk
+.Pp
+There's also a
+.Pa blob.db
+file which is important to backup and restore.
 .Sh ENVIRONMENT
 Image processing and scaling requires considerable memory.
 It is recommended to adjust the datasize ulimit to at least 1GB.
