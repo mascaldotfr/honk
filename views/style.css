@@ -249,7 +249,7 @@ img, video {
 	max-width: 100%;
 	max-height: 600px;
 }
-.noise img {
+.noise img:not(.emu) {
 	display: block;
 }
 img.emu {
