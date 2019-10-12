@@ -37,6 +37,18 @@ Make sure to pass the Host header, if necessary (as for nginx).
 .Bd -literal -offset indent
 proxy_set_header Host $http_host;
 .Ed
+.Ss BUID
+Building
+.Nm
+requires a go compiler and libsqlite.
+On
+.Ox
+this is the go and sqlite3 packages.
+Other platforms may require additional development libraries or headers
+to be installed.
+Run make.
+Please be patient.
+Even on fast machines, building from source can take several seconds.
 .Ss INIT
 Run the
 .Ic init
