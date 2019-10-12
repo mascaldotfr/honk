@@ -33,6 +33,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"humungus.tedunangst.com/r/webs/cache"
 	"humungus.tedunangst.com/r/webs/css"
 	"humungus.tedunangst.com/r/webs/htfilter"
 	"humungus.tedunangst.com/r/webs/httpsig"
@@ -471,7 +472,7 @@ func xzone(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-var oldoutbox = cacheNew(cacheOptions{Filler: func(name string) ([]byte, bool) {
+var oldoutbox = cache.New(cache.Options{Filler: func(name string) ([]byte, bool) {
 	user, err := butwhatabout(name)
 	if err != nil {
 		return nil, false
@@ -1235,7 +1236,7 @@ func showhonkers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-var combocache = cacheNew(cacheOptions{Filler: func(userid int64) ([]string, bool) {
+var combocache = cache.New(cache.Options{Filler: func(userid int64) ([]string, bool) {
 	honkers := gethonkers(userid)
 	var combos []string
 	for _, h := range honkers {

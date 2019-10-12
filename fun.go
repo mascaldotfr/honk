@@ -28,6 +28,7 @@ import (
 	"sync"
 
 	"golang.org/x/net/html"
+	"humungus.tedunangst.com/r/webs/cache"
 	"humungus.tedunangst.com/r/webs/htfilter"
 	"humungus.tedunangst.com/r/webs/httpsig"
 )
@@ -365,7 +366,7 @@ func quickrename(s string, userid int64) string {
 	return s
 }
 
-var shortnames = cacheNew(cacheOptions{Filler: func(userid int64) (map[string]string, bool) {
+var shortnames = cache.New(cache.Options{Filler: func(userid int64) (map[string]string, bool) {
 	honkers := gethonkers(userid)
 	m := make(map[string]string)
 	for _, h := range honkers {

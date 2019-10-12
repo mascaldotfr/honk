@@ -31,6 +31,7 @@ import (
 	"strings"
 	"time"
 
+	"humungus.tedunangst.com/r/webs/cache"
 	"humungus.tedunangst.com/r/webs/htfilter"
 	"humungus.tedunangst.com/r/webs/httpsig"
 	"humungus.tedunangst.com/r/webs/image"
@@ -256,7 +257,7 @@ type Box struct {
 	Shared string
 }
 
-var boxofboxes = cacheNew(cacheOptions{Filler: func(ident string) (*Box, bool) {
+var boxofboxes = cache.New(cache.Options{Filler: func(ident string) (*Box, bool) {
 	var info string
 	row := stmtGetXonker.QueryRow(ident, "boxes")
 	err := row.Scan(&info)
@@ -1118,7 +1119,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 	return j, jo
 }
 
-var oldjonks = cacheNew(cacheOptions{Filler: func(xid string) ([]byte, bool) {
+var oldjonks = cache.New(cache.Options{Filler: func(xid string) ([]byte, bool) {
 	row := stmtAnyXonk.QueryRow(xid)
 	honk := scanhonk(row)
 	if honk == nil || !honk.Public {
@@ -1185,7 +1186,7 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 	}
 }
 
-var oldjonkers = cacheNew(cacheOptions{Filler: func(name string) ([]byte, bool) {
+var oldjonkers = cache.New(cache.Options{Filler: func(name string) ([]byte, bool) {
 	user, err := butwhatabout(name)
 	if err != nil {
 		return nil, false
@@ -1226,7 +1227,7 @@ func asjonker(name string) ([]byte, bool) {
 	return j, ok
 }
 
-var handfull = cacheNew(cacheOptions{Filler: func(name string) (string, bool) {
+var handfull = cache.New(cache.Options{Filler: func(name string) (string, bool) {
 	m := strings.Split(name, "@")
 	if len(m) != 2 {
 		log.Printf("bad fish name: %s", name)

@@ -21,6 +21,8 @@ import (
 	"regexp"
 	"sort"
 	"time"
+
+	"humungus.tedunangst.com/r/webs/cache"
 )
 
 type Filter struct {
@@ -63,7 +65,7 @@ func (ft filtType) String() string {
 
 type afiltermap map[filtType][]*Filter
 
-var filtcache = cacheNew(cacheOptions{Filler: func(userid int64) (afiltermap, bool) {
+var filtcache = cache.New(cache.Options{Filler: func(userid int64) (afiltermap, bool) {
 	rows, err := stmtGetFilters.Query(userid)
 	if err != nil {
 		log.Printf("error querying filters: %s", err)

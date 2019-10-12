@@ -26,10 +26,11 @@ import (
 	"strings"
 	"time"
 
+	"humungus.tedunangst.com/r/webs/cache"
 	"humungus.tedunangst.com/r/webs/login"
 )
 
-var someusers = cacheNew(cacheOptions{Filler: func(name string) (*WhatAbout, bool) {
+var someusers = cache.New(cache.Options{Filler: func(name string) (*WhatAbout, bool) {
 	row := stmtWhatAbout.QueryRow(name)
 	user := new(WhatAbout)
 	var options string
