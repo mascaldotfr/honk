@@ -70,9 +70,14 @@ func reverbolate(userid int64, honks []*Honk) {
 			h.Username, h.Handle = handles(h.Honker)
 		} else {
 			_, h.Handle = handles(h.Honker)
-			h.Username = h.Handle
-			if len(h.Username) > 20 {
-				h.Username = h.Username[:20] + ".."
+			short := shortname(userid, h.Honker)
+			if short != "" {
+				h.Username = short
+			} else {
+				h.Username = h.Handle
+				if len(h.Username) > 20 {
+					h.Username = h.Username[:20] + ".."
+				}
 			}
 			if h.URL == "" {
 				h.URL = h.XID
@@ -358,6 +363,24 @@ func quickrename(s string, userid int64) string {
 		})
 	}
 	return s
+}
+
+var shortnames = cacheNew(cacheOptions{Filler: func(userid int64) (map[string]string, bool) {
+	honkers := gethonkers(userid)
+	m := make(map[string]string)
+	for _, h := range honkers {
+		m[h.XID] = h.Name
+	}
+	return m, true
+}})
+
+func shortname(userid int64, xid string) string {
+	var m map[string]string
+	ok := shortnames.Get(userid, &m)
+	if ok {
+		return m[xid]
+	}
+	return ""
 }
 
 func mentionize(s string) string {

@@ -1271,6 +1271,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	honkerid, _ := strconv.ParseInt(r.FormValue("honkerid"), 10, 0)
 
 	defer combocache.Clear(u.UserID)
+	defer shortnames.Clear(u.UserID)
 
 	if honkerid > 0 {
 		goodbye := r.FormValue("goodbye")
