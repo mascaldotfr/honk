@@ -74,7 +74,7 @@ var alreadyopendb *sql.DB
 var dbname = "honk.db"
 var blobdbname = "blob.db"
 var stmtConfig *sql.Stmt
-var myVersion = 24
+var myVersion = 25
 
 func initdb() {
 	schema, err := ioutil.ReadFile("schema.sql")

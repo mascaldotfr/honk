@@ -269,7 +269,10 @@ func upgradedb() {
 		doordie(db, "update config set value = 24 where key = 'dbversion'")
 		fallthrough
 	case 24:
-
+		doordie(db, "update honks set convoy = 'missing-' || abs(random() % 987654321) where convoy = ''")
+		doordie(db, "update config set value = 25 where key = 'dbversion'")
+		fallthrough
+	case 25:
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
 	}
