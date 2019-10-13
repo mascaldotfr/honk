@@ -654,28 +654,37 @@ func showontology(w http.ResponseWriter, r *http.Request) {
 	honkpage(w, u, honks, templinfo)
 }
 
+type Ont struct {
+	Name string
+	Count int64
+}
+
 func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	var userid int64 = -1
 	if u != nil {
 		userid = u.UserID
 	}
-	rows, err := stmtSelectOnts.Query(userid)
+	rows, err := stmtAllOnts.Query(userid)
 	if err != nil {
 		log.Printf("selection error: %s", err)
 		return
 	}
 	defer rows.Close()
-	var onts [][]string
+	var onts []Ont
 	for rows.Next() {
-		var o string
-		err := rows.Scan(&o)
+		var o Ont
+		err := rows.Scan(&o.Name, &o.Count)
 		if err != nil {
 			log.Printf("error scanning ont: %s", err)
 			continue
 		}
-		onts = append(onts, []string{o, o[1:]})
+		o.Name = o.Name[1:]
+		onts = append(onts, o)
 	}
+	sort.Slice(onts, func(i, j int) bool {
+		return onts[i].Name < onts[j].Name
+	})
 	if u == nil {
 		w.Header().Set("Cache-Control", "max-age=300")
 	}

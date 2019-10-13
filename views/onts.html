@@ -2,9 +2,15 @@
 <main>
 <div class="info">
 <p>ontologies of interest
-<p>
+{{ $letter := 0 }}
+<ul>
 {{ range .Onts }}
-<a href="/o/{{ index . 1 }}">{{ index . 0 }}</a>
+{{ if not (eq $letter (index .Name 0)) }}
+{{ $letter = (index .Name 0) }}
+<li><p>
 {{ end }}
+<a href="/o/{{ .Name }}">#{{ .Name }}</a> ({{ .Count }})
+{{ end }}
+</ul>
 </div>
 </main>

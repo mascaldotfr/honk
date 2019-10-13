@@ -610,7 +610,7 @@ var stmtFindFile, stmtGetFileData, stmtSaveFileData, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover, stmtOneHonker *sql.Stmt
 var stmtThumbBiters, stmtDeleteHonk, stmtDeleteDonks, stmtDeleteOnts, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
-var stmtSelectOnts, stmtSaveOnt, stmtUpdateFlags, stmtClearFlags *sql.Stmt
+var stmtAllOnts, stmtSaveOnt, stmtUpdateFlags, stmtClearFlags *sql.Stmt
 var stmtHonksForUserFirstClass, stmtSaveMeta, stmtDeleteMeta, stmtUpdateHonk *sql.Stmt
 var stmtHonksISaved, stmtGetFilters, stmtSaveFilter, stmtDeleteFilter *sql.Stmt
 
@@ -682,7 +682,7 @@ func prepareStatements(db *sql.DB) {
 	stmtRecentHonkers = preparetodie(db, "select distinct(honker) from honks where userid = ? and honker not in (select xid from honkers where userid = ? and flavor = 'sub') order by honkid desc limit 100")
 	stmtUpdateFlags = preparetodie(db, "update honks set flags = flags | ? where honkid = ?")
 	stmtClearFlags = preparetodie(db, "update honks set flags = flags & ~ ? where honkid = ?")
-	stmtSelectOnts = preparetodie(db, "select distinct(ontology) from onts join honks on onts.honkid = honks.honkid where (honks.userid = ? or honks.whofore = 2)")
+	stmtAllOnts = preparetodie(db, "select ontology, count(ontology) from onts join honks on onts.honkid = honks.honkid where (honks.userid = ? or honks.whofore = 2) group by ontology")
 	stmtGetFilters = preparetodie(db, "select hfcsid, json from hfcs where userid = ?")
 	stmtSaveFilter = preparetodie(db, "insert into hfcs (userid, json) values (?, ?)")
 	stmtDeleteFilter = preparetodie(db, "delete from hfcs where userid = ? and hfcsid = ?")
