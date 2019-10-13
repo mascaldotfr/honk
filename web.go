@@ -1590,6 +1590,7 @@ func nomoroboto(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Disallow: /a\n")
 	io.WriteString(w, "Disallow: /d\n")
 	io.WriteString(w, "Disallow: /meme\n")
+	io.WriteString(w, "Disallow: /o\n")
 	for _, u := range allusers() {
 		fmt.Fprintf(w, "Disallow: /%s/%s/%s/\n", userSep, u.Username, honkSep)
 	}
