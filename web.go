@@ -679,6 +679,9 @@ func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
 			log.Printf("error scanning ont: %s", err)
 			continue
 		}
+		if len(o.Name) > 24 {
+			continue
+		}
 		o.Name = o.Name[1:]
 		onts = append(onts, o)
 	}
