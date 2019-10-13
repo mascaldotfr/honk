@@ -9,7 +9,7 @@
 {{ $letter = (index .Name 0) }}
 <li><p>
 {{ end }}
-<a href="/o/{{ .Name }}">#{{ .Name }}</a> ({{ .Count }})
+<span style="white-space: nowrap;"><a href="/o/{{ .Name }}">#{{ .Name }}</a> ({{ .Count }})</span>
 {{ end }}
 </ul>
 </div>
