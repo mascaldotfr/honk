@@ -29,6 +29,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"humungus.tedunangst.com/r/webs/cache"
@@ -88,6 +89,11 @@ func PostMsg(keyname string, key *rsa.PrivateKey, url string, msg []byte) error 
 	return nil
 }
 
+type JunkError struct {
+	Junk junk.Junk
+	Err  error
+}
+
 func GetJunk(url string) (junk.Junk, error) {
 	return GetJunkTimeout(url, 30*time.Second)
 }
@@ -114,16 +120,49 @@ func GetJunkHardMode(url string) (junk.Junk, error) {
 	return j, err
 }
 
+var flightdeck = make(map[string][]chan JunkError)
+var decklock sync.Mutex
+
 func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
+	decklock.Lock()
+	inflight, ok := flightdeck[url]
+	if ok {
+		log.Printf("awaiting result for %s", url)
+		c := make(chan JunkError)
+		inflight = append(inflight, c)
+		flightdeck[url] = inflight
+		decklock.Unlock()
+		je := <-c
+		close(c)
+		return je.Junk, je.Err
+	}
+	flightdeck[url] = inflight
+	decklock.Unlock()
+
 	at := thefakename
 	if strings.Contains(url, ".well-known/webfinger?resource") {
 		at = "application/jrd+json"
 	}
-	return junk.Get(url, junk.GetArgs{
+	j, err := junk.Get(url, junk.GetArgs{
 		Accept:  at,
 		Agent:   "honksnonk/5.0; " + serverName,
 		Timeout: timeout,
 	})
+
+	decklock.Lock()
+	inflight = flightdeck[url]
+	delete(flightdeck, url)
+	decklock.Unlock()
+	if len(inflight) > 0 {
+		je := JunkError{Junk: j, Err: err}
+		go func() {
+			for _, c := range inflight {
+				log.Printf("returning awaited result for %s", url)
+				c <- je
+			}
+		}()
+	}
+	return j, err
 }
 
 func savedonk(url string, name, desc, media string, localize bool) *Donk {

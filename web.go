@@ -655,7 +655,7 @@ func showontology(w http.ResponseWriter, r *http.Request) {
 }
 
 type Ont struct {
-	Name string
+	Name  string
 	Count int64
 }
 
