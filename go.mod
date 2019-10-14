@@ -9,3 +9,5 @@ require (
 	humungus.tedunangst.com/r/go-sqlite3 v1.1.3
 	humungus.tedunangst.com/r/webs v0.6.10
 )
+
+go 1.11
