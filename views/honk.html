@@ -94,7 +94,7 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ if .Honk.IsBonked }}
 <button onclick="return unbonk(this, '{{ .Honk.XID }}');">unbonk</button>
 {{ else }}
-<button onclick="return bonk(this, '{{ .Honk.XID }}');"><a href="/bonk?xid={{ .Honk.XID }}&CSRF={{ $bonkcsrf }}">bonk</a></button>
+<button onclick="return bonk(this, '{{ .Honk.XID }}');">bonk</button>
 {{ end }}
 {{ else }}
 <button disabled>nope</button>
