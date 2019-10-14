@@ -22,7 +22,8 @@ function get(url, whendone) {
 function bonk(el, xid) {
 	el.innerHTML = "bonked"
 	el.disabled = true
-	post("/bonk", encode({"CSRF": csrftoken, "xid": xid}))
+	post("/bonk", encode({"js": "2", "CSRF": csrftoken, "xid": xid}))
+	return false
 }
 function unbonk(el, xid) {
 	el.innerHTML = "unbonked"
@@ -238,6 +239,7 @@ function showhonkform(elem, rid, hname) {
 		honknoise.value = "@" + hname + " "
 	}
 	document.getElementById("honknoise").focus()
+	return false
 }
 function showelement(id) {
 	var el = document.getElementById(id)

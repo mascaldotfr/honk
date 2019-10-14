@@ -848,6 +848,15 @@ func submitbonk(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go honkworldwide(user, &bonk)
+
+	if r.FormValue("js") != "1" {
+		templinfo := getInfo(r)
+		templinfo["ServerMessage"] = "Bonked!"
+		err = readviews.Execute(w, "msg.html", templinfo)
+		if err != nil {
+			log.Print(err)
+		}
+	}
 }
 
 func sendzonkofsorts(xonk *Honk, user *WhatAbout, what string) {
@@ -977,6 +986,31 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	if len(honk.Donks) > 0 {
 		templinfo["SavedFile"] = honk.Donks[0].XID
 	}
+	err := readviews.Execute(w, "honkpage.html", templinfo)
+	if err != nil {
+		log.Print(err)
+	}
+}
+
+func newhonkpage(w http.ResponseWriter, r *http.Request) {
+	u := login.GetUserInfo(r)
+	rid := r.FormValue("rid")
+	noise := ""
+
+	xonk := getxonk(u.UserID, rid)
+	if xonk != nil {
+		_, replto := handles(xonk.Honker)
+		if replto != "" {
+			noise = "@" + replto + " "
+		}
+	}
+
+	templinfo := getInfo(r)
+	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
+	templinfo["InReplyTo"] = rid
+	templinfo["Noise"] = noise
+	templinfo["ServerMessage"] = "compose honk"
+	templinfo["IsPreview"] = true
 	err := readviews.Execute(w, "honkpage.html", templinfo)
 	if err != nil {
 		log.Print(err)
@@ -1686,6 +1720,7 @@ func serve() {
 		"views/funzone.html",
 		"views/login.html",
 		"views/xzone.html",
+		"views/msg.html",
 		"views/header.html",
 		"views/onts.html",
 		"views/honkpage.js",
@@ -1743,6 +1778,7 @@ func serve() {
 	loggedin.HandleFunc("/atme", homepage)
 	loggedin.HandleFunc("/hfcs", hfcspage)
 	loggedin.HandleFunc("/xzone", xzone)
+	loggedin.HandleFunc("/newhonk", newhonkpage)
 	loggedin.HandleFunc("/edit", edithonkpage)
 	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(submithonk)))
 	loggedin.Handle("/bonk", login.CSRFWrap("honkhonk", http.HandlerFunc(submitbonk)))

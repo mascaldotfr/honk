@@ -92,25 +92,25 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 <p>
 {{ if .Honk.Public }}
 {{ if .Honk.IsBonked }}
-<button onclick="unbonk(this, '{{ .Honk.XID }}');">unbonk</button>
+<button onclick="return unbonk(this, '{{ .Honk.XID }}');">unbonk</button>
 {{ else }}
-<button onclick="bonk(this, '{{ .Honk.XID }}');">bonk</button>
+<button onclick="return bonk(this, '{{ .Honk.XID }}');"><a href="/bonk?xid={{ .Honk.XID }}&CSRF={{ $bonkcsrf }}">bonk</a></button>
 {{ end }}
 {{ else }}
 <button disabled>nope</button>
 {{ end }}
-<button onclick="showhonkform(this, '{{ .Honk.XID }}', '{{ .Honk.Handle }}');">honk back</button>
-<button onclick="muteit(this, '{{ .Honk.Convoy }}');">mute</button>
-<button onclick="zonkit(this, '{{ .Honk.XID }}');">zonk</button>
+<button onclick="return showhonkform(this, '{{ .Honk.XID }}', '{{ .Honk.Handle }}');"><a href="/newhonk?rid={{ .Honk.XID }}">honk back</a></button>
+<button onclick="return muteit(this, '{{ .Honk.Convoy }}');">mute</button>
+<button onclick="return zonkit(this, '{{ .Honk.XID }}');">zonk</button>
 {{ if .Honk.IsAcked }}
-<button onclick="flogit(this, 'deack', '{{ .Honk.XID }}');">deack</button>
+<button onclick="return flogit(this, 'deack', '{{ .Honk.XID }}');">deack</button>
 {{ else }}
-<button onclick="flogit(this, 'ack', '{{ .Honk.XID }}');">ack</button>
+<button onclick="return flogit(this, 'ack', '{{ .Honk.XID }}');">ack</button>
 {{ end }}
 {{ if .Honk.IsSaved }}
-<button onclick="flogit(this, 'unsave', '{{ .Honk.XID }}');">unsave</button>
+<button onclick="return flogit(this, 'unsave', '{{ .Honk.XID }}');">unsave</button>
 {{ else }}
-<button onclick="flogit(this, 'save', '{{ .Honk.XID }}');">save</button>
+<button onclick="return flogit(this, 'save', '{{ .Honk.XID }}');">save</button>
 {{ end }}
 <button><a href="/edit?xid={{ .Honk.XID }}">edit</a></button>
 </div>
