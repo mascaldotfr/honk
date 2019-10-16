@@ -1296,7 +1296,7 @@ var combocache = cache.New(cache.Options{Filler: func(userid int64) ([]string, b
 	combos = oneofakind(combos)
 	sort.Strings(combos)
 	return combos, true
-}})
+}, Invalidator: &honkerinvalidator})
 
 func showcombos(w http.ResponseWriter, r *http.Request) {
 	userinfo := login.GetUserInfo(r)
@@ -1318,8 +1318,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	combos = " " + combos + " "
 	honkerid, _ := strconv.ParseInt(r.FormValue("honkerid"), 10, 0)
 
-	defer combocache.Clear(u.UserID)
-	defer shortnames.Clear(u.UserID)
+	defer honkerinvalidator.Clear(u.UserID)
 
 	if honkerid > 0 {
 		goodbye := r.FormValue("goodbye")

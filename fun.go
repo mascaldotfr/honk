@@ -350,10 +350,9 @@ func quickrename(s string, userid int64) string {
 				m = m[:len(m)-1]
 			}
 
-			row := stmtOneHonker.QueryRow(m, userid)
-			var xid string
-			err := row.Scan(&xid)
-			if err == nil {
+			xid := fullname(m, userid)
+
+			if xid != "" {
 				_, name := handles(xid)
 				if name != "" {
 					nonstop = true
@@ -373,13 +372,31 @@ var shortnames = cache.New(cache.Options{Filler: func(userid int64) (map[string]
 		m[h.XID] = h.Name
 	}
 	return m, true
-}})
+}, Invalidator: &honkerinvalidator})
 
 func shortname(userid int64, xid string) string {
 	var m map[string]string
 	ok := shortnames.Get(userid, &m)
 	if ok {
 		return m[xid]
+	}
+	return ""
+}
+
+var fullnames = cache.New(cache.Options{Filler: func(userid int64) (map[string]string, bool) {
+	honkers := gethonkers(userid)
+	m := make(map[string]string)
+	for _, h := range honkers {
+		m[h.Name] = h.XID
+	}
+	return m, true
+}, Invalidator: &honkerinvalidator})
+
+func fullname(name string, userid int64) string {
+	var m map[string]string
+	ok := fullnames.Get(userid, &m)
+	if ok {
+		return m[name]
 	}
 	return ""
 }

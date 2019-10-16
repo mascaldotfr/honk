@@ -52,6 +52,8 @@ func butwhatabout(name string) (*WhatAbout, error) {
 	return user, nil
 }
 
+var honkerinvalidator cache.Invalidator
+
 func gethonkers(userid int64) []*Honker {
 	rows, err := stmtHonkers.Query(userid)
 	if err != nil {
@@ -195,8 +197,35 @@ func gethonksbyconvoy(userid int64, convoy string) []*Honk {
 	return honks
 }
 func gethonksbysearch(userid int64, q string) []*Honk {
-	q = "%" + q + "%"
-	rows, err := stmtHonksBySearch.Query(userid, q, userid)
+	honker := ""
+	withhonker := 0
+	site := ""
+	withsite := 0
+	terms := strings.Split(q, " ")
+	q = "%"
+	for _, t := range terms {
+		if strings.HasPrefix(t, "site:") {
+			site = t[5:]
+			site = "%" + site + "%"
+			withsite = 1
+			continue
+		}
+		if strings.HasPrefix(t, "honker:") {
+			honker = t[7:]
+			xid := fullname(honker, userid)
+			if xid != "" {
+				honker = xid
+			}
+			withhonker = 1
+			continue
+		}
+		if q[0] != '%' {
+			q += " "
+		}
+		q += t
+	}
+	q += "%"
+	rows, err := stmtHonksBySearch.Query(userid, withsite, site, withhonker, honker, honker, q, userid)
 	honks := getsomehonks(rows, err)
 	return honks
 }
@@ -647,7 +676,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on (honkers.xid = honks.honker or honkers.xid = honks.oonker) where honks.userid = ? and honkers.name = ?"+butnotthose+limit)
 	stmtHonksByXonker = preparetodie(db, selecthonks+" where honks.userid = ? and (honker = ? or oonker = ?)"+butnotthose+limit)
 	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.combos like ?"+butnotthose+limit)
-	stmtHonksBySearch = preparetodie(db, selecthonks+"where honks.userid = ? and noise like ?"+butnotthose+limit)
+	stmtHonksBySearch = preparetodie(db, selecthonks+"where honks.userid = ? and (? = 0 or xid like ?) and (? = 0 or honks.honker = ? or honks.oonker = ?) and noise like ?"+butnotthose+limit)
 	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or (? = -1 and whofore = 2)) and convoy = ?"+limit)
 	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where onts.ontology = ? and (honks.userid = ? or (? = -1 and honks.whofore = 2))"+limit)
 
