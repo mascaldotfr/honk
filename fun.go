@@ -87,10 +87,17 @@ func reverbolate(userid int64, honks []*Honk) {
 		if h.Oonker != "" {
 			_, h.Oondle = handles(h.Oonker)
 		}
-		zap := make(map[*Donk]bool)
 		h.Precis = demoji(h.Precis)
 		h.Noise = demoji(h.Noise)
 		h.Open = "open"
+
+		{
+			p, _ := filt.String(h.Precis)
+			n, _ := filt.String(h.Noise)
+			h.Precis = string(p)
+			h.Noise = string(n)
+		}
+
 		if userid == -1 {
 			if h.Precis != "" {
 				h.Open = ""
@@ -108,8 +115,7 @@ func reverbolate(userid int64, honks []*Honk) {
 			h.Open = ""
 		}
 
-		h.HTPrecis, _ = filt.String(h.Precis)
-		h.HTML, _ = filt.String(h.Noise)
+		zap := make(map[*Donk]bool)
 		emuxifier := func(e string) string {
 			for _, d := range h.Donks {
 				if d.Name == e {
@@ -121,8 +127,9 @@ func reverbolate(userid int64, honks []*Honk) {
 			}
 			return e
 		}
-		h.HTPrecis = template.HTML(re_emus.ReplaceAllStringFunc(string(h.HTPrecis), emuxifier))
-		h.HTML = template.HTML(re_emus.ReplaceAllStringFunc(string(h.HTML), emuxifier))
+		h.Precis = re_emus.ReplaceAllStringFunc(h.Precis, emuxifier)
+		h.Noise = re_emus.ReplaceAllStringFunc(h.Noise, emuxifier)
+
 		j := 0
 		for i := 0; i < len(h.Donks); i++ {
 			if !zap[h.Donks[i]] {
@@ -131,6 +138,9 @@ func reverbolate(userid int64, honks []*Honk) {
 			}
 		}
 		h.Donks = h.Donks[:j]
+
+		h.HTPrecis = template.HTML(h.Precis)
+		h.HTML = template.HTML(h.Noise)
 	}
 }
 
