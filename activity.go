@@ -634,12 +634,8 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		}
 		xonk.Audience = append(xonk.Audience, xonk.Honker)
 		xonk.Audience = oneofakind(xonk.Audience)
-		for _, a := range xonk.Audience {
-			if a == user.URL {
-				xonk.Whofore = 1
-			}
-		}
 
+		var mentions []string
 		if obj != nil {
 			ot, _ := obj.GetString("type")
 			url, _ = obj.GetString("url")
@@ -780,6 +776,10 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					p.Url, _ = tag.GetString("url")
 					xonk.Place = p
 				}
+				if tt == "Mention" {
+					m, _ := tag.GetString("href")
+					mentions = append(mentions, m)
+				}
 			}
 			starttime, ok := obj.GetString("startTime")
 			if ok {
@@ -861,6 +861,11 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		xonk.Precis = precis
 		xonk.Format = "html"
 		xonk.Convoy = convoy
+		for _, m := range mentions {
+			if m == user.URL {
+				xonk.Whofore = 1
+			}
+		}
 
 		if isUpdate {
 			log.Printf("something has changed! %s", xonk.XID)
