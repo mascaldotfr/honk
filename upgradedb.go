@@ -24,6 +24,8 @@ import (
 	"time"
 )
 
+var myVersion = 25
+
 func doordie(db *sql.DB, s string, args ...interface{}) {
 	_, err := db.Exec(s, args...)
 	if err != nil {
