@@ -19,7 +19,6 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
-	"html"
 	"html/template"
 	"io"
 	"log"
@@ -195,12 +194,12 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if p := honk.Place; p != nil {
-			desc += fmt.Sprintf(`<p>Location: <a href="%s">%s</a> %f %f`,
-				html.EscapeString(p.Url), html.EscapeString(p.Name), p.Latitude, p.Longitude)
+			desc += string(templates.Sprintf(`<p>Location: <a href="%s">%s</a> %f %f`,
+				p.Url, p.Name, p.Latitude, p.Longitude))
 		}
 		for _, d := range honk.Donks {
-			desc += fmt.Sprintf(`<p><a href="%s">Attachment: %s</a>`,
-				d.URL, html.EscapeString(d.Name))
+			desc += string(templates.Sprintf(`<p><a href="%s">Attachment: %s</a>`,
+				d.URL, d.Name))
 		}
 
 		feed.Items = append(feed.Items, &rss.Item{
@@ -593,12 +592,11 @@ func showhonker(w http.ResponseWriter, r *http.Request) {
 	} else {
 		honks = gethonksbyhonker(u.UserID, name)
 	}
-	name = html.EscapeString(name)
-	msg := fmt.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>`, name, name)
+	msg := templates.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>`, name, name)
 	templinfo := getInfo(r)
 	templinfo["PageName"] = "honker"
 	templinfo["PageArg"] = name
-	templinfo["ServerMessage"] = template.HTML(msg)
+	templinfo["ServerMessage"] = msg
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	honkpage(w, u, honks, templinfo)
 }
@@ -1667,9 +1665,8 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 			xid = gofish(xid)
 		}
 		honks = gethonksbyxonker(userid, xid)
-		xid = html.EscapeString(xid)
-		msg := fmt.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>`, xid, xid)
-		templinfo["ServerMessage"] = template.HTML(msg)
+		msg := templates.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>`, xid, xid)
+		templinfo["ServerMessage"] = msg
 	default:
 		http.NotFound(w, r)
 	}
