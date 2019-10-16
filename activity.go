@@ -129,8 +129,7 @@ func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
 	if ok {
 		log.Printf("awaiting result for %s", url)
 		c := make(chan JunkError)
-		inflight = append(inflight, c)
-		flightdeck[url] = inflight
+		flightdeck[url] = append(inflight, c)
 		decklock.Unlock()
 		je := <-c
 		close(c)
