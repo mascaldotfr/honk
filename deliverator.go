@@ -108,7 +108,7 @@ func deliverate(goarounds int, username string, rcpt string, msg []byte) {
 	}
 }
 
-var pokechan = make(chan int)
+var pokechan = make(chan int, 1)
 
 func getdoovers() []Doover {
 	rows, err := stmtGetDoovers.Query()
