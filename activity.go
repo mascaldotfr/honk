@@ -312,7 +312,7 @@ var boxofboxes = cache.New(cache.Options{Filler: func(ident string) (*Box, bool)
 	}
 	inbox, _ := j.GetString("inbox")
 	outbox, _ := j.GetString("outbox")
-	sbox, _ := j.FindString([]string{"endpoints", "sharedInbox"})
+	sbox, _ := j.GetString("endpoints", "sharedInbox")
 	b := &Box{In: inbox, Out: outbox, Shared: sbox}
 	if inbox != "" {
 		m := strings.Join([]string{inbox, outbox, sbox}, " ")
@@ -593,7 +593,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			_, ok := obj.GetString("diaspora:guid")
 			if ok {
 				// friendica does the silliest bonks
-				c, ok := obj.FindString([]string{"source", "content"})
+				c, ok := obj.GetString("source", "content")
 				if ok {
 					re_link := regexp.MustCompile(`link='([^']*)'`)
 					m := re_link.FindStringSubmatch(c)
