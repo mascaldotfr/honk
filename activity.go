@@ -1335,16 +1335,13 @@ func investigate(name string) (*Honker, error) {
 	if name == "" {
 		return nil, fmt.Errorf("no name")
 	}
-	log.Printf("digging up some info on %s", name)
 	obj, err := GetJunkFast(name)
 	if err != nil {
-		log.Printf("error investigating honker: %s", err)
 		return nil, err
 	}
 	t, _ := obj.GetString("type")
 	if !isactor(t) {
-		log.Printf("it's not a person! %s", name)
-		return nil, err
+		return nil, fmt.Errorf("not a person")
 	}
 	xid, _ := obj.GetString("id")
 	handle, _ := obj.GetString("preferredUsername")

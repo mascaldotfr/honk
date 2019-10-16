@@ -90,14 +90,13 @@ func (honk *Honk) IsSaved() bool {
 }
 
 type Donk struct {
-	FileID  int64
-	XID     string
-	Name    string
-	Desc    string
-	URL     string
-	Media   string
-	Local   bool
-	Content []byte
+	FileID int64
+	XID    string
+	Name   string
+	Desc   string
+	URL    string
+	Media  string
+	Local  bool
 }
 
 type Place struct {
@@ -134,12 +133,6 @@ type Honker struct {
 	Handle string
 	Flavor string
 	Combos []string
-}
-
-type Zonker struct {
-	ID        int64
-	Name      string
-	Wherefore string
 }
 
 var serverName string

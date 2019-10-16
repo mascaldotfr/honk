@@ -99,6 +99,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		userid = u.UserID
 		switch r.URL.Path {
 		case "/atme":
+			templinfo["PageName"] = "at me!"
 			templinfo["PageName"] = "atme"
 			honks = gethonksforme(userid)
 		case "/events":
@@ -820,7 +821,7 @@ func submitbonk(w http.ResponseWriter, r *http.Request) {
 		oonker = xonk.Honker
 	}
 	dt := time.Now().UTC()
-	bonk := Honk{
+	bonk := &Honk{
 		UserID:   userinfo.UserID,
 		Username: userinfo.Username,
 		What:     "bonk",
@@ -837,17 +838,16 @@ func submitbonk(w http.ResponseWriter, r *http.Request) {
 		Convoy:   xonk.Convoy,
 		Audience: []string{thewholeworld, oonker},
 		Public:   true,
+		Format:   "html",
 	}
 
-	bonk.Format = "html"
-
-	err = savehonk(&bonk)
+	err = savehonk(bonk)
 	if err != nil {
 		log.Printf("uh oh")
 		return
 	}
 
-	go honkworldwide(user, &bonk)
+	go honkworldwide(user, bonk)
 
 	if r.FormValue("js") != "1" {
 		templinfo := getInfo(r)
@@ -860,7 +860,7 @@ func submitbonk(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendzonkofsorts(xonk *Honk, user *WhatAbout, what string) {
-	zonk := Honk{
+	zonk := &Honk{
 		What:     what,
 		XID:      xonk.XID,
 		Date:     time.Now().UTC(),
@@ -869,7 +869,7 @@ func sendzonkofsorts(xonk *Honk, user *WhatAbout, what string) {
 	zonk.Public = !keepitquiet(zonk.Audience)
 
 	log.Printf("announcing %sed honk: %s", what, xonk.XID)
-	go honkworldwide(user, &zonk)
+	go honkworldwide(user, zonk)
 }
 
 func zonkit(w http.ResponseWriter, r *http.Request) {
