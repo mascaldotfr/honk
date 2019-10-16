@@ -196,7 +196,7 @@ func gethonksbyconvoy(userid int64, convoy string) []*Honk {
 }
 func gethonksbysearch(userid int64, q string) []*Honk {
 	q = "%" + q + "%"
-	rows, err := stmtHonksBySearch.Query(userid, q)
+	rows, err := stmtHonksBySearch.Query(userid, q, userid)
 	honks := getsomehonks(rows, err)
 	return honks
 }
@@ -647,7 +647,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on (honkers.xid = honks.honker or honkers.xid = honks.oonker) where honks.userid = ? and honkers.name = ?"+butnotthose+limit)
 	stmtHonksByXonker = preparetodie(db, selecthonks+" where honks.userid = ? and (honker = ? or oonker = ?)"+butnotthose+limit)
 	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.combos like ?"+butnotthose+limit)
-	stmtHonksBySearch = preparetodie(db, selecthonks+"where honks.userid = ? and noise like ?"+limit)
+	stmtHonksBySearch = preparetodie(db, selecthonks+"where honks.userid = ? and noise like ?"+butnotthose+limit)
 	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or (? = -1 and whofore = 2)) and convoy = ?"+limit)
 	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where onts.ontology = ? and (honks.userid = ? or (? = -1 and honks.whofore = 2))"+limit)
 
