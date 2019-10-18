@@ -219,7 +219,7 @@ func gethonksbysearch(userid int64, q string) []*Honk {
 			withhonker = 1
 			continue
 		}
-		if q[0] != '%' {
+		if len(q) != 1 {
 			q += " "
 		}
 		q += t
