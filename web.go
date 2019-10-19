@@ -1565,6 +1565,7 @@ func servecss(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	defer fd.Close()
 	w.Header().Set("Cache-Control", "max-age=0")
 	w.Header().Set("Content-Type", "text/css; charset=utf-8")
 	err = css.Filter(fd, w)
