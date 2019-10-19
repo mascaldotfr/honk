@@ -1061,8 +1061,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		}
 
 		var tags []junk.Junk
-		g := bunchofgrapes(h.Noise)
-		for _, m := range g {
+		for _, m := range bunchofgrapes(h.Noise) {
 			t := junk.New()
 			t["type"] = "Mention"
 			t["name"] = m.who
@@ -1077,8 +1076,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			t["name"] = o
 			tags = append(tags, t)
 		}
-		herd := herdofemus(h.Noise)
-		for _, e := range herd {
+		for _, e := range herdofemus(h.Noise) {
 			t := junk.New()
 			t["id"] = e.ID
 			t["type"] = "Emoji"
