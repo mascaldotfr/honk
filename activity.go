@@ -664,11 +664,6 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				}
 			}
 			convoy, _ = obj.GetString("context")
-			if strings.HasSuffix(convoy, "#context") &&
-				originate(convoy) != originate(xid) {
-				// friendica...
-				convoy = ""
-			}
 			if convoy == "" {
 				convoy, _ = obj.GetString("conversation")
 			}
@@ -884,6 +879,14 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			}
 		}
 		if !isUpdate && needxonk(user, &xonk) {
+			if strings.HasSuffix(convoy, "#context") {
+				// friendica...
+				if rid != "" {
+					convoy = ""
+				} else {
+					convoy = url
+				}
+			}
 			if rid != "" {
 				if needxonkid(user, rid) {
 					goingup++
