@@ -100,7 +100,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		case "/atme":
 			templinfo["PageName"] = "at me!"
 			templinfo["PageName"] = "atme"
-			honks = gethonksforme(userid)
+			honks = gethonksforme(userid, 0)
 		case "/events":
 			templinfo["ServerMessage"] = "some recent and upcoming events"
 			templinfo["PageName"] = "events"
@@ -108,15 +108,15 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 			honks = osmosis(honks, userid)
 		case "/first":
 			templinfo["PageName"] = "first"
-			honks = gethonksforuser(userid)
+			honks = gethonksforuser(userid, 0)
 			honks = osmosis(honks, userid)
 		case "/saved":
 			templinfo["ServerMessage"] = "saved honks"
 			templinfo["PageName"] = "saved"
-			honks = getsavedhonks(userid)
+			honks = getsavedhonks(userid, 0)
 		default:
 			templinfo["PageName"] = "home"
-			honks = gethonksforuser(userid)
+			honks = gethonksforuser(userid, 0)
 			honks = osmosis(honks, userid)
 		}
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
@@ -156,7 +156,7 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 
 	var honks []*Honk
 	if name != "" {
-		honks = gethonksbyuser(name, false)
+		honks = gethonksbyuser(name, false, 0)
 	} else {
 		honks = getpublichonks()
 	}
@@ -477,7 +477,7 @@ var oldoutbox = cache.New(cache.Options{Filler: func(name string) ([]byte, bool)
 	if err != nil {
 		return nil, false
 	}
-	honks := gethonksbyuser(name, false)
+	honks := gethonksbyuser(name, false, 0)
 	if len(honks) > 20 {
 		honks = honks[0:20]
 	}
@@ -570,7 +570,7 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u := login.GetUserInfo(r)
-	honks := gethonksbyuser(name, u != nil && u.Username == name)
+	honks := gethonksbyuser(name, u != nil && u.Username == name, 0)
 	templinfo := getInfo(r)
 	filt := htfilter.New()
 	templinfo["Name"] = user.Name
@@ -588,9 +588,9 @@ func showhonker(w http.ResponseWriter, r *http.Request) {
 	var honks []*Honk
 	if name == "" {
 		name = r.FormValue("xid")
-		honks = gethonksbyxonker(u.UserID, name)
+		honks = gethonksbyxonker(u.UserID, name, 0)
 	} else {
-		honks = gethonksbyhonker(u.UserID, name)
+		honks = gethonksbyhonker(u.UserID, name, 0)
 	}
 	msg := templates.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>`, name, name)
 	templinfo := getInfo(r)
@@ -604,7 +604,7 @@ func showhonker(w http.ResponseWriter, r *http.Request) {
 func showcombo(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	u := login.GetUserInfo(r)
-	honks := gethonksbycombo(u.UserID, name)
+	honks := gethonksbycombo(u.UserID, name, 0)
 	honks = osmosis(honks, u.UserID)
 	templinfo := getInfo(r)
 	templinfo["PageName"] = "combo"
@@ -616,10 +616,10 @@ func showcombo(w http.ResponseWriter, r *http.Request) {
 func showconvoy(w http.ResponseWriter, r *http.Request) {
 	c := r.FormValue("c")
 	u := login.GetUserInfo(r)
-	honks := gethonksbyconvoy(u.UserID, c)
+	honks := gethonksbyconvoy(u.UserID, c, 0)
 	templinfo := getInfo(r)
 	if len(honks) > 0 {
-		templinfo["TopXID"] = honks[0].XID
+		templinfo["TopHID"] = honks[0].ID
 	}
 	reversehonks(honks)
 	templinfo["PageName"] = "convoy"
@@ -631,7 +631,7 @@ func showconvoy(w http.ResponseWriter, r *http.Request) {
 func showsearch(w http.ResponseWriter, r *http.Request) {
 	q := r.FormValue("q")
 	u := login.GetUserInfo(r)
-	honks := gethonksbysearch(u.UserID, q)
+	honks := gethonksbysearch(u.UserID, q, 0)
 	templinfo := getInfo(r)
 	templinfo["PageName"] = "search"
 	templinfo["PageArg"] = q
@@ -646,7 +646,7 @@ func showontology(w http.ResponseWriter, r *http.Request) {
 	if u != nil {
 		userid = u.UserID
 	}
-	honks := gethonksbyontology(userid, "#"+name)
+	honks := gethonksbyontology(userid, "#"+name, 0)
 	templinfo := getInfo(r)
 	templinfo["ServerMessage"] = "honks by ontology: " + name
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
@@ -742,7 +742,7 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 		honkpage(w, u, []*Honk{honk}, templinfo)
 		return
 	}
-	rawhonks := gethonksbyconvoy(honk.UserID, honk.Convoy)
+	rawhonks := gethonksbyconvoy(honk.UserID, honk.Convoy, 0)
 	reversehonks(rawhonks)
 	var honks []*Honk
 	for _, h := range rawhonks {
@@ -767,8 +767,8 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 	}
 	reverbolate(userid, honks)
 	templinfo["Honks"] = honks
-	if templinfo["TopXID"] == nil && len(honks) > 0 {
-		templinfo["TopXID"] = honks[0].XID
+	if templinfo["TopHID"] == nil && len(honks) > 0 {
+		templinfo["TopHID"] = honks[0].ID
 	}
 	err := readviews.Execute(w, "honkpage.html", templinfo)
 	if err != nil {
@@ -1632,54 +1632,48 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	page := r.FormValue("page")
+
+	wanted, _ := strconv.ParseInt(r.FormValue("tophid"), 10, 0)
+
 	var honks []*Honk
 	switch page {
 	case "atme":
-		honks = gethonksforme(userid)
+		honks = gethonksforme(userid, wanted)
 		templinfo["ServerMessage"] = "at me!"
 	case "home":
-		honks = gethonksforuser(userid)
+		honks = gethonksforuser(userid, wanted)
 		honks = osmosis(honks, userid)
 		templinfo["ServerMessage"] = serverMsg
 	case "first":
-		honks = gethonksforuserfirstclass(userid)
+		honks = gethonksforuserfirstclass(userid, wanted)
 		honks = osmosis(honks, userid)
 		templinfo["ServerMessage"] = "first class only"
 	case "saved":
-		honks = getsavedhonks(userid)
+		honks = getsavedhonks(userid, wanted)
 		templinfo["PageName"] = "saved"
 		templinfo["ServerMessage"] = "saved honks"
 	case "combo":
 		c := r.FormValue("c")
-		honks = gethonksbycombo(userid, c)
+		honks = gethonksbycombo(userid, c, wanted)
 		honks = osmosis(honks, userid)
 		templinfo["ServerMessage"] = "honks by combo: " + c
 	case "convoy":
 		c := r.FormValue("c")
-		honks = gethonksbyconvoy(userid, c)
+		honks = gethonksbyconvoy(userid, c, wanted)
 		templinfo["ServerMessage"] = "honks in convoy: " + c
 	case "honker":
 		xid := r.FormValue("xid")
 		if strings.IndexByte(xid, '@') != -1 {
 			xid = gofish(xid)
 		}
-		honks = gethonksbyxonker(userid, xid)
+		honks = gethonksbyxonker(userid, xid, wanted)
 		msg := templates.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>`, xid, xid)
 		templinfo["ServerMessage"] = msg
 	default:
 		http.NotFound(w, r)
 	}
 	if len(honks) > 0 {
-		templinfo["TopXID"] = honks[0].XID
-	}
-	if topxid := r.FormValue("topxid"); topxid != "" {
-		for i, h := range honks {
-			if h.XID == topxid {
-				honks = honks[0:i]
-				break
-			}
-		}
-		log.Printf("topxid %d frags", len(honks))
+		templinfo["TopHID"] = honks[0].ID
 	}
 	reverbolate(userid, honks)
 	templinfo["Honks"] = honks

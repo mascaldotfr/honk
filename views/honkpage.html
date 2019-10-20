@@ -30,8 +30,8 @@
 var csrftoken = {{ .HonkCSRF }}
 var honksforpage = { }
 var curpagestate = { name: "{{ .PageName }}", arg : "{{ .PageArg }}" }
-var topxid = { }
-topxid[curpagestate.name + ":" + curpagestate.arg] = "{{ .TopXID }}"
+var tophid = { }
+tophid[curpagestate.name + ":" + curpagestate.arg] = "{{ .TopHID }}"
 var servermsgs = { }
 servermsgs[curpagestate.name + ":" + curpagestate.arg] = "{{ .ServerMessage }}"
 

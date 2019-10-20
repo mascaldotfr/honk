@@ -150,53 +150,53 @@ func geteventhonks(userid int64) []*Honk {
 	reversehonks(honks)
 	return honks
 }
-func gethonksbyuser(name string, includeprivate bool) []*Honk {
+func gethonksbyuser(name string, includeprivate bool, wanted int64) []*Honk {
 	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
 	whofore := 2
 	if includeprivate {
 		whofore = 3
 	}
-	rows, err := stmtUserHonks.Query(whofore, name, dt)
+	rows, err := stmtUserHonks.Query(wanted, whofore, name, dt)
 	return getsomehonks(rows, err)
 }
-func gethonksforuser(userid int64) []*Honk {
+func gethonksforuser(userid int64, wanted int64) []*Honk {
 	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
-	rows, err := stmtHonksForUser.Query(userid, dt, userid, userid)
+	rows, err := stmtHonksForUser.Query(wanted, userid, dt, userid, userid)
 	return getsomehonks(rows, err)
 }
-func gethonksforuserfirstclass(userid int64) []*Honk {
+func gethonksforuserfirstclass(userid int64, wanted int64) []*Honk {
 	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
-	rows, err := stmtHonksForUserFirstClass.Query(userid, dt, userid, userid)
+	rows, err := stmtHonksForUserFirstClass.Query(wanted, userid, dt, userid, userid)
 	return getsomehonks(rows, err)
 }
-func gethonksforme(userid int64) []*Honk {
+func gethonksforme(userid int64, wanted int64) []*Honk {
 	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
-	rows, err := stmtHonksForMe.Query(userid, dt, userid)
+	rows, err := stmtHonksForMe.Query(wanted, userid, dt, userid)
 	return getsomehonks(rows, err)
 }
-func getsavedhonks(userid int64) []*Honk {
-	rows, err := stmtHonksISaved.Query(userid)
+func getsavedhonks(userid int64, wanted int64) []*Honk {
+	rows, err := stmtHonksISaved.Query(wanted, userid)
 	return getsomehonks(rows, err)
 }
-func gethonksbyhonker(userid int64, honker string) []*Honk {
-	rows, err := stmtHonksByHonker.Query(userid, honker, userid)
+func gethonksbyhonker(userid int64, honker string, wanted int64) []*Honk {
+	rows, err := stmtHonksByHonker.Query(wanted, userid, honker, userid)
 	return getsomehonks(rows, err)
 }
-func gethonksbyxonker(userid int64, xonker string) []*Honk {
-	rows, err := stmtHonksByXonker.Query(userid, xonker, xonker, userid)
+func gethonksbyxonker(userid int64, xonker string, wanted int64) []*Honk {
+	rows, err := stmtHonksByXonker.Query(wanted, userid, xonker, xonker, userid)
 	return getsomehonks(rows, err)
 }
-func gethonksbycombo(userid int64, combo string) []*Honk {
+func gethonksbycombo(userid int64, combo string, wanted int64) []*Honk {
 	combo = "% " + combo + " %"
-	rows, err := stmtHonksByCombo.Query(userid, combo, userid)
+	rows, err := stmtHonksByCombo.Query(wanted, userid, combo, userid)
 	return getsomehonks(rows, err)
 }
-func gethonksbyconvoy(userid int64, convoy string) []*Honk {
-	rows, err := stmtHonksByConvoy.Query(userid, userid, convoy)
+func gethonksbyconvoy(userid int64, convoy string, wanted int64) []*Honk {
+	rows, err := stmtHonksByConvoy.Query(wanted, userid, userid, convoy)
 	honks := getsomehonks(rows, err)
 	return honks
 }
-func gethonksbysearch(userid int64, q string) []*Honk {
+func gethonksbysearch(userid int64, q string, wanted int64) []*Honk {
 	honker := ""
 	withhonker := 0
 	site := ""
@@ -225,12 +225,12 @@ func gethonksbysearch(userid int64, q string) []*Honk {
 		q += t
 	}
 	q += "%"
-	rows, err := stmtHonksBySearch.Query(userid, withsite, site, withhonker, honker, honker, q, userid)
+	rows, err := stmtHonksBySearch.Query(wanted, userid, withsite, site, withhonker, honker, honker, q, userid)
 	honks := getsomehonks(rows, err)
 	return honks
 }
-func gethonksbyontology(userid int64, name string) []*Honk {
-	rows, err := stmtHonksByOntology.Query(name, userid, userid)
+func gethonksbyontology(userid int64, name string, wanted int64) []*Honk {
+	rows, err := stmtHonksByOntology.Query(wanted, name, userid, userid)
 	honks := getsomehonks(rows, err)
 	return honks
 }
@@ -667,18 +667,18 @@ func prepareStatements(db *sql.DB) {
 	stmtOneBonk = preparetodie(db, selecthonks+"where honks.userid = ? and xid = ? and what = 'bonk' and whofore = 2")
 	stmtPublicHonks = preparetodie(db, selecthonks+"where whofore = 2 and dt > ?"+limit)
 	stmtEventHonks = preparetodie(db, selecthonks+"where (whofore = 2 or honks.userid = ?) and what = 'event'"+limit)
-	stmtUserHonks = preparetodie(db, selecthonks+"where (whofore = 2 or whofore = ?) and username = ? and dt > ?"+limit)
+	stmtUserHonks = preparetodie(db, selecthonks+"where honks.honkid > ? and (whofore = 2 or whofore = ?) and username = ? and dt > ?"+limit)
 	myhonkers := " and honker in (select xid from honkers where userid = ? and (flavor = 'sub' or flavor = 'peep' or flavor = 'presub') and combos not like '% - %')"
-	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ?"+myhonkers+butnotthose+limit)
-	stmtHonksForUserFirstClass = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and (what <> 'tonk')"+myhonkers+butnotthose+limit)
-	stmtHonksForMe = preparetodie(db, selecthonks+"where honks.userid = ? and dt > ? and whofore = 1"+butnotthose+limit)
-	stmtHonksISaved = preparetodie(db, selecthonks+"where honks.userid = ? and flags & 4 order by honks.honkid desc")
-	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on (honkers.xid = honks.honker or honkers.xid = honks.oonker) where honks.userid = ? and honkers.name = ?"+butnotthose+limit)
-	stmtHonksByXonker = preparetodie(db, selecthonks+" where honks.userid = ? and (honker = ? or oonker = ?)"+butnotthose+limit)
-	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.userid = ? and honkers.combos like ?"+butnotthose+limit)
-	stmtHonksBySearch = preparetodie(db, selecthonks+"where honks.userid = ? and (? = 0 or xid like ?) and (? = 0 or honks.honker = ? or honks.oonker = ?) and noise like ?"+butnotthose+limit)
-	stmtHonksByConvoy = preparetodie(db, selecthonks+"where (honks.userid = ? or (? = -1 and whofore = 2)) and convoy = ?"+limit)
-	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where onts.ontology = ? and (honks.userid = ? or (? = -1 and honks.whofore = 2))"+limit)
+	stmtHonksForUser = preparetodie(db, selecthonks+"where honks.honkid > ? and honks.userid = ? and dt > ?"+myhonkers+butnotthose+limit)
+	stmtHonksForUserFirstClass = preparetodie(db, selecthonks+"where honks.honkid > ? and honks.userid = ? and dt > ? and (what <> 'tonk')"+myhonkers+butnotthose+limit)
+	stmtHonksForMe = preparetodie(db, selecthonks+"where honks.honkid > ? and honks.userid = ? and dt > ? and whofore = 1"+butnotthose+limit)
+	stmtHonksISaved = preparetodie(db, selecthonks+"where honks.honkid > ? and honks.userid = ? and flags & 4 order by honks.honkid desc")
+	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on (honkers.xid = honks.honker or honkers.xid = honks.oonker) where honks.honkid > ? and honks.userid = ? and honkers.name = ?"+butnotthose+limit)
+	stmtHonksByXonker = preparetodie(db, selecthonks+" where honks.honkid > ? and honks.userid = ? and (honker = ? or oonker = ?)"+butnotthose+limit)
+	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.honkid > ? and honks.userid = ? and honkers.combos like ?"+butnotthose+limit)
+	stmtHonksBySearch = preparetodie(db, selecthonks+"where honks.honkid > ? and honks.userid = ? and (? = 0 or xid like ?) and (? = 0 or honks.honker = ? or honks.oonker = ?) and noise like ?"+butnotthose+limit)
+	stmtHonksByConvoy = preparetodie(db, selecthonks+"where honks.honkid > ? and (honks.userid = ? or (? = -1 and whofore = 2)) and convoy = ?"+limit)
+	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where honks.honkid > ? and onts.ontology = ? and (honks.userid = ? or (? = -1 and honks.whofore = 2))"+limit)
 
 	stmtSaveMeta = preparetodie(db, "insert into honkmeta (honkid, genus, json) values (?, ?, ?)")
 	stmtDeleteMeta = preparetodie(db, "delete from honkmeta where honkid = ? and genus <> ?")

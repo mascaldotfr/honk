@@ -65,7 +65,7 @@ function flogit(el, how, xid) {
 function fillinhonks(xhr) {
 	var doc = xhr.responseXML
 	var stash = curpagestate.name + ":" + curpagestate.arg
-	topxid[stash] = doc.children[0].children[1].children[0].innerText
+	tophid[stash] = doc.children[0].children[1].children[0].innerText
 	var srvmsg = doc.children[0].children[1].children[1]
 	var honks = doc.children[0].children[1].children[2].children
 
@@ -118,7 +118,7 @@ function refreshhonks(btn) {
 	btn.disabled = true
 	var args = hydrargs()
 	var stash = curpagestate.name + ":" + curpagestate.arg
-	args["topxid"] = topxid[stash]
+	args["tophid"] = tophid[stash]
 	get("/hydra?" + encode(args), function(xhr) {
 		var lenhonks = fillinhonks(xhr)
 		btn.innerHTML = "refresh"
