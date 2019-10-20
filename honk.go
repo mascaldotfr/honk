@@ -169,6 +169,18 @@ func main() {
 	getconfig("honksep", &honkSep)
 	prepareStatements(db)
 	switch cmd {
+	case "debug":
+		if len(os.Args) != 3 {
+			log.Fatal("need an argument: debug (on|off)")
+		}
+		switch os.Args[2] {
+		case "on":
+			saveconfig("debug", 1)
+		case "off":
+			saveconfig("debug", 0)
+		default:
+			log.Fatal("argument must be on or off")
+		}
 	case "adduser":
 		adduser()
 	case "chpass":
