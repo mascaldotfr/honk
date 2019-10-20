@@ -137,9 +137,9 @@ type Honker struct {
 
 var serverName string
 var iconName = "icon.png"
-var serverMsg = template.HTML(`<h2>Things happen.</h2>`)
-var aboutMsg = template.HTML(`<h3>What is honk?</h3><p>Honk is amazing!`)
-var loginMsg = template.HTML(`<h2>login</h2>`)
+var serverMsg template.HTML
+var aboutMsg template.HTML
+var loginMsg template.HTML
 
 func ElaborateUnitTests() {
 }
@@ -175,9 +175,9 @@ func main() {
 		}
 		switch os.Args[2] {
 		case "on":
-			saveconfig("debug", 1)
+			updateconfig("debug", 1)
 		case "off":
-			saveconfig("debug", 0)
+			updateconfig("debug", 0)
 		default:
 			log.Fatal("argument must be on or off")
 		}

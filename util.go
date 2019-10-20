@@ -88,6 +88,7 @@ func initdb() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	alreadyopendb = db
 	defer func() {
 		os.Remove(dbname)
 		os.Exit(1)
@@ -129,11 +130,7 @@ func initdb() {
 		log.Print("that's way too short")
 		return
 	}
-	_, err = db.Exec("insert into config (key, value) values (?, ?)", "listenaddr", addr)
-	if err != nil {
-		log.Print(err)
-		return
-	}
+	setconfig("listenaddr", addr)
 	fmt.Printf("server name: ")
 	addr, err = r.ReadString('\n')
 	if err != nil {
@@ -145,24 +142,17 @@ func initdb() {
 		log.Print("that's way too short")
 		return
 	}
-	_, err = db.Exec("insert into config (key, value) values (?, ?)", "servername", addr)
-	if err != nil {
-		log.Print(err)
-		return
-	}
+	setconfig("servername", addr)
 	var randbytes [16]byte
 	rand.Read(randbytes[:])
 	key := fmt.Sprintf("%x", randbytes)
-	_, err = db.Exec("insert into config (key, value) values (?, ?)", "csrfkey", key)
-	if err != nil {
-		log.Print(err)
-		return
-	}
-	_, err = db.Exec("insert into config (key, value) values (?, ?)", "dbversion", myVersion)
-	if err != nil {
-		log.Print(err)
-		return
-	}
+	setconfig("csrfkey", key)
+	setconfig("dbversion", myVersion)
+
+	setconfig("servermsg", "<h2>Things happen.</h2>")
+	setconfig("aboutmsg", "<h3>What is honk?</h3>\n<p>Honk is amazing!")
+	setconfig("loginmsg", "<h2>login</h2>")
+	setconfig("debug", 0)
 
 	initblobdb()
 
@@ -374,9 +364,16 @@ func getconfig(key string, value interface{}) error {
 	return err
 }
 
-func saveconfig(key string, val interface{}) {
+func setconfig(key string, val interface{}) error {
 	db := opendatabase()
-	db.Exec("update config set value = ? where key = ?", val, key)
+	_, err := db.Exec("insert into config (key, value) values (?, ?)", key, val)
+	return err
+}
+
+func updateconfig(key string, val interface{}) error {
+	db := opendatabase()
+	_, err := db.Exec("update config set value = ? where key = ?", val, key)
+	return err
 }
 
 func openListener() (net.Listener, error) {
