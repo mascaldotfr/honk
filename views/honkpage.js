@@ -246,6 +246,8 @@ function showhonkform(elem, rid, hname) {
 		ridinput.value = ""
 		honknoise.value = ""
 	}
+	var updateinput = document.getElementById("updatexidinput")
+	updateinput.value = ""
 	document.getElementById("honknoise").focus()
 	return false
 }
