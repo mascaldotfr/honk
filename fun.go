@@ -538,18 +538,17 @@ func firstclass(honk *Honk) bool {
 }
 
 func oneofakind(a []string) []string {
-	var x []string
-	for n, s := range a {
-		if s != "" {
-			x = append(x, s)
-			for i := n + 1; i < len(a); i++ {
-				if a[i] == s {
-					a[i] = ""
-				}
-			}
+	seen := make(map[string]bool)
+	seen[""] = true
+	j := 0
+	for _, s := range a {
+		if !seen[s] {
+			seen[s] = true
+			a[j] = s
+			j++
 		}
 	}
-	return x
+	return a[:j]
 }
 
 var ziggies = make(map[string]*rsa.PrivateKey)

@@ -1534,13 +1534,11 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 	j := junk.New()
 	j["subject"] = fmt.Sprintf("acct:%s@%s", user.Name, serverName)
 	j["aliases"] = []string{user.URL}
-	var links []junk.Junk
 	l := junk.New()
 	l["rel"] = "self"
 	l["type"] = `application/activity+json`
 	l["href"] = user.URL
-	links = append(links, l)
-	j["links"] = links
+	j["links"] = []junk.Junk{l}
 
 	w.Header().Set("Cache-Control", "max-age=3600")
 	w.Header().Set("Content-Type", "application/jrd+json")
@@ -1565,6 +1563,7 @@ func servecss(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	defer fd.Close()
 	w.Header().Set("Cache-Control", "max-age=0")
 	w.Header().Set("Content-Type", "text/css; charset=utf-8")
 	err = css.Filter(fd, w)
