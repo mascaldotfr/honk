@@ -62,6 +62,10 @@ function flogit(el, how, xid) {
 	el.disabled = true
 	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": how, "what": xid}))
 }
+
+var lehonkform = document.getElementById("honkform")
+var lehonkbutton = document.getElementById("honkingtime")
+
 function fillinhonks(xhr) {
 	var doc = xhr.responseXML
 	var stash = curpagestate.name + ":" + curpagestate.arg
@@ -223,12 +227,13 @@ function relinklinks() {
 	el.style.display = "none"
 })();
 function showhonkform(elem, rid, hname) {
-	var form = document.getElementById("honkform")
+	var form = lehonkform
 	form.style = "display: block"
 	if (elem) {
 		form.remove()
 		elem.parentElement.parentElement.parentElement.insertAdjacentElement('beforebegin', form)
 	} else {
+		hideelement(lehonkbutton)
 		elem = document.getElementById("honkformhost")
 		elem.insertAdjacentElement('afterend', form)
 	}
@@ -237,13 +242,26 @@ function showhonkform(elem, rid, hname) {
 	if (rid) {
 		ridinput.value = rid
 		honknoise.value = "@" + hname + " "
+	} else {
+		ridinput.value = ""
+		honknoise.value = ""
 	}
 	document.getElementById("honknoise").focus()
 	return false
 }
-function showelement(id) {
-	var el = document.getElementById(id)
+function cancelhonking() {
+	hideelement(lehonkform)
+	showelement(lehonkbutton)
+}
+function showelement(el) {
+	if (typeof(el) == "string")
+		el = document.getElementById(el)
 	el.style.display = "block"
+}
+function hideelement(el) {
+	if (typeof(el) == "string")
+		el = document.getElementById(el)
+	el.style.display = "none"
 }
 function updatedonker() {
 	var el = document.getElementById("donker")
