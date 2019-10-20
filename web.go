@@ -767,8 +767,12 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 	}
 	reverbolate(userid, honks)
 	templinfo["Honks"] = honks
-	if templinfo["TopHID"] == nil && len(honks) > 0 {
-		templinfo["TopHID"] = honks[0].ID
+	if templinfo["TopHID"] == nil {
+		if len(honks) > 0 {
+			templinfo["TopHID"] = honks[0].ID
+		} else {
+			templinfo["TopHID"] = 0
+		}
 	}
 	err := readviews.Execute(w, "honkpage.html", templinfo)
 	if err != nil {
@@ -1674,6 +1678,8 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(honks) > 0 {
 		templinfo["TopHID"] = honks[0].ID
+	} else {
+		templinfo["TopHID"] = wanted
 	}
 	reverbolate(userid, honks)
 	templinfo["Honks"] = honks
