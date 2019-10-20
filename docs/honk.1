@@ -26,10 +26,13 @@ utility processes federated status updates and other microblog activities.
 This is the user manual.
 For administration, see
 .Xr honk 8 .
+For other documentation, refer to the
+.Xr intro 1 .
 .Pp
 This manual is still incomplete.
 It'll get there eventually.
 .Ss Honkers
+Initially, there won't be much to see after logging in.
 In order to receive regular updates from other users, they must first
 be added to one's honker collection.
 Begin at the
@@ -56,13 +59,26 @@ These are accessed via the
 tab and allow easy access to particular groupings.
 The special combo name of one hyphen
 .Sq -
-will remove a honker's posts from the primary feed.
+will exclude a honker's posts from the primary feed.
+.Pp
+It is also possible to skip subscribing.
+In this case, regular posts are not received, but replies and posts fetched
+via other means will appear in the relevant combos.
 .Ss Viewing
-The primary feed is accessed via the home tab.
-It will contain posts from nearly all honkers.
+The primary feed is accessed via the
+.Pa home
+tab.
+It will contain posts from all honkers except those specifically excluded.
 Posts mentioning the user, both followed and not, are collected under the
 .Pa @me
 tab.
+Other feeds include
+.Pa first
+which excludes replies, the user defined options under the
+.Pa combos
+subheading, and the
+.Pa events
+page which lists only events.
 .Pp
 Individual honks contain a visual representation of the honker's ID,
 their name, the activity (with a link back to origin), a link to the
@@ -103,6 +119,12 @@ Sometimes other users of the federation can get unruly.
 The honk filtering and censorship system,
 .Xr hfcs 1 ,
 can be of great use to restore order to one's timeline.
+.Ss xzone
+The
+.Pa xzone
+page lists recently seen honkers that are not otherwise tracked.
+It also allows the import of external objects via URL, either individual
+posts or actor URLs, in which case their recent outbox is imported.
 .Sh ENVIRONMENT
 .Nm
 is designed to work with most browsers, but for optimal results it is
@@ -122,7 +144,7 @@ This will enable the main menu to line up just right.
 .Sh HISTORY
 Started March 2019.
 .Sh AUTHORS
-.An Ted Unangst Lk @tedu@honk.tedunangst.com https://honk.tedunangst.com/u/tedu
+.An Ted Unangst Lk https://honk.tedunangst.com/u/tedu @tedu@honk.tedunangst.com
 .Sh CAVEATS
 The ActivityPub standard is subject to interpretation, and not all
 implementations are as enlightened as
