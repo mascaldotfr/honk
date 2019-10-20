@@ -98,7 +98,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		userid = u.UserID
 		switch r.URL.Path {
 		case "/atme":
-			templinfo["PageName"] = "at me!"
+			templinfo["ServerMessage"] = "at me!"
 			templinfo["PageName"] = "atme"
 			honks = gethonksforme(userid, 0)
 		case "/events":
@@ -1586,6 +1586,8 @@ func servehelp(w http.ResponseWriter, r *http.Request) {
 }
 func servehtml(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
+	templinfo["AboutMsg"] = aboutMsg
+	templinfo["LoginMsg"] = loginMsg
 	err := readviews.Execute(w, r.URL.Path[1:]+".html", templinfo)
 	if err != nil {
 		log.Print(err)

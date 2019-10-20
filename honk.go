@@ -137,7 +137,9 @@ type Honker struct {
 
 var serverName string
 var iconName = "icon.png"
-var serverMsg = "Things happen."
+var serverMsg = template.HTML(`<h2>Things happen.</h2>`)
+var aboutMsg = template.HTML(`<h3>What is honk?</h3><p>Honk is amazing!`)
+var loginMsg = template.HTML(`<h2>login</h2>`)
 
 func ElaborateUnitTests() {
 }
@@ -160,6 +162,8 @@ func main() {
 		log.Fatal("incorrect database version. run upgrade.")
 	}
 	getconfig("servermsg", &serverMsg)
+	getconfig("aboutmsg", &aboutMsg)
+	getconfig("loginmsg", &loginMsg)
 	getconfig("servername", &serverName)
 	getconfig("usersep", &userSep)
 	getconfig("honksep", &honkSep)

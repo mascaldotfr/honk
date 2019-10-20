@@ -81,14 +81,12 @@ Site CSS may be overridden by creating a
 .Pa views/local.css
 file.
 .Pp
-A custom message me be set by editing the database.
+Custom messages may be set by editing the database.
 (Sorry.)
 .Dl insert into config values ('servermsg', 'message');
+.Dl insert into config values ('aboutmsg', 'message');
+.Dl insert into config values ('loginmsg', 'message');
 .Pp
-The
-.Pa views/about.html
-page doesn't change too frequently.
-It should be safe to edit.
 .Ss ADMIN
 New users can be added with the
 .Ic adduser
