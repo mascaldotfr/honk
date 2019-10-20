@@ -85,7 +85,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	var userid int64 = -1
 
 	templinfo["ServerMessage"] = serverMsg
-	if u == nil {
+	if u == nil || r.URL.Path == "/front" {
 		switch r.URL.Path {
 		case "/events":
 			honks = geteventhonks(userid)
