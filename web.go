@@ -1266,7 +1266,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 
 	go honkworldwide(user, honk)
 
-	http.Redirect(w, r, honk.XID, http.StatusSeeOther)
+	http.Redirect(w, r, honk.XID[len(serverName)+8:], http.StatusSeeOther)
 }
 
 func showhonkers(w http.ResponseWriter, r *http.Request) {
