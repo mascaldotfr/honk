@@ -35,6 +35,12 @@ func TestLinebreak3(t *testing.T) {
 	doonezerotest(t, input, output)
 }
 
+func TestCodeStyles(t *testing.T) {
+	input := "hello\n\n```go\nfunc(s string)\n```\n\ndoes it go?"
+	output := "hello<br><pre><code><span class=kw>func</span><span class=op>(</span>s <span class=tp>string</span><span class=op>)</span></code></pre><p>does it go?"
+	doonezerotest(t, input, output)
+}
+
 func TestSimplelink(t *testing.T) {
 	input := "This is a [link](https://example.com)."
 	output := `This is a <a class="mention u-url" href="https://example.com">link</a>.`
