@@ -27,7 +27,7 @@ create index idx_hfcsuser on hfcs(userid);
 create table config (key text, value text);
 
 create table users (userid integer primary key, username text, hash text, displayname text, about text, pubkey text, seckey text, options text);
-create table auth (authid integer primary key, userid integer, hash text);
+create table auth (authid integer primary key, userid integer, hash text, expiry text);
 CREATE index idxusers_username on users(username);
 CREATE index idxauth_userid on auth(userid);
 CREATE index idxauth_hash on auth(hash);
