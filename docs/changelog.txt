@@ -10,7 +10,7 @@ changelog
 
 + Better markdown output.
 
-+++ Add Honk Filtering and Censoring System (HFCS).
++++ Add Honk Filtering and Censorship System (HFCS).
 
 + Inline images in received posts.
 

@@ -120,6 +120,11 @@ Restart.
 There's also a
 .Pa blob.db
 file which is important to backup and restore.
+.Sh SECURITY
+.Nm
+is not currently hardened against SSRF, server side request forgery.
+Be mindful of what other services may be exposed via localhost or the
+local network.
 .Sh ENVIRONMENT
 Image processing and scaling requires considerable memory.
 It is recommended to adjust the datasize ulimit to at least 1GB.
