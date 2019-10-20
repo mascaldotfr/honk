@@ -5,7 +5,8 @@ require (
 	github.com/gdamore/tcell v1.3.0
 	github.com/gorilla/mux v1.7.2
 	github.com/mattn/go-runewidth v0.0.4
-	github.com/rivo/tview v0.0.0-20191018125527-685bf6da76c2
+	github.com/rivo/tview v0.0.0-20190406182340-90b4da1bd64c
+	github.com/rivo/uniseg v0.1.0 // indirect
 	golang.org/x/crypto v0.0.0-20190621222207-cc06ce4a13d4
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
 	humungus.tedunangst.com/r/go-sqlite3 v1.1.3
