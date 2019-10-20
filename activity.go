@@ -369,23 +369,6 @@ func gimmexonks(user *WhatAbout, outbox string) {
 	}
 }
 
-func peeppeep() {
-	user, _ := butwhatabout("htest")
-	honkers := gethonkers(user.ID)
-	for _, f := range honkers {
-		if f.Flavor != "peep" {
-			continue
-		}
-		log.Printf("getting updates: %s", f.XID)
-		var box *Box
-		ok := boxofboxes.Get(f.XID, &box)
-		if !ok {
-			log.Printf("error getting outbox")
-			continue
-		}
-		gimmexonks(user, box.Out)
-	}
-}
 func whosthere(xid string) ([]string, string) {
 	obj, err := GetJunk(xid)
 	if err != nil {

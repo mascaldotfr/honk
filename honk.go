@@ -188,8 +188,6 @@ func main() {
 			return
 		}
 		ping(user, targ)
-	case "peep":
-		peeppeep()
 	case "run":
 		serve()
 	case "test":
