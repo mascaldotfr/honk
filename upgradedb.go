@@ -283,17 +283,17 @@ func upgradedb() {
 		s := ""
 		getconfig("servermsg", &s)
 		if s == "" {
-			setconfig("servermsg", serverMsg)
+			setconfig("servermsg", "<h2>Things happen.</h2>")
 		}
 		s = ""
 		getconfig("aboutmsg", &s)
 		if s == "" {
-			setconfig("aboutmsg", aboutMsg)
+			setconfig("aboutmsg", "<h3>What is honk?</h3>\n<p>Honk is amazing!")
 		}
 		s = ""
 		getconfig("loginmsg", &s)
 		if s == "" {
-			setconfig("loginmsg", loginMsg)
+			setconfig("loginmsg", "<h2>login</h2>")
 		}
 		d := -1
 		getconfig("debug", &d)

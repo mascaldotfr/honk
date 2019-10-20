@@ -169,6 +169,8 @@ func main() {
 	getconfig("honksep", &honkSep)
 	prepareStatements(db)
 	switch cmd {
+	case "admin":
+		adminscreen()
 	case "debug":
 		if len(os.Args) != 3 {
 			log.Fatal("need an argument: debug (on|off)")
