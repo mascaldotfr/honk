@@ -81,13 +81,20 @@ Site CSS may be overridden by creating a
 .Pa views/local.css
 file.
 .Pp
-Custom messages may be set by editing the database.
-(Sorry.)
-.Dl update config set value = 'message' where key = 'servermsg';
-.Dl update config set value = 'message' where key = 'aboutmsg';
-.Dl update config set value = 'message' where key = 'loginmsg';
+Custom HTML messages may be added to select pages by using the
+.Ic admin
+command.
+.Dl ./honk admin
+.Bl -tag -width tenletters
+.It server
+Displayed on the home page.
+.It about
+Displayed on the about page.
+.It login
+Displayed about the login form.
+.El
 .Pp
-.Ss ADMIN
+.Ss USER ADMIN
 New users can be added with the
 .Ic adduser
 command.

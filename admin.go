@@ -16,7 +16,6 @@
 package main
 
 import (
-	"html/template"
 	"io/ioutil"
 	"log"
 
@@ -26,6 +25,28 @@ import (
 
 func adminscreen() {
 	log.SetOutput(ioutil.Discard)
+
+	messages := []*struct {
+		name  string
+		label string
+		text  string
+	}{
+		{
+			name:  "servermsg",
+			label: "server",
+			text:  string(serverMsg),
+		},
+		{
+			name:  "aboutmsg",
+			label: "about",
+			text:  string(aboutMsg),
+		},
+		{
+			name:  "loginmsg",
+			label: "login",
+			text:  string(loginMsg),
+		},
+	}
 
 	app := tview.NewApplication()
 	var maindriver func(event *tcell.EventKey) *tcell.EventKey
@@ -51,59 +72,31 @@ func adminscreen() {
 		{
 			col := 0
 			headcell := tview.TableCell{
-				Color: tcell.ColorWhite,
+				Color:         tcell.ColorWhite,
+				NotSelectable: true,
 			}
 			cell := dupecell(&headcell)
-			cell.Text = "Message"
+			cell.Text = "which       "
 			table.SetCell(row, col, cell)
 			col++
 			cell = dupecell(&headcell)
-			cell.Text = ""
+			cell.Text = "message"
 			table.SetCell(row, col, cell)
 
 			row++
 		}
-		{
+		for i := 0; i < 3; i++ {
 			col := 0
+			msg := messages[i]
 			headcell := tview.TableCell{
 				Color: tcell.ColorWhite,
 			}
 			cell := dupecell(&headcell)
-			cell.Text = "Server"
+			cell.Text = msg.label
 			table.SetCell(row, col, cell)
 			col++
 			cell = dupecell(&headcell)
-			cell.Text = tview.Escape(string(serverMsg))
-			table.SetCell(row, col, cell)
-
-			row++
-		}
-		{
-			col := 0
-			headcell := tview.TableCell{
-				Color: tcell.ColorWhite,
-			}
-			cell := dupecell(&headcell)
-			cell.Text = "About"
-			table.SetCell(row, col, cell)
-			col++
-			cell = dupecell(&headcell)
-			cell.Text = tview.Escape(string(aboutMsg))
-			table.SetCell(row, col, cell)
-
-			row++
-		}
-		{
-			col := 0
-			headcell := tview.TableCell{
-				Color: tcell.ColorWhite,
-			}
-			cell := dupecell(&headcell)
-			cell.Text = "Login"
-			table.SetCell(row, col, cell)
-			col++
-			cell = dupecell(&headcell)
-			cell.Text = tview.Escape(string(loginMsg))
+			cell.Text = tview.Escape(msg.text)
 			table.SetCell(row, col, cell)
 
 			row++
@@ -124,9 +117,7 @@ func adminscreen() {
 	}
 
 	editform := tview.NewForm()
-	namebox := tview.NewInputField().SetLabel("name").SetFieldWidth(20)
-	descbox := tview.NewInputField().SetLabel("description").SetFieldWidth(60)
-	orderbox := tview.NewInputField().SetLabel("order").SetFieldWidth(10)
+	descbox := tview.NewInputField().SetLabel("msg: ").SetFieldWidth(60)
 	editform.AddButton("save", nil)
 	editform.AddButton("cancel", nil)
 	savebutton := editform.GetButton(0)
@@ -138,33 +129,40 @@ func adminscreen() {
 	editform.GetButton(1).SetSelectedFunc(showtable)
 	editform.SetCancelFunc(showtable)
 
-	hadchanges := false
+	editframe := tview.NewFrame(editform)
+	editframe.SetBorders(1, 0, 1, 0, 4, 0)
 
 	showform := func() {
 		editform.Clear(false)
-		editform.AddFormItem(namebox)
 		editform.AddFormItem(descbox)
-		editform.AddFormItem(orderbox)
 		app.SetInputCapture(arrowadapter)
-		app.SetRoot(editform, true)
+		app.SetRoot(editframe, true)
 	}
 
-	editrepo := func(which string) {
-		namebox.SetText(which)
-		descbox.SetText("message")
+	editmsg := func(which int) {
+		msg := messages[which]
+		editframe.Clear()
+		editframe.AddText(tview.Escape("edit "+msg.label+" message"),
+			true, 0, tcell.ColorGreen)
+		descbox.SetText(msg.text)
 		savebutton.SetSelectedFunc(func() {
-			serverMsg = template.HTML(descbox.GetText())
-			hadchanges = true
+			msg.text = descbox.GetText()
+			updateconfig(msg.name, msg.text)
 			showtable()
 		})
 		showform()
 	}
 
+	table.SetSelectedFunc(func(row, col int) {
+		editmsg(row - 1)
+	})
+
 	maindriver = func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
-		case 'd':
 		case 'e':
-			editrepo("servermsg")
+			r, _ := table.GetSelection()
+			r--
+			editmsg(r)
 		case 'q':
 			app.Stop()
 			return nil
