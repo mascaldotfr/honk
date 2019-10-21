@@ -1217,8 +1217,8 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		timeend := r.FormValue("timeend")
-		dur, err := time.ParseDuration(timeend)
-		if err == nil {
+		dur := parseDuration(timeend)
+		if dur != 0 {
 			t.Duration = Duration(dur)
 		}
 		if !t.StartTime.IsZero() {
@@ -1460,6 +1460,9 @@ func savehfcs(w http.ResponseWriter, r *http.Request) {
 	filt.Collapse = r.FormValue("docollapse") == "yes"
 	filt.Rewrite = strings.TrimSpace(r.FormValue("filtrewrite"))
 	filt.Replace = strings.TrimSpace(r.FormValue("filtreplace"))
+	if dur := parseDuration(r.FormValue("filtduration")); dur > 0 {
+		filt.Expiration = time.Now().UTC().Add(dur)
+	}
 
 	if filt.Actor == "" && filt.Text == "" {
 		log.Printf("blank filter")

@@ -20,6 +20,7 @@ import (
 	"html/template"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -117,6 +118,17 @@ func (d Duration) String() string {
 		s = s[:len(s)-2]
 	}
 	return s
+}
+
+func parseDuration(s string) time.Duration {
+	didx := strings.IndexByte(s, 'd')
+	if didx != -1 {
+		days, _ := strconv.ParseInt(s[:didx], 10, 0)
+		dur, _ := time.ParseDuration(s[didx:])
+		return dur + 24*time.Hour*time.Duration(days)
+	}
+	dur, _ := time.ParseDuration(s)
+	return dur
 }
 
 type Time struct {

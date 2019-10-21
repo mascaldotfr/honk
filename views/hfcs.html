@@ -36,6 +36,10 @@ Honk Filtering and Censorship System
 <p><label for="replace">replace:</label><br>
 <input tabindex=1 type="text" name="filtreplace" value="" autocomplete=off>
 <hr>
+<h3>expiration</h3>
+<p><label for="filtduration">duration:</label><br>
+<input tabindex=1 type="text" name="filtduration" value="" autocomplete=off>
+<hr>
 <p><button>impose your will</button>
 </form>
 </div>
@@ -49,6 +53,7 @@ Honk Filtering and Censorship System
 <p>Actions: {{ range .Actions }} {{ . }} {{ end }}
 {{ with .Rewrite }}<p>Rewrite: {{ . }}{{ end }}
 {{ with .Replace }}<p>Replace: {{ . }}{{ end }}
+{{ if not .Expiration.IsZero }}<p>Expiration: {{ .Expiration.Format "2006-01-02 03:04" }}{{ end }}
 <form action="/savehfcs" method="POST">
 <input type="hidden" name="CSRF" value="{{ $csrf }}">
 <input type="hidden" name="hfcsid" value="{{ .ID }}">

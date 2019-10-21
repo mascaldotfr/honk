@@ -43,6 +43,7 @@ type Filter struct {
 	Rewrite         string `json:",omitempty"`
 	re_rewrite      *regexp.Regexp
 	Replace         string `json:",omitempty"`
+	Expiration      time.Time
 }
 
 type filtType uint
@@ -65,13 +66,24 @@ func (ft filtType) String() string {
 
 type afiltermap map[filtType][]*Filter
 
-var filtcache = cache.New(cache.Options{Filler: func(userid int64) (afiltermap, bool) {
+var filtcache *cache.Cache
+
+func init() {
+	// resolve init loop
+	filtcache = cache.New(cache.Options{Filler: filtcachefiller})
+}
+
+func filtcachefiller(userid int64) (afiltermap, bool) {
 	rows, err := stmtGetFilters.Query(userid)
 	if err != nil {
 		log.Printf("error querying filters: %s", err)
 		return nil, false
 	}
 	defer rows.Close()
+
+	now := time.Now()
+
+	var expflush time.Time
 
 	filtmap := make(afiltermap)
 	for rows.Next() {
@@ -85,6 +97,14 @@ var filtcache = cache.New(cache.Options{Filler: func(userid int64) (afiltermap, 
 		if err != nil {
 			log.Printf("error scanning filter: %s", err)
 			continue
+		}
+		if !filt.Expiration.IsZero() {
+			if filt.Expiration.Before(now) {
+				continue
+			}
+			if expflush.IsZero() || filt.Expiration.Before(expflush) {
+				expflush = filt.Expiration
+			}
 		}
 		if filt.Text != "" {
 			filt.re_text, err = regexp.Compile("\\b(?i:" + filt.Text + ")\\b")
@@ -127,8 +147,17 @@ var filtcache = cache.New(cache.Options{Filler: func(userid int64) (afiltermap, 
 	sort.Slice(filtmap[filtAny], func(i, j int) bool {
 		return sorting[i].Name < sorting[j].Name
 	})
+	if !expflush.IsZero() {
+		dur := expflush.Sub(now)
+		go filtcacheclear(userid, dur)
+	}
 	return filtmap, true
-}})
+}
+
+func filtcacheclear(userid int64, dur time.Duration) {
+	time.Sleep(dur + time.Second)
+	filtcache.Clear(userid)
+}
 
 func getfilters(userid int64, scope filtType) []*Filter {
 	var filtmap afiltermap
