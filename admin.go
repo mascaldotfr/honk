@@ -52,11 +52,11 @@ func adminscreen() {
 	var maindriver func(event *tcell.EventKey) *tcell.EventKey
 
 	table := tview.NewTable().SetFixed(1, 0).SetSelectable(true, false).
-		SetSelectedStyle(tcell.ColorBlack, tcell.ColorGreen, 0)
+		SetSelectedStyle(tcell.ColorBlack, tcell.ColorPurple, 0)
 
 	mainframe := tview.NewFrame(table)
 	mainframe.AddText(tview.Escape("honk admin - [q] quit"),
-		true, 0, tcell.ColorGreen)
+		true, 0, tcell.ColorPurple)
 	mainframe.SetBorders(1, 0, 1, 0, 4, 0)
 
 	dupecell := func(base *tview.TableCell) *tview.TableCell {
@@ -122,9 +122,9 @@ func adminscreen() {
 	editform.AddButton("cancel", nil)
 	savebutton := editform.GetButton(0)
 	editform.SetFieldTextColor(tcell.ColorBlack)
-	editform.SetFieldBackgroundColor(tcell.ColorGreen)
+	editform.SetFieldBackgroundColor(tcell.ColorPurple)
 	editform.SetLabelColor(tcell.ColorWhite)
-	editform.SetButtonTextColor(tcell.ColorGreen)
+	editform.SetButtonTextColor(tcell.ColorPurple)
 	editform.SetButtonBackgroundColor(tcell.ColorBlack)
 	editform.GetButton(1).SetSelectedFunc(showtable)
 	editform.SetCancelFunc(showtable)
@@ -143,7 +143,7 @@ func adminscreen() {
 		msg := messages[which]
 		editframe.Clear()
 		editframe.AddText(tview.Escape("edit "+msg.label+" message"),
-			true, 0, tcell.ColorGreen)
+			true, 0, tcell.ColorPurple)
 		descbox.SetText(msg.text)
 		savebutton.SetSelectedFunc(func() {
 			msg.text = descbox.GetText()
