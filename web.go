@@ -1160,13 +1160,14 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 				log.Printf("unable to save image: %s", err)
 				return
 			}
-			var d Donk
-			d.FileID = fileid
-			d.XID = xid
-			d.Desc = desc
-			d.URL = url
-			d.Local = true
-			honk.Donks = append(honk.Donks, &d)
+			d := &Donk{
+				FileID: fileid,
+				XID:    xid,
+				Desc:   desc,
+				URL:    url,
+				Local:  true,
+			}
+			honk.Donks = append(honk.Donks, d)
 			donkxid = xid
 		}
 	} else {

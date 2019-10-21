@@ -329,14 +329,15 @@ func memetize(honk *Honk) {
 			log.Printf("error saving meme: %s", err)
 			return x
 		}
-		var d Donk
-		d.FileID = fileid
-		d.XID = ""
-		d.Name = name
-		d.Media = ct
-		d.URL = url
-		d.Local = false
-		honk.Donks = append(honk.Donks, &d)
+		d := &Donk{
+			FileID: fileid,
+			XID:    "",
+			Name:   name,
+			Media:  ct,
+			URL:    url,
+			Local:  false,
+		}
+		honk.Donks = append(honk.Donks, d)
 		return ""
 	}
 	honk.Noise = re_memes.ReplaceAllStringFunc(honk.Noise, repl)

@@ -63,15 +63,15 @@ func gethonkers(userid int64) []*Honker {
 	defer rows.Close()
 	var honkers []*Honker
 	for rows.Next() {
-		var f Honker
+		h := new(Honker)
 		var combos string
-		err = rows.Scan(&f.ID, &f.UserID, &f.Name, &f.XID, &f.Flavor, &combos)
-		f.Combos = strings.Split(strings.TrimSpace(combos), " ")
+		err = rows.Scan(&h.ID, &h.UserID, &h.Name, &h.XID, &h.Flavor, &combos)
+		h.Combos = strings.Split(strings.TrimSpace(combos), " ")
 		if err != nil {
 			log.Printf("error scanning honker: %s", err)
 			return nil
 		}
-		honkers = append(honkers, &f)
+		honkers = append(honkers, h)
 	}
 	return honkers
 }
@@ -85,13 +85,13 @@ func getdubs(userid int64) []*Honker {
 	defer rows.Close()
 	var honkers []*Honker
 	for rows.Next() {
-		var f Honker
-		err = rows.Scan(&f.ID, &f.UserID, &f.Name, &f.XID, &f.Flavor)
+		h := new(Honker)
+		err = rows.Scan(&h.ID, &h.UserID, &h.Name, &h.XID, &h.Flavor)
 		if err != nil {
 			log.Printf("error scanning honker: %s", err)
 			return nil
 		}
-		honkers = append(honkers, &f)
+		honkers = append(honkers, h)
 	}
 	return honkers
 }
@@ -298,14 +298,14 @@ func donksforhonks(honks []*Honk) {
 	defer rows.Close()
 	for rows.Next() {
 		var hid int64
-		var d Donk
+		d := new(Donk)
 		err = rows.Scan(&hid, &d.FileID, &d.XID, &d.Name, &d.Desc, &d.URL, &d.Media, &d.Local)
 		if err != nil {
 			log.Printf("error scanning donk: %s", err)
 			continue
 		}
 		h := hmap[hid]
-		h.Donks = append(h.Donks, &d)
+		h.Donks = append(h.Donks, d)
 	}
 	rows.Close()
 

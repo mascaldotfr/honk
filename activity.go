@@ -1195,16 +1195,16 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 		}
 	}
 	if honk.Public {
-		for _, f := range getdubs(user.ID) {
-			if f.XID == user.URL {
+		for _, h := range getdubs(user.ID) {
+			if h.XID == user.URL {
 				continue
 			}
 			var box *Box
-			ok := boxofboxes.Get(f.XID, &box)
+			ok := boxofboxes.Get(h.XID, &box)
 			if ok && box.Shared != "" {
 				rcpts["%"+box.Shared] = true
 			} else {
-				rcpts[f.XID] = true
+				rcpts[h.XID] = true
 			}
 		}
 	}
