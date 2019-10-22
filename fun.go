@@ -170,11 +170,9 @@ func inlineimgsfor(honk *Honk) func(node *html.Node) string {
 	return func(node *html.Node) string {
 		src := htfilter.GetAttr(node, "src")
 		alt := htfilter.GetAttr(node, "alt")
-		if !strings.HasPrefix(src, "https://"+serverName+"/") {
-			d := savedonk(src, "image", alt, "image", true)
-			if d != nil {
-				honk.Donks = append(honk.Donks, d)
-			}
+		d := savedonk(src, "image", alt, "image", true)
+		if d != nil {
+			honk.Donks = append(honk.Donks, d)
 		}
 		log.Printf("inline img with src: %s", src)
 		return ""
