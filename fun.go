@@ -31,6 +31,7 @@ import (
 	"humungus.tedunangst.com/r/webs/cache"
 	"humungus.tedunangst.com/r/webs/htfilter"
 	"humungus.tedunangst.com/r/webs/httpsig"
+	"humungus.tedunangst.com/r/webs/templates"
 )
 
 var allowedclasses = make(map[string]bool)
@@ -48,9 +49,6 @@ func init() {
 }
 
 func reverbolate(userid int64, honks []*Honk) {
-	filt := htfilter.New()
-	filt.Imager = replaceimg
-	filt.SpanClasses = allowedclasses
 	for _, h := range honks {
 		h.What += "ed"
 		if h.What == "tonked" {
@@ -91,7 +89,11 @@ func reverbolate(userid int64, honks []*Honk) {
 		h.Noise = demoji(h.Noise)
 		h.Open = "open"
 
+		zap := make(map[string]bool)
 		{
+			filt := htfilter.New()
+			filt.Imager = replaceimgsand(zap)
+			filt.SpanClasses = allowedclasses
 			p, _ := filt.String(h.Precis)
 			n, _ := filt.String(h.Noise)
 			h.Precis = string(p)
@@ -115,11 +117,10 @@ func reverbolate(userid int64, honks []*Honk) {
 			h.Open = ""
 		}
 
-		zap := make(map[*Donk]bool)
 		emuxifier := func(e string) string {
 			for _, d := range h.Donks {
 				if d.Name == e {
-					zap[d] = true
+					zap[d.XID] = true
 					if d.Local {
 						return fmt.Sprintf(`<img class="emu" title="%s" src="/d/%s">`, d.Name, d.XID)
 					}
@@ -132,7 +133,7 @@ func reverbolate(userid int64, honks []*Honk) {
 
 		j := 0
 		for i := 0; i < len(h.Donks); i++ {
-			if !zap[h.Donks[i]] {
+			if !zap[h.Donks[i].XID] {
 				h.Donks[j] = h.Donks[i]
 				j++
 			}
@@ -144,40 +145,36 @@ func reverbolate(userid int64, honks []*Honk) {
 	}
 }
 
-func replaceimg(node *html.Node) string {
-	src := htfilter.GetAttr(node, "src")
-	alt := htfilter.GetAttr(node, "alt")
-	//title := GetAttr(node, "title")
-	if htfilter.HasClass(node, "Emoji") && alt != "" {
-		return alt
+func replaceimgsand(zap map[string]bool) func(node *html.Node) string {
+	return func(node *html.Node) string {
+		src := htfilter.GetAttr(node, "src")
+		alt := htfilter.GetAttr(node, "alt")
+		//title := GetAttr(node, "title")
+		if htfilter.HasClass(node, "Emoji") && alt != "" {
+			return alt
+		}
+		d := finddonk(src)
+		if d != nil {
+			zap[d.XID] = true
+			return string(templates.Sprintf(`<img alt="%s" title="%s" src="/d/%s">`, alt, alt, d.XID))
+		}
+		return string(templates.Sprintf(`&lt;img alt="%s" src="<a href="%s">%s<a>"&gt;`, alt, src, src))
 	}
-	alt = html.EscapeString(alt)
-	src = html.EscapeString(src)
-	d := finddonk(src)
-	if d != nil {
-		src = fmt.Sprintf("https://%s/d/%s", serverName, d.XID)
-		return fmt.Sprintf(`<img alt="%s" title="%s" src="%s">`, alt, alt, src)
-	}
-	return fmt.Sprintf(`&lt;img alt="%s" src="<a href="%s">%s<a>"&gt;`, alt, src, src)
 }
 
-func inlineimgs(node *html.Node) string {
-	src := htfilter.GetAttr(node, "src")
-	alt := htfilter.GetAttr(node, "alt")
-	//title := GetAttr(node, "title")
-	if htfilter.HasClass(node, "Emoji") && alt != "" {
-		return alt
-	}
-	alt = html.EscapeString(alt)
-	src = html.EscapeString(src)
-	if !strings.HasPrefix(src, "https://"+serverName+"/") {
-		d := savedonk(src, "image", alt, "image", true)
-		if d != nil {
-			src = fmt.Sprintf("https://%s/d/%s", serverName, d.XID)
+func inlineimgsfor(honk *Honk) func(node *html.Node) string {
+	return func(node *html.Node) string {
+		src := htfilter.GetAttr(node, "src")
+		alt := htfilter.GetAttr(node, "alt")
+		if !strings.HasPrefix(src, "https://"+serverName+"/") {
+			d := savedonk(src, "image", alt, "image", true)
+			if d != nil {
+				honk.Donks = append(honk.Donks, d)
+			}
 		}
+		log.Printf("inline img with src: %s", src)
+		return ""
 	}
-	log.Printf("inline img with src: %s", src)
-	return fmt.Sprintf(`<img alt="%s" title="%s" src="%s>`, alt, alt, src)
 }
 
 func translate(honk *Honk) {

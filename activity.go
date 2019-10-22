@@ -826,7 +826,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 
 		// grab any inline imgs
 		imgfilt := htfilter.New()
-		imgfilt.Imager = inlineimgs
+		imgfilt.Imager = inlineimgsfor(&xonk)
 		imgfilt.String(content)
 
 		// init xonk
