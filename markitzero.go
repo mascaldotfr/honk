@@ -31,6 +31,7 @@ var re_coder = regexp.MustCompile("`([^`]*)`")
 var re_quoter = regexp.MustCompile(`(?m:^&gt; (.*)\n?)`)
 var re_link = regexp.MustCompile(`.?.?https?://[^\s"]+[\w/)!]`)
 var re_zerolink = regexp.MustCompile(`\[([^]]*)\]\(([^)]*\)?)\)`)
+var re_imgfix = regexp.MustCompile(`<img ([^>]*)>`)
 
 var lighter = synlight.New(synlight.Options{Format: synlight.HTML})
 
@@ -40,7 +41,7 @@ func markitzero(s string) string {
 	s = strings.Replace(s, "\r", "", -1)
 
 	// save away the code blocks so we don't mess them up further
-	var bigcodes, lilcodes []string
+	var bigcodes, lilcodes, images []string
 	s = re_bigcoder.ReplaceAllStringFunc(s, func(code string) string {
 		bigcodes = append(bigcodes, code)
 		return "``````"
@@ -48,6 +49,10 @@ func markitzero(s string) string {
 	s = re_coder.ReplaceAllStringFunc(s, func(code string) string {
 		lilcodes = append(lilcodes, code)
 		return "`x`"
+	})
+	s = re_imgfix.ReplaceAllStringFunc(s, func(img string) string {
+		images = append(images, img)
+		return "<img x>"
 	})
 
 	// fewer side effects than html.EscapeString
@@ -72,6 +77,14 @@ func markitzero(s string) string {
 	s = re_quoter.ReplaceAllString(s, "<blockquote>$1</blockquote><p>")
 	s = re_link.ReplaceAllStringFunc(s, linkreplacer)
 	s = re_zerolink.ReplaceAllString(s, `<a class="mention u-url" href="$2">$1</a>`)
+
+	// restore images
+	s = strings.Replace(s, "&lt;img x&gt;", "<img x>", -1)
+	s = re_imgfix.ReplaceAllStringFunc(s, func(string) string {
+		img := images[0]
+		images = images[1:]
+		return img
+	})
 
 	// now restore the code blocks
 	s = re_coder.ReplaceAllStringFunc(s, func(string) string {

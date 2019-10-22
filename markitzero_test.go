@@ -71,3 +71,9 @@ func TestHonklink(t *testing.T) {
 	doonezerotest(t, input, output)
 }
 
+func TestImagelink(t *testing.T) {
+	input := `an image <img alt="caption" src="https://example.com/wherever"> and linked [<img src="there">](example.com)`
+	output := `an image <img alt="caption" src="https://example.com/wherever"> and linked <a class="mention u-url" href="example.com"><img src="there"></a>`
+	doonezerotest(t, input, output)
+}
+
