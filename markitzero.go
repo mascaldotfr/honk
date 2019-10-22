@@ -29,7 +29,7 @@ var re_italicer = regexp.MustCompile(`(^|\W)\*([\w\s,.!?':_-]+)\*($|\W)`)
 var re_bigcoder = regexp.MustCompile("```(.*)\n?((?s:.*?))\n?```\n?")
 var re_coder = regexp.MustCompile("`([^`]*)`")
 var re_quoter = regexp.MustCompile(`(?m:^&gt; (.*)\n?)`)
-var re_link = regexp.MustCompile(`.?.?https?://[^\s"]+[\w/)]`)
+var re_link = regexp.MustCompile(`.?.?https?://[^\s"]+[\w/)!]`)
 var re_zerolink = regexp.MustCompile(`\[([^]]*)\]\(([^)]*\)?)\)`)
 
 var lighter = synlight.New(synlight.Options{Format: synlight.HTML})
@@ -50,8 +50,21 @@ func markitzero(s string) string {
 		return "`x`"
 	})
 
-	s = html.EscapeString(s)
-	s = strings.Replace(s, "&#39;", "'", -1) // dammit go
+	// fewer side effects than html.EscapeString
+	buf := make([]byte, 0, len(s))
+	for _, c := range []byte(s) {
+		switch c {
+		case '&':
+			buf = append(buf, []byte("&amp;")...)
+		case '<':
+			buf = append(buf, []byte("&lt;")...)
+		case '>':
+			buf = append(buf, []byte("&gt;")...)
+		default:
+			buf = append(buf, c)
+		}
+	}
+	s = string(buf)
 
 	// mark it zero
 	s = re_bolder.ReplaceAllString(s, "$1<b>$2</b>$3")

@@ -58,3 +58,16 @@ func TestWikilink(t *testing.T) {
 	output := `I watched <a class="mention u-url" href="https://en.wikipedia.org/wiki/Hackers_(film)">Hackers</a>`
 	doonezerotest(t, input, output)
 }
+
+func TestQuotedlink(t *testing.T) {
+	input := `quoted "https://example.com/link" here`
+	output := `quoted "<a class="mention u-url" href="https://example.com/link">https://example.com/link</a>" here`
+	doonezerotest(t, input, output)
+}
+
+func TestHonklink(t *testing.T) {
+	input := `https://en.wikipedia.org/wiki/Honk!`
+	output := `<a class="mention u-url" href="https://en.wikipedia.org/wiki/Honk!">https://en.wikipedia.org/wiki/Honk!</a>`
+	doonezerotest(t, input, output)
+}
+
