@@ -18,8 +18,10 @@ package main
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha512"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -230,23 +232,25 @@ func translate(honk *Honk, redoimages bool) {
 	}
 }
 
-func shortxid(xid string) string {
-	idx := strings.LastIndexByte(xid, '/')
-	if idx == -1 {
-		return xid
-	}
-	return xid[idx+1:]
-}
-
-func xfiltrate() string {
+func xcelerate(b []byte) string {
 	letters := "BCDFGHJKLMNPQRSTVWXYZbcdfghjklmnpqrstvwxyz1234567891234567891234"
-	var b [18]byte
-	rand.Read(b[:])
 	for i, c := range b {
 		b[i] = letters[c&63]
 	}
-	s := string(b[:])
+	s := string(b)
 	return s
+}
+
+func shortxid(xid string) string {
+	h := sha512.New512_256()
+	io.WriteString(h, xid)
+	return xcelerate(h.Sum(nil)[:20])
+}
+
+func xfiltrate() string {
+	var b [18]byte
+	rand.Read(b[:])
+	return xcelerate(b[:])
 }
 
 var re_hashes = regexp.MustCompile(`(?:^| )#[[:alnum:]][[:alnum:]_-]*`)

@@ -1176,6 +1176,8 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 	jonk.Write(&buf)
 	msg := buf.Bytes()
 
+	log.Printf("obj for transmission: %s", msg)
+
 	rcpts := make(map[string]bool)
 	for _, a := range honk.Audience {
 		if a == thewholeworld || a == user.URL || strings.HasSuffix(a, "/followers") {
