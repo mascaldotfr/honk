@@ -33,7 +33,6 @@ import (
 	"time"
 
 	"humungus.tedunangst.com/r/webs/cache"
-	"humungus.tedunangst.com/r/webs/htfilter"
 	"humungus.tedunangst.com/r/webs/httpsig"
 	"humungus.tedunangst.com/r/webs/image"
 	"humungus.tedunangst.com/r/webs/junk"
@@ -824,11 +823,6 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			content = content[:90001]
 		}
 
-		// grab any inline imgs
-		imgfilt := htfilter.New()
-		imgfilt.Imager = inlineimgsfor(&xonk)
-		imgfilt.String(content)
-
 		// init xonk
 		xonk.What = what
 		xonk.XID = xid
@@ -844,6 +838,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				xonk.Whofore = 1
 			}
 		}
+		imaginate(&xonk)
 
 		if isUpdate {
 			log.Printf("something has changed! %s", xonk.XID)
@@ -1023,7 +1018,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		if !h.Public {
 			jo["directMessage"] = true
 		}
-		translate(h)
+		translate(h, true)
 		h.Noise = re_memes.ReplaceAllString(h.Noise, "")
 		jo["summary"] = html.EscapeString(h.Precis)
 		jo["content"] = ontologize(mentionize(h.Noise))

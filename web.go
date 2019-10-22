@@ -1065,7 +1065,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 
 	noise = hooterize(noise)
 	honk.Noise = noise
-	translate(honk)
+	translate(honk, false)
 
 	var convoy string
 	if rid != "" {
@@ -1189,6 +1189,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	memetize(honk)
+	imaginate(honk)
 
 	placename := strings.TrimSpace(r.FormValue("placename"))
 	placelat := strings.TrimSpace(r.FormValue("placelat"))

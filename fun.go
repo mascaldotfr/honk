@@ -58,7 +58,7 @@ func reverbolate(userid int64, honks []*Honk) {
 		if !h.Public {
 			h.Style += " limited"
 		}
-		translate(h)
+		translate(h, false)
 		if h.Whofore == 2 || h.Whofore == 3 {
 			h.URL = h.XID
 			if h.What != "bonked" {
@@ -92,7 +92,7 @@ func reverbolate(userid int64, honks []*Honk) {
 		zap := make(map[string]bool)
 		{
 			filt := htfilter.New()
-			filt.Imager = replaceimgsand(zap)
+			filt.Imager = replaceimgsand(zap, false)
 			filt.SpanClasses = allowedclasses
 			p, _ := filt.String(h.Precis)
 			n, _ := filt.String(h.Noise)
@@ -145,7 +145,7 @@ func reverbolate(userid int64, honks []*Honk) {
 	}
 }
 
-func replaceimgsand(zap map[string]bool) func(node *html.Node) string {
+func replaceimgsand(zap map[string]bool, absolute bool) func(node *html.Node) string {
 	return func(node *html.Node) string {
 		src := htfilter.GetAttr(node, "src")
 		alt := htfilter.GetAttr(node, "alt")
@@ -156,7 +156,11 @@ func replaceimgsand(zap map[string]bool) func(node *html.Node) string {
 		d := finddonk(src)
 		if d != nil {
 			zap[d.XID] = true
-			return string(templates.Sprintf(`<img alt="%s" title="%s" src="/d/%s">`, alt, alt, d.XID))
+			base := ""
+			if absolute {
+				base = "https://" + serverName
+			}
+			return string(templates.Sprintf(`<img alt="%s" title="%s" src="%s/d/%s">`, alt, alt, base, d.XID))
 		}
 		return string(templates.Sprintf(`&lt;img alt="%s" src="<a href="%s">%s<a>"&gt;`, alt, src, src))
 	}
@@ -177,7 +181,13 @@ func inlineimgsfor(honk *Honk) func(node *html.Node) string {
 	}
 }
 
-func translate(honk *Honk) {
+func imaginate(honk *Honk) {
+	imgfilt := htfilter.New()
+	imgfilt.Imager = inlineimgsfor(honk)
+	imgfilt.String(honk.Noise)
+}
+
+func translate(honk *Honk, redoimages bool) {
 	if honk.Format == "html" {
 		return
 	}
@@ -197,9 +207,29 @@ func translate(honk *Honk) {
 	noise = strings.TrimSpace(noise)
 	noise = quickrename(noise, honk.UserID)
 	noise = markitzero(noise)
-
 	honk.Noise = noise
 	honk.Onts = oneofakind(ontologies(honk.Noise))
+
+	if redoimages {
+		zap := make(map[string]bool)
+		{
+			filt := htfilter.New()
+			filt.Imager = replaceimgsand(zap, true)
+			filt.SpanClasses = allowedclasses
+			p, _ := filt.String(honk.Precis)
+			n, _ := filt.String(honk.Noise)
+			honk.Precis = string(p)
+			honk.Noise = string(n)
+		}
+		j := 0
+		for i := 0; i < len(honk.Donks); i++ {
+			if !zap[honk.Donks[i].XID] {
+				honk.Donks[j] = honk.Donks[i]
+				j++
+			}
+		}
+		honk.Donks = honk.Donks[:j]
+	}
 }
 
 func shortxid(xid string) string {

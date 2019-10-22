@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Inline images in posts. Send and receive.
+
 + Somewhat functional admin console (TTY).
 
 + More JS free fallbacks for some basic functions.
@@ -13,8 +15,6 @@ changelog
 + Better markdown output.
 
 +++ Add Honk Filtering and Censorship System (HFCS).
-
-+ Inline images in received posts.
 
 + Times for events.
 
