@@ -36,3 +36,5 @@ humungus.tedunangst.com/r/go-sqlite3 v1.1.3 h1:G2N4wzDS0NbuvrZtQJhh4F+3X+s7BF8b9
 humungus.tedunangst.com/r/go-sqlite3 v1.1.3/go.mod h1:FtEEmQM7U2Ey1TuEEOyY1BmphTZnmiEjPsNLEAkpf/M=
 humungus.tedunangst.com/r/webs v0.6.17 h1:d9kyIeS9lRinJrToI+7O6SUUiE/dSI7ke1T/Kmbm70A=
 humungus.tedunangst.com/r/webs v0.6.17/go.mod h1:S9sXpVSbgAIa24yYhnMN0C94LKHG+2rioS+NsiDimps=
+humungus.tedunangst.com/r/webs v0.6.18 h1:5bho2umHAyT+DUTxbO9pCB3nETvuT7dgcc+3/voopTY=
+humungus.tedunangst.com/r/webs v0.6.18/go.mod h1:S9sXpVSbgAIa24yYhnMN0C94LKHG+2rioS+NsiDimps=

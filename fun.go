@@ -91,11 +91,11 @@ func reverbolate(userid int64, honks []*Honk) {
 
 		zap := make(map[string]bool)
 		{
-			filt := htfilter.New()
-			filt.Imager = replaceimgsand(zap, false)
-			filt.SpanClasses = allowedclasses
-			p, _ := filt.String(h.Precis)
-			n, _ := filt.String(h.Noise)
+			var htf htfilter.Filter
+			htf.Imager = replaceimgsand(zap, false)
+			htf.SpanClasses = allowedclasses
+			p, _ := htf.String(h.Precis)
+			n, _ := htf.String(h.Noise)
 			h.Precis = string(p)
 			h.Noise = string(n)
 		}
@@ -180,9 +180,9 @@ func inlineimgsfor(honk *Honk) func(node *html.Node) string {
 }
 
 func imaginate(honk *Honk) {
-	imgfilt := htfilter.New()
-	imgfilt.Imager = inlineimgsfor(honk)
-	imgfilt.String(honk.Noise)
+	var htf htfilter.Filter
+	htf.Imager = inlineimgsfor(honk)
+	htf.String(honk.Noise)
 }
 
 func translate(honk *Honk, redoimages bool) {
@@ -211,11 +211,11 @@ func translate(honk *Honk, redoimages bool) {
 	if redoimages {
 		zap := make(map[string]bool)
 		{
-			filt := htfilter.New()
-			filt.Imager = replaceimgsand(zap, true)
-			filt.SpanClasses = allowedclasses
-			p, _ := filt.String(honk.Precis)
-			n, _ := filt.String(honk.Noise)
+			var htf htfilter.Filter
+			htf.Imager = replaceimgsand(zap, true)
+			htf.SpanClasses = allowedclasses
+			p, _ := htf.String(honk.Precis)
+			n, _ := htf.String(honk.Noise)
 			honk.Precis = string(p)
 			honk.Noise = string(n)
 		}

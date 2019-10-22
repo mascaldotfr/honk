@@ -34,7 +34,6 @@ import (
 	"github.com/gorilla/mux"
 	"humungus.tedunangst.com/r/webs/cache"
 	"humungus.tedunangst.com/r/webs/css"
-	"humungus.tedunangst.com/r/webs/htfilter"
 	"humungus.tedunangst.com/r/webs/httpsig"
 	"humungus.tedunangst.com/r/webs/image"
 	"humungus.tedunangst.com/r/webs/junk"
@@ -572,11 +571,10 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	honks := gethonksbyuser(name, u != nil && u.Username == name, 0)
 	templinfo := getInfo(r)
-	filt := htfilter.New()
 	templinfo["Name"] = user.Name
 	whatabout := user.About
 	whatabout = markitzero(user.About)
-	templinfo["WhatAbout"], _ = filt.String(whatabout)
+	templinfo["WhatAbout"] = template.HTML(whatabout)
 	templinfo["ServerMessage"] = ""
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	honkpage(w, u, honks, templinfo)
