@@ -980,6 +980,7 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	templinfo["Honks"] = honks
 	templinfo["Noise"] = noise
+	templinfo["SavedPlace"] = honk.Place
 	templinfo["ServerMessage"] = "honk edit"
 	templinfo["IsPreview"] = true
 	templinfo["UpdateXID"] = honk.XID

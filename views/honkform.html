@@ -9,10 +9,19 @@
 <details>
 <summary>more options</summary>
 <p>
-<label class=button id="donker">attach: {{ if .SavedFile }} {{ .SavedFile }} {{ else }} <input onchange="updatedonker();" type="file" name="donk"><span></span> {{ end }}</label>
-<input type="hidden" name="donkxid" value="{{ .SavedFile }}">
+<label class=button id="donker">attach: <input onchange="updatedonker();" type="file" name="donk"><span>{{ .SavedFile }}</span></label>
+<input type="hidden" id="saveddonkxid" name="donkxid" value="{{ .SavedFile }}">
 <p id="donkdescriptor"><label for=donkdesc>description:</label><br>
 <input type="text" name="donkdesc" value="{{ .DonkDesc }}" autocomplete=off>
+{{ with .SavedPlace }}
+<p><button id=checkinbutton type=button onclick="fillcheckin()">checkin</button>
+<div id=placedescriptor>
+	<p><label>name:</label><br><input type="text" name="placename" id=placenameinput value="{{ .Name }}">
+	<p><label>url:</label><br><input type="text" name="placeurl" id=placeurlinput value="{{ .Url }}">
+	<p><label>lat: </label><input type="text" size=9 name="placelat" id=placelatinput value="{{ .Latitude}}">
+	<label>lon: </label><input type="text" size=9 name="placelong" id=placelonginput value="{{ .Longitude }}">
+</div>
+{{ else }}
 <p><button id=checkinbutton type=button onclick="fillcheckin()">checkin</button>
 <div id=placedescriptor style="display: none">
 <p><label>name:</label><br><input type="text" name="placename" id=placenameinput value="">
@@ -20,6 +29,7 @@
 <p><label>lat: </label><input type="text" size=9 name="placelat" id=placelatinput value="">
 <label>lon: </label><input type="text" size=9 name="placelong" id=placelonginput value="">
 </div>
+{{ end }}
 <p><button id=addtimebutton type=button onclick="showelement('timedescriptor')">add time</button>
 <div id=timedescriptor style="display: none">
 <p><label for=timestart>start:</label><br>

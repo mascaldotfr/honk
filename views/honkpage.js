@@ -270,6 +270,8 @@ function updatedonker() {
 	el.children[1].textContent = el.children[0].value.slice(-20)
 	var el = document.getElementById("donkdescriptor")
 	el.style.display = ""
+	var el = document.getElementById("saveddonkxid")
+	el.value = ""
 }
 var checkinprec = 100.0
 var gpsoptions = {
