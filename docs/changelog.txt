@@ -34,7 +34,7 @@ changelog
 
 ++ Hashtags that work?
 
-+ Dynamic refresh.
+++ Dynamic refresh and page switching without reloads.
 
 ++ Reply control. Ack replies to show them on the site.
 
