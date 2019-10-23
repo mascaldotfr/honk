@@ -760,9 +760,6 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 	if u != nil {
 		userid = u.UserID
 	}
-	if u == nil {
-		w.Header().Set("Cache-Control", "max-age=60")
-	}
 	reverbolate(userid, honks)
 	templinfo["Honks"] = honks
 	if templinfo["TopHID"] == nil {
@@ -771,6 +768,9 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 		} else {
 			templinfo["TopHID"] = 0
 		}
+	}
+	if u == nil {
+		w.Header().Set("Cache-Control", "max-age=60")
 	}
 	err := readviews.Execute(w, "honkpage.html", templinfo)
 	if err != nil {
@@ -1548,7 +1548,6 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 	l["href"] = user.URL
 	j["links"] = []junk.Junk{l}
 
-	w.Header().Set("Cache-Control", "max-age=3600")
 	w.Header().Set("Content-Type", "application/jrd+json")
 	j.Write(w)
 }
@@ -1572,7 +1571,7 @@ func servecss(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer fd.Close()
-	w.Header().Set("Cache-Control", "max-age=0")
+	w.Header().Set("Cache-Control", "max-age=7776000")
 	w.Header().Set("Content-Type", "text/css; charset=utf-8")
 	err = css.Filter(fd, w)
 	if err != nil {
@@ -1585,13 +1584,17 @@ func serveasset(w http.ResponseWriter, r *http.Request) {
 }
 func servehelp(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
-	w.Header().Set("Cache-Control", "max-age=600")
+	w.Header().Set("Cache-Control", "max-age=3600")
 	http.ServeFile(w, r, "docs/"+name)
 }
 func servehtml(w http.ResponseWriter, r *http.Request) {
+	u := login.GetUserInfo(r)
 	templinfo := getInfo(r)
 	templinfo["AboutMsg"] = aboutMsg
 	templinfo["LoginMsg"] = loginMsg
+	if u == nil {
+		w.Header().Set("Cache-Control", "max-age=60")
+	}
 	err := readviews.Execute(w, r.URL.Path[1:]+".html", templinfo)
 	if err != nil {
 		log.Print(err)
