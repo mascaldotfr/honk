@@ -110,10 +110,13 @@ label.button, button, select {
 	border: 1px solid $fg;
 	padding: 0.5em;
 	white-space: nowrap;
-	margin-top: 1.5em;
 }
 .buttonarray {
-	line-height: 2.5em;
+	margin-top: -2.0em;
+}
+.buttonarray button, .buttonarray > span {
+	margin-top: 2.0em;
+	display: inline-block;
 }
 button a {
 	text-decoration: none;
