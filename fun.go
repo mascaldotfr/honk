@@ -581,37 +581,31 @@ func oneofakind(a []string) []string {
 	return a[:j]
 }
 
-var ziggies = make(map[string]*rsa.PrivateKey)
-var zaggies = make(map[string]*rsa.PublicKey)
-var ziggylock sync.Mutex
-
-func ziggy(username string) (keyname string, key *rsa.PrivateKey) {
-	ziggylock.Lock()
-	key = ziggies[username]
-	ziggylock.Unlock()
-	if key == nil {
-		db := opendatabase()
-		row := db.QueryRow("select seckey from users where username = ?", username)
-		var data string
-		row.Scan(&data)
-		var err error
-		key, _, err = httpsig.DecodeKey(data)
-		if err != nil {
-			log.Printf("error decoding %s seckey: %s", username, err)
-			return
-		}
-		ziggylock.Lock()
-		ziggies[username] = key
-		ziggylock.Unlock()
+var ziggies = cache.New(cache.Options{Filler: func(userid int64) (*KeyInfo, bool) {
+	var user *WhatAbout
+	ok := somenumberedusers.Get(userid, &user)
+	if !ok {
+		return nil, false
 	}
-	keyname = fmt.Sprintf("https://%s/%s/%s#key", serverName, userSep, username)
-	return
+	ki := new(KeyInfo)
+	ki.keyname = user.URL + "#key"
+	ki.seckey = user.SecKey
+	return ki, true
+}})
+
+func ziggy(userid int64) *KeyInfo {
+	var ki *KeyInfo
+	ziggies.Get(userid, &ki)
+	return ki
 }
 
+var zaggies = make(map[string]*rsa.PublicKey)
+var zaggylock sync.Mutex
+
 func zaggy(keyname string) (key *rsa.PublicKey) {
-	ziggylock.Lock()
+	zaggylock.Lock()
 	key = zaggies[keyname]
-	ziggylock.Unlock()
+	zaggylock.Unlock()
 	if key != nil {
 		return
 	}
@@ -655,9 +649,9 @@ func zaggy(keyname string) (key *rsa.PublicKey) {
 			return
 		}
 	}
-	ziggylock.Lock()
+	zaggylock.Lock()
 	zaggies[keyname] = key
-	ziggylock.Unlock()
+	zaggylock.Unlock()
 	return
 }
 
@@ -666,9 +660,9 @@ func makeitworksomehowwithoutregardforkeycontinuity(keyname string, r *http.Requ
 	if err != nil {
 		log.Printf("error deleting key: %s", err)
 	}
-	ziggylock.Lock()
+	zaggylock.Lock()
 	delete(zaggies, keyname)
-	ziggylock.Unlock()
+	zaggylock.Unlock()
 	return httpsig.VerifyRequest(r, payload, zaggy)
 }
 

@@ -245,8 +245,11 @@ func ping(user *WhatAbout, who string) {
 	j["id"] = user.URL + "/ping/" + xfiltrate()
 	j["actor"] = user.URL
 	j["to"] = who
-	keyname, key := ziggy(user.Name)
-	err := PostJunk(keyname, key, box.In, j)
+	ki := ziggy(user.ID)
+	if ki == nil {
+		return
+	}
+	err := PostJunk(ki.keyname, ki.seckey, box.In, j)
 	if err != nil {
 		log.Printf("can't send ping: %s", err)
 		return
@@ -268,8 +271,11 @@ func pong(user *WhatAbout, who string, obj string) {
 	j["actor"] = user.URL
 	j["to"] = who
 	j["object"] = obj
-	keyname, key := ziggy(user.Name)
-	err := PostJunk(keyname, key, box.In, j)
+	ki := ziggy(user.ID)
+	if ki == nil {
+		return
+	}
+	err := PostJunk(ki.keyname, ki.seckey, box.In, j)
 	if err != nil {
 		log.Printf("can't send pong: %s", err)
 		return
@@ -860,7 +866,8 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("error bouting what: %s", err)
 	}
-	someusers.Clear(u.Username)
+	somenamedusers.Clear(u.Username)
+	somenumberedusers.Clear(u.UserID)
 
 	http.Redirect(w, r, "/account", http.StatusSeeOther)
 }
@@ -1805,7 +1812,6 @@ func serve() {
 			savedassetparams[s] = getassetparam(s)
 		}
 	}
-	getserveruser()
 
 	mux := mux.NewRouter()
 	mux.Use(login.Checker)

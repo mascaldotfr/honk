@@ -912,7 +912,7 @@ func rubadubdub(user *WhatAbout, req junk.Junk) {
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 	j["object"] = req
 
-	deliverate(0, user.Name, actor, j.ToBytes())
+	deliverate(0, user.ID, actor, j.ToBytes())
 }
 
 func itakeitallback(user *WhatAbout, xid string) {
@@ -931,7 +931,7 @@ func itakeitallback(user *WhatAbout, xid string) {
 	j["object"] = f
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 
-	deliverate(0, user.Name, xid, j.ToBytes())
+	deliverate(0, user.ID, xid, j.ToBytes())
 }
 
 func subsub(user *WhatAbout, xid string) {
@@ -952,7 +952,7 @@ func subsub(user *WhatAbout, xid string) {
 	j.Write(&buf)
 	msg := buf.Bytes()
 
-	deliverate(0, user.Name, xid, msg)
+	deliverate(0, user.ID, xid, msg)
 }
 
 // returns activity, object
@@ -1191,7 +1191,7 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 		}
 	}
 	for a := range rcpts {
-		go deliverate(0, user.Name, a, msg)
+		go deliverate(0, user.ID, a, msg)
 	}
 }
 

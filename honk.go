@@ -37,6 +37,11 @@ type WhatAbout struct {
 	SecKey    *rsa.PrivateKey
 }
 
+type KeyInfo struct {
+	keyname string
+	seckey  *rsa.PrivateKey
+}
+
 const serverUID int64 = -2
 
 type Honk struct {

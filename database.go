@@ -31,43 +31,55 @@ import (
 	"humungus.tedunangst.com/r/webs/login"
 )
 
-var someusers = cache.New(cache.Options{Filler: func(name string) (*WhatAbout, bool) {
-	row := stmtWhatAbout.QueryRow(name)
+func userfromrow(row *sql.Row) (*WhatAbout, error) {
 	user := new(WhatAbout)
-	var options string
-	err := row.Scan(&user.ID, &user.Name, &user.Display, &user.About, &user.Key, &options)
+	var seckey, options string
+	err := row.Scan(&user.ID, &user.Name, &user.Display, &user.About, &user.Key, &seckey, &options)
+	if err == nil {
+		user.SecKey, _, err = httpsig.DecodeKey(seckey)
+	}
+	if err != nil {
+		return nil, err
+	}
+	if user.ID > 0 {
+		user.URL = fmt.Sprintf("https://%s/%s/%s", serverName, userSep, user.Name)
+		user.SkinnyCSS = strings.Contains(options, " skinny ")
+	} else {
+		user.URL = fmt.Sprintf("https://%s/%s", serverName, user.Name)
+	}
+	return user, nil
+}
+
+var somenamedusers = cache.New(cache.Options{Filler: func(name string) (*WhatAbout, bool) {
+	row := stmtUserByName.QueryRow(name)
+	user, err := userfromrow(row)
 	if err != nil {
 		return nil, false
 	}
-	user.URL = fmt.Sprintf("https://%s/%s/%s", serverName, userSep, user.Name)
-	user.SkinnyCSS = strings.Contains(options, " skinny ")
 	return user, true
 }})
 
-var oldserveruser *WhatAbout
+var somenumberedusers = cache.New(cache.Options{Filler: func(userid int64) (*WhatAbout, bool) {
+	row := stmtUserByNumber.QueryRow(userid)
+	user, err := userfromrow(row)
+	if err != nil {
+		return nil, false
+	}
+	return user, true
+}})
 
 func getserveruser() *WhatAbout {
-	if oldserveruser == nil {
-		db := opendatabase()
-		row := db.QueryRow("select userid, username, displayname, about, pubkey, seckey from users where userid = ?", serverUID)
-		user := new(WhatAbout)
-		var seckey string
-		err := row.Scan(&user.ID, &user.Name, &user.Display, &user.About, &user.Key, &seckey)
-		if err == nil {
-			user.SecKey, _, err = httpsig.DecodeKey(seckey)
-		}
-		if err != nil {
-			log.Panicf("trouble getting server user: %s", err)
-		}
-		user.URL = fmt.Sprintf("https://%s/server", serverName)
-		oldserveruser = user
+	var user *WhatAbout
+	ok := somenumberedusers.Get(serverUID, &user)
+	if !ok {
+		log.Panicf("lost server user")
 	}
-	return oldserveruser
+	return user
 }
 
 func butwhatabout(name string) (*WhatAbout, error) {
 	var user *WhatAbout
-	ok := someusers.Get(name, &user)
+	ok := somenamedusers.Get(name, &user)
 	if !ok {
 		return nil, fmt.Errorf("no user: %s", name)
 	}
@@ -655,7 +667,7 @@ func cleanupdb(arg string) {
 var stmtHonkers, stmtDubbers, stmtSaveHonker, stmtUpdateFlavor, stmtUpdateHonker *sql.Stmt
 var stmtAnyXonk, stmtOneXonk, stmtPublicHonks, stmtUserHonks, stmtHonksByCombo, stmtHonksByConvoy *sql.Stmt
 var stmtHonksByOntology, stmtHonksForUser, stmtHonksForMe, stmtSaveDub, stmtHonksByXonker *sql.Stmt
-var stmtHonksBySearch, stmtHonksByHonker, stmtSaveHonk, stmtWhatAbout *sql.Stmt
+var stmtHonksBySearch, stmtHonksByHonker, stmtSaveHonk, stmtUserByName, stmtUserByNumber *sql.Stmt
 var stmtEventHonks, stmtOneBonk, stmtFindZonk, stmtFindXonk, stmtSaveDonk *sql.Stmt
 var stmtFindFile, stmtGetFileData, stmtSaveFileData, stmtSaveFile *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover, stmtOneHonker *sql.Stmt
@@ -717,11 +729,12 @@ func prepareStatements(db *sql.DB) {
 	stmtGetFileData = preparetodie(blobdb, "select media, content from filedata where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
 	stmtFindFile = preparetodie(db, "select fileid, xid from filemeta where url = ? and local = 1")
-	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey, options from users where username = ? and userid > 0")
+	stmtUserByName = preparetodie(db, "select userid, username, displayname, about, pubkey, seckey, options from users where username = ? and userid > 0")
+	stmtUserByNumber = preparetodie(db, "select userid, username, displayname, about, pubkey, seckey, options from users where userid = ?")
 	stmtSaveDub = preparetodie(db, "insert into honkers (userid, name, xid, flavor) values (?, ?, ?, ?)")
-	stmtAddDoover = preparetodie(db, "insert into doovers (dt, tries, username, rcpt, msg) values (?, ?, ?, ?, ?)")
+	stmtAddDoover = preparetodie(db, "insert into doovers (dt, tries, userid, rcpt, msg) values (?, ?, ?, ?, ?)")
 	stmtGetDoovers = preparetodie(db, "select dooverid, dt from doovers")
-	stmtLoadDoover = preparetodie(db, "select tries, username, rcpt, msg from doovers where dooverid = ?")
+	stmtLoadDoover = preparetodie(db, "select tries, userid, rcpt, msg from doovers where dooverid = ?")
 	stmtZapDoover = preparetodie(db, "delete from doovers where dooverid = ?")
 	stmtThumbBiters = preparetodie(db, "select userid, name, wherefore from zonkers")
 	stmtFindZonk = preparetodie(db, "select zonkerid from zonkers where userid = ? and name = ? and wherefore = 'zonk'")

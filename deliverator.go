@@ -31,7 +31,7 @@ type Doover struct {
 	When time.Time
 }
 
-func sayitagain(goarounds int, username string, rcpt string, msg []byte) {
+func sayitagain(goarounds int64, userid int64, rcpt string, msg []byte) {
 	var drift time.Duration
 	switch goarounds {
 	case 1:
@@ -50,7 +50,7 @@ func sayitagain(goarounds int, username string, rcpt string, msg []byte) {
 	}
 	drift += time.Duration(notrand.Int63n(int64(drift / 10)))
 	when := time.Now().UTC().Add(drift)
-	_, err := stmtAddDoover.Exec(when.Format(dbtimeformat), goarounds, username, rcpt, msg)
+	_, err := stmtAddDoover.Exec(when.Format(dbtimeformat), goarounds, userid, rcpt, msg)
 	if err != nil {
 		log.Printf("error saving doover: %s", err)
 	}
@@ -81,11 +81,16 @@ func truckcomesin() {
 	garagelock.Unlock()
 }
 
-func deliverate(goarounds int, username string, rcpt string, msg []byte) {
+func deliverate(goarounds int64, userid int64, rcpt string, msg []byte) {
 	truckgoesout()
 	defer truckcomesin()
 
-	keyname, key := ziggy(username)
+	var ki *KeyInfo
+	ok := ziggies.Get(userid, &ki)
+	if !ok {
+		log.Printf("lost key for delivery")
+		return
+	}
 	var inbox string
 	// already did the box indirection
 	if rcpt[0] == '%' {
@@ -95,15 +100,15 @@ func deliverate(goarounds int, username string, rcpt string, msg []byte) {
 		ok := boxofboxes.Get(rcpt, &box)
 		if !ok {
 			log.Printf("failed getting inbox for %s", rcpt)
-			sayitagain(goarounds+1, username, rcpt, msg)
+			sayitagain(goarounds+1, userid, rcpt, msg)
 			return
 		}
 		inbox = box.In
 	}
-	err := PostMsg(keyname, key, inbox, msg)
+	err := PostMsg(ki.keyname, ki.seckey, inbox, msg)
 	if err != nil {
 		log.Printf("failed to post json to %s: %s", inbox, err)
-		sayitagain(goarounds+1, username, rcpt, msg)
+		sayitagain(goarounds+1, userid, rcpt, msg)
 		return
 	}
 }
@@ -151,11 +156,11 @@ func redeliverator() {
 		nexttime := now.Add(24 * time.Hour)
 		for _, d := range doovers {
 			if d.When.Before(now) {
-				var goarounds int
-				var username, rcpt string
+				var goarounds, userid int64
+				var rcpt string
 				var msg []byte
 				row := stmtLoadDoover.QueryRow(d.ID)
-				err := row.Scan(&goarounds, &username, &rcpt, &msg)
+				err := row.Scan(&goarounds, &userid, &rcpt, &msg)
 				if err != nil {
 					log.Printf("error scanning doover: %s", err)
 					continue
@@ -166,7 +171,7 @@ func redeliverator() {
 					continue
 				}
 				log.Printf("redeliverating %s try %d", rcpt, goarounds)
-				deliverate(goarounds, username, rcpt, msg)
+				deliverate(goarounds, userid, rcpt, msg)
 			} else if d.When.Before(nexttime) {
 				nexttime = d.When
 			}
