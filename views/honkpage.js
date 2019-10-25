@@ -74,7 +74,7 @@ function fillinhonks(xhr) {
 	var honks = doc.children[0].children[1].children[2].children
 
 	var srvel = document.getElementById("srvmsg")
-	if (srvel.children[0]) {
+	while (srvel.children[0]) {
 		srvel.children[0].remove()
 	}
 	srvel.prepend(srvmsg)
