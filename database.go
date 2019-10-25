@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"humungus.tedunangst.com/r/webs/cache"
+	"humungus.tedunangst.com/r/webs/httpsig"
 	"humungus.tedunangst.com/r/webs/login"
 )
 
@@ -42,6 +43,27 @@ var someusers = cache.New(cache.Options{Filler: func(name string) (*WhatAbout, b
 	user.SkinnyCSS = strings.Contains(options, " skinny ")
 	return user, true
 }})
+
+var oldserveruser *WhatAbout
+
+func getserveruser() *WhatAbout {
+	if oldserveruser == nil {
+		db := opendatabase()
+		row := db.QueryRow("select userid, username, displayname, about, pubkey, seckey from users where userid = ?", serverUID)
+		user := new(WhatAbout)
+		var seckey string
+		err := row.Scan(&user.ID, &user.Name, &user.Display, &user.About, &user.Key, &seckey)
+		if err == nil {
+			user.SecKey, _, err = httpsig.DecodeKey(seckey)
+		}
+		if err != nil {
+			log.Panicf("trouble getting server user: %s", err)
+		}
+		user.URL = fmt.Sprintf("https://%s/server", serverName)
+		oldserveruser = user
+	}
+	return oldserveruser
+}
 
 func butwhatabout(name string) (*WhatAbout, error) {
 	var user *WhatAbout
@@ -98,7 +120,7 @@ func getdubs(userid int64) []*Honker {
 
 func allusers() []login.UserInfo {
 	var users []login.UserInfo
-	rows, _ := opendatabase().Query("select userid, username from users")
+	rows, _ := opendatabase().Query("select userid, username from users where userid > 0")
 	defer rows.Close()
 	for rows.Next() {
 		var u login.UserInfo
@@ -695,7 +717,7 @@ func prepareStatements(db *sql.DB) {
 	stmtGetFileData = preparetodie(blobdb, "select media, content from filedata where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
 	stmtFindFile = preparetodie(db, "select fileid, xid from filemeta where url = ? and local = 1")
-	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey, options from users where username = ?")
+	stmtWhatAbout = preparetodie(db, "select userid, username, displayname, about, pubkey, options from users where username = ? and userid > 0")
 	stmtSaveDub = preparetodie(db, "insert into honkers (userid, name, xid, flavor) values (?, ?, ?, ?)")
 	stmtAddDoover = preparetodie(db, "insert into doovers (dt, tries, username, rcpt, msg) values (?, ?, ?, ?, ?)")
 	stmtGetDoovers = preparetodie(db, "select dooverid, dt from doovers")

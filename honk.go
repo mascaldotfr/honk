@@ -16,6 +16,7 @@
 package main
 
 import (
+	"crypto/rsa"
 	"fmt"
 	"html/template"
 	"log"
@@ -33,7 +34,10 @@ type WhatAbout struct {
 	Key       string
 	URL       string
 	SkinnyCSS bool
+	SecKey    *rsa.PrivateKey
 }
+
+const serverUID int64 = -2
 
 type Honk struct {
 	ID       int64

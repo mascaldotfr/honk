@@ -118,6 +118,11 @@ func initdb() {
 		log.Print(err)
 		return
 	}
+	err = createserveruser(db)
+	if err != nil {
+		log.Print(err)
+		return
+	}
 
 	fmt.Printf("listen address: ")
 	addr, err := r.ReadString('\n')
@@ -297,7 +302,31 @@ func createuser(db *sql.DB, r *bufio.Reader) error {
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec("insert into users (username, displayname, about, hash, pubkey, seckey, options) values (?, ?, ?, ?, ?, ?, ?)", name, name, "what about me?", hash, pubkey, seckey, "")
+	about := "what about me?"
+	_, err = db.Exec("insert into users (username, displayname, about, hash, pubkey, seckey, options) values (?, ?, ?, ?, ?, ?, ?)", name, name, about, hash, pubkey, seckey, "")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func createserveruser(db *sql.DB) error {
+	k, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return err
+	}
+	pubkey, err := httpsig.EncodeKey(&k.PublicKey)
+	if err != nil {
+		return err
+	}
+	seckey, err := httpsig.EncodeKey(k)
+	if err != nil {
+		return err
+	}
+	name := "server"
+	about := "server"
+	hash := "*"
+	_, err = db.Exec("insert into users (userid, username, displayname, about, hash, pubkey, seckey, options) values (?, ?, ?, ?, ?, ?, ?, ?)", serverUID, name, name, about, hash, pubkey, seckey, "")
 	if err != nil {
 		return err
 	}

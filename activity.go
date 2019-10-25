@@ -1208,30 +1208,30 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 	}
 }
 
-var oldjonkers = cache.New(cache.Options{Filler: func(name string) ([]byte, bool) {
-	user, err := butwhatabout(name)
-	if err != nil {
-		return nil, false
-	}
+func junkuser(user *WhatAbout) []byte {
 	about := markitzero(user.About)
 
 	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["id"] = user.URL
-	j["type"] = "Person"
 	j["inbox"] = user.URL + "/inbox"
 	j["outbox"] = user.URL + "/outbox"
-	j["followers"] = user.URL + "/followers"
-	j["following"] = user.URL + "/following"
 	j["name"] = user.Display
 	j["preferredUsername"] = user.Name
 	j["summary"] = about
-	j["url"] = user.URL
-	a := junk.New()
-	a["type"] = "Image"
-	a["mediaType"] = "image/png"
-	a["url"] = fmt.Sprintf("https://%s/a?a=%s", serverName, url.QueryEscape(user.URL))
-	j["icon"] = a
+	if user.ID > 0 {
+		j["type"] = "Person"
+		j["url"] = user.URL
+		j["followers"] = user.URL + "/followers"
+		j["following"] = user.URL + "/following"
+		a := junk.New()
+		a["type"] = "Image"
+		a["mediaType"] = "image/png"
+		a["url"] = fmt.Sprintf("https://%s/a?a=%s", serverName, url.QueryEscape(user.URL))
+		j["icon"] = a
+	} else {
+		j["type"] = "Service"
+	}
 	k := junk.New()
 	k["id"] = user.URL + "#key"
 	k["owner"] = user.URL
@@ -1240,7 +1240,15 @@ var oldjonkers = cache.New(cache.Options{Filler: func(name string) ([]byte, bool
 
 	var buf bytes.Buffer
 	j.Write(&buf)
-	return buf.Bytes(), true
+	return buf.Bytes()
+}
+
+var oldjonkers = cache.New(cache.Options{Filler: func(name string) ([]byte, bool) {
+	user, err := butwhatabout(name)
+	if err != nil {
+		return nil, false
+	}
+	return junkuser(user), true
 }, Duration: 1 * time.Minute})
 
 func asjonker(name string) ([]byte, bool) {

@@ -410,6 +410,51 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func serverinbox(w http.ResponseWriter, r *http.Request) {
+	if stealthmode(serverUID, r) {
+		http.NotFound(w, r)
+		return
+	}
+	var buf bytes.Buffer
+	io.Copy(&buf, r.Body)
+	payload := buf.Bytes()
+	j, err := junk.Read(bytes.NewReader(payload))
+	if err != nil {
+		log.Printf("bad payload: %s", err)
+		io.WriteString(os.Stdout, "bad payload\n")
+		os.Stdout.Write(payload)
+		io.WriteString(os.Stdout, "\n")
+		return
+	}
+	if crappola(j) {
+		return
+	}
+	keyname, err := httpsig.VerifyRequest(r, payload, zaggy)
+	if err != nil {
+		log.Printf("inbox message failed signature for %s from %s", keyname, r.Header.Get("X-Forwarded-For"))
+		if keyname != "" {
+			log.Printf("bad signature from %s", keyname)
+			io.WriteString(os.Stdout, "bad payload\n")
+			os.Stdout.Write(payload)
+			io.WriteString(os.Stdout, "\n")
+		}
+		http.Error(w, "what did you call me?", http.StatusTeapot)
+		return
+	}
+	what, _ := j.GetString("type")
+	log.Printf("server got a %s", what)
+}
+
+func serveractor(w http.ResponseWriter, r *http.Request) {
+	if stealthmode(serverUID, r) {
+		http.NotFound(w, r)
+		return
+	}
+	user := getserveruser()
+	j := junkuser(user)
+	w.Write(j)
+}
+
 func ximport(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	xid := strings.TrimSpace(r.FormValue("xid"))
@@ -1735,6 +1780,7 @@ func serve() {
 			savedassetparams[s] = getassetparam(s)
 		}
 	}
+	getserveruser()
 
 	mux := mux.NewRouter()
 	mux.Use(login.Checker)
@@ -1762,6 +1808,9 @@ func serve() {
 	getters.HandleFunc("/emu/{xid:[[:alnum:]_.-]+}", serveemu)
 	getters.HandleFunc("/meme/{xid:[[:alnum:]_.-]+}", servememe)
 	getters.HandleFunc("/.well-known/webfinger", fingerlicker)
+
+	getters.HandleFunc("/server", serveractor)
+	posters.HandleFunc("/server/inbox", serverinbox)
 
 	getters.HandleFunc("/style.css", servecss)
 	getters.HandleFunc("/local.css", servecss)
