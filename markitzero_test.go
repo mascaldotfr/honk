@@ -17,6 +17,12 @@ func TestBasictest(t *testing.T) {
 	doonezerotest(t, input, output)
 }
 
+func TestMultibold(t *testing.T) {
+	input := `**in** out **in**`
+	output := `<b>in</b> out <b>in</b>`
+	doonezerotest(t, input, output)
+}
+
 func TestLinebreak1(t *testing.T) {
 	input := "hello\n> a quote\na comment"
 	output := "hello<blockquote>a quote</blockquote><p>a comment"
@@ -72,7 +78,6 @@ func TestLinkinQuote(t *testing.T) {
 }
 
 func TestBoldLink(t *testing.T) {
-	t.SkipNow()
 	input := `**b https://example.com/link b**`
 	output := `<b>b <a class="mention u-url" href="https://example.com/link">https://example.com/link</a> b</b>`
 	doonezerotest(t, input, output)
