@@ -58,9 +58,7 @@ func friendorfoe(ct string) bool {
 }
 
 func PostJunk(keyname string, key *rsa.PrivateKey, url string, j junk.Junk) error {
-	var buf bytes.Buffer
-	j.Write(&buf)
-	return PostMsg(keyname, key, url, buf.Bytes())
+	return PostMsg(keyname, key, url, j.ToBytes())
 }
 
 func PostMsg(keyname string, key *rsa.PrivateKey, url string, msg []byte) error {
@@ -914,11 +912,7 @@ func rubadubdub(user *WhatAbout, req junk.Junk) {
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 	j["object"] = req
 
-	var buf bytes.Buffer
-	j.Write(&buf)
-	msg := buf.Bytes()
-
-	deliverate(0, user.Name, actor, msg)
+	deliverate(0, user.Name, actor, j.ToBytes())
 }
 
 func itakeitallback(user *WhatAbout, xid string) {
@@ -937,11 +931,7 @@ func itakeitallback(user *WhatAbout, xid string) {
 	j["object"] = f
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 
-	var buf bytes.Buffer
-	j.Write(&buf)
-	msg := buf.Bytes()
-
-	deliverate(0, user.Name, xid, msg)
+	deliverate(0, user.Name, xid, j.ToBytes())
 }
 
 func subsub(user *WhatAbout, xid string) {
@@ -1158,9 +1148,8 @@ var oldjonks = cache.New(cache.Options{Filler: func(xid string) ([]byte, bool) {
 	donksforhonks([]*Honk{honk})
 	_, j := jonkjonk(user, honk)
 	j["@context"] = itiswhatitis
-	var buf bytes.Buffer
-	j.Write(&buf)
-	return buf.Bytes(), true
+
+	return j.ToBytes(), true
 }})
 
 func gimmejonk(xid string) ([]byte, bool) {
@@ -1172,9 +1161,7 @@ func gimmejonk(xid string) ([]byte, bool) {
 func honkworldwide(user *WhatAbout, honk *Honk) {
 	jonk, _ := jonkjonk(user, honk)
 	jonk["@context"] = itiswhatitis
-	var buf bytes.Buffer
-	jonk.Write(&buf)
-	msg := buf.Bytes()
+	msg := jonk.ToBytes()
 
 	rcpts := make(map[string]bool)
 	for _, a := range honk.Audience {
@@ -1238,9 +1225,7 @@ func junkuser(user *WhatAbout) []byte {
 	k["publicKeyPem"] = user.Key
 	j["publicKey"] = k
 
-	var buf bytes.Buffer
-	j.Write(&buf)
-	return buf.Bytes()
+	return j.ToBytes()
 }
 
 var oldjonkers = cache.New(cache.Options{Filler: func(name string) ([]byte, bool) {

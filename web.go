@@ -290,7 +290,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	var buf bytes.Buffer
 	io.Copy(&buf, r.Body)
 	payload := buf.Bytes()
-	j, err := junk.Read(bytes.NewReader(payload))
+	j, err := junk.FromBytes(payload)
 	if err != nil {
 		log.Printf("bad payload: %s", err)
 		io.WriteString(os.Stdout, "bad payload\n")
@@ -418,7 +418,7 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 	var buf bytes.Buffer
 	io.Copy(&buf, r.Body)
 	payload := buf.Bytes()
-	j, err := junk.Read(bytes.NewReader(payload))
+	j, err := junk.FromBytes(payload)
 	if err != nil {
 		log.Printf("bad payload: %s", err)
 		io.WriteString(os.Stdout, "bad payload\n")
@@ -539,9 +539,7 @@ var oldoutbox = cache.New(cache.Options{Filler: func(name string) ([]byte, bool)
 	j["totalItems"] = len(jonks)
 	j["orderedItems"] = jonks
 
-	var buf bytes.Buffer
-	j.Write(&buf)
-	return buf.Bytes(), true
+	return j.ToBytes(), true
 }, Duration: 1 * time.Minute})
 
 func outbox(w http.ResponseWriter, r *http.Request) {
