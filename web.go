@@ -535,6 +535,7 @@ var oldoutbox = cache.New(cache.Options{Filler: func(name string) ([]byte, bool)
 	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["id"] = user.URL + "/outbox"
+	j["attributedTo"] = user.URL
 	j["type"] = "OrderedCollection"
 	j["totalItems"] = len(jonks)
 	j["orderedItems"] = jonks
@@ -581,6 +582,7 @@ func emptiness(w http.ResponseWriter, r *http.Request) {
 	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["id"] = user.URL + colname
+	j["attributedTo"] = user.URL
 	j["type"] = "OrderedCollection"
 	j["totalItems"] = 0
 	j["orderedItems"] = []junk.Junk{}
@@ -688,6 +690,31 @@ func showontology(w http.ResponseWriter, r *http.Request) {
 		userid = u.UserID
 	}
 	honks := gethonksbyontology(userid, "#"+name, 0)
+	if friendorfoe(r.Header.Get("Accept")) {
+		if len(honks) > 20 {
+			honks = honks[0:20]
+		}
+
+		var xids []string
+		for _, h := range honks {
+			xids = append(xids, h.XID)
+		}
+
+		user := getserveruser()
+
+		j := junk.New()
+		j["@context"] = itiswhatitis
+		j["id"] = fmt.Sprintf("https://%s/o/%s", serverName, name)
+		j["attributedTo"] = user.URL
+		j["type"] = "OrderedCollection"
+		j["totalItems"] = len(xids)
+		j["orderedItems"] = xids
+
+		w.Header().Set("Cache-Control", "max-age=300")
+		j.Write(w)
+		return
+	}
+
 	templinfo := getInfo(r)
 	templinfo["ServerMessage"] = "honks by ontology: " + name
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
