@@ -72,11 +72,11 @@ func markitzero(s string) string {
 	s = string(buf)
 
 	// mark it zero
+	s = re_link.ReplaceAllStringFunc(s, linkreplacer)
+	s = re_zerolink.ReplaceAllString(s, `<a class="mention u-url" href="$2">$1</a>`)
 	s = re_bolder.ReplaceAllString(s, "$1<b>$2</b>$3")
 	s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
 	s = re_quoter.ReplaceAllString(s, "<blockquote>$1</blockquote><p>")
-	s = re_link.ReplaceAllStringFunc(s, linkreplacer)
-	s = re_zerolink.ReplaceAllString(s, `<a class="mention u-url" href="$2">$1</a>`)
 
 	// restore images
 	s = strings.Replace(s, "&lt;img x&gt;", "<img x>", -1)

@@ -65,6 +65,19 @@ func TestQuotedlink(t *testing.T) {
 	doonezerotest(t, input, output)
 }
 
+func TestLinkinQuote(t *testing.T) {
+	input := `> a quote and https://example.com/link`
+	output := `<blockquote>a quote and <a class="mention u-url" href="https://example.com/link">https://example.com/link</a></blockquote><p>`
+	doonezerotest(t, input, output)
+}
+
+func TestBoldLink(t *testing.T) {
+	t.SkipNow()
+	input := `**b https://example.com/link b**`
+	output := `<b>b <a class="mention u-url" href="https://example.com/link">https://example.com/link</a> b</b>`
+	doonezerotest(t, input, output)
+}
+
 func TestHonklink(t *testing.T) {
 	input := `https://en.wikipedia.org/wiki/Honk!`
 	output := `<a class="mention u-url" href="https://en.wikipedia.org/wiki/Honk!">https://en.wikipedia.org/wiki/Honk!</a>`
