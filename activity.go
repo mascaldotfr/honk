@@ -358,10 +358,22 @@ func gimmexonks(user *WhatAbout, outbox string) {
 		}
 		for _, item := range items {
 			obj, ok := item.(junk.Junk)
-			if !ok {
+			if ok {
+				xonksaver(user, obj, origin)
 				continue
 			}
-			xonksaver(user, obj, origin)
+			xid, ok := item.(string)
+			if ok {
+				if !needxonkid(user, xid) {
+					continue
+				}
+				obj, err = GetJunk(xid)
+				if err != nil {
+					log.Printf("error getting item: %s", err)
+					continue
+				}
+				xonksaver(user, obj, originate(xid))
+			}
 		}
 	}
 }
