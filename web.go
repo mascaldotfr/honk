@@ -458,6 +458,7 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 	if rejectactor(user.ID, who) {
 		return
 	}
+	re_ont := regexp.MustCompile("https://" + serverName + "/o/([[:alnum:]]+)")
 	what, _ := j.GetString("type")
 	log.Printf("server got a %s", what)
 	switch what {
@@ -467,7 +468,6 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 			log.Printf("can't follow the server!")
 			return
 		}
-		re_ont := regexp.MustCompile("https://" + serverName + "/o/([[:alnum:]]+)")
 		m := re_ont.FindStringSubmatch(obj)
 		if len(m) == 2 {
 			ont := "#" + m[1]
@@ -477,9 +477,8 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 			var x string
 			err = row.Scan(&x)
 			if err != sql.ErrNoRows {
-				// incomplete...
 				log.Printf("duplicate follow request: %s", who)
-				_, err = stmtUpdateFlavor.Exec("dub", user.ID, who, "undub")
+				_, err = stmtUpdateFlavor.Exec("dub", user.ID, who, ont, "undub")
 				if err != nil {
 					log.Printf("error updating honker: %s", err)
 				}
@@ -487,6 +486,8 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 				stmtSaveDub.Exec(user.ID, ont, who, "dub")
 			}
 			go rubadubdub(user, j)
+		} else {
+			log.Printf("not sure how to handle this")
 		}
 	case "Undo":
 		obj, ok := j.GetMap("object")
@@ -496,12 +497,18 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 			what, _ := obj.GetString("type")
 			switch what {
 			case "Follow":
-				// incomplete...
-				log.Printf("updating honker undo: %s", who)
-				_, err = stmtUpdateFlavor.Exec("undub", user.ID, who, "dub")
-				if err != nil {
-					log.Printf("error updating honker: %s", err)
-					return
+				targ, _ := obj.GetString("object")
+				m := re_ont.FindStringSubmatch(targ)
+				if len(m) == 2 {
+					ont := "#" + m[1]
+					log.Printf("updating honker undo: %s", who, ont)
+					_, err = stmtUpdateFlavor.Exec("undub", user.ID, who, ont, "dub")
+					if err != nil {
+						log.Printf("error updating honker: %s", err)
+						return
+					}
+				} else {
+					log.Printf("not sure how to handle this")
 				}
 			default:
 				log.Printf("unknown undo: %s", what)
@@ -1489,26 +1496,25 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if goodbye == "X" {
+			var owner string
 			db := opendatabase()
-			row := db.QueryRow("select xid from honkers where honkerid = ? and userid = ? and flavor in ('unsub', 'peep')",
+			row := db.QueryRow("select xid, owner from honkers where honkerid = ? and userid = ? and flavor in ('unsub', 'peep')",
 				honkerid, u.UserID)
-			err := row.Scan(&url)
+			err := row.Scan(&url, &owner)
 			if err != nil {
 				log.Printf("can't get honker xid: %s", err)
 				return
 			}
 			log.Printf("resubscribing to %s", url)
 			user, _ := butwhatabout(u.Username)
-			_, err = stmtUpdateFlavor.Exec("presub", u.UserID, url, "unsub")
+			_, err = stmtUpdateFlavor.Exec("presub", u.UserID, url, name, "unsub")
 			if err == nil {
-				_, err = stmtUpdateFlavor.Exec("presub", u.UserID, url, "peep")
+				_, err = stmtUpdateFlavor.Exec("presub", u.UserID, url, name, "peep")
 			}
 			if err != nil {
 				log.Printf("error updating honker: %s", err)
 				return
 			}
-			// incomplete
-			owner := url
 			go subsub(user, url, owner)
 
 			http.Redirect(w, r, "/honkers", http.StatusSeeOther)
@@ -1534,7 +1540,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		if name == "" {
 			name = url
 		}
-		_, err := stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos)
+		_, err := stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos, url)
 		if err != nil {
 			log.Print(err)
 			return
@@ -1565,7 +1571,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	if name == "" {
 		name = info.Name
 	}
-	_, err = stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos)
+	_, err = stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos, info.Owner)
 	if err != nil {
 		log.Print(err)
 		return

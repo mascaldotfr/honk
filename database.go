@@ -696,8 +696,8 @@ func preparetodie(db *sql.DB, s string) *sql.Stmt {
 
 func prepareStatements(db *sql.DB) {
 	stmtHonkers = preparetodie(db, "select honkerid, userid, name, xid, flavor, combos from honkers where userid = ? and (flavor = 'presub' or flavor = 'sub' or flavor = 'peep' or flavor = 'unsub') order by name")
-	stmtSaveHonker = preparetodie(db, "insert into honkers (userid, name, xid, flavor, combos) values (?, ?, ?, ?, ?)")
-	stmtUpdateFlavor = preparetodie(db, "update honkers set flavor = ? where userid = ? and xid = ? and flavor = ?")
+	stmtSaveHonker = preparetodie(db, "insert into honkers (userid, name, xid, flavor, combos, owner) values (?, ?, ?, ?, ?, ?)")
+	stmtUpdateFlavor = preparetodie(db, "update honkers set flavor = ? where userid = ? and xid = ? and name = ? and flavor = ?")
 	stmtUpdateHonker = preparetodie(db, "update honkers set name = ?, combos = ? where honkerid = ? and userid = ?")
 	stmtOneHonker = preparetodie(db, "select xid from honkers where name = ? and userid = ?")
 	stmtDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
@@ -719,9 +719,7 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksISaved = preparetodie(db, selecthonks+"where honks.honkid > ? and honks.userid = ? and flags & 4 order by honks.honkid desc")
 	stmtHonksByHonker = preparetodie(db, selecthonks+"join honkers on (honkers.xid = honks.honker or honkers.xid = honks.oonker) where honks.honkid > ? and honks.userid = ? and honkers.name = ?"+butnotthose+limit)
 	stmtHonksByXonker = preparetodie(db, selecthonks+" where honks.honkid > ? and honks.userid = ? and (honker = ? or oonker = ?)"+butnotthose+limit)
-	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.honkid > ? and honks.userid = ? and honkers.combos like ?"+butnotthose+ " union "+selecthonks+"join onts on honks.honkid = onts.honkid where honks.honkid > ? and honks.userid = ? and onts.ontology in (select xid from honkers where combos like ?)"+butnotthose+limit)
-
-
+	stmtHonksByCombo = preparetodie(db, selecthonks+"join honkers on honkers.xid = honks.honker where honks.honkid > ? and honks.userid = ? and honkers.combos like ?"+butnotthose+" union "+selecthonks+"join onts on honks.honkid = onts.honkid where honks.honkid > ? and honks.userid = ? and onts.ontology in (select xid from honkers where combos like ?)"+butnotthose+limit)
 	stmtHonksBySearch = preparetodie(db, selecthonks+"where honks.honkid > ? and honks.userid = ? and (? = 0 or xid like ?) and (? = 0 or honks.honker = ? or honks.oonker = ?) and noise like ?"+butnotthose+limit)
 	stmtHonksByConvoy = preparetodie(db, selecthonks+"where honks.honkid > ? and (honks.userid = ? or (? = -1 and whofore = 2)) and convoy = ?"+limit)
 	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where honks.honkid > ? and onts.ontology = ? and (honks.userid = ? or (? = -1 and honks.whofore = 2))"+limit)
