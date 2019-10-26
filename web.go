@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -447,8 +448,66 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "what did you call me?", http.StatusTeapot)
 		return
 	}
+	user := getserveruser()
+	who, _ := j.GetString("actor")
+	origin := keymatch(keyname, who)
+	if origin == "" {
+		log.Printf("keyname actor mismatch: %s <> %s", keyname, who)
+		return
+	}
+	if rejectactor(user.ID, who) {
+		return
+	}
 	what, _ := j.GetString("type")
 	log.Printf("server got a %s", what)
+	switch what {
+	case "Follow":
+		obj, _ := j.GetString("object")
+		if obj == user.URL {
+			log.Printf("can't follow the server!")
+			return
+		}
+		re_ont := regexp.MustCompile("https://" + serverName + "/o/([[:alnum:]]+)")
+		m := re_ont.FindStringSubmatch(obj)
+		if len(m) == 2 {
+			ont := "#" + m[1]
+			log.Printf("%s wants to follow %s", who, ont)
+			db := opendatabase()
+			row := db.QueryRow("select xid from honkers where name = ? and xid = ? and userid = ? and flavor in ('dub', 'undub')", ont, who, user.ID)
+			var x string
+			err = row.Scan(&x)
+			if err != sql.ErrNoRows {
+				// incomplete...
+				log.Printf("duplicate follow request: %s", who)
+				_, err = stmtUpdateFlavor.Exec("dub", user.ID, who, "undub")
+				if err != nil {
+					log.Printf("error updating honker: %s", err)
+				}
+			} else {
+				stmtSaveDub.Exec(user.ID, ont, who, "dub")
+			}
+			go rubadubdub(user, j)
+		}
+	case "Undo":
+		obj, ok := j.GetMap("object")
+		if !ok {
+			log.Printf("unknown undo no object")
+		} else {
+			what, _ := obj.GetString("type")
+			switch what {
+			case "Follow":
+				// incomplete...
+				log.Printf("updating honker undo: %s", who)
+				_, err = stmtUpdateFlavor.Exec("undub", user.ID, who, "dub")
+				if err != nil {
+					log.Printf("error updating honker: %s", err)
+					return
+				}
+			default:
+				log.Printf("unknown undo: %s", what)
+			}
+		}
+	}
 }
 
 func serveractor(w http.ResponseWriter, r *http.Request) {

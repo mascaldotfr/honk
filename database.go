@@ -112,6 +112,15 @@ func gethonkers(userid int64) []*Honker {
 
 func getdubs(userid int64) []*Honker {
 	rows, err := stmtDubbers.Query(userid)
+	return dubsfromrows(rows, err)
+}
+
+func getnameddubs(userid int64, name string) []*Honker {
+	rows, err := stmtNamedDubbers.Query(userid, name)
+	return dubsfromrows(rows, err)
+}
+
+func dubsfromrows(rows *sql.Rows, err error) []*Honker {
 	if err != nil {
 		log.Printf("error querying dubs: %s", err)
 		return nil
@@ -664,7 +673,7 @@ func cleanupdb(arg string) {
 	}
 }
 
-var stmtHonkers, stmtDubbers, stmtSaveHonker, stmtUpdateFlavor, stmtUpdateHonker *sql.Stmt
+var stmtHonkers, stmtDubbers, stmtNamedDubbers, stmtSaveHonker, stmtUpdateFlavor, stmtUpdateHonker *sql.Stmt
 var stmtAnyXonk, stmtOneXonk, stmtPublicHonks, stmtUserHonks, stmtHonksByCombo, stmtHonksByConvoy *sql.Stmt
 var stmtHonksByOntology, stmtHonksForUser, stmtHonksForMe, stmtSaveDub, stmtHonksByXonker *sql.Stmt
 var stmtHonksBySearch, stmtHonksByHonker, stmtSaveHonk, stmtUserByName, stmtUserByNumber *sql.Stmt
@@ -692,6 +701,7 @@ func prepareStatements(db *sql.DB) {
 	stmtUpdateHonker = preparetodie(db, "update honkers set name = ?, combos = ? where honkerid = ? and userid = ?")
 	stmtOneHonker = preparetodie(db, "select xid from honkers where name = ? and userid = ?")
 	stmtDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
+	stmtNamedDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and name = ? and flavor = 'dub'")
 
 	selecthonks := "select honks.honkid, honks.userid, username, what, honker, oonker, honks.xid, rid, dt, url, audience, noise, precis, format, convoy, whofore, flags from honks join users on honks.userid = users.userid "
 	limit := " order by honks.honkid desc limit 250"

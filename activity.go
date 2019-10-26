@@ -1193,6 +1193,40 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 	for a := range rcpts {
 		go deliverate(0, user.ID, a, msg)
 	}
+	if honk.Public && len(honk.Onts) > 0 {
+		collectiveaction(honk)
+	}
+}
+
+func collectiveaction(honk *Honk) {
+	user := getserveruser()
+	for _, ont := range honk.Onts {
+		dubs := getnameddubs(serverUID, ont)
+		if len(dubs) == 0 {
+			continue
+		}
+		j := junk.New()
+		j["@context"] = itiswhatitis
+		j["type"] = "Add"
+		j["id"] = user.URL + "/add/" + shortxid(ont+honk.XID)
+		j["actor"] = user.URL
+		j["object"] = honk.XID
+		j["target"] = fmt.Sprintf("https://%s/o/%s", ont[1:])
+		rcpts := make(map[string]bool)
+		for _, dub := range dubs {
+			var box *Box
+			ok := boxofboxes.Get(dub.XID, &box)
+			if ok && box.Shared != "" {
+				rcpts["%"+box.Shared] = true
+			} else {
+				rcpts[dub.XID] = true
+			}
+		}
+		msg := j.ToBytes()
+		for a := range rcpts {
+			go deliverate(0, user.ID, a, msg)
+		}
+	}
 }
 
 func junkuser(user *WhatAbout) []byte {
