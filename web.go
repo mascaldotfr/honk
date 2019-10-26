@@ -1527,6 +1527,21 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	if peep == "peep" {
 		flavor = "peep"
 	}
+
+	// incomplete
+	if url[0] == '#' {
+		flavor = "peep"
+		if name == "" {
+			name = url
+		}
+		_, err := stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		http.Redirect(w, r, "/honkers", http.StatusSeeOther)
+	}
+
 	info, err := investigate(url)
 	if err != nil {
 		http.Error(w, "error investigating: "+err.Error(), http.StatusInternalServerError)
