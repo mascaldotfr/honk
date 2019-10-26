@@ -156,6 +156,19 @@ type Honker struct {
 	Combos []string
 }
 
+type SomeThing struct {
+	What  int
+	XID   string
+	Owner string
+	Name  string
+}
+
+const (
+	SomeNothing int = iota
+	SomeActor
+	SomeCollection
+)
+
 var serverName string
 var iconName = "icon.png"
 var serverMsg template.HTML

@@ -538,14 +538,19 @@ func ximport(w http.ResponseWriter, r *http.Request) {
 		log.Printf("importing %s", xid)
 		user, _ := butwhatabout(u.Username)
 
-		what, _ := j.GetString("type")
-		if isactor(what) {
+		info, _ := somethingabout(j)
+		if info == nil {
+			xonk = xonksaver(user, j, originate(xid))
+		} else if info.What == SomeActor {
 			outbox, _ := j.GetString("outbox")
 			gimmexonks(user, outbox)
 			http.Redirect(w, r, "/h?xid="+url.QueryEscape(xid), http.StatusSeeOther)
 			return
+		} else if info.What == SomeCollection {
+			gimmexonks(user, xid)
+			http.Redirect(w, r, "/xzone", http.StatusSeeOther)
+			return
 		}
-		xonk = xonksaver(user, j, originate(xid))
 	}
 	convoy := ""
 	if xonk != nil {
@@ -770,6 +775,7 @@ func showontology(w http.ResponseWriter, r *http.Request) {
 		j := junk.New()
 		j["@context"] = itiswhatitis
 		j["id"] = fmt.Sprintf("https://%s/o/%s", serverName, name)
+		j["name"] = name
 		j["attributedTo"] = user.URL
 		j["type"] = "OrderedCollection"
 		j["totalItems"] = len(xids)
@@ -1501,7 +1507,9 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 				log.Printf("error updating honker: %s", err)
 				return
 			}
-			go subsub(user, url)
+			// incomplete
+			owner := url
+			go subsub(user, url, owner)
 
 			http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 			return
@@ -1519,13 +1527,13 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	if peep == "peep" {
 		flavor = "peep"
 	}
-	p, err := investigate(url)
+	info, err := investigate(url)
 	if err != nil {
 		http.Error(w, "error investigating: "+err.Error(), http.StatusInternalServerError)
 		log.Printf("failed to investigate honker: %s", err)
 		return
 	}
-	url = p.XID
+	url = info.XID
 
 	db := opendatabase()
 	row := db.QueryRow("select xid from honkers where xid = ? and userid = ? and flavor in ('sub', 'unsub', 'peep')", url, u.UserID)
@@ -1540,7 +1548,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if name == "" {
-		name = p.Handle
+		name = info.Name
 	}
 	_, err = stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos)
 	if err != nil {
@@ -1549,7 +1557,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	}
 	if flavor == "presub" {
 		user, _ := butwhatabout(u.Username)
-		go subsub(user, url)
+		go subsub(user, url, info.Owner)
 	}
 	http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 }

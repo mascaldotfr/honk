@@ -946,7 +946,7 @@ func itakeitallback(user *WhatAbout, xid string) {
 	deliverate(0, user.ID, xid, j.ToBytes())
 }
 
-func subsub(user *WhatAbout, xid string) {
+func subsub(user *WhatAbout, xid string, owner string) {
 	if xid == "" {
 		log.Printf("can't subscribe to empty")
 		return
@@ -956,15 +956,11 @@ func subsub(user *WhatAbout, xid string) {
 	j["id"] = user.URL + "/sub/" + url.QueryEscape(xid)
 	j["type"] = "Follow"
 	j["actor"] = user.URL
-	j["to"] = xid
+	j["to"] = owner
 	j["object"] = xid
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 
-	var buf bytes.Buffer
-	j.Write(&buf)
-	msg := buf.Bytes()
-
-	deliverate(0, user.ID, xid, msg)
+	deliverate(0, user.ID, owner, j.ToBytes())
 }
 
 // returns activity, object
@@ -1335,19 +1331,7 @@ func gofish(name string) string {
 	return href
 }
 
-func isactor(t string) bool {
-	switch t {
-	case "Person":
-	case "Organization":
-	case "Application":
-	case "Service":
-	default:
-		return false
-	}
-	return true
-}
-
-func investigate(name string) (*Honker, error) {
+func investigate(name string) (*SomeThing, error) {
 	if name == "" {
 		return nil, fmt.Errorf("no name")
 	}
@@ -1361,11 +1345,36 @@ func investigate(name string) (*Honker, error) {
 	if err != nil {
 		return nil, err
 	}
+	return somethingabout(obj)
+}
+
+func somethingabout(obj junk.Junk) (*SomeThing, error) {
+	info := new(SomeThing)
 	t, _ := obj.GetString("type")
-	if !isactor(t) {
-		return nil, fmt.Errorf("not a person")
+	switch t {
+	case "Person":
+		fallthrough
+	case "Organization":
+		fallthrough
+	case "Application":
+		fallthrough
+	case "Service":
+		info.What = SomeActor
+	case "OrderedCollection":
+		fallthrough
+	case "Collection":
+		info.What = SomeCollection
+	default:
+		return nil, fmt.Errorf("unknown object type")
 	}
-	xid, _ := obj.GetString("id")
-	handle, _ := obj.GetString("preferredUsername")
-	return &Honker{XID: xid, Handle: handle}, nil
+	info.XID, _ = obj.GetString("id")
+	info.Name, _ = obj.GetString("preferredUsername")
+	if info.Name == "" {
+		info.Name, _ = obj.GetString("name")
+	}
+	info.Owner, _ = obj.GetString("attributedTo")
+	if info.Owner == "" {
+		info.Owner = info.XID
+	}
+	return info, nil
 }

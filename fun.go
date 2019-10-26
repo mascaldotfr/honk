@@ -514,8 +514,8 @@ func findhandle(xid string) string {
 	var handle string
 	err := row.Scan(&handle)
 	if err != nil {
-		p, _ := investigate(xid)
-		if p == nil {
+		info, _ := investigate(xid)
+		if info == nil {
 			m := re_unurl.FindStringSubmatch(xid)
 			if len(m) > 2 {
 				handle = m[2]
@@ -523,7 +523,7 @@ func findhandle(xid string) string {
 				handle = xid
 			}
 		} else {
-			handle = p.Handle
+			handle = info.Name
 		}
 		_, err = stmtSaveXonker.Exec(xid, handle, "handle")
 		if err != nil {
