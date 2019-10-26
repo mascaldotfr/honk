@@ -343,26 +343,26 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		log.Printf("pong from %s: %s", who, obj)
 	case "Follow":
 		obj, _ := j.GetString("object")
-		if obj == user.URL {
-			log.Printf("updating honker follow: %s", who)
-
-			db := opendatabase()
-			row := db.QueryRow("select xid from honkers where xid = ? and userid = ? and flavor in ('dub', 'undub')", who, user.ID)
-			var x string
-			err = row.Scan(&x)
-			if err != sql.ErrNoRows {
-				log.Printf("duplicate follow request: %s", who)
-				_, err = stmtUpdateFlavor.Exec("dub", user.ID, who, "undub")
-				if err != nil {
-					log.Printf("error updating honker: %s", err)
-				}
-			} else {
-				stmtSaveDub.Exec(user.ID, who, who, "dub")
-			}
-			go rubadubdub(user, j)
-		} else {
+		if obj != user.URL {
 			log.Printf("can't follow %s", obj)
+			return
 		}
+		log.Printf("updating honker follow: %s", who)
+
+		db := opendatabase()
+		row := db.QueryRow("select xid from honkers where xid = ? and userid = ? and flavor in ('dub', 'undub')", who, user.ID)
+		var x string
+		err = row.Scan(&x)
+		if err != sql.ErrNoRows {
+			log.Printf("duplicate follow request: %s", who)
+			_, err = stmtUpdateFlavor.Exec("dub", user.ID, who, "undub")
+			if err != nil {
+				log.Printf("error updating honker: %s", err)
+			}
+		} else {
+			stmtSaveDub.Exec(user.ID, who, who, "dub")
+		}
+		go rubadubdub(user, j)
 	case "Accept":
 		log.Printf("updating honker accept: %s", who)
 		_, err = stmtUpdateFlavor.Exec("sub", user.ID, who, "presub")
@@ -394,23 +394,23 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		obj, ok := j.GetMap("object")
 		if !ok {
 			log.Printf("unknown undo no object")
-		} else {
-			what, _ := obj.GetString("type")
-			switch what {
-			case "Follow":
-				log.Printf("updating honker undo: %s", who)
-				_, err = stmtUpdateFlavor.Exec("undub", user.ID, who, "dub")
-				if err != nil {
-					log.Printf("error updating honker: %s", err)
-					return
-				}
-			case "Announce":
-				xid, _ := obj.GetString("object")
-				log.Printf("undo announce: %s", xid)
-			case "Like":
-			default:
-				log.Printf("unknown undo: %s", what)
+			return
+		}
+		what, _ := obj.GetString("type")
+		switch what {
+		case "Follow":
+			log.Printf("updating honker undo: %s", who)
+			_, err = stmtUpdateFlavor.Exec("undub", user.ID, who, "dub")
+			if err != nil {
+				log.Printf("error updating honker: %s", err)
+				return
 			}
+		case "Announce":
+			xid, _ := obj.GetString("object")
+			log.Printf("undo announce: %s", xid)
+		case "Like":
+		default:
+			log.Printf("unknown undo: %s", what)
 		}
 	default:
 		go xonksaver(user, j, origin)
@@ -469,50 +469,48 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		m := re_ont.FindStringSubmatch(obj)
-		if len(m) == 2 {
-			ont := "#" + m[1]
-			log.Printf("%s wants to follow %s", who, ont)
-			db := opendatabase()
-			row := db.QueryRow("select xid from honkers where name = ? and xid = ? and userid = ? and flavor in ('dub', 'undub')", ont, who, user.ID)
-			var x string
-			err = row.Scan(&x)
-			if err != sql.ErrNoRows {
-				log.Printf("duplicate follow request: %s", who)
-				_, err = stmtUpdateFlavor.Exec("dub", user.ID, who, ont, "undub")
-				if err != nil {
-					log.Printf("error updating honker: %s", err)
-				}
-			} else {
-				stmtSaveDub.Exec(user.ID, ont, who, "dub")
-			}
-			go rubadubdub(user, j)
-		} else {
+		if len(m) != 2 {
 			log.Printf("not sure how to handle this")
+			return
 		}
+		ont := "#" + m[1]
+		log.Printf("%s wants to follow %s", who, ont)
+		db := opendatabase()
+		row := db.QueryRow("select xid from honkers where name = ? and xid = ? and userid = ? and flavor in ('dub', 'undub')", ont, who, user.ID)
+		var x string
+		err = row.Scan(&x)
+		if err != sql.ErrNoRows {
+			log.Printf("duplicate follow request: %s", who)
+			_, err = stmtUpdateFlavor.Exec("dub", user.ID, who, ont, "undub")
+			if err != nil {
+				log.Printf("error updating honker: %s", err)
+			}
+		} else {
+			stmtSaveDub.Exec(user.ID, ont, who, "dub")
+		}
+		go rubadubdub(user, j)
 	case "Undo":
 		obj, ok := j.GetMap("object")
 		if !ok {
 			log.Printf("unknown undo no object")
-		} else {
-			what, _ := obj.GetString("type")
-			switch what {
-			case "Follow":
-				targ, _ := obj.GetString("object")
-				m := re_ont.FindStringSubmatch(targ)
-				if len(m) == 2 {
-					ont := "#" + m[1]
-					log.Printf("updating honker undo: %s", who, ont)
-					_, err = stmtUpdateFlavor.Exec("undub", user.ID, who, ont, "dub")
-					if err != nil {
-						log.Printf("error updating honker: %s", err)
-						return
-					}
-				} else {
-					log.Printf("not sure how to handle this")
-				}
-			default:
-				log.Printf("unknown undo: %s", what)
-			}
+			return
+		}
+		what, _ := obj.GetString("type")
+		if what != "Follow" {
+			log.Printf("unknown undo: %s", what)
+		}
+		targ, _ := obj.GetString("object")
+		m := re_ont.FindStringSubmatch(targ)
+		if len(m) != 2 {
+			log.Printf("not sure how to handle this")
+			return
+		}
+		ont := "#" + m[1]
+		log.Printf("updating honker undo: %s", who, ont)
+		_, err = stmtUpdateFlavor.Exec("undub", user.ID, who, ont, "dub")
+		if err != nil {
+			log.Printf("error updating honker: %s", err)
+			return
 		}
 	}
 }
