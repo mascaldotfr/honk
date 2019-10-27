@@ -1468,6 +1468,11 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	combos = " " + combos + " "
 	honkerid, _ := strconv.ParseInt(r.FormValue("honkerid"), 10, 0)
 
+	if url == "" {
+		http.Error(w, "subscribing to nothing?", http.StatusInternalServerError)
+		return
+	}
+
 	defer honkerinvalidator.Clear(u.UserID)
 
 	if honkerid > 0 {
@@ -1532,7 +1537,6 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		flavor = "peep"
 	}
 
-	// incomplete
 	if url[0] == '#' {
 		flavor = "peep"
 		if name == "" {
@@ -1544,6 +1548,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		http.Redirect(w, r, "/honkers", http.StatusSeeOther)
+		return
 	}
 
 	info, err := investigate(url)
