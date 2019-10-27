@@ -555,6 +555,22 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				return xonkxonkfn(obj, originate(xid))
 			}
 			return nil
+		case "Add":
+			xid, ok = item.GetString("object")
+			if ok {
+			// check target...
+				if !needxonkid(user, xid) {
+					log.Printf("don't need added obj: %s", xid)
+					return nil
+				}
+				obj, err = GetJunkHardMode(xid)
+				if err != nil {
+					log.Printf("error getting add: %s", err)
+					return nil
+				}
+				return xonkxonkfn(obj, originate(xid))
+			}
+			return nil
 		case "Audio":
 			fallthrough
 		case "Video":
