@@ -506,7 +506,7 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		ont := "#" + m[1]
-		log.Printf("updating honker undo: %s", who, ont)
+		log.Printf("updating honker undo: %s %s", who, ont)
 		_, err = stmtUpdateFlavor.Exec("undub", user.ID, who, ont, "dub")
 		if err != nil {
 			log.Printf("error updating honker: %s", err)

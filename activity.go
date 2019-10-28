@@ -1235,7 +1235,7 @@ func collectiveaction(honk *Honk) {
 		j["id"] = user.URL + "/add/" + shortxid(ont+honk.XID)
 		j["actor"] = user.URL
 		j["object"] = honk.XID
-		j["target"] = fmt.Sprintf("https://%s/o/%s", ont[1:])
+		j["target"] = fmt.Sprintf("https://%s/o/%s", serverName, ont[1:])
 		rcpts := make(map[string]bool)
 		for _, dub := range dubs {
 			var box *Box
