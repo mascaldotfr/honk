@@ -355,7 +355,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		err = row.Scan(&x)
 		if err != sql.ErrNoRows {
 			log.Printf("duplicate follow request: %s", who)
-			_, err = stmtUpdateFlavor.Exec("dub", user.ID, who, "undub")
+			_, err = stmtUpdateFlavor.Exec("dub", user.ID, who, who, "undub")
 			if err != nil {
 				log.Printf("error updating honker: %s", err)
 			}
@@ -400,7 +400,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		switch what {
 		case "Follow":
 			log.Printf("updating honker undo: %s", who)
-			_, err = stmtUpdateFlavor.Exec("undub", user.ID, who, "dub")
+			_, err = stmtUpdateFlavor.Exec("undub", user.ID, who, who, "dub")
 			if err != nil {
 				log.Printf("error updating honker: %s", err)
 				return
@@ -1483,7 +1483,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 			}
 			log.Printf("unsubscribing from %s", url)
 			user, _ := butwhatabout(u.Username)
-			_, err = stmtUpdateFlavor.Exec("unsub", u.UserID, url, "sub")
+			_, err = stmtUpdateFlavor.Exec("unsub", u.UserID, url, name, "sub")
 			if err != nil {
 				log.Printf("error updating honker: %s", err)
 				return
