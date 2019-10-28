@@ -2,6 +2,8 @@ changelog
 
 -- next
 
+++ Subscribe to hashtags.
+
 + Inline images in posts. Send and receive.
 
 + Somewhat functional admin console (TTY).
