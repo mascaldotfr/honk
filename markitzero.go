@@ -73,7 +73,7 @@ func markitzero(s string) string {
 
 	// mark it zero
 	s = re_link.ReplaceAllStringFunc(s, linkreplacer)
-	s = re_zerolink.ReplaceAllString(s, `<a class="mention u-url" href="$2">$1</a>`)
+	s = re_zerolink.ReplaceAllString(s, `<a href="$2">$1</a>`)
 	s = re_bolder.ReplaceAllString(s, "$1<b>$2</b>$3")
 	s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
 	s = re_quoter.ReplaceAllString(s, "<blockquote>$1</blockquote><p>")
@@ -128,7 +128,7 @@ func linkreplacer(url string) string {
 		url = url[:len(url)-1]
 		adddot = true
 	}
-	url = fmt.Sprintf(`<a class="mention u-url" href="%s">%s</a>`, url, url)
+	url = fmt.Sprintf(`<a href="%s">%s</a>`, url, url)
 	if adddot {
 		url += "."
 	}

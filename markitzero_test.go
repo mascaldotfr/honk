@@ -13,7 +13,7 @@ func doonezerotest(t *testing.T, input, output string) {
 
 func TestBasictest(t *testing.T) {
 	input := `link to https://example.com/ with **bold** text`
-	output := `link to <a class="mention u-url" href="https://example.com/">https://example.com/</a> with <b>bold</b> text`
+	output := `link to <a href="https://example.com/">https://example.com/</a> with <b>bold</b> text`
 	doonezerotest(t, input, output)
 }
 
@@ -49,48 +49,48 @@ func TestCodeStyles(t *testing.T) {
 
 func TestSimplelink(t *testing.T) {
 	input := "This is a [link](https://example.com)."
-	output := `This is a <a class="mention u-url" href="https://example.com">link</a>.`
+	output := `This is a <a href="https://example.com">link</a>.`
 	doonezerotest(t, input, output)
 }
 
 func TestSimplelink2(t *testing.T) {
 	input := "See (http://example.com) for examples."
-	output := `See (<a class="mention u-url" href="http://example.com">http://example.com</a>) for examples.`
+	output := `See (<a href="http://example.com">http://example.com</a>) for examples.`
 	doonezerotest(t, input, output)
 }
 
 func TestWikilink(t *testing.T) {
 	input := "I watched [Hackers](https://en.wikipedia.org/wiki/Hackers_(film))"
-	output := `I watched <a class="mention u-url" href="https://en.wikipedia.org/wiki/Hackers_(film)">Hackers</a>`
+	output := `I watched <a href="https://en.wikipedia.org/wiki/Hackers_(film)">Hackers</a>`
 	doonezerotest(t, input, output)
 }
 
 func TestQuotedlink(t *testing.T) {
 	input := `quoted "https://example.com/link" here`
-	output := `quoted "<a class="mention u-url" href="https://example.com/link">https://example.com/link</a>" here`
+	output := `quoted "<a href="https://example.com/link">https://example.com/link</a>" here`
 	doonezerotest(t, input, output)
 }
 
 func TestLinkinQuote(t *testing.T) {
 	input := `> a quote and https://example.com/link`
-	output := `<blockquote>a quote and <a class="mention u-url" href="https://example.com/link">https://example.com/link</a></blockquote><p>`
+	output := `<blockquote>a quote and <a href="https://example.com/link">https://example.com/link</a></blockquote><p>`
 	doonezerotest(t, input, output)
 }
 
 func TestBoldLink(t *testing.T) {
 	input := `**b https://example.com/link b**`
-	output := `<b>b <a class="mention u-url" href="https://example.com/link">https://example.com/link</a> b</b>`
+	output := `<b>b <a href="https://example.com/link">https://example.com/link</a> b</b>`
 	doonezerotest(t, input, output)
 }
 
 func TestHonklink(t *testing.T) {
 	input := `https://en.wikipedia.org/wiki/Honk!`
-	output := `<a class="mention u-url" href="https://en.wikipedia.org/wiki/Honk!">https://en.wikipedia.org/wiki/Honk!</a>`
+	output := `<a href="https://en.wikipedia.org/wiki/Honk!">https://en.wikipedia.org/wiki/Honk!</a>`
 	doonezerotest(t, input, output)
 }
 
 func TestImagelink(t *testing.T) {
 	input := `an image <img alt="caption" src="https://example.com/wherever"> and linked [<img src="there">](example.com)`
-	output := `an image <img alt="caption" src="https://example.com/wherever"> and linked <a class="mention u-url" href="example.com"><img src="there"></a>`
+	output := `an image <img alt="caption" src="https://example.com/wherever"> and linked <a href="example.com"><img src="there"></a>`
 	doonezerotest(t, input, output)
 }

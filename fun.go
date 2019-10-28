@@ -220,6 +220,7 @@ func translate(honk *Honk, redoimages bool) {
 			n, _ := htf.String(honk.Noise)
 			honk.Precis = string(p)
 			honk.Noise = string(n)
+			honk.Noise = strings.Replace(honk.Noise, "<a href=", "<a class=\"mention u-url\" href=", -1)
 		}
 		j := 0
 		for i := 0; i < len(honk.Donks); i++ {
@@ -469,7 +470,7 @@ func ontologize(s string) string {
 			p = h[:1]
 			h = h[1:]
 		}
-		return fmt.Sprintf(`%s<a class="mention u-url" href="https://%s/o/%s">%s</a>`, p, serverName,
+		return fmt.Sprintf(`%s<a href="https://%s/o/%s">%s</a>`, p, serverName,
 			strings.ToLower(h[1:]), h)
 	})
 	return s
