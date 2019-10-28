@@ -986,6 +986,9 @@ func submitbonk(w http.ResponseWriter, r *http.Request) {
 		Audience: []string{thewholeworld, oonker},
 		Public:   true,
 		Format:   "html",
+		Place:    xonk.Place,
+		Onts:     xonk.Onts,
+		Time:     xonk.Time,
 	}
 
 	err = savehonk(bonk)
