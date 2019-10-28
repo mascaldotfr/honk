@@ -780,7 +780,7 @@ func showontology(w http.ResponseWriter, r *http.Request) {
 		j := junk.New()
 		j["@context"] = itiswhatitis
 		j["id"] = fmt.Sprintf("https://%s/o/%s", serverName, name)
-		j["name"] = name
+		j["name"] = "#" + name
 		j["attributedTo"] = user.URL
 		j["type"] = "OrderedCollection"
 		j["totalItems"] = len(xids)

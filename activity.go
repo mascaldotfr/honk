@@ -558,7 +558,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		case "Add":
 			xid, ok = item.GetString("object")
 			if ok {
-			// check target...
+				// check target...
 				if !needxonkid(user, xid) {
 					log.Printf("don't need added obj: %s", xid)
 					return nil
