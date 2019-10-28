@@ -786,7 +786,6 @@ func showontology(w http.ResponseWriter, r *http.Request) {
 		j["totalItems"] = len(xids)
 		j["orderedItems"] = xids
 
-		w.Header().Set("Cache-Control", "max-age=300")
 		j.Write(w)
 		return
 	}
