@@ -23,10 +23,6 @@ import (
 	"humungus.tedunangst.com/r/webs/gate"
 )
 
-func init() {
-	notrand.Seed(time.Now().Unix())
-}
-
 type Doover struct {
 	ID   int64
 	When time.Time

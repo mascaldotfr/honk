@@ -20,11 +20,16 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	notrand "math/rand"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 )
+
+func init() {
+	notrand.Seed(time.Now().Unix())
+}
 
 type WhatAbout struct {
 	ID      int64
