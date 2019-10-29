@@ -34,7 +34,5 @@ gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0 h1:FVCohIoYO7IJoDDVpV2pdq7SgrMH6wHnuTyrdr
 gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0/go.mod h1:OdE7CF6DbADk7lN8LIKRzRJTTZXIjtWgA5THM5lhBAw=
 humungus.tedunangst.com/r/go-sqlite3 v1.1.3 h1:G2N4wzDS0NbuvrZtQJhh4F+3X+s7BF8b9ga8k38geUI=
 humungus.tedunangst.com/r/go-sqlite3 v1.1.3/go.mod h1:FtEEmQM7U2Ey1TuEEOyY1BmphTZnmiEjPsNLEAkpf/M=
-humungus.tedunangst.com/r/webs v0.6.19 h1:0cxR4JmHDMQmMwboRlycRO+67OPtgtCwLX8fuDu9IRo=
-humungus.tedunangst.com/r/webs v0.6.19/go.mod h1:S9sXpVSbgAIa24yYhnMN0C94LKHG+2rioS+NsiDimps=
-humungus.tedunangst.com/r/webs v0.6.20 h1:fKTjJ+EQUlxj8vWBtFMhX7aYbMwAnUWbDhY7hotkXq0=
-humungus.tedunangst.com/r/webs v0.6.20/go.mod h1:S9sXpVSbgAIa24yYhnMN0C94LKHG+2rioS+NsiDimps=
+humungus.tedunangst.com/r/webs v0.6.21 h1:bxI4ZFpxSZw06AbQsaTii5011wjxceF2MOfqJrFnM/w=
+humungus.tedunangst.com/r/webs v0.6.21/go.mod h1:S9sXpVSbgAIa24yYhnMN0C94LKHG+2rioS+NsiDimps=

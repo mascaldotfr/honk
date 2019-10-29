@@ -18,8 +18,9 @@ package main
 import (
 	"log"
 	notrand "math/rand"
-	"sync"
 	"time"
+
+	"humungus.tedunangst.com/r/webs/gate"
 )
 
 func init() {
@@ -60,30 +61,11 @@ func sayitagain(goarounds int64, userid int64, rcpt string, msg []byte) {
 	}
 }
 
-var trucksout = 0
-var maxtrucksout = 20
-var garagelock sync.Mutex
-var garagebell = sync.NewCond(&garagelock)
-
-func truckgoesout() {
-	garagelock.Lock()
-	for trucksout >= maxtrucksout {
-		garagebell.Wait()
-	}
-	trucksout++
-	garagelock.Unlock()
-}
-
-func truckcomesin() {
-	garagelock.Lock()
-	trucksout--
-	garagebell.Broadcast()
-	garagelock.Unlock()
-}
+var garage = gate.NewLimiter(20)
 
 func deliverate(goarounds int64, userid int64, rcpt string, msg []byte) {
-	truckgoesout()
-	defer truckcomesin()
+	garage.Start()
+	defer garage.Finish()
 
 	var ki *KeyInfo
 	ok := ziggies.Get(userid, &ki)
