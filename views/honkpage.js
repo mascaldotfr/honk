@@ -66,7 +66,14 @@ function flogit(el, how, xid) {
 var lehonkform = document.getElementById("honkform")
 var lehonkbutton = document.getElementById("honkingtime")
 
-function fillinhonks(xhr) {
+function removeglow() {
+	var els = document.getElementsByClassName("glow")
+	while (els.length) {
+		els[0].classList.remove("glow")
+	}
+}
+
+function fillinhonks(xhr, glowit) {
 	var doc = xhr.responseXML
 	var stash = curpagestate.name + ":" + curpagestate.arg
 	tophid[stash] = doc.children[0].children[1].children[0].innerText
@@ -88,10 +95,13 @@ function fillinhonks(xhr) {
 	var holder = honksonpage.children[0]
 	var lenhonks = honks.length
 	for (var i = honks.length; i > 0; i--) {
+		var h = honks[i-1]
+		if (glowit)
+			h.classList.add("glow")
 		if (frontload) {
-			holder.prepend(honks[i-1])
+			holder.prepend(h)
 		} else {
-			holder.append(honks[i-1])
+			holder.append(h)
 		}
 			
 	}
@@ -118,13 +128,14 @@ function refreshupdate(msg) {
 	}
 }
 function refreshhonks(btn) {
+	removeglow()
 	btn.innerHTML = "refreshing"
 	btn.disabled = true
 	var args = hydrargs()
 	var stash = curpagestate.name + ":" + curpagestate.arg
 	args["tophid"] = tophid[stash]
 	get("/hydra?" + encode(args), function(xhr) {
-		var lenhonks = fillinhonks(xhr)
+		var lenhonks = fillinhonks(xhr, true)
 		btn.innerHTML = "refresh"
 		btn.disabled = false
 		refreshupdate(" " + lenhonks + " new")
@@ -166,7 +177,7 @@ function switchtopage(name, arg) {
 		// or create one and fill it
 		honksonpage.prepend(document.createElement("div"))
 		var args = hydrargs()
-		get("/hydra?" + encode(args), fillinhonks)
+		get("/hydra?" + encode(args), function(xhr) { fillinhonks(xhr, false) })
 	}
 	refreshupdate("")
 }

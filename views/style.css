@@ -152,6 +152,10 @@ input[type=file] {
 	display: none;
 }
 
+.glow {
+	box-shadow: 0px 0px 16px $fg;
+}
+
 .honk {
 	margin: auto;
 	background: $bg-dark;
