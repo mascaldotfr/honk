@@ -366,7 +366,16 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		go rubadubdub(user, j)
 	case "Accept":
 		log.Printf("updating honker accept: %s", who)
-		_, err = stmtUpdateFlavor.Exec("sub", user.ID, who, "presub")
+		db := opendatabase()
+		row := db.QueryRow("select name from honkers where userid = ? and xid = ? and flavor in ('presub')",
+			user.ID, who)
+		var name string
+		err := row.Scan(&name)
+		if err != nil {
+			log.Printf("can't get honker name: %s", err)
+			return
+		}
+		_, err = stmtUpdateFlavor.Exec("sub", user.ID, who, name, "presub")
 		if err != nil {
 			log.Printf("error updating honker: %s", err)
 			return
