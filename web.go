@@ -1115,7 +1115,10 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 				log.Printf("error untagging: %s", err)
 			}
 		}
-		untagged.Clear(userinfo.UserID)
+		var badparents map[string]bool
+		untagged.GetAndLock(userinfo.UserID, &badparents)
+		badparents[what] = true
+		untagged.Unlock()
 		return
 	}
 
