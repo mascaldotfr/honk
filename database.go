@@ -43,7 +43,10 @@ func userfromrow(row *sql.Row) (*WhatAbout, error) {
 	}
 	if user.ID > 0 {
 		user.URL = fmt.Sprintf("https://%s/%s/%s", serverName, userSep, user.Name)
-		user.SkinnyCSS = strings.Contains(options, " skinny ")
+		err = unjsonify(options, &user.Options)
+		if err != nil {
+			log.Printf("error processing user options: %s", err)
+		}
 	} else {
 		user.URL = fmt.Sprintf("https://%s/%s", serverName, user.Name)
 	}

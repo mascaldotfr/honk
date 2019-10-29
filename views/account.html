@@ -7,8 +7,8 @@
 <input type="hidden" name="CSRF" value="{{ .UserCSRF }}">
 <p>about me:
 <p><textarea name="whatabout">{{ .User.About }}</textarea>
-<p><span><label for="skinny">skinny layout:</label>
-<input tabindex=1 type="checkbox" id="skinny" name="skinny" value="skinny" {{ if .User.SkinnyCSS }}checked{{ end }}><span></span></span>
+<p><label class="button" for="skinny">skinny layout:</label>
+<input tabindex=1 type="checkbox" id="skinny" name="skinny" value="skinny" {{ if .User.Options.SkinnyCSS }}checked{{ end }}><span></span>
 <p><button>update settings</button>
 </form>
 </div>

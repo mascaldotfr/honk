@@ -27,14 +27,18 @@ import (
 )
 
 type WhatAbout struct {
-	ID        int64
-	Name      string
-	Display   string
-	About     string
-	Key       string
-	URL       string
-	SkinnyCSS bool
-	SecKey    *rsa.PrivateKey
+	ID      int64
+	Name    string
+	Display string
+	About   string
+	Key     string
+	URL     string
+	Options UserOptions
+	SecKey  *rsa.PrivateKey
+}
+
+type UserOptions struct {
+	SkinnyCSS bool `json:",omitempty"`
 }
 
 type KeyInfo struct {

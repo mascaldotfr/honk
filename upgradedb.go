@@ -24,7 +24,7 @@ import (
 	"time"
 )
 
-var myVersion = 30
+var myVersion = 31
 
 func doordie(db *sql.DB, s string, args ...interface{}) {
 	_, err := db.Exec(s, args...)
@@ -317,6 +317,43 @@ func upgradedb() {
 		doordie(db, "update config set value = 30 where key = 'dbversion'")
 		fallthrough
 	case 30:
+		tx, err := db.Begin()
+		if err != nil {
+			log.Fatal(err)
+		}
+		rows, err := tx.Query("select userid, options from users")
+		if err != nil {
+			log.Fatal(err)
+		}
+		m := make(map[int64]string)
+		for rows.Next() {
+			var userid int64
+			var options string
+			err = rows.Scan(&userid, &options)
+			if err != nil {
+				log.Fatal(err)
+			}
+			var uo UserOptions
+			uo.SkinnyCSS = strings.Contains(options, " skinny ")
+			m[userid], err = jsonify(uo)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+		rows.Close()
+		for u, o := range m {
+			_, err = tx.Exec("update users set options = ? where userid = ?", o, u)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+		err = tx.Commit()
+		if err != nil {
+			log.Fatal(err)
+		}
+		doordie(db, "update config set value = 31 where key = 'dbversion'")
+		fallthrough
+	case 31:
 
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)

@@ -53,7 +53,7 @@ func getuserstyle(u *login.UserInfo) template.CSS {
 		return ""
 	}
 	user, _ := butwhatabout(u.Username)
-	if user.SkinnyCSS {
+	if user.Options.SkinnyCSS {
 		return "main { max-width: 700px; }"
 	}
 	return ""
@@ -929,11 +929,14 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	whatabout := r.FormValue("whatabout")
 	u := login.GetUserInfo(r)
 	db := opendatabase()
-	options := ""
+	var options UserOptions
 	if r.FormValue("skinny") == "skinny" {
-		options += " skinny "
+		options.SkinnyCSS = true
 	}
-	_, err := db.Exec("update users set about = ?, options = ? where username = ?", whatabout, options, u.Username)
+	j, err := jsonify(options)
+	if err == nil {
+		_, err = db.Exec("update users set about = ?, options = ? where username = ?", whatabout, j, u.Username)
+	}
 	if err != nil {
 		log.Printf("error bouting what: %s", err)
 	}
