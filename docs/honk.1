@@ -119,11 +119,28 @@ Alas, Update activities do not federate reliably.
 Refer to the
 .Xr honk 5
 section of the manual for details of honk composition.
-.Ss HFCS
+.Ss Search
+Find old honks.
+It's basic substring match with a few extensions.
+The following keywords are supported:
+.Bl -tag -width honker
+.It site
+Substring match on the post domain name.
+.It honker
+Exact match, either AP actor or honker nickname.
+.El
+.Pp
+Example:
+.Dl honker:goose big moose
+This query will find honks by the goose about the big moose.
+.Ss Filtering
 Sometimes other users of the federation can get unruly.
 The honk filtering and censorship system,
 .Xr hfcs 1 ,
 can be of great use to restore order to one's timeline.
+Accessed via the
+.Pa filters
+menu item.
 .Ss xzone
 The
 .Pa xzone
