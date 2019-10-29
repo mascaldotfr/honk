@@ -101,15 +101,16 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 			templinfo["ServerMessage"] = "at me!"
 			templinfo["PageName"] = "atme"
 			honks = gethonksforme(userid, 0)
+			honks = osmosis(honks, userid, false)
 		case "/events":
 			templinfo["ServerMessage"] = "some recent and upcoming events"
 			templinfo["PageName"] = "events"
 			honks = geteventhonks(userid)
-			honks = osmosis(honks, userid)
+			honks = osmosis(honks, userid, true)
 		case "/first":
 			templinfo["PageName"] = "first"
 			honks = gethonksforuser(userid, 0)
-			honks = osmosis(honks, userid)
+			honks = osmosis(honks, userid, true)
 		case "/saved":
 			templinfo["ServerMessage"] = "saved honks"
 			templinfo["PageName"] = "saved"
@@ -117,7 +118,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		default:
 			templinfo["PageName"] = "home"
 			honks = gethonksforuser(userid, 0)
-			honks = osmosis(honks, userid)
+			honks = osmosis(honks, userid, true)
 		}
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	}
@@ -723,7 +724,7 @@ func showcombo(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	u := login.GetUserInfo(r)
 	honks := gethonksbycombo(u.UserID, name, 0)
-	honks = osmosis(honks, u.UserID)
+	honks = osmosis(honks, u.UserID, true)
 	templinfo := getInfo(r)
 	templinfo["PageName"] = "combo"
 	templinfo["PageArg"] = name
@@ -739,6 +740,7 @@ func showconvoy(w http.ResponseWriter, r *http.Request) {
 	if len(honks) > 0 {
 		templinfo["TopHID"] = honks[0].ID
 	}
+	honks = osmosis(honks, u.UserID, false)
 	reversehonks(honks)
 	templinfo["PageName"] = "convoy"
 	templinfo["PageArg"] = c
@@ -1822,14 +1824,15 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	switch page {
 	case "atme":
 		honks = gethonksforme(userid, wanted)
+		honks = osmosis(honks, userid, false)
 		templinfo["ServerMessage"] = "at me!"
 	case "home":
 		honks = gethonksforuser(userid, wanted)
-		honks = osmosis(honks, userid)
+		honks = osmosis(honks, userid, true)
 		templinfo["ServerMessage"] = serverMsg
 	case "first":
 		honks = gethonksforuserfirstclass(userid, wanted)
-		honks = osmosis(honks, userid)
+		honks = osmosis(honks, userid, true)
 		templinfo["ServerMessage"] = "first class only"
 	case "saved":
 		honks = getsavedhonks(userid, wanted)
@@ -1838,11 +1841,12 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	case "combo":
 		c := r.FormValue("c")
 		honks = gethonksbycombo(userid, c, wanted)
-		honks = osmosis(honks, userid)
+		honks = osmosis(honks, userid, false)
 		templinfo["ServerMessage"] = "honks by combo: " + c
 	case "convoy":
 		c := r.FormValue("c")
 		honks = gethonksbyconvoy(userid, c, wanted)
+		honks = osmosis(honks, userid, false)
 		templinfo["ServerMessage"] = "honks in convoy: " + c
 	case "honker":
 		xid := r.FormValue("xid")

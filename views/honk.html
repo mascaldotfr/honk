@@ -112,6 +112,7 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ else }}
 <button onclick="return flogit(this, 'save', '{{ .Honk.XID }}');">save</button>
 {{ end }}
+<button onclick="return flogit(this, 'desub', '{{ .Honk.XID }}');">desub</button>
 <button><a href="/edit?xid={{ .Honk.XID }}">edit</a></button>
 </div>
 </details>

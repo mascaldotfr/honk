@@ -302,9 +302,48 @@ func unsee(userid int64, h *Honk) {
 	}
 }
 
-func osmosis(honks []*Honk, userid int64) []*Honk {
-	filts := getfilters(userid, filtHide)
+var desubbed = cache.New(cache.Options{Filler: func(userid int64) (map[string]bool, bool) {
+	rows, err := stmtDesubbed.Query(userid)
+	if err != nil {
+		log.Printf("error query desubbed: %s", err)
+		return nil, false
+	}
+	defer rows.Close()
+	m := make(map[string]bool)
+	for rows.Next() {
+		var xid string
+		err = rows.Scan(&xid)
+		if err != nil {
+			log.Printf("error scanning desub: %s", err)
+			continue
+		}
+		log.Printf("bad parent: %s", xid)
+		m[xid] = true
+	}
+	return m, true
+}})
+
+func osmosis(honks []*Honk, userid int64, withfilt bool) []*Honk {
+	var badparents map[string]bool
+	desubbed.GetAndLock(userid, &badparents)
 	j := 0
+	reversehonks(honks)
+	for _, h := range honks {
+		if badparents[h.RID] {
+			badparents[h.XID] = true
+			continue
+		}
+		honks[j] = h
+		j++
+	}
+	desubbed.Unlock()
+	honks = honks[0:j]
+	reversehonks(honks)
+	if !withfilt {
+		return honks
+	}
+	filts := getfilters(userid, filtHide)
+	j = 0
 outer:
 	for _, h := range honks {
 		for _, f := range filts {
