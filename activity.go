@@ -1123,12 +1123,18 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 	case "ack":
 		j["type"] = "Read"
 		j["object"] = h.XID
+		if h.Convoy != "" {
+			j["context"] = h.Convoy
+		}
 	case "deack":
 		b := junk.New()
 		b["id"] = user.URL + "/" + "ack" + "/" + shortxid(h.XID)
 		b["type"] = "Read"
 		b["actor"] = user.URL
 		b["object"] = h.XID
+		if h.Convoy != "" {
+			b["context"] = h.Convoy
+		}
 		j["type"] = "Undo"
 		j["object"] = b
 	}
