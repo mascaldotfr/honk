@@ -852,7 +852,7 @@ func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func showhonk(w http.ResponseWriter, r *http.Request) {
+func showonehonk(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	user, err := butwhatabout(name)
 	if err != nil {
@@ -899,7 +899,10 @@ func showhonk(w http.ResponseWriter, r *http.Request) {
 	rawhonks := gethonksbyconvoy(honk.UserID, honk.Convoy, 0)
 	reversehonks(rawhonks)
 	var honks []*Honk
-	for _, h := range rawhonks {
+	for i, h := range rawhonks {
+		if i > 0 && h.XID == xid {
+			h.Style += " glow"
+		}
 		if h.Public && (h.Whofore == 2 || h.IsAcked()) {
 			honks = append(honks, h)
 		}
@@ -1938,7 +1941,7 @@ func serve() {
 	getters.HandleFunc("/robots.txt", nomoroboto)
 	getters.HandleFunc("/rss", showrss)
 	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}", showuser)
-	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/"+honkSep+"/{xid:[[:alnum:]]+}", showhonk)
+	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/"+honkSep+"/{xid:[[:alnum:]]+}", showonehonk)
 	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/rss", showrss)
 	posters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/inbox", inbox)
 	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/outbox", outbox)

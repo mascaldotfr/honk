@@ -55,7 +55,7 @@ func reverbolate(userid int64, honks []*Honk) {
 		h.What += "ed"
 		if h.What == "tonked" {
 			h.What = "honked back"
-			h.Style = "subtle"
+			h.Style += " subtle"
 		}
 		if !h.Public {
 			h.Style += " limited"
