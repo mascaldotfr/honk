@@ -91,9 +91,10 @@ type OldRevision struct {
 }
 
 const (
-	flagIsAcked  = 1
-	flagIsBonked = 2
-	flagIsSaved  = 4
+	flagIsAcked    = 1
+	flagIsBonked   = 2
+	flagIsSaved    = 4
+	flagIsUntagged = 8
 )
 
 func (honk *Honk) IsAcked() bool {
@@ -106,6 +107,10 @@ func (honk *Honk) IsBonked() bool {
 
 func (honk *Honk) IsSaved() bool {
 	return honk.Flags&flagIsSaved != 0
+}
+
+func (honk *Honk) IsUntagged() bool {
+	return honk.Flags&flagIsUntagged != 0
 }
 
 type Donk struct {

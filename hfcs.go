@@ -302,30 +302,35 @@ func unsee(userid int64, h *Honk) {
 	}
 }
 
-var desubbed = cache.New(cache.Options{Filler: func(userid int64) (map[string]bool, bool) {
-	rows, err := stmtDesubbed.Query(userid)
+var untagged = cache.New(cache.Options{Filler: func(userid int64) (map[string]bool, bool) {
+	rows, err := stmtUntagged.Query(userid)
 	if err != nil {
-		log.Printf("error query desubbed: %s", err)
+		log.Printf("error query untagged: %s", err)
 		return nil, false
 	}
 	defer rows.Close()
-	m := make(map[string]bool)
+	bad := make(map[string]bool)
 	for rows.Next() {
-		var xid string
-		err = rows.Scan(&xid)
+		var xid, rid string
+		var flags int64
+		err = rows.Scan(&xid, &rid, &flags)
 		if err != nil {
-			log.Printf("error scanning desub: %s", err)
+			log.Printf("error scanning untag: %s", err)
 			continue
 		}
-		log.Printf("bad parent: %s", xid)
-		m[xid] = true
+		if flags&flagIsUntagged != 0 {
+			bad[xid] = true
+		}
+		if bad[rid] {
+			bad[xid] = true
+		}
 	}
-	return m, true
+	return bad, true
 }})
 
 func osmosis(honks []*Honk, userid int64, withfilt bool) []*Honk {
 	var badparents map[string]bool
-	desubbed.GetAndLock(userid, &badparents)
+	untagged.GetAndLock(userid, &badparents)
 	j := 0
 	reversehonks(honks)
 	for _, h := range honks {
@@ -336,7 +341,7 @@ func osmosis(honks []*Honk, userid int64, withfilt bool) []*Honk {
 		honks[j] = h
 		j++
 	}
-	desubbed.Unlock()
+	untagged.Unlock()
 	honks = honks[0:j]
 	reversehonks(honks)
 	if !withfilt {

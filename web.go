@@ -1107,6 +1107,18 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if wherefore == "untag" {
+		xonk := getxonk(userinfo.UserID, what)
+		if xonk != nil {
+			_, err := stmtUpdateFlags.Exec(flagIsUntagged, xonk.ID)
+			if err != nil {
+				log.Printf("error untagging: %s", err)
+			}
+		}
+		untagged.Clear(userinfo.UserID)
+		return
+	}
+
 	log.Printf("zonking %s %s", wherefore, what)
 	if wherefore == "zonk" {
 		xonk := getxonk(userinfo.UserID, what)
@@ -1121,9 +1133,6 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("error saving zonker: %s", err)
 		return
-	}
-	if wherefore == "desub" {
-		desubbed.Clear(userinfo.UserID)
 	}
 }
 
