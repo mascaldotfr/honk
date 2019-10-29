@@ -1013,10 +1013,10 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		if !h.Public {
 			jo["directMessage"] = true
 		}
+		mentions := bunchofgrapes(h.Noise)
 		translate(h, true)
-		h.Noise = re_memes.ReplaceAllString(h.Noise, "")
 		jo["summary"] = html.EscapeString(h.Precis)
-		jo["content"] = ontologize(mentionize(h.Noise))
+		jo["content"] = h.Noise
 		if strings.HasPrefix(h.Precis, "DZ:") {
 			jo["sensitive"] = true
 		}
@@ -1034,7 +1034,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		}
 
 		var tags []junk.Junk
-		for _, m := range bunchofgrapes(h.Noise) {
+		for _, m := range mentions {
 			t := junk.New()
 			t["type"] = "Mention"
 			t["name"] = m.who

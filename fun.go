@@ -220,7 +220,6 @@ func translate(honk *Honk, redoimages bool) {
 			n, _ := htf.String(honk.Noise)
 			honk.Precis = string(p)
 			honk.Noise = string(n)
-			honk.Noise = strings.Replace(honk.Noise, "<a href=", "<a class=\"mention u-url\" href=", -1)
 		}
 		j := 0
 		for i := 0; i < len(honk.Donks); i++ {
@@ -230,6 +229,10 @@ func translate(honk *Honk, redoimages bool) {
 			}
 		}
 		honk.Donks = honk.Donks[:j]
+
+		honk.Noise = re_memes.ReplaceAllString(honk.Noise, "")
+		honk.Noise = ontologize(mentionize(honk.Noise))
+		honk.Noise = strings.Replace(honk.Noise, "<a href=", "<a class=\"mention u-url\" href=", -1)
 	}
 }
 
