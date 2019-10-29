@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ "Untag" button to mute part of a thread.
+
 ++ Subscribe to hashtags.
 
 + Inline images in posts. Send and receive.
