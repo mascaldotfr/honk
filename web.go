@@ -899,8 +899,8 @@ func showonehonk(w http.ResponseWriter, r *http.Request) {
 	rawhonks := gethonksbyconvoy(honk.UserID, honk.Convoy, 0)
 	reversehonks(rawhonks)
 	var honks []*Honk
-	for i, h := range rawhonks {
-		if i > 0 && h.XID == xid {
+	for _, h := range rawhonks {
+		if h.XID == xid && len(honks) != 0 {
 			h.Style += " glow"
 		}
 		if h.Public && (h.Whofore == 2 || h.IsAcked()) {
