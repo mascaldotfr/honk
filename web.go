@@ -1107,6 +1107,9 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		log.Printf("error saving zonker: %s", err)
 		return
 	}
+	if wherefore == "desub" {
+		desubbed.Clear(userinfo.UserID)
+	}
 }
 
 func edithonkpage(w http.ResponseWriter, r *http.Request) {
