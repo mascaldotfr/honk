@@ -262,8 +262,8 @@ func eradicatexonk(userid int64, xid string) {
 
 func savexonk(x *Honk) {
 	log.Printf("saving xonk: %s", x.XID)
-	go prehandle(x.Honker)
-	go prehandle(x.Oonker)
+	go handles(x.Honker)
+	go handles(x.Oonker)
 	savehonk(x)
 }
 

@@ -487,36 +487,13 @@ func originate(u string) string {
 	return ""
 }
 
-var allhandles = make(map[string]string)
-var handlelock sync.Mutex
-
-// handle, handle@host
-func handles(xid string) (string, string) {
-	if xid == "" {
-		return "", ""
-	}
-	handlelock.Lock()
-	handle := allhandles[xid]
-	handlelock.Unlock()
-	if handle == "" {
-		handle = findhandle(xid)
-		handlelock.Lock()
-		allhandles[xid] = handle
-		handlelock.Unlock()
-	}
-	if handle == xid {
-		return xid, xid
-	}
-	return handle, handle + "@" + originate(xid)
-}
-
-func findhandle(xid string) string {
+var allhandles = cache.New(cache.Options{Filler: func(xid string) (string, bool) {
 	row := stmtGetXonker.QueryRow(xid, "handle")
 	var handle string
 	err := row.Scan(&handle)
 	if err != nil {
-		info, _ := investigate(xid)
-		if info == nil {
+		info, err := investigate(xid)
+		if err != nil {
 			m := re_unurl.FindStringSubmatch(xid)
 			if len(m) > 2 {
 				handle = m[2]
@@ -525,21 +502,26 @@ func findhandle(xid string) string {
 			}
 		} else {
 			handle = info.Name
-		}
-		_, err = stmtSaveXonker.Exec(xid, handle, "handle")
-		if err != nil {
-			log.Printf("error saving handle: %s", err)
+			_, err = stmtSaveXonker.Exec(xid, handle, "handle")
+			if err != nil {
+				log.Printf("error saving handle: %s", err)
+			}
 		}
 	}
-	return handle
-}
+	return handle, true
+}})
 
-var handleprelock sync.Mutex
-
-func prehandle(xid string) {
-	handleprelock.Lock()
-	defer handleprelock.Unlock()
-	handles(xid)
+// handle, handle@host
+func handles(xid string) (string, string) {
+	if xid == "" {
+		return "", ""
+	}
+	var handle string
+	allhandles.Get(xid, &handle)
+	if handle == xid {
+		return xid, xid
+	}
+	return handle, handle + "@" + originate(xid)
 }
 
 func prepend(s string, x []string) []string {
