@@ -1071,7 +1071,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 
 	if wherefore == "ack" {
 		xonk := getxonk(userinfo.UserID, what)
-		if xonk != nil {
+		if xonk != nil && !xonk.IsAcked() {
 			_, err := stmtUpdateFlags.Exec(flagIsAcked, xonk.ID)
 			if err != nil {
 				log.Printf("error acking: %s", err)
@@ -1083,7 +1083,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 
 	if wherefore == "deack" {
 		xonk := getxonk(userinfo.UserID, what)
-		if xonk != nil {
+		if xonk != nil && xonk.IsAcked() {
 			_, err := stmtClearFlags.Exec(flagIsAcked, xonk.ID)
 			if err != nil {
 				log.Printf("error deacking: %s", err)
