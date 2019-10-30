@@ -972,6 +972,9 @@ func submitbonk(w http.ResponseWriter, r *http.Request) {
 	if !xonk.Public {
 		return
 	}
+	if xonk.IsBonked() {
+		return
+	}
 	donksforhonks([]*Honk{xonk})
 
 	_, err := stmtUpdateFlags.Exec(flagIsBonked, xonk.ID)
