@@ -220,6 +220,16 @@ func gethonksforuserfirstclass(userid int64, wanted int64) []*Honk {
 var mehonks = make(map[int64][]*Honk)
 var melock sync.Mutex
 
+func copyhonks(honks []*Honk) []*Honk {
+	rv := make([]*Honk, len(honks))
+	for i, h := range honks {
+		dupe := new(Honk)
+		*dupe = *h
+		rv[i] = dupe
+	}
+	return rv
+}
+
 func gethonksforme(userid int64, wanted int64) []*Honk {
 	if wanted > 0 {
 		dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
@@ -234,7 +244,7 @@ func gethonksforme(userid int64, wanted int64) []*Honk {
 		dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
 		rows, err := stmtHonksForMe.Query(wanted, userid, dt, userid)
 		honks = getsomehonks(rows, err)
-		mehonks[userid] = honks
+		mehonks[userid] = copyhonks(honks)
 		return honks
 	}
 	wanted = honks[0].ID
@@ -245,7 +255,7 @@ func gethonksforme(userid int64, wanted int64) []*Honk {
 	if len(honks) > 250 {
 		honks = honks[:250]
 	}
-	mehonks[userid] = honks
+	mehonks[userid] = copyhonks(honks)
 	return honks
 }
 func getsavedhonks(userid int64, wanted int64) []*Honk {
