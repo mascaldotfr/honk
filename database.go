@@ -372,8 +372,9 @@ func donksforhonks(honks []*Honk) {
 		ids = append(ids, fmt.Sprintf("%d", h.ID))
 		hmap[h.ID] = h
 	}
+	idset := strings.Join(ids, ",")
 	// grab donks
-	q := fmt.Sprintf("select honkid, donks.fileid, xid, name, description, url, media, local from donks join filemeta on donks.fileid = filemeta.fileid where honkid in (%s)", strings.Join(ids, ","))
+	q := fmt.Sprintf("select honkid, donks.fileid, xid, name, description, url, media, local from donks join filemeta on donks.fileid = filemeta.fileid where honkid in (%s)", idset)
 	rows, err := db.Query(q)
 	if err != nil {
 		log.Printf("error querying donks: %s", err)
@@ -394,7 +395,7 @@ func donksforhonks(honks []*Honk) {
 	rows.Close()
 
 	// grab onts
-	q = fmt.Sprintf("select honkid, ontology from onts where honkid in (%s)", strings.Join(ids, ","))
+	q = fmt.Sprintf("select honkid, ontology from onts where honkid in (%s)", idset)
 	rows, err = db.Query(q)
 	if err != nil {
 		log.Printf("error querying onts: %s", err)
@@ -413,8 +414,9 @@ func donksforhonks(honks []*Honk) {
 		h.Onts = append(h.Onts, o)
 	}
 	rows.Close()
+
 	// grab meta
-	q = fmt.Sprintf("select honkid, genus, json from honkmeta where honkid in (%s)", strings.Join(ids, ","))
+	q = fmt.Sprintf("select honkid, genus, json from honkmeta where honkid in (%s)", idset)
 	rows, err = db.Query(q)
 	if err != nil {
 		log.Printf("error querying honkmeta: %s", err)
