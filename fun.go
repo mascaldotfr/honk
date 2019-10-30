@@ -27,7 +27,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"sync"
 
 	"golang.org/x/net/html"
 	"humungus.tedunangst.com/r/webs/cache"
@@ -585,71 +584,53 @@ func ziggy(userid int64) *KeyInfo {
 	return ki
 }
 
-var zaggies = make(map[string]*rsa.PublicKey)
-var zaggylock sync.Mutex
-
-func zaggy(keyname string) (key *rsa.PublicKey) {
-	zaggylock.Lock()
-	key = zaggies[keyname]
-	zaggylock.Unlock()
-	if key != nil {
-		return
-	}
+var zaggies = cache.New(cache.Options{Filler: func(keyname string) (*rsa.PublicKey, bool) {
 	row := stmtGetXonker.QueryRow(keyname, "pubkey")
 	var data string
 	err := row.Scan(&data)
-	if err != nil {
-		log.Printf("hitting the webs for missing pubkey: %s", keyname)
-		j, err := GetJunk(keyname)
-		if err != nil {
-			log.Printf("error getting %s pubkey: %s", keyname, err)
-			return
-		}
-		keyobj, ok := j.GetMap("publicKey")
-		if ok {
-			j = keyobj
-		}
-		data, ok = j.GetString("publicKeyPem")
-		if !ok {
-			log.Printf("error finding %s pubkey", keyname)
-			return
-		}
-		_, ok = j.GetString("owner")
-		if !ok {
-			log.Printf("error finding %s pubkey owner", keyname)
-			return
-		}
-		_, key, err = httpsig.DecodeKey(data)
+	if err == nil {
+		_, key, err := httpsig.DecodeKey(data)
 		if err != nil {
 			log.Printf("error decoding %s pubkey: %s", keyname, err)
-			return
 		}
-		_, err = stmtSaveXonker.Exec(keyname, data, "pubkey")
-		if err != nil {
-			log.Printf("error saving key: %s", err)
-		}
-	} else {
-		_, key, err = httpsig.DecodeKey(data)
-		if err != nil {
-			log.Printf("error decoding %s pubkey: %s", keyname, err)
-			return
-		}
+		return key, true
 	}
-	zaggylock.Lock()
-	zaggies[keyname] = key
-	zaggylock.Unlock()
-	return
-}
+	log.Printf("hitting the webs for missing pubkey: %s", keyname)
+	j, err := GetJunk(keyname)
+	if err != nil {
+		log.Printf("error getting %s pubkey: %s", keyname, err)
+		return nil, true
+	}
+	keyobj, ok := j.GetMap("publicKey")
+	if ok {
+		j = keyobj
+	}
+	data, ok = j.GetString("publicKeyPem")
+	if !ok {
+		log.Printf("error finding %s pubkey", keyname)
+		return nil, true
+	}
+	_, ok = j.GetString("owner")
+	if !ok {
+		log.Printf("error finding %s pubkey owner", keyname)
+		return nil, true
+	}
+	_, key, err := httpsig.DecodeKey(data)
+	if err != nil {
+		log.Printf("error decoding %s pubkey: %s", keyname, err)
+		return nil, true
+	}
+	_, err = stmtSaveXonker.Exec(keyname, data, "pubkey")
+	if err != nil {
+		log.Printf("error saving key: %s", err)
+	}
+	return key, true
+}})
 
-func makeitworksomehowwithoutregardforkeycontinuity(keyname string, r *http.Request, payload []byte) (string, error) {
-	_, err := stmtDeleteXonker.Exec(keyname, "pubkey")
-	if err != nil {
-		log.Printf("error deleting key: %s", err)
-	}
-	zaggylock.Lock()
-	delete(zaggies, keyname)
-	zaggylock.Unlock()
-	return httpsig.VerifyRequest(r, payload, zaggy)
+func zaggy(keyname string) *rsa.PublicKey {
+	var key *rsa.PublicKey
+	zaggies.Get(keyname, &key)
+	return key
 }
 
 func keymatch(keyname string, actor string) string {
