@@ -1150,9 +1150,6 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	noise := honk.Noise
-	if honk.Precis != "" {
-		noise = honk.Precis + "\n\n" + noise
-	}
 
 	honks := []*Honk{honk}
 	donksforhonks(honks)
@@ -1360,7 +1357,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 			log.Printf("can't find file: %s", xid)
 		}
 	}
-	herd := herdofemus(honk.Noise)
+	herd := herdofemus(noise)
 	for _, e := range herd {
 		donk := savedonk(e.ID, e.Name, e.Name, "image/png", true)
 		if donk != nil {

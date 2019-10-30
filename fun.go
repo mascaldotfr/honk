@@ -201,7 +201,7 @@ func translate(honk *Honk, redoimages bool) {
 			noise = noise[idx+1:]
 		}
 	}
-	honk.Precis = strings.TrimSpace(honk.Precis)
+	honk.Precis = markitzero(strings.TrimSpace(honk.Precis))
 
 	noise = strings.TrimSpace(noise)
 	noise = quickrename(noise, honk.UserID)
