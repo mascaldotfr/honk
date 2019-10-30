@@ -530,7 +530,6 @@ func prepend(s string, x []string) []string {
 	return append([]string{s}, x...)
 }
 
-// pleroma leaks followers addressed posts to followers
 func butnottooloud(aud []string) {
 	for i, a := range aud {
 		if strings.HasSuffix(a, "/followers") {
