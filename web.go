@@ -1032,7 +1032,7 @@ func sendzonkofsorts(xonk *Honk, user *WhatAbout, what string) {
 		Date:     time.Now().UTC(),
 		Audience: oneofakind(xonk.Audience),
 	}
-	zonk.Public = !keepitquiet(zonk.Audience)
+	zonk.Public = loudandproud(zonk.Audience)
 
 	log.Printf("announcing %sed honk: %s", what, xonk.XID)
 	go honkworldwide(user, zonk)
@@ -1286,7 +1286,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "honk to nowhere...", http.StatusNotFound)
 		return
 	}
-	honk.Public = !keepitquiet(honk.Audience)
+	honk.Public = loudandproud(honk.Audience)
 	honk.Convoy = convoy
 
 	donkxid := r.FormValue("donkxid")

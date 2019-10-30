@@ -538,13 +538,13 @@ func butnottooloud(aud []string) {
 	}
 }
 
-func keepitquiet(aud []string) bool {
+func loudandproud(aud []string) bool {
 	for _, a := range aud {
 		if a == thewholeworld {
-			return false
+			return true
 		}
 	}
-	return true
+	return false
 }
 
 func firstclass(honk *Honk) bool {

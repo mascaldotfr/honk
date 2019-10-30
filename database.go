@@ -360,7 +360,7 @@ func scanhonk(row RowLike) *Honk {
 	}
 	h.Date, _ = time.Parse(dbtimeformat, dt)
 	h.Audience = strings.Split(aud, " ")
-	h.Public = !keepitquiet(h.Audience)
+	h.Public = loudandproud(h.Audience)
 	return h
 }
 
