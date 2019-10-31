@@ -65,7 +65,9 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ range .Donks }}
 {{ if .Local }}
 {{ if eq .Media "text/plain" }}
-<p><a href="/d/{{ .XID }}">Attachment: {{ .Name }}</a>
+<p><a href="/d/{{ .XID }}">Attachment: {{ .Name }}</a> {{ .Desc }}
+{{ else if eq .Media "application/pdf" }}
+<p><a href="/d/{{ .XID }}">Attachment: {{ .Name }}</a> {{ .Desc }}
 {{ else }}
 <p><img src="/d/{{ .XID }}" title="{{ .Desc }}" alt="{{ .Desc }}">
 {{ end }}

@@ -1310,25 +1310,42 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 				name = xid + "." + format
 				xid = name
 			} else {
-				maxsize := 100000
-				if len(data) > maxsize {
-					log.Printf("bad image: %s too much text: %d", err, len(data))
-					http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
-					return
-				}
-				for i := 0; i < len(data); i++ {
-					if data[i] < 32 && data[i] != '\t' && data[i] != '\r' && data[i] != '\n' {
-						log.Printf("bad image: %s not text: %d", err, data[i])
+				ct := http.DetectContentType(data)
+				switch ct {
+				case "application/pdf":
+					maxsize := 1000000
+					if len(data) > maxsize {
+						log.Printf("bad image: %s too much pdf: %d", err, len(data))
 						http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
 						return
 					}
+					media = ct
+					xid += ".pdf"
+					name = filehdr.Filename
+					if name == "" {
+						name = xid
+					}
+				default:
+					maxsize := 100000
+					if len(data) > maxsize {
+						log.Printf("bad image: %s too much text: %d", err, len(data))
+						http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
+						return
+					}
+					for i := 0; i < len(data); i++ {
+						if data[i] < 32 && data[i] != '\t' && data[i] != '\r' && data[i] != '\n' {
+							log.Printf("bad image: %s not text: %d", err, data[i])
+							http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
+							return
+						}
+					}
+					media = "text/plain"
+					xid += ".txt"
+					name = filehdr.Filename
+					if name == "" {
+						name = xid
+					}
 				}
-				media = "text/plain"
-				name = filehdr.Filename
-				if name == "" {
-					name = xid + ".txt"
-				}
-				xid += ".txt"
 			}
 			desc := strings.TrimSpace(r.FormValue("donkdesc"))
 			if desc == "" {
