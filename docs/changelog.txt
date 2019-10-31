@@ -4,7 +4,7 @@ changelog
 
 + Allow PDF attachments. For serious business only.
 
-+ "Untag" button to mute part of a thread.
++ "untag me" button to mute part of a thread.
 
 ++ Subscribe to hashtags.
 
