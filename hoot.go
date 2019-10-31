@@ -31,6 +31,7 @@ import (
 
 var tweetsel = cascadia.MustCompile("p.tweet-text")
 var linksel = cascadia.MustCompile(".time a.tweet-timestamp")
+var replyingto = cascadia.MustCompile(".ReplyingToContextBelowAuthor")
 var authorregex = regexp.MustCompile("twitter.com/([^/]+)")
 
 var re_hoots = regexp.MustCompile(`hoot: ?https://\S+`)
@@ -57,6 +58,10 @@ func hootextractor(r io.Reader, url string, seen map[string]bool) string {
 		alink := linksel.MatchFirst(twp)
 		if alink == nil {
 			log.Printf("missing link")
+			continue
+		}
+		replto := replyingto.MatchFirst(twp)
+		if replto != nil {
 			continue
 		}
 		link := "https://twitter.com" + htfilter.GetAttr(alink, "href")
