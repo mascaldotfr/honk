@@ -35,56 +35,59 @@ var authorregex = regexp.MustCompile("twitter.com/([^/]+)")
 
 var re_hoots = regexp.MustCompile(`hoot: ?https://\S+`)
 
+func hootextractor(r io.Reader, url string, seen map[string]bool) string {
+	root, err := html.Parse(r)
+	if err != nil {
+		log.Printf("error parsing hoot: %s", err)
+		return url
+	}
+	divs := tweetsel.MatchAll(root)
+
+	var wanted string
+	wantmatch := authorregex.FindStringSubmatch(url)
+	if len(wantmatch) == 2 {
+		wanted = wantmatch[1]
+	}
+	var buf strings.Builder
+
+	fmt.Fprintf(&buf, "%s\n", url)
+	var htf htfilter.Filter
+	for _, div := range divs {
+		twp := div.Parent.Parent.Parent
+		alink := linksel.MatchFirst(twp)
+		if alink == nil {
+			log.Printf("missing link")
+			continue
+		}
+		link := "https://twitter.com" + htfilter.GetAttr(alink, "href")
+		authormatch := authorregex.FindStringSubmatch(link)
+		if len(authormatch) < 2 {
+			log.Printf("no author?")
+			continue
+		}
+		author := authormatch[1]
+		if wanted == "" {
+			wanted = author
+		}
+		if author != wanted {
+			continue
+		}
+		text := htf.TextOnly(div)
+		text = strings.Replace(text, "\n", " ", -1)
+		text = strings.Replace(text, "pic.twitter.com", "https://pic.twitter.com", -1)
+
+		if seen[text] {
+			continue
+		}
+
+		fmt.Fprintf(&buf, "> @%s: %s\n", author, text)
+		seen[text] = true
+	}
+	return buf.String()
+}
+
 func hooterize(noise string) string {
 	seen := make(map[string]bool)
-
-	hootfixer := func(r io.Reader, url string) string {
-		root, err := html.Parse(r)
-		if err != nil {
-			log.Printf("error parsing hoot: %s", err)
-			return url
-		}
-		divs := tweetsel.MatchAll(root)
-
-		wantmatch := authorregex.FindStringSubmatch(url)
-		if len(wantmatch) < 2 {
-			log.Printf("no wanted author?")
-		}
-		wanted := wantmatch[1]
-		var buf strings.Builder
-
-		var htf htfilter.Filter
-		fmt.Fprintf(&buf, "%s\n", url)
-		for _, div := range divs {
-			twp := div.Parent.Parent.Parent
-			alink := linksel.MatchFirst(twp)
-			if alink == nil {
-				log.Printf("missing link")
-				continue
-			}
-			link := "https://twitter.com" + htfilter.GetAttr(alink, "href")
-			authormatch := authorregex.FindStringSubmatch(link)
-			if len(authormatch) < 2 {
-				log.Printf("no author?")
-				continue
-			}
-			author := authormatch[1]
-			if author != wanted {
-				continue
-			}
-			text := htf.TextOnly(div)
-			text = strings.Replace(text, "\n", " ", -1)
-			text = strings.Replace(text, "pic.twitter.com", "https://pic.twitter.com", -1)
-
-			if seen[text] {
-				continue
-			}
-
-			fmt.Fprintf(&buf, "> @%s: %s\n", author, text)
-			seen[text] = true
-		}
-		return buf.String()
-	}
 
 	hootfetcher := func(hoot string) string {
 		url := hoot[5:]
@@ -113,7 +116,7 @@ func hooterize(noise string) string {
 		}
 		ld, _ := os.Create("lasthoot.html")
 		r := io.TeeReader(resp.Body, ld)
-		return hootfixer(r, url)
+		return hootextractor(r, url, seen)
 	}
 
 	return re_hoots.ReplaceAllStringFunc(noise, hootfetcher)
