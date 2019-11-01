@@ -2,6 +2,9 @@ changelog
 
 -- next
 
+- Sometimes the cached state of the @me feed becomes unsynced.
+	Acked status may display incorrectly.
+
 + Allow PDF attachments. For serious business only.
 
 + "untag me" button to mute part of a thread.
