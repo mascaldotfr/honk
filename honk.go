@@ -22,10 +22,13 @@ import (
 	"html/template"
 	"log"
 	notrand "math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 )
+
+var honkVersion = "honk 0.8.0-dev"
 
 func init() {
 	notrand.Seed(time.Now().Unix())
@@ -208,6 +211,9 @@ func main() {
 		initdb()
 	case "upgrade":
 		upgradedb()
+	case "version":
+		fmt.Println(honkVersion)
+		os.Exit(0)
 	}
 	db := opendatabase()
 	dbversion := 0

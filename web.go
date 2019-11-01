@@ -1800,6 +1800,7 @@ func servehtml(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
 	templinfo["AboutMsg"] = aboutMsg
 	templinfo["LoginMsg"] = loginMsg
+	templinfo["HonkVersion"] = honkVersion
 	if u == nil {
 		w.Header().Set("Cache-Control", "max-age=60")
 	}
