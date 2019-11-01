@@ -112,6 +112,8 @@ The database may grow large over time.
 The
 .Ic cleanup
 command exists to purge old data, by default 30 days.
+This removes unreferenced, unsaved posts and attachments.
+It does not remove any original content.
 .Ss UPGRADE
 Stop the old honk process.
 .Dl pkill honk

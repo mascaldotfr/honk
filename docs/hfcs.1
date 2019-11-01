@@ -23,13 +23,13 @@
 The honk filtering and censorship system,
 .Nm hfcs ,
 controls what messages are seen and how they are presented to the user.
-Filter rules are based on series of matches and actions.
+Filter rules are based on a series of matches and actions.
 It is accessed via the
 .Pa filters
 menu item.
 .Pp
 The following match types are possible.
-All criteria must match.
+All nonempty criteria must match.
 .Bl -tag -width include-audience
 .It Ar who
 Match an actor or domain name.
@@ -47,6 +47,8 @@ Regular expression match against the post
 .Fa content .
 .It Ar is announce
 Is announced (shared).
+.It Ar announce of
+Limit prevous match to only specified actor or domain name.
 .El
 .Pp
 The following actions may be applied.
@@ -75,6 +77,9 @@ Specifically, an argument
 .Ql re
 will be automatically rewritten as
 .Ql \\\b(?i:re)\\\b .
+The
+.Ar replace
+text may refer to submatches using $1, etc.
 .Pp
 An optional expiration may be specified as a duration.
 XdYhZm for X days, Y hours, and Z minutes.
