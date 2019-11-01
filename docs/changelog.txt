@@ -2,6 +2,8 @@ changelog
 
 -- next
 
+++ Make it easier to upgrade by decoupling data dir from ".".
+
 + Amend changelog for 0.8.0 in include omitted elements:
 	Syntax highlighting for code blocks.
 	Something resembling an actual manual.

@@ -49,6 +49,20 @@ to be installed.
 Run make.
 Please be patient.
 Even on fast machines, building from source can take several seconds.
+.Ss OPTIONS
+The following options control where
+.Nm
+looks for data.
+.Bl -tag -width datadirx
+.It Fl datadir
+The root data directory, where the database and other user data are stored.
+Requires write access.
+Defaults to ".".
+.It Fl viewdir
+The root view directory, where html and other templates are stored.
+Read only.
+Defaults to ".".
+.El
 .Ss INIT
 Run the
 .Ic init
@@ -69,17 +83,17 @@ Log messages are sent to stderr and should probably be redirected to a file.
 .Ss CUSTOMIZATION
 Add custom memes (stickers) to the
 .Pa memes
-directory.
+data directory.
 Image and video files are supported.
 .Pp
 Add custom emus (emoji) to the
 .Pa emus
-directory.
+data directory.
 Image files are supported.
 .Pp
 Site CSS may be overridden by creating a
 .Pa views/local.css
-file.
+file in the data directory.
 A restart is required after changes.
 .Pp
 Custom HTML messages may be added to select pages by using the
@@ -129,16 +143,40 @@ Restart.
 There's also a
 .Pa blob.db
 file which is important to backup and restore.
-.Sh SECURITY
+.Ss SECURITY
 .Nm
 is not currently hardened against SSRF, server side request forgery.
 Be mindful of what other services may be exposed via localhost or the
 local network.
-.Sh DEBUG
+.Ss DEBUG
 Debug mode may be enabled or disabled by running
 .Ic debug Ar on|off .
 In debug mode, secure cookies are disabled and templates are reloaded
 every request.
+.Sh FILES
+.Nm
+files are split between the data directory and the view directory.
+Both default to "." but may be specified by command line options.
+.Pp
+The data directory contains:
+.Bl -tag -width views/local.css
+.It Pa honk.db
+The main database.
+.It Pa blob.db
+Media and attachment storage.
+.It Pa emus
+Custom emoji.
+.It Pa memes
+Stickers and such.
+.It Pa views/local.css
+Locally customized CSS.
+.El
+.Pp
+The view directory contains:
+.Bl -tag -width views
+.It Pa views
+HTML templates and CSS files.
+.El
 .Sh ENVIRONMENT
 Image processing and scaling requires considerable memory.
 It is recommended to adjust the datasize ulimit to at least 1GB.
