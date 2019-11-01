@@ -1,15 +1,24 @@
 changelog
 
--- next
+-- 0.8.0
 
-- Sometimes the cached state of the @me feed becomes unsynced.
-	Acked status may display incorrectly.
++++ Add Honk Filtering and Censorship System (HFCS).
+
++++ Editing honks (Update activity).
+
+++ Subscribe to hashtags.
+
+++ Search. I hate it already.
+
+++ Hashtags that work?
+
+++ Dynamic refresh and page switching without reloads.
+
+++ Reply control. Ack replies to show them on the site.
 
 + Allow PDF attachments. For serious business only.
 
 + "untag me" button to mute part of a thread.
-
-++ Subscribe to hashtags.
 
 + Inline images in posts. Send and receive.
 
@@ -23,35 +32,24 @@ changelog
 
 + Better markdown output.
 
-+++ Add Honk Filtering and Censorship System (HFCS).
-
 + Times for events.
 
 + Split media database into separate blob.db.
 
 + Location checkin. Welcome to the... danger zone!
 
-+++ Editing honks (Update activity).
-
 + Quick mention @alias.
 
 + Image descriptions.
 
-++ Search. I hate it already.
-
 + Unbonking.
-
-++ Hashtags that work?
-
-++ Dynamic refresh and page switching without reloads.
-
-++ Reply control. Ack replies to show them on the site.
-
-+ Schema change. (add flags to honks table)
 
 + More robust retries for fetching objects.
 
 + Don't decode excessively large images and run out of memory.
+
+- Sometimes the cached state of the @me feed becomes unsynced.
+	Acked status may display incorrectly.
 
 -- 0.7.7
 
