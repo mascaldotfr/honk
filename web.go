@@ -34,7 +34,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"humungus.tedunangst.com/r/webs/cache"
-	"humungus.tedunangst.com/r/webs/css"
 	"humungus.tedunangst.com/r/webs/httpsig"
 	"humungus.tedunangst.com/r/webs/image"
 	"humungus.tedunangst.com/r/webs/junk"
@@ -1783,20 +1782,6 @@ func avatate(w http.ResponseWriter, r *http.Request) {
 	w.Write(a)
 }
 
-func servecss(w http.ResponseWriter, r *http.Request) {
-	fd, err := os.Open("views" + r.URL.Path)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-	defer fd.Close()
-	w.Header().Set("Cache-Control", "max-age=7776000")
-	w.Header().Set("Content-Type", "text/css; charset=utf-8")
-	err = css.Filter(fd, w)
-	if err != nil {
-		log.Printf("error filtering css: %s", err)
-	}
-}
 func serveasset(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "max-age=7776000")
 	http.ServeFile(w, r, "views"+r.URL.Path)
@@ -1987,8 +1972,8 @@ func serve() {
 	getters.HandleFunc("/server", serveractor)
 	posters.HandleFunc("/server/inbox", serverinbox)
 
-	getters.HandleFunc("/style.css", servecss)
-	getters.HandleFunc("/local.css", servecss)
+	getters.HandleFunc("/style.css", serveasset)
+	getters.HandleFunc("/local.css", serveasset)
 	getters.HandleFunc("/honkpage.js", serveasset)
 	getters.HandleFunc("/about", servehtml)
 	getters.HandleFunc("/login", servehtml)

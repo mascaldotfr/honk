@@ -1,12 +1,14 @@
-$bg-page: #305;
-$bg-dark: #002;
-$fg: #dde;
-$fg-subtle: #aab;
-$fg-limited: #a79;
+html {
+	--bg-page: #305;
+	--bg-dark: #002;
+	--fg: #dde;
+	--fg-subtle: #aab;
+	--fg-limited: #a79;
+}
 
 body {
-	background: $bg-page;
-	color: $fg;
+	background: var(--bg-page);
+	color: var(--fg);
 	font-size: 1em;
 	word-wrap: break-word;
 	font-family: sans-serif, "Noto Color Emoji";
@@ -18,7 +20,7 @@ pre, code {
 blockquote {
 	margin-left: 0em;
 	padding-left: 0.5em;
-	border-left: 1px solid $fg-subtle;
+	border-left: 1px solid var(--fg-subtle);
 }
 table {
 	display: block;
@@ -26,7 +28,7 @@ table {
 	overflow-x: auto;
 }
 a {
-	color: $fg;
+	color: var(--fg);
 }
 form, input, textarea {
 	font-family: monospace, "Noto Color Emoji";
@@ -36,8 +38,8 @@ p {
 	margin-bottom: 1em;
 }
 input {
-	background: $bg-page;
-	color: $fg;
+	background: var(--bg-page);
+	color: var(--fg);
 	font-size: 1.0em;
 	line-height: 1.2em;
 	padding: 0.4em;
@@ -56,7 +58,7 @@ body > header p {
 	padding: 1em;
 }
 header > details {
-	background: $bg-page;
+	background: var(--bg-page);
 	padding: 1em 1em 1em 1em;
 	position: fixed;
 	top: 0;
@@ -68,8 +70,8 @@ header > details {
 }
 header > details[open] {
 	padding: 1em 1em 0em 1em;
-	background: $bg-dark;
-	border: 1px solid $fg;
+	background: var(--bg-dark);
+	border: 1px solid var(--fg);
 	margin-bottom: 1em;
 	opacity: 1.0;
 }
@@ -90,8 +92,8 @@ main {
 	font-size: 1.5em;
 }
 .info {
-	background: $bg-dark;
-	border: 1px solid $fg;
+	background: var(--bg-dark);
+	border: 1px solid var(--fg);
 	margin-bottom: 1em;
 	padding: 0em 1em 0em 1em;
 }
@@ -105,9 +107,9 @@ label {
 label.button, button, select {
 	font-size: 16px;
 	font-family: monospace;
-	color: $fg;
-	background: $bg-page;
-	border: 1px solid $fg;
+	color: var(--fg);
+	background: var(--bg-page);
+	border: 1px solid var(--fg);
 	padding: 0.5em;
 	white-space: nowrap;
 }
@@ -127,8 +129,8 @@ form {
 textarea {
 	padding: 0.5em;
 	font-size: 1em;
-	background: $bg-page;
-	color: $fg;
+	background: var(--bg-page);
+	color: var(--fg);
 	width: 600px;
 	height: 8em;
 	margin-bottom: 0.5em;
@@ -146,35 +148,36 @@ input[type="checkbox"]:checked + span:after {
 	content: "yes";
 }
 input[type="checkbox"]:focus + span:after {
-	outline: 1px solid $fg;
+	outline: 1px solid var(--fg);
 }
 input[type=file] {
 	display: none;
 }
 
 .glow {
-	box-shadow: 0px 0px 16px $fg;
+	box-shadow: 0px 0px 16px var(--fg);
 }
 
 .honk {
 	margin: auto;
-	background: $bg-dark;
-	border: 1px solid $fg;
+	background: var(--bg-dark);
+	border: 1px solid var(--fg);
 	border-radius: 1em;
 	margin-bottom: 1em;
 	padding-left: 1em;
 	padding-right: 1em;
 	padding-top: 0;
 	overflow: hidden;
+}
 
-	#honkform {
+.honk	#honkform {
 		padding: 1em;
-		border: 1px solid $fg;
+		border: 1px solid var(--fg);
 	}
-	a {
-		color: $fg;
+.honk	a {
+		color: var(--fg);
 	}
-	header {
+.honk	header {
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -182,64 +185,61 @@ input[type=file] {
 		line-height: 1.1;
 		margin-top: 1em;
 		height: 64px;
-		.clip a {
-			color: $fg-subtle;
+	}
+
+.honk	header	.clip a {
+			color: var(--fg-subtle);
 		}
-		img {
+.honk	header	img {
 			float: left;
 			margin-right: 1em;
 			width: 64px;
 			height: 64px;
 		}
-		p {
+.honk	header	p {
 			margin-top: 0px;
 		}
-	}
-	.actions button {
+.honk	.actions button {
 		margin-left: 4em;
 		margin-top: 2em;
 	}
-	.noise {
+.honk	.noise {
 		line-height: 1.4;
-		code {
-			.kw { font-weight: bold; }
-			.bi { font-weight: bold; }
-			.st { color: $fg-subtle; }
-			.nm { color: #ba88ff; }
-			.op { color: #ba88ff; }
-			.tp { font-weight: bold; }
-			.cm { color: $fg-subtle; font-style: italic; }
-			.al { color: #aaffbb; }
-			.dl { color: #ffaabb; }
+	}
 
-		}
-	}
-	details.actions summary {
-		color: $fg-subtle;
-	}
+.honk	.noise	code .kw { font-weight: bold; }
+.honk	.noise	code .bi { font-weight: bold; }
+.honk	.noise	code .st { color: var(--fg-subtle); }
+.honk	.noise	code .nm { color: #ba88ff; }
+.honk	.noise	code .op { color: #ba88ff; }
+.honk	.noise	code .tp { font-weight: bold; }
+.honk	.noise	code .cm { color: var(--fg-subtle); font-style: italic; }
+.honk	.noise	code .al { color: #aaffbb; }
+.honk	.noise	code .dl { color: #ffaabb; }
+
+.honk	details.actions summary {
+		color: var(--fg-subtle);
 }
-.subtle {
-	.noise {
-		color: $fg-subtle;
+.subtle .noise {
+		color: var(--fg-subtle);
 		font-size: 0.8em;
-	}
-	.noise a {
-		color: $fg-subtle;
-	}
+}
+.subtle .noise a {
+		color: var(--fg-subtle);
 }
 .limited {
-	border: 1px solid $fg-limited;
-	color: $fg-limited;
-	.noise {
-		color: $fg-limited;
-	}
-	.noise a {
-		color: $fg-limited;
-	}
-	details.actions summary {
-		color: $fg-limited;
-	}
+	border: 1px solid var(--fg-limited);
+	color: var(--fg-limited);
 }
+.limited	.noise {
+		color: var(--fg-limited);
+	}
+.limited	.noise a {
+		color: var(--fg-limited);
+	}
+.limited	details.actions summary {
+		color: var(--fg-limited);
+	}
 details.noise[open] summary {
 	display: none;
 }
@@ -251,7 +251,7 @@ h3, h4 {
 }
 
 img:not(.emu) {
-	background: $bg-page;
+	background: var(--bg-page);
 }
 img, video {
 	max-width: 100%;
