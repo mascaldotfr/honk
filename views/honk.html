@@ -25,7 +25,7 @@
 {{ else }}
 <a href="{{ .Honker }}" rel=noreferrer>{{ .Username }}</a>
 {{ end }}
-<span class="clip"><a href="{{ .URL }}" rel=noreferrer>{{ .What }}</a> {{ .Date.Format "02 Jan 2006 15:04" }}</span>
+<span class="clip"><a href="{{ .URL }}" rel=noreferrer>{{ .What }}</a> {{ .Date.Local.Format "02 Jan 2006 15:04 -0700" }}</span>
 {{ if .Oonker }}
 <br>
 <span style="margin-left: 1em;" class="clip">
