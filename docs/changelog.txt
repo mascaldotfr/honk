@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Timestamps displayed in server time with TZ.
+
 + Version string in binary.
 
 ++ Make it easier to upgrade by decoupling data dir from ".".
