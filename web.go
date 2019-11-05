@@ -305,9 +305,19 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(os.Stdout, "\n")
 		return
 	}
+
 	if crappola(j) {
 		return
 	}
+	what, _ := j.GetString("type")
+	if what == "Like" {
+		return
+	}
+	who, _ := j.GetString("actor")
+	if rejectactor(user.ID, who) {
+		return
+	}
+
 	keyname, err := httpsig.VerifyRequest(r, payload, zaggy)
 	if err != nil {
 		log.Printf("inbox message failed signature for %s from %s", keyname, r.Header.Get("X-Forwarded-For"))
@@ -320,19 +330,12 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "what did you call me?", http.StatusTeapot)
 		return
 	}
-	what, _ := j.GetString("type")
-	if what == "Like" {
-		return
-	}
-	who, _ := j.GetString("actor")
 	origin := keymatch(keyname, who)
 	if origin == "" {
 		log.Printf("keyname actor mismatch: %s <> %s", keyname, who)
 		return
 	}
-	if rejectactor(user.ID, who) {
-		return
-	}
+
 	switch what {
 	case "Ping":
 		obj, _ := j.GetString("id")
