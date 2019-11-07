@@ -1913,6 +1913,18 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func apihandler(w http.ResponseWriter, r *http.Request) {
+	u := login.GetUserInfo(r)
+	action := r.FormValue("action")
+	log.Printf("api request '%s' on behalf of %s", action, u.Username)
+	switch action {
+	case "honk":
+		submithonk(w, r)
+	default:
+		http.Error(w, "unknown action", http.StatusNotFound)
+	}
+}
+
 func serve() {
 	db := opendatabase()
 	login.Init(db)
@@ -1952,6 +1964,8 @@ func serve() {
 
 	mux := mux.NewRouter()
 	mux.Use(login.Checker)
+
+	mux.Handle("/api", login.TokenRequired(http.HandlerFunc(apihandler)))
 
 	posters := mux.Methods("POST").Subrouter()
 	getters := mux.Methods("GET").Subrouter()

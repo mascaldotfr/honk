@@ -1,5 +1,9 @@
 changelog
 
+-- next
+
++ Add a limited /api for the robotrons.
+
 -- 0.8.1
 
 ++ Make it easier to upgrade by decoupling data dir from ".".
