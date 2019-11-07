@@ -28,7 +28,7 @@ import (
 	"time"
 )
 
-var honkVersion = "honk 0.8.1"
+var honkVersion = "honk 0.8.1-dev"
 
 func init() {
 	notrand.Seed(time.Now().Unix())
