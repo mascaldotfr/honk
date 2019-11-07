@@ -1263,7 +1263,11 @@ func junkuser(user *WhatAbout) []byte {
 		a := junk.New()
 		a["type"] = "Image"
 		a["mediaType"] = "image/png"
-		a["url"] = fmt.Sprintf("https://%s/a?a=%s", serverName, url.QueryEscape(user.URL))
+		if ava := user.Options.Avatar; ava != "" {
+			a["url"] = ava
+		} else {
+			a["url"] = fmt.Sprintf("https://%s/a?a=%s", serverName, url.QueryEscape(user.URL))
+		}
 		j["icon"] = a
 	} else {
 		j["type"] = "Service"
