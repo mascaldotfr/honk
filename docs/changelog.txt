@@ -1,14 +1,14 @@
 changelog
 
--- next
-
-+ Timestamps displayed in server time with TZ.
-
-+ Version string in binary.
+-- 0.8.1
 
 ++ Make it easier to upgrade by decoupling data dir from ".".
 
-+ Amend changelog for 0.8.0 in include omitted elements:
++ Timestamps displayed in server time with TZ.
+
++ version command to print current version.
+
++ Amend changelog for 0.8.0 to include omitted elements:
 	Syntax highlighting for code blocks.
 	Something resembling an actual manual.
 
