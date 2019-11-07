@@ -779,8 +779,8 @@ func showontology(w http.ResponseWriter, r *http.Request) {
 	}
 	honks := gethonksbyontology(userid, "#"+name, 0)
 	if friendorfoe(r.Header.Get("Accept")) {
-		if len(honks) > 20 {
-			honks = honks[0:20]
+		if len(honks) > 40 {
+			honks = honks[0:40]
 		}
 
 		var xids []string
