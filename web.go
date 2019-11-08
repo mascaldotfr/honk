@@ -854,12 +854,37 @@ func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type Track struct {
+	xid string
+	who string
+}
+
+var trackchan = make(chan Track)
+
+func tracker() {
+	var track Track
+	for {
+
+		select {
+		case track = <-trackchan:
+			log.Printf("%s fetched by %s", track.xid, track.who)
+		}
+	}
+}
+
+var re_keyholder = regexp.MustCompile(`keyId="([^"]+)"`)
+
 func trackback(xid string, r *http.Request) {
 	agent := r.UserAgent()
 	who := originate(agent)
 	sig := r.Header.Get("Signature")
-
-	log.Printf("(%s) fetched %s (%s)", who, xid, sig)
+	if sig != "" {
+		m := re_keyholder.FindStringSubmatch(sig)
+		if len(m) > 2 {
+			who = m[1]
+		}
+	}
+	trackchan <- Track{xid:xid, who: who}
 }
 
 func showonehonk(w http.ResponseWriter, r *http.Request) {
@@ -1943,6 +1968,7 @@ func serve() {
 		log.Fatal(err)
 	}
 	go redeliverator()
+	go tracker()
 
 	debug := false
 	getconfig("debug", &debug)
