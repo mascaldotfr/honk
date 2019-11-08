@@ -859,15 +859,71 @@ type Track struct {
 	who string
 }
 
+func savetracks(tracks map[string][]string) {
+	db := opendatabase()
+	tx, err := db.Begin()
+	if err != nil {
+		log.Printf("savetracks begin error: %s", err)
+		return
+	}
+	defer func() {
+		err := tx.Commit()
+		if err != nil {
+			log.Printf("savetracks commit error: %s", err)
+		}
+
+	}()
+	stmtGetTracks, err := tx.Prepare("select fetches from tracks where xid = ?")
+	if err != nil {
+		log.Printf("savetracks error: %s", err)
+		return
+	}
+	stmtNewTracks, err := tx.Prepare("insert into tracks (xid, fetches) values (?, ?)")
+	if err != nil {
+		log.Printf("savetracks error: %s", err)
+		return
+	}
+	stmtUpdateTracks, err := tx.Prepare("update tracks set fetches = ? where xid = ?")
+	if err != nil {
+		log.Printf("savetracks error: %s", err)
+		return
+	}
+	count := 0
+	for xid, f := range tracks {
+		count += len(f)
+		var prev string
+		row := stmtGetTracks.QueryRow(xid)
+		err := row.Scan(&prev)
+		if err == sql.ErrNoRows {
+			f = oneofakind(f)
+			stmtNewTracks.Exec(xid, strings.Join(f, " "))
+		} else if err == nil {
+			all := append(strings.Split(prev, " "), f...)
+			all = oneofakind(all)
+			stmtUpdateTracks.Exec(strings.Join(all, " "))
+		} else {
+			log.Printf("savetracks error: %s", err)
+		}
+	}
+	log.Printf("saved %d new fetches", count)
+}
+
 var trackchan = make(chan Track)
 
 func tracker() {
-	var track Track
+	timeout := 4 * time.Minute
+	sleeper := time.NewTimer(timeout)
+	tracks := make(map[string][]string)
 	for {
-
 		select {
-		case track = <-trackchan:
-			log.Printf("%s fetched by %s", track.xid, track.who)
+		case track := <-trackchan:
+			tracks[track.xid] = append(tracks[track.xid], track.who)
+		case <-sleeper.C:
+			if len(tracks) > 0 {
+				go savetracks(tracks)
+				tracks = make(map[string][]string)
+			}
+			sleeper.Reset(timeout)
 		}
 	}
 }
@@ -884,7 +940,9 @@ func trackback(xid string, r *http.Request) {
 			who = m[1]
 		}
 	}
-	trackchan <- Track{xid:xid, who: who}
+	if who != "" {
+		trackchan <- Track{xid: xid, who: who}
+	}
 }
 
 func showonehonk(w http.ResponseWriter, r *http.Request) {
