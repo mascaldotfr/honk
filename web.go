@@ -108,7 +108,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 			honks = osmosis(honks, userid, true)
 		case "/first":
 			templinfo["PageName"] = "first"
-			honks = gethonksforuser(userid, 0)
+			honks = gethonksforuserfirstclass(userid, 0)
 			honks = osmosis(honks, userid, true)
 		case "/saved":
 			templinfo["ServerMessage"] = "saved honks"
