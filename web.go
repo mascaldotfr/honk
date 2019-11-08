@@ -854,6 +854,14 @@ func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func trackback(xid string, r *http.Request) {
+	agent := r.UserAgent()
+	who := originate(agent)
+	sig := r.Header.Get("Signature")
+
+	log.Printf("(%s) fetched %s (%s)", who, xid, sig)
+}
+
 func showonehonk(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	user, err := butwhatabout(name)
@@ -870,6 +878,7 @@ func showonehonk(w http.ResponseWriter, r *http.Request) {
 	if friendorfoe(r.Header.Get("Accept")) {
 		j, ok := gimmejonk(xid)
 		if ok {
+			trackback(xid, r)
 			w.Header().Set("Content-Type", theonetruename)
 			w.Write(j)
 		} else {
