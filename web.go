@@ -880,7 +880,7 @@ func trackback(xid string, r *http.Request) {
 	sig := r.Header.Get("Signature")
 	if sig != "" {
 		m := re_keyholder.FindStringSubmatch(sig)
-		if len(m) > 2 {
+		if len(m) == 2 {
 			who = m[1]
 		}
 	}
