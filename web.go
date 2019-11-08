@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"regexp"
 	"sort"
 	"strconv"
@@ -924,6 +925,11 @@ func tracker() {
 				tracks = make(map[string][]string)
 			}
 			sleeper.Reset(timeout)
+		case <-endoftheworld:
+			if len(tracks) > 0 {
+				savetracks(tracks)
+			}
+			readyalready <- true
 		}
 	}
 }
@@ -2017,6 +2023,32 @@ func apihandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+var endoftheworld = make(chan bool)
+var readyalready = make(chan bool)
+
+func enditall() {
+	sig := make(chan os.Signal)
+	signal.Notify(sig, os.Interrupt)
+	<-sig
+	count := 0
+	log.Printf("stopping...")
+sendloop:
+	for {
+		select {
+		case endoftheworld <- true:
+			count++
+		default:
+			break sendloop
+		}
+	}
+	log.Printf("waiting...")
+	for i := 0; i < count; i++ {
+		<-readyalready
+	}
+	log.Printf("apocalypse")
+	os.Exit(0)
+}
+
 func serve() {
 	db := opendatabase()
 	login.Init(db)
@@ -2025,6 +2057,7 @@ func serve() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	go enditall()
 	go redeliverator()
 	go tracker()
 
