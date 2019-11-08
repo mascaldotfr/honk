@@ -526,10 +526,6 @@ func handles(xid string) (string, string) {
 	return handle, handle + "@" + originate(xid)
 }
 
-func prepend(s string, x []string) []string {
-	return append([]string{s}, x...)
-}
-
 func butnottooloud(aud []string) {
 	for i, a := range aud {
 		if strings.HasSuffix(a, "/followers") {
