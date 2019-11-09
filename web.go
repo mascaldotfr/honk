@@ -36,7 +36,6 @@ import (
 	"github.com/gorilla/mux"
 	"humungus.tedunangst.com/r/webs/cache"
 	"humungus.tedunangst.com/r/webs/httpsig"
-	"humungus.tedunangst.com/r/webs/image"
 	"humungus.tedunangst.com/r/webs/junk"
 	"humungus.tedunangst.com/r/webs/login"
 	"humungus.tedunangst.com/r/webs/rss"
@@ -1399,7 +1398,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 			data := buf.Bytes()
 			xid := xfiltrate()
 			var media, name string
-			img, err := image.Vacuum(&buf, image.Params{MaxWidth: 2048, MaxHeight: 2048})
+			img, err := shrinkit(data)
 			if err == nil {
 				data = img.Data
 				format := img.Format
@@ -2060,6 +2059,7 @@ func serve() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	startBackendServer()
 	go enditall()
 	go redeliverator()
 	go tracker()

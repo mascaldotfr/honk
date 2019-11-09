@@ -34,7 +34,6 @@ import (
 	"humungus.tedunangst.com/r/webs/cache"
 	"humungus.tedunangst.com/r/webs/gate"
 	"humungus.tedunangst.com/r/webs/httpsig"
-	"humungus.tedunangst.com/r/webs/image"
 	"humungus.tedunangst.com/r/webs/junk"
 )
 
@@ -175,8 +174,7 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 			log.Printf("truncation likely")
 		}
 		if strings.HasPrefix(media, "image") {
-			img, err := image.Vacuum(&buf,
-				image.Params{LimitSize: 4200 * 4200, MaxWidth: 2048, MaxHeight: 2048})
+			img, err := shrinkit(data)
 			if err != nil {
 				log.Printf("unable to decode image: %s", err)
 				localize = false

@@ -269,6 +269,8 @@ func main() {
 		ping(user, targ)
 	case "run":
 		serve()
+	case "backend":
+		backendServer()
 	case "test":
 		ElaborateUnitTests()
 	default:
