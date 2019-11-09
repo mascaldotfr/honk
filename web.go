@@ -1342,6 +1342,8 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	noise = strings.Replace(noise, "\r", "", -1)
+	noise = quickrename(noise, userinfo.UserID)
 	noise = hooterize(noise)
 	honk.Noise = noise
 	translate(honk, false)

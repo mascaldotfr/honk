@@ -204,7 +204,6 @@ func translate(honk *Honk, redoimages bool) {
 	honk.Precis = markitzero(strings.TrimSpace(honk.Precis))
 
 	noise = strings.TrimSpace(noise)
-	noise = quickrename(noise, honk.UserID)
 	noise = markitzero(noise)
 	honk.Noise = noise
 	honk.Onts = oneofakind(ontologies(honk.Noise))
@@ -375,7 +374,7 @@ func memetize(honk *Honk) {
 	honk.Noise = re_memes.ReplaceAllStringFunc(honk.Noise, repl)
 }
 
-var re_quickmention = regexp.MustCompile("(^| )@[[:alnum:]]+( |$)")
+var re_quickmention = regexp.MustCompile("(^|[ \n])@[[:alnum:]]+([ \n]|$)")
 
 func quickrename(s string, userid int64) string {
 	nonstop := true
@@ -383,13 +382,15 @@ func quickrename(s string, userid int64) string {
 		nonstop = false
 		s = re_quickmention.ReplaceAllStringFunc(s, func(m string) string {
 			prefix := ""
-			if m[0] == ' ' {
-				prefix = " "
+			if m[0] == ' ' || m[0] == '\n' {
+				prefix = m[:1]
 				m = m[1:]
 			}
 			prefix += "@"
 			m = m[1:]
-			if m[len(m)-1] == ' ' {
+			tail := ""
+			if m[len(m)-1] == ' ' || m[len(m)-1] == '\n' {
+				tail = m[len(m)-1:]
 				m = m[:len(m)-1]
 			}
 
@@ -402,7 +403,7 @@ func quickrename(s string, userid int64) string {
 					m = name
 				}
 			}
-			return prefix + m + " "
+			return prefix + m + tail
 		})
 	}
 	return s
