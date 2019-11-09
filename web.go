@@ -1545,6 +1545,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 		templinfo["Noise"] = r.FormValue("noise")
 		templinfo["SavedFile"] = donkxid
 		templinfo["IsPreview"] = true
+		templinfo["UpdateXID"] = updatexid
 		templinfo["ServerMessage"] = "honk preview"
 		err := readviews.Execute(w, "honkpage.html", templinfo)
 		if err != nil {
