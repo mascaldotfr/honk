@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ "Bug" fixes.
+
 + Add a limited /api for the robotrons.
 
 -- 0.8.1
