@@ -1901,7 +1901,7 @@ func servehtml(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
 	templinfo["AboutMsg"] = aboutMsg
 	templinfo["LoginMsg"] = loginMsg
-	templinfo["HonkVersion"] = honkVersion
+	templinfo["HonkVersion"] = softwareVersion
 	if r.URL.Path == "/about" {
 		templinfo["Sensors"] = getSensors()
 	}

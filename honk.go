@@ -28,7 +28,7 @@ import (
 	"time"
 )
 
-var honkVersion = "honk 0.8.1-dev"
+var softwareVersion = "develop"
 
 func init() {
 	notrand.Seed(time.Now().Unix())
@@ -213,7 +213,7 @@ func main() {
 	case "upgrade":
 		upgradedb()
 	case "version":
-		fmt.Println(honkVersion)
+		fmt.Println(softwareVersion)
 		os.Exit(0)
 	}
 	db := opendatabase()
