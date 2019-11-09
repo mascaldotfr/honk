@@ -2,6 +2,10 @@
 <main>
 <div class="info">
 {{ .AboutMsg }}
-<p style="text-align:right"><small>version: {{ .HonkVersion }}</small>
+<p><small>version: {{ .HonkVersion }}
+<br>memory: {{ printf "%.02f" .Sensors.Memory }}MB
+<br>uptime: {{ printf "%.02f" .Sensors.Uptime }}s
+<br>cputime: {{ printf "%.02f" .Sensors.CPU }}s
+</small>
 </div>
 </main>
