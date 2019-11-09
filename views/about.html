@@ -2,10 +2,14 @@
 <main>
 <div class="info">
 {{ .AboutMsg }}
-<p><small>version: {{ .HonkVersion }}
-<br>memory: {{ printf "%.02f" .Sensors.Memory }}MB
-<br>uptime: {{ printf "%.02f" .Sensors.Uptime }}s
-<br>cputime: {{ printf "%.02f" .Sensors.CPU }}s
-</small>
+<p>
+<table style="font-size:0.8em">
+<tbody>
+<tr><td>version:<td style="text-align:right">{{ .HonkVersion }}
+<tr><td>memory:<td style="text-align:right">{{ printf "%.02f" .Sensors.Memory }}MB
+<tr><td>uptime:<td style="text-align:right">{{ printf "%.02f" .Sensors.Uptime }}s
+<tr><td>cputime:<td style="text-align:right">{{ printf "%.02f" .Sensors.CPU }}s
+</table>
+<p>
 </div>
 </main>
