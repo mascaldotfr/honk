@@ -295,7 +295,8 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var buf bytes.Buffer
-	io.Copy(&buf, r.Body)
+	limiter := io.LimitReader(r.Body, 1*1024*1024)
+	io.Copy(&buf, limiter)
 	payload := buf.Bytes()
 	j, err := junk.FromBytes(payload)
 	if err != nil {

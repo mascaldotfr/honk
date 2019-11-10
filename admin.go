@@ -15,161 +15,67 @@
 
 package main
 
+/*
+#include <termios.h>
+*/
+import "C"
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
-
-	"github.com/gdamore/tcell"
-	"github.com/rivo/tview"
+	"os"
 )
 
 func adminscreen() {
 	log.SetOutput(ioutil.Discard)
+	stdout := os.Stdout
+	esc := "\x1b"
+	smcup := esc + "[?1049h"
+	rmcup := esc + "[?1049l"
 
-	messages := []*struct {
-		name  string
-		label string
-		text  string
-	}{
-		{
-			name:  "servermsg",
-			label: "server",
-			text:  string(serverMsg),
-		},
-		{
-			name:  "aboutmsg",
-			label: "about",
-			text:  string(aboutMsg),
-		},
-		{
-			name:  "loginmsg",
-			label: "login",
-			text:  string(loginMsg),
-		},
+	hidecursor := func() {
+	}
+	showcursor := func() {
+	}
+	movecursor := func(x, y int) {
+		stdout.WriteString(fmt.Sprintf(esc+"[%d;%dH", x, y))
+	}
+	clearscreen := func() {
+		stdout.WriteString(esc + "[2J")
 	}
 
-	app := tview.NewApplication()
-	var maindriver func(event *tcell.EventKey) *tcell.EventKey
+	savedtio := new(C.struct_termios)
+	C.tcgetattr(1, savedtio)
+	restore := func() {
+		stdout.WriteString(rmcup)
+		showcursor()
+		C.tcsetattr(1, C.TCSAFLUSH, savedtio)
+	}
+	defer restore()
 
-	table := tview.NewTable().SetFixed(1, 0).SetSelectable(true, false).
-		SetSelectedStyle(tcell.ColorBlack, tcell.ColorPurple, 0)
+	init := func() {
+		tio := new(C.struct_termios)
+		C.tcgetattr(1, tio)
+		tio.c_lflag = tio.c_lflag & ^C.uint(C.ECHO|C.ICANON)
+		C.tcsetattr(1, C.TCSADRAIN, tio)
 
-	mainframe := tview.NewFrame(table)
-	mainframe.AddText(tview.Escape("honk admin - [q] quit"),
-		true, 0, tcell.ColorPurple)
-	mainframe.SetBorders(1, 0, 1, 0, 4, 0)
-
-	dupecell := func(base *tview.TableCell) *tview.TableCell {
-		rv := new(tview.TableCell)
-		*rv = *base
-		return rv
+		hidecursor()
+		stdout.WriteString(smcup)
+		clearscreen()
+		movecursor(1, 1)
 	}
 
-	showtable := func() {
-		table.Clear()
+	init()
 
-		row := 0
-		{
-			col := 0
-			headcell := tview.TableCell{
-				Color:         tcell.ColorWhite,
-				NotSelectable: true,
-			}
-			cell := dupecell(&headcell)
-			cell.Text = "which       "
-			table.SetCell(row, col, cell)
-			col++
-			cell = dupecell(&headcell)
-			cell.Text = "message"
-			table.SetCell(row, col, cell)
-
-			row++
-		}
-		for i := 0; i < 3; i++ {
-			col := 0
-			msg := messages[i]
-			headcell := tview.TableCell{
-				Color: tcell.ColorWhite,
-			}
-			cell := dupecell(&headcell)
-			cell.Text = msg.label
-			table.SetCell(row, col, cell)
-			col++
-			cell = dupecell(&headcell)
-			cell.Text = tview.Escape(msg.text)
-			table.SetCell(row, col, cell)
-
-			row++
-		}
-
-		app.SetInputCapture(maindriver)
-		app.SetRoot(mainframe, true)
-	}
-
-	arrowadapter := func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyDown:
-			return tcell.NewEventKey(tcell.KeyTab, '\t', tcell.ModNone)
-		case tcell.KeyUp:
-			return tcell.NewEventKey(tcell.KeyBacktab, '\t', tcell.ModNone)
-		}
-		return event
-	}
-
-	editform := tview.NewForm()
-	descbox := tview.NewInputField().SetLabel("msg: ").SetFieldWidth(60)
-	editform.AddButton("save", nil)
-	editform.AddButton("cancel", nil)
-	savebutton := editform.GetButton(0)
-	editform.SetFieldTextColor(tcell.ColorBlack)
-	editform.SetFieldBackgroundColor(tcell.ColorPurple)
-	editform.SetLabelColor(tcell.ColorWhite)
-	editform.SetButtonTextColor(tcell.ColorPurple)
-	editform.SetButtonBackgroundColor(tcell.ColorBlack)
-	editform.GetButton(1).SetSelectedFunc(showtable)
-	editform.SetCancelFunc(showtable)
-
-	editframe := tview.NewFrame(editform)
-	editframe.SetBorders(1, 0, 1, 0, 4, 0)
-
-	showform := func() {
-		editform.Clear(false)
-		editform.AddFormItem(descbox)
-		app.SetInputCapture(arrowadapter)
-		app.SetRoot(editframe, true)
-	}
-
-	editmsg := func(which int) {
-		msg := messages[which]
-		editframe.Clear()
-		editframe.AddText(tview.Escape("edit "+msg.label+" message"),
-			true, 0, tcell.ColorPurple)
-		descbox.SetText(msg.text)
-		savebutton.SetSelectedFunc(func() {
-			msg.text = descbox.GetText()
-			updateconfig(msg.name, msg.text)
-			showtable()
-		})
-		showform()
-	}
-
-	table.SetSelectedFunc(func(row, col int) {
-		editmsg(row - 1)
-	})
-
-	maindriver = func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Rune() {
-		case 'e':
-			r, _ := table.GetSelection()
-			r--
-			editmsg(r)
+	for {
+		var buf [1]byte
+		os.Stdin.Read(buf[:])
+		c := buf[0]
+		switch c {
 		case 'q':
-			app.Stop()
-			return nil
+			return
+		default:
+			os.Stdout.Write(buf[:])
 		}
-		return event
 	}
-
-	showtable()
-	app.Run()
 }
