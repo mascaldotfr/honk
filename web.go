@@ -651,6 +651,23 @@ func outbox(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+var oldempties = cache.New(cache.Options{Filler: func(url string) ([]byte, bool) {
+	colname := "/followers"
+	if strings.HasSuffix(url, "/following") {
+		colname = "/following"
+	}
+	user := fmt.Sprintf("https://%s%s", serverName, url[:len(url)-10])
+	j := junk.New()
+	j["@context"] = itiswhatitis
+	j["id"] = user + colname
+	j["attributedTo"] = user
+	j["type"] = "OrderedCollection"
+	j["totalItems"] = 0
+	j["orderedItems"] = []junk.Junk{}
+
+	return j.ToBytes(), true
+}})
+
 func emptiness(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	user, err := butwhatabout(name)
@@ -662,20 +679,14 @@ func emptiness(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	colname := "/followers"
-	if strings.HasSuffix(r.URL.Path, "/following") {
-		colname = "/following"
+	var j []byte
+	ok := oldempties.Get(r.URL.Path, &j)
+	if ok {
+		w.Header().Set("Content-Type", theonetruename)
+		w.Write(j)
+	} else {
+		http.NotFound(w, r)
 	}
-	j := junk.New()
-	j["@context"] = itiswhatitis
-	j["id"] = user.URL + colname
-	j["attributedTo"] = user.URL
-	j["type"] = "OrderedCollection"
-	j["totalItems"] = 0
-	j["orderedItems"] = []junk.Junk{}
-
-	w.Header().Set("Content-Type", theonetruename)
-	j.Write(w)
 }
 
 func showuser(w http.ResponseWriter, r *http.Request) {
