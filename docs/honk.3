@@ -1,0 +1,87 @@
+.\"
+.\" Copyright (c) 2019 Ted Unangst
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.Dd $Mdocdate$
+.Dt HONK 3
+.Os
+.Sh NAME
+.Nm honk
+.Nd API access
+.Sh DESCRIPTION
+In addition to the standard web interface, some functionality is
+available via the
+.Nm
+HTTP API.
+.Pp
+With the exception of login, all requests should contain
+the following form values.
+.Bl -tag -width action
+.It Fa action
+The desired action.
+See below.
+.It Fa token
+An authorization token.
+.El
+.Ss login
+Send a POST request to
+.Pa /login
+with the following form values.
+.Bl -tag -width username
+.It Fa username
+User name.
+.It Fa password
+Pass phrase.
+.It Fa gettoken
+Must be
+.Dq 1 .
+.El
+.Pp
+This will return a token to be used for future requests.
+The token is valid for one year.
+You can stop using the API at any time, but you can never logout.
+.Ss honk
+The
+.Fa action
+value should be
+.Dq honk .
+The following values are recognized:
+.Bl -tag -width placename
+.It Fa noise
+The contents of the honk in markdown format.
+.It Fa donk
+A file to attach.
+.It Fa donkdesc
+A description for the attached file.
+.It Fa placename
+The name of an associated location.
+.It Fa placeurl
+The url of an associated location.
+.It Fa placelat
+The latitude of an associated location.
+.It Fa placelong
+The longitude of an associated location.
+.It Fa timestart
+The start time of an event.
+.It Fa rid
+The ActivityPub ID that this honk is in reply to.
+.El
+.Pp
+Upon success, the honk action will return the URL for the created honk.
+.Sh EXAMPLES
+Refer to the sample code in the
+.Pa toys
+directory.
+.Sh SEE ALSO
+.Xr vim 3
