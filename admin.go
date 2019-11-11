@@ -25,6 +25,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/signal"
 )
 
 func adminscreen() {
@@ -98,6 +99,13 @@ func adminscreen() {
 		C.tcsetattr(1, C.TCSAFLUSH, savedtio)
 	}
 	defer restore()
+	go func() {
+		sig := make(chan os.Signal)
+		signal.Notify(sig, os.Interrupt)
+		<-sig
+		restore()
+		os.Exit(0)
+	}()
 
 	init := func() {
 		tio := new(C.struct_termios)
