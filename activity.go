@@ -275,28 +275,22 @@ var boxofboxes = cache.New(cache.Options{Filler: func(ident string) (*Box, bool)
 	var info string
 	row := stmtGetXonker.QueryRow(ident, "boxes")
 	err := row.Scan(&info)
+	if err != nil {
+		j, err := GetJunk(ident)
+		if err != nil {
+			log.Printf("error getting boxes: %s", err)
+			return nil, false
+		}
+		allinjest(originate(ident), j)
+		row = stmtGetXonker.QueryRow(ident, "boxes")
+		err = row.Scan(&info)
+	}
 	if err == nil {
 		m := strings.Split(info, " ")
 		b := &Box{In: m[0], Out: m[1], Shared: m[2]}
 		return b, true
 	}
-	j, err := GetJunk(ident)
-	if err != nil {
-		log.Printf("error getting boxes: %s", err)
-		return nil, false
-	}
-	inbox, _ := j.GetString("inbox")
-	outbox, _ := j.GetString("outbox")
-	sbox, _ := j.GetString("endpoints", "sharedInbox")
-	b := &Box{In: inbox, Out: outbox, Shared: sbox}
-	if inbox != "" {
-		m := strings.Join([]string{inbox, outbox, sbox}, " ")
-		_, err = stmtSaveXonker.Exec(ident, m, "boxes")
-		if err != nil {
-			log.Printf("error saving boxes: %s", err)
-		}
-	}
-	return b, true
+	return nil, false
 }})
 
 func gimmexonks(user *WhatAbout, outbox string) {
@@ -1354,6 +1348,7 @@ func investigate(name string) (*SomeThing, error) {
 	if err != nil {
 		return nil, err
 	}
+	allinjest(originate(name), obj)
 	return somethingabout(obj)
 }
 
@@ -1386,4 +1381,79 @@ func somethingabout(obj junk.Junk) (*SomeThing, error) {
 		info.Owner = info.XID
 	}
 	return info, nil
+}
+
+func allinjest(origin string, obj junk.Junk) {
+	keyobj, ok := obj.GetMap("publicKey")
+	if ok {
+		ingestpubkey(origin, keyobj)
+	}
+	ingestboxes(origin, obj)
+}
+
+func ingestpubkey(origin string, obj junk.Junk) {
+	keyobj, ok := obj.GetMap("publicKey")
+	if ok {
+		obj = keyobj
+	}
+	keyname, ok := obj.GetString("id")
+	row := stmtGetXonker.QueryRow(keyname, "pubkey")
+	var data string
+	err := row.Scan(&data)
+	if err == nil {
+		return
+	}
+	if !ok || origin != originate(keyname) {
+		log.Printf("bad key origin %s <> %s", origin, keyname)
+		return
+	}
+	log.Printf("ingesting a needed pubkey: %s", keyname)
+	owner, ok := obj.GetString("owner")
+	if !ok {
+		log.Printf("error finding %s pubkey owner", keyname)
+		return
+	}
+	data, ok = obj.GetString("publicKeyPem")
+	if !ok {
+		log.Printf("error finding %s pubkey", keyname)
+		return
+	}
+	if originate(owner) != origin {
+		log.Printf("bad key owner: %s <> %s", owner, origin)
+		return
+	}
+	_, _, err = httpsig.DecodeKey(data)
+	if err != nil {
+		log.Printf("error decoding %s pubkey: %s", keyname, err)
+		return
+	}
+	_, err = stmtSaveXonker.Exec(keyname, data, "pubkey")
+	if err != nil {
+		log.Printf("error saving key: %s", err)
+	}
+	return
+}
+
+func ingestboxes(origin string, obj junk.Junk) {
+	ident, _ := obj.GetString("id")
+	if ident == "" {
+		return
+	}
+	var info string
+	row := stmtGetXonker.QueryRow(ident, "boxes")
+	err := row.Scan(&info)
+	if err == nil {
+		return
+	}
+	log.Printf("ingesting boxes: %s", ident)
+	inbox, _ := obj.GetString("inbox")
+	outbox, _ := obj.GetString("outbox")
+	sbox, _ := obj.GetString("endpoints", "sharedInbox")
+	if inbox != "" {
+		m := strings.Join([]string{inbox, outbox, sbox}, " ")
+		_, err = stmtSaveXonker.Exec(ident, m, "boxes")
+		if err != nil {
+			log.Printf("error saving boxes: %s", err)
+		}
+	}
 }

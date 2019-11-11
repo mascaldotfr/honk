@@ -587,6 +587,17 @@ var zaggies = cache.New(cache.Options{Filler: func(keyname string) (*rsa.PublicK
 	row := stmtGetXonker.QueryRow(keyname, "pubkey")
 	var data string
 	err := row.Scan(&data)
+	if err != nil {
+		log.Printf("hitting the webs for missing pubkey: %s", keyname)
+		j, err := GetJunk(keyname)
+		if err != nil {
+			log.Printf("error getting %s pubkey: %s", keyname, err)
+			return nil, true
+		}
+		allinjest(originate(keyname), j)
+		row = stmtGetXonker.QueryRow(keyname, "pubkey")
+		err = row.Scan(&data)
+	}
 	if err == nil {
 		_, key, err := httpsig.DecodeKey(data)
 		if err != nil {
@@ -594,36 +605,7 @@ var zaggies = cache.New(cache.Options{Filler: func(keyname string) (*rsa.PublicK
 		}
 		return key, true
 	}
-	log.Printf("hitting the webs for missing pubkey: %s", keyname)
-	j, err := GetJunk(keyname)
-	if err != nil {
-		log.Printf("error getting %s pubkey: %s", keyname, err)
-		return nil, true
-	}
-	keyobj, ok := j.GetMap("publicKey")
-	if ok {
-		j = keyobj
-	}
-	data, ok = j.GetString("publicKeyPem")
-	if !ok {
-		log.Printf("error finding %s pubkey", keyname)
-		return nil, true
-	}
-	_, ok = j.GetString("owner")
-	if !ok {
-		log.Printf("error finding %s pubkey owner", keyname)
-		return nil, true
-	}
-	_, key, err := httpsig.DecodeKey(data)
-	if err != nil {
-		log.Printf("error decoding %s pubkey: %s", keyname, err)
-		return nil, true
-	}
-	_, err = stmtSaveXonker.Exec(keyname, data, "pubkey")
-	if err != nil {
-		log.Printf("error saving key: %s", err)
-	}
-	return key, true
+	return nil, true
 }})
 
 func zaggy(keyname string) *rsa.PublicKey {

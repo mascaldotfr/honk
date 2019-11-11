@@ -554,6 +554,7 @@ func ximport(w http.ResponseWriter, r *http.Request) {
 			log.Printf("error getting external object: %s", err)
 			return
 		}
+		allinjest(originate(xid), j)
 		log.Printf("importing %s", xid)
 		user, _ := butwhatabout(u.Username)
 
