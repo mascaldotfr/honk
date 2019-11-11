@@ -1317,8 +1317,12 @@ func canedithonk(user *WhatAbout, honk *Honk) bool {
 	return true
 }
 
+func submitwebhonk(w http.ResponseWriter, r *http.Request) {
+	submithonk(w, r, false)
+}
+
 // what a hot mess this function is
-func submithonk(w http.ResponseWriter, r *http.Request) {
+func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 	rid := r.FormValue("rid")
 	noise := r.FormValue("noise")
 
@@ -1583,7 +1587,11 @@ func submithonk(w http.ResponseWriter, r *http.Request) {
 
 	go honkworldwide(user, honk)
 
-	http.Redirect(w, r, honk.XID[len(serverName)+8:], http.StatusSeeOther)
+	if isAPI {
+		w.Write([]byte(honk.XID))
+	} else {
+		http.Redirect(w, r, honk.XID[len(serverName)+8:], http.StatusSeeOther)
+	}
 }
 
 func showhonkers(w http.ResponseWriter, r *http.Request) {
@@ -2034,7 +2042,7 @@ func apihandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("api request '%s' on behalf of %s", action, u.Username)
 	switch action {
 	case "honk":
-		submithonk(w, r)
+		submithonk(w, r, true)
 	default:
 		http.Error(w, "unknown action", http.StatusNotFound)
 	}
@@ -2159,7 +2167,7 @@ func serve() {
 	loggedin.HandleFunc("/xzone", xzone)
 	loggedin.HandleFunc("/newhonk", newhonkpage)
 	loggedin.HandleFunc("/edit", edithonkpage)
-	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(submithonk)))
+	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(submitwebhonk)))
 	loggedin.Handle("/bonk", login.CSRFWrap("honkhonk", http.HandlerFunc(submitbonk)))
 	loggedin.Handle("/zonkit", login.CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
 	loggedin.Handle("/savehfcs", login.CSRFWrap("filter", http.HandlerFunc(savehfcs)))
