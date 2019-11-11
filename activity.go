@@ -1389,6 +1389,7 @@ func allinjest(origin string, obj junk.Junk) {
 		ingestpubkey(origin, keyobj)
 	}
 	ingestboxes(origin, obj)
+	ingesthandle(origin, obj)
 }
 
 func ingestpubkey(origin string, obj junk.Junk) {
@@ -1439,6 +1440,9 @@ func ingestboxes(origin string, obj junk.Junk) {
 	if ident == "" {
 		return
 	}
+	if originate(ident) != origin {
+		return
+	}
 	var info string
 	row := stmtGetXonker.QueryRow(ident, "boxes")
 	err := row.Scan(&info)
@@ -1454,6 +1458,29 @@ func ingestboxes(origin string, obj junk.Junk) {
 		_, err = stmtSaveXonker.Exec(ident, m, "boxes")
 		if err != nil {
 			log.Printf("error saving boxes: %s", err)
+		}
+	}
+}
+
+func ingesthandle(origin string, obj junk.Junk) {
+	xid, _ := obj.GetString("id")
+	if xid == "" {
+		return
+	}
+	if originate(xid) != origin {
+		return
+	}
+	var handle string
+	row := stmtGetXonker.QueryRow(xid, "handle")
+	err := row.Scan(&handle)
+	if err == nil {
+		return
+	}
+	handle, _ = obj.GetString("preferredUsername")
+	if handle != "" {
+		_, err = stmtSaveXonker.Exec(xid, handle, "handle")
+		if err != nil {
+			log.Printf("error saving handle: %s", err)
 		}
 	}
 }

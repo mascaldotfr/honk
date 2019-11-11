@@ -508,10 +508,6 @@ var allhandles = cache.New(cache.Options{Filler: func(xid string) (string, bool)
 			}
 		} else {
 			handle = info.Name
-			_, err = stmtSaveXonker.Exec(xid, handle, "handle")
-			if err != nil {
-				log.Printf("error saving handle: %s", err)
-			}
 		}
 	}
 	return handle, true
