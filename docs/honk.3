@@ -35,11 +35,11 @@ See below.
 An authorization token.
 .El
 .Pp
-The API URL for all actions other than login is
+The API URL for all actions other than login and logout is
 .Pa /api .
 .Ss login
 Send a POST request to
-.Pa /login
+.Pa /dologin
 with the following form values.
 .Bl -tag -width username
 .It Fa username
@@ -53,7 +53,12 @@ Must be
 .Pp
 This will return a token to be used for future requests.
 The token is valid for one year.
-You can stop using the API at any time, but you can never logout.
+.Ss logout
+Send a request to
+.Pa /logout
+with the
+.Fa token
+to be expired.
 .Ss honk
 The
 .Fa action
