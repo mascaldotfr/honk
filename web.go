@@ -31,6 +31,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -2054,6 +2055,7 @@ var readyalready = make(chan bool)
 func enditall() {
 	sig := make(chan os.Signal)
 	signal.Notify(sig, os.Interrupt)
+	signal.Notify(sig, syscall.SIGTERM)
 	<-sig
 	count := 0
 	log.Printf("stopping...")
