@@ -24,6 +24,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strings"
@@ -95,6 +96,7 @@ func reverbolate(userid int64, honks []*Honk) {
 			var htf htfilter.Filter
 			htf.Imager = replaceimgsand(zap, false)
 			htf.SpanClasses = allowedclasses
+			htf.BaseURL, _ = url.Parse(h.XID)
 			p, _ := htf.String(h.Precis)
 			n, _ := htf.String(h.Noise)
 			h.Precis = string(p)
@@ -183,6 +185,7 @@ func inlineimgsfor(honk *Honk) func(node *html.Node) string {
 func imaginate(honk *Honk) {
 	var htf htfilter.Filter
 	htf.Imager = inlineimgsfor(honk)
+	htf.BaseURL, _ = url.Parse(honk.XID)
 	htf.String(honk.Noise)
 }
 
