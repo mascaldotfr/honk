@@ -285,7 +285,7 @@ func upgradedb() {
 		s = ""
 		getconfig("aboutmsg", &s)
 		if s == "" {
-			setconfig("aboutmsg", "<h3>What is honk?</h3>\n<p>Honk is amazing!")
+			setconfig("aboutmsg", "<h3>What is honk?</h3><p>Honk is amazing!")
 		}
 		s = ""
 		getconfig("loginmsg", &s)
