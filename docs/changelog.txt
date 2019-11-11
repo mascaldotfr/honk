@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Rewrite admin console to avoid large dependencies.
+
 + "Bug" fixes.
 
 + Add a limited /api for the robotrons.
