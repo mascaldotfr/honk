@@ -498,6 +498,7 @@ var allhandles = cache.New(cache.Options{Filler: func(xid string) (string, bool)
 	var handle string
 	err := row.Scan(&handle)
 	if err != nil {
+		log.Printf("need to get a handle: %s", xid)
 		info, err := investigate(xid)
 		if err != nil {
 			m := re_unurl.FindStringSubmatch(xid)

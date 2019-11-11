@@ -276,6 +276,7 @@ var boxofboxes = cache.New(cache.Options{Filler: func(ident string) (*Box, bool)
 	row := stmtGetXonker.QueryRow(ident, "boxes")
 	err := row.Scan(&info)
 	if err != nil {
+		log.Printf("need to get boxes for %s", ident)
 		j, err := GetJunk(ident)
 		if err != nil {
 			log.Printf("error getting boxes: %s", err)
