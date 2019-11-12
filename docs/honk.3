@@ -87,6 +87,25 @@ The ActivityPub ID that this honk is in reply to.
 .El
 .Pp
 Upon success, the honk action will return the URL for the created honk.
+.Ss gethonks
+The
+.Dq gethonks
+.Fa action
+can be used to query for honks.
+The following parameters are used.
+.Bl -tag -width placename
+.It Fa page
+Should be one of
+.Dq home
+or
+.Dq atme .
+.It Fa after
+Only return honks after the specified ID.
+.It Fa wait
+If there are no results, wait this many seconds for something to appear.
+.El
+.Pp
+The result will be returned as json.
 .Sh EXAMPLES
 Refer to the sample code in the
 .Pa toys

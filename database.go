@@ -474,6 +474,7 @@ func savehonk(h *Honk) error {
 	if err != nil {
 		log.Printf("error saving honk: %s", err)
 	}
+	honkhonkline()
 	return err
 }
 
