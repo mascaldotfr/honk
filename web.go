@@ -161,9 +161,6 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 	} else {
 		honks = getpublichonks()
 	}
-	if len(honks) > 20 {
-		honks = honks[0:20]
-	}
 	reverbolate(-1, honks)
 
 	home := fmt.Sprintf("https://%s/", serverName)
