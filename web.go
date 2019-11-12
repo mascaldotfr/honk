@@ -161,9 +161,6 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 	} else {
 		honks = getpublichonks()
 	}
-	if len(honks) > 20 {
-		honks = honks[0:20]
-	}
 	reverbolate(-1, honks)
 
 	home := fmt.Sprintf("https://%s/", serverName)
@@ -2038,15 +2035,61 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+var honkline = make(chan bool)
+
+func honkhonkline() {
+	for {
+		select {
+		case honkline <- true:
+		default:
+			return
+		}
+	}
+}
+
 func apihandler(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
+	userid := u.UserID
 	action := r.FormValue("action")
+	wait, _ := strconv.ParseInt(r.FormValue("wait"), 10, 0)
 	log.Printf("api request '%s' on behalf of %s", action, u.Username)
 	switch action {
 	case "honk":
 		submithonk(w, r, true)
+	case "gethonks":
+		var honks []*Honk
+		wanted, _ := strconv.ParseInt(r.FormValue("after"), 10, 0)
+		page := r.FormValue("page")
+		var waitchan <-chan time.Time
+	requery:
+		switch page {
+		case "atme":
+			honks = gethonksforme(userid, wanted)
+			honks = osmosis(honks, userid, false)
+		case "home":
+			honks = gethonksforuser(userid, wanted)
+			honks = osmosis(honks, userid, true)
+		default:
+			http.Error(w, "unknown page", http.StatusNotFound)
+			return
+		}
+		if len(honks) == 0 && wait > 0 {
+			if waitchan == nil {
+				waitchan = time.After(time.Duration(wait) * time.Second)
+			}
+			select {
+			case <-honkline:
+				goto requery
+			case <-waitchan:
+			}
+		}
+		reverbolate(userid, honks)
+		j := junk.New()
+		j["honks"] = honks
+		j.Write(w)
 	default:
 		http.Error(w, "unknown action", http.StatusNotFound)
+		return
 	}
 }
 

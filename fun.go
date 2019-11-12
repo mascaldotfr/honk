@@ -603,7 +603,7 @@ var zaggies = cache.New(cache.Options{Filler: func(keyname string) (*rsa.PublicK
 		return key, true
 	}
 	return nil, true
-}})
+}, Limit: 512})
 
 func zaggy(keyname string) *rsa.PublicKey {
 	var key *rsa.PublicKey

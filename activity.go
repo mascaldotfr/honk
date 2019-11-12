@@ -1158,7 +1158,7 @@ var oldjonks = cache.New(cache.Options{Filler: func(xid string) ([]byte, bool) {
 	j["@context"] = itiswhatitis
 
 	return j.ToBytes(), true
-}})
+}, Limit: 128})
 
 func gimmejonk(xid string) ([]byte, bool) {
 	var j []byte
