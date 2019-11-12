@@ -32,6 +32,7 @@ var re_quoter = regexp.MustCompile(`(?m:^&gt; (.*)\n?)`)
 var re_link = regexp.MustCompile(`.?.?https?://[^\s"]+[\w/)!]`)
 var re_zerolink = regexp.MustCompile(`\[([^]]*)\]\(([^)]*\)?)\)`)
 var re_imgfix = regexp.MustCompile(`<img ([^>]*)>`)
+var re_lister = regexp.MustCompile(`((^|\n)(\+|-).*)+\n?`)
 
 var lighter = synlight.New(synlight.Options{Format: synlight.HTML})
 
@@ -78,6 +79,17 @@ func markitzero(s string) string {
 	s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
 	s = re_quoter.ReplaceAllString(s, "<blockquote>$1</blockquote><p>")
 
+	s = re_lister.ReplaceAllStringFunc(s, func(m string) string {
+		m = strings.Trim(m, "\n")
+		items := strings.Split(m, "\n")
+		r := "<ul>"
+		for _, item := range items {
+			r += "<li>" + strings.Trim(item[1:], " ")
+		}
+		r += "</ul><p>"
+		return r
+	})
+
 	// restore images
 	s = strings.Replace(s, "&lt;img x&gt;", "<img x>", -1)
 	s = re_imgfix.ReplaceAllStringFunc(s, func(string) string {
@@ -105,6 +117,7 @@ func markitzero(s string) string {
 	s = strings.Replace(s, "\n", "<br>", -1)
 	s = strings.Replace(s, "<br><blockquote>", "<blockquote>", -1)
 	s = strings.Replace(s, "<br><pre>", "<pre>", -1)
+	s = strings.Replace(s, "<br><ul>", "<ul>", -1)
 	s = strings.Replace(s, "<p><br>", "<p>", -1)
 	return s
 }
