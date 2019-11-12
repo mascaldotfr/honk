@@ -2120,6 +2120,8 @@ sendloop:
 	os.Exit(0)
 }
 
+var preservehooks []func()
+
 func serve() {
 	db := opendatabase()
 	login.Init(db)
@@ -2158,6 +2160,10 @@ func serve() {
 		for _, s := range assets {
 			savedassetparams[s] = getassetparam(s)
 		}
+	}
+
+	for _, h := range preservehooks {
+		h()
 	}
 
 	mux := mux.NewRouter()

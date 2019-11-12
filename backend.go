@@ -87,6 +87,9 @@ func backendServer() {
 	if err != nil {
 		log.Panicf("unable to register shrinker: %s", err)
 	}
+	for _, h := range preservehooks {
+		h()
+	}
 	srv.Accept(lis)
 }
 
