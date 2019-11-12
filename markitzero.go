@@ -78,6 +78,7 @@ func markitzero(s string) string {
 	s = re_bolder.ReplaceAllString(s, "$1<b>$2</b>$3")
 	s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
 	s = re_quoter.ReplaceAllString(s, "<blockquote>$1</blockquote><p>")
+	s = strings.Replace(s, "\n---\n", "<hr><p>", -1)
 
 	s = re_lister.ReplaceAllStringFunc(s, func(m string) string {
 		m = strings.Trim(m, "\n")
