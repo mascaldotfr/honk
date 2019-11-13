@@ -47,6 +47,7 @@ func importTwitter(username, source string) {
 		Created_at              string
 		Full_text               string
 		In_reply_to_screen_name string
+		In_reply_to_status_id   string
 		Entities                struct {
 			Hashtags []struct {
 				Text string
@@ -60,8 +61,8 @@ func importTwitter(username, source string) {
 				Expanded_url string
 			}
 		}
-		date time.Time
-		text string
+		date   time.Time
+		convoy string
 	}
 
 	var tweets []*Tweet
@@ -69,6 +70,7 @@ func importTwitter(username, source string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// skip past window.YTD.tweet.part0 =
 	fd.Seek(25, 0)
 	dec := json.NewDecoder(fd)
 	err = dec.Decode(&tweets)
@@ -76,16 +78,27 @@ func importTwitter(username, source string) {
 		log.Fatalf("error parsing json: %s", err)
 	}
 	fd.Close()
+	tweetmap := make(map[string]*Tweet)
 	for _, t := range tweets {
 		t.date, _ = time.Parse("Mon Jan 02 15:04:05 -0700 2006", t.Created_at)
+		tweetmap[t.ID_str] = t
 	}
 	sort.Slice(tweets, func(i, j int) bool {
 		return tweets[i].date.Before(tweets[j].date)
 	})
 	for _, t := range tweets {
 		what := "honk"
-		if t.In_reply_to_screen_name != "" {
+		noise := ""
+		if parent := tweetmap[t.In_reply_to_status_id]; parent != nil {
+			t.convoy = parent.convoy
 			what = "tonk"
+		} else {
+			t.convoy = "data:,acoustichonkytonk-" + xfiltrate()
+			if t.In_reply_to_screen_name != "" {
+				noise = fmt.Sprintf("re: https://twitter.com/%s/status/%s\n\n",
+					t.In_reply_to_screen_name, t.In_reply_to_status_id)
+				what = "tonk"
+			}
 		}
 		audience := []string{thewholeworld}
 		xid := fmt.Sprintf("%s/%s/%s", user.URL, honkSep, xfiltrate())
@@ -98,11 +111,11 @@ func importTwitter(username, source string) {
 			Date:     t.date,
 			Format:   "markdown",
 			Audience: audience,
-			Convoy:   "data:,acoustichonkytonk-" + xfiltrate(),
+			Convoy:   t.convoy,
 			Public:   true,
 			Whofore:  2,
 		}
-		noise := t.Full_text
+		noise += t.Full_text
 		// unbelievable
 		noise = html.UnescapeString(noise)
 		for _, r := range t.Entities.Urls {
