@@ -18,6 +18,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"io/ioutil"
 	"log"
 	"os"
@@ -102,6 +103,8 @@ func importTwitter(username, source string) {
 			Whofore:  2,
 		}
 		noise := t.Full_text
+		// unbelievable
+		noise = html.UnescapeString(noise)
 		for _, r := range t.Entities.Urls {
 			noise = strings.Replace(noise, r.Url, r.Expanded_url, -1)
 		}
