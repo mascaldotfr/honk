@@ -86,14 +86,28 @@ func importTwitter(username, source string) {
 	sort.Slice(tweets, func(i, j int) bool {
 		return tweets[i].date.Before(tweets[j].date)
 	})
+	havetwid := func(xid string) bool {
+		var id int64
+		row := stmtFindXonk.QueryRow(user.ID, xid)
+		err := row.Scan(&id)
+		if err == nil {
+			return true
+		}
+		return false
+	}
+
 	for _, t := range tweets {
+		xid := fmt.Sprintf("%s/%s/%s", user.URL, honkSep, t.ID_str)
+		if havetwid(xid) {
+			continue
+		}
 		what := "honk"
 		noise := ""
 		if parent := tweetmap[t.In_reply_to_status_id]; parent != nil {
 			t.convoy = parent.convoy
 			what = "tonk"
 		} else {
-			t.convoy = "data:,acoustichonkytonk-" + xfiltrate()
+			t.convoy = "data:,acoustichonkytonk-" + t.ID_str
 			if t.In_reply_to_screen_name != "" {
 				noise = fmt.Sprintf("re: https://twitter.com/%s/status/%s\n\n",
 					t.In_reply_to_screen_name, t.In_reply_to_status_id)
@@ -101,7 +115,6 @@ func importTwitter(username, source string) {
 			}
 		}
 		audience := []string{thewholeworld}
-		xid := fmt.Sprintf("%s/%s/%s", user.URL, honkSep, xfiltrate())
 		honk := Honk{
 			UserID:   user.ID,
 			Username: user.Name,
