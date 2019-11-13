@@ -258,7 +258,7 @@ func xfiltrate() string {
 	return xcelerate(b[:])
 }
 
-var re_hashes = regexp.MustCompile(`(?:^| )#[[:alnum:]]*[[:alpha:]][[:alnum:]_-]*`)
+var re_hashes = regexp.MustCompile(`(?:^| |>)#[[:alnum:]]*[[:alpha:]][[:alnum:]_-]*`)
 
 func ontologies(s string) []string {
 	m := re_hashes.FindAllString(s, -1)
