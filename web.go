@@ -2012,9 +2012,6 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 		templinfo["ServerMessage"] = "honks in convoy: " + c
 	case "honker":
 		xid := r.FormValue("xid")
-		if strings.IndexByte(xid, '@') != -1 {
-			xid = gofish(xid)
-		}
 		honks = gethonksbyxonker(userid, xid, wanted)
 		msg := templates.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>`, xid, xid)
 		templinfo["ServerMessage"] = msg
