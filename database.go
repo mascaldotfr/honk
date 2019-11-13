@@ -166,7 +166,7 @@ func getbonk(userid int64, xid string) *Honk {
 
 func getpublichonks() []*Honk {
 	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
-	rows, err := stmtPublicHonks.Query(dt, 125)
+	rows, err := stmtPublicHonks.Query(dt, 100)
 	return getsomehonks(rows, err)
 }
 func geteventhonks(userid int64) []*Honk {
@@ -198,11 +198,10 @@ func geteventhonks(userid int64) []*Honk {
 }
 func gethonksbyuser(name string, includeprivate bool, wanted int64) []*Honk {
 	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
+	limit := 50
 	whofore := 2
-	limit := 25
 	if includeprivate {
 		whofore = 3
-		limit = 50
 	}
 	rows, err := stmtUserHonks.Query(wanted, whofore, name, dt, limit)
 	return getsomehonks(rows, err)
