@@ -494,8 +494,8 @@ func originate(u string) string {
 }
 
 var allhandles = cache.New(cache.Options{Filler: func(xid string) (string, bool) {
-	row := stmtGetXonker.QueryRow(xid, "handle")
 	var handle string
+	row := stmtGetXonker.QueryRow(xid, "handle")
 	err := row.Scan(&handle)
 	if err != nil {
 		log.Printf("need to get a handle: %s", xid)
@@ -581,8 +581,8 @@ func ziggy(userid int64) *KeyInfo {
 }
 
 var zaggies = cache.New(cache.Options{Filler: func(keyname string) (*rsa.PublicKey, bool) {
-	row := stmtGetXonker.QueryRow(keyname, "pubkey")
 	var data string
+	row := stmtGetXonker.QueryRow(keyname, "pubkey")
 	err := row.Scan(&data)
 	if err != nil {
 		log.Printf("hitting the webs for missing pubkey: %s", keyname)

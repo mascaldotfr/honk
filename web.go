@@ -351,9 +351,9 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("updating honker follow: %s", who)
 
+		var x string
 		db := opendatabase()
 		row := db.QueryRow("select xid from honkers where xid = ? and userid = ? and flavor in ('dub', 'undub')", who, user.ID)
-		var x string
 		err = row.Scan(&x)
 		if err != sql.ErrNoRows {
 			log.Printf("duplicate follow request: %s", who)
@@ -367,10 +367,10 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		go rubadubdub(user, j)
 	case "Accept":
 		log.Printf("updating honker accept: %s", who)
+		var name string
 		db := opendatabase()
 		row := db.QueryRow("select name from honkers where userid = ? and xid = ? and flavor in ('presub')",
 			user.ID, who)
-		var name string
 		err := row.Scan(&name)
 		if err != nil {
 			log.Printf("can't get honker name: %s", err)
@@ -486,9 +486,9 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 		}
 		ont := "#" + m[1]
 		log.Printf("%s wants to follow %s", who, ont)
+		var x string
 		db := opendatabase()
 		row := db.QueryRow("select xid from honkers where name = ? and xid = ? and userid = ? and flavor in ('dub', 'undub')", ont, who, user.ID)
-		var x string
 		err = row.Scan(&x)
 		if err != sql.ErrNoRows {
 			log.Printf("duplicate follow request: %s", who)
@@ -1731,9 +1731,9 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	}
 	url = info.XID
 
+	var x string
 	db := opendatabase()
 	row := db.QueryRow("select xid from honkers where xid = ? and userid = ? and flavor in ('sub', 'unsub', 'peep')", url, u.UserID)
-	var x string
 	err = row.Scan(&x)
 	if err != sql.ErrNoRows {
 		http.Error(w, "it seems you are already subscribed to them", http.StatusInternalServerError)
@@ -1947,9 +1947,9 @@ func servememe(w http.ResponseWriter, r *http.Request) {
 
 func servefile(w http.ResponseWriter, r *http.Request) {
 	xid := mux.Vars(r)["xid"]
-	row := stmtGetFileData.QueryRow(xid)
 	var media string
 	var data []byte
+	row := stmtGetFileData.QueryRow(xid)
 	err := row.Scan(&media, &data)
 	if err != nil {
 		log.Printf("error loading file: %s", err)

@@ -206,8 +206,8 @@ saveit:
 }
 
 func iszonked(userid int64, xid string) bool {
-	row := stmtFindZonk.QueryRow(userid, xid)
 	var id int64
+	row := stmtFindZonk.QueryRow(userid, xid)
 	err := row.Scan(&id)
 	if err == nil {
 		return true
@@ -235,8 +235,8 @@ func needxonkid(user *WhatAbout, xid string) bool {
 		log.Printf("already zonked: %s", xid)
 		return false
 	}
-	row := stmtFindXonk.QueryRow(user.ID, xid)
 	var id int64
+	row := stmtFindXonk.QueryRow(user.ID, xid)
 	err := row.Scan(&id)
 	if err == nil {
 		return false
@@ -1294,8 +1294,8 @@ var handfull = cache.New(cache.Options{Filler: func(name string) (string, bool) 
 		log.Printf("bad fish name: %s", name)
 		return "", true
 	}
-	row := stmtGetXonker.QueryRow(name, "fishname")
 	var href string
+	row := stmtGetXonker.QueryRow(name, "fishname")
 	err := row.Scan(&href)
 	if err == nil {
 		return href, true
@@ -1399,8 +1399,8 @@ func ingestpubkey(origin string, obj junk.Junk) {
 		obj = keyobj
 	}
 	keyname, ok := obj.GetString("id")
-	row := stmtGetXonker.QueryRow(keyname, "pubkey")
 	var data string
+	row := stmtGetXonker.QueryRow(keyname, "pubkey")
 	err := row.Scan(&data)
 	if err == nil {
 		return
