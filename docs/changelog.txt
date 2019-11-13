@@ -1,10 +1,12 @@
 changelog
 
--- next
-
-+ Resource usage stats on about page.
+-- 0.8.2
 
 ++ Import command to preserve those embarssassing old posts from Twitter.
+
+++ Add a limited /api for the robotrons.
+
++ Resource usage stats on about page.
 
 + Unveil and pledge restrictions on OpenBSD.
 
@@ -13,8 +15,6 @@ changelog
 + Rewrite admin console to avoid large dependencies.
 
 + "Bug" fixes.
-
-+ Add a limited /api for the robotrons.
 
 -- 0.8.1
 
