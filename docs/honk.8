@@ -69,6 +69,7 @@ Run the
 command.
 This will create the database and ask four questions, as well as creating
 the initial user.
+See below about importing existing data.
 .Ss OPERATION
 Run honk.
 Log messages are sent to stderr and should probably be redirected to a file.
@@ -142,6 +143,16 @@ Debug mode may be enabled or disabled by running
 .Ic debug Ar on|off .
 In debug mode, secure cookies are disabled and templates are reloaded
 every request.
+.Ss IMPORT
+Data may be imported and converted from other services using the
+.Ic import
+command.
+.Pp
+Currently limited to Twitter import.
+This requires a Twitter data archive.
+After unzipping the data archive, navigate to the tweet_media directory
+and unzip any zip files contained within.
+.Dl ./honk import username twitter source-directory
 .Sh FILES
 .Nm
 files are split between the data directory and the view directory.

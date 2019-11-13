@@ -232,6 +232,11 @@ func main() {
 	switch cmd {
 	case "admin":
 		adminscreen()
+	case "import":
+		if len(args) != 4 {
+			log.Fatal("import username twitter [srcdir]")
+		}
+		importMain(args[1], args[2], args[3])
 	case "debug":
 		if len(args) != 2 {
 			log.Fatal("need an argument: debug (on|off)")
