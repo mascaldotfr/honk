@@ -940,6 +940,7 @@ func tracker() {
 				savetracks(tracks)
 			}
 			readyalready <- true
+			return
 		}
 	}
 }
