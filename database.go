@@ -166,7 +166,7 @@ func getbonk(userid int64, xid string) *Honk {
 
 func getpublichonks() []*Honk {
 	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
-	rows, err := stmtPublicHonks.Query(dt, 25)
+	rows, err := stmtPublicHonks.Query(dt, 125)
 	return getsomehonks(rows, err)
 }
 func geteventhonks(userid int64) []*Honk {
