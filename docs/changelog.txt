@@ -1,5 +1,7 @@
 changelog
 
+-- next
+
 -- 0.8.2
 
 ++ Import command to preserve those embarssassing old posts from Twitter.
