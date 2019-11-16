@@ -1805,8 +1805,9 @@ func savehfcs(w http.ResponseWriter, r *http.Request) {
 		filt.Expiration = time.Now().UTC().Add(dur)
 	}
 
-	if filt.Actor == "" && filt.Text == "" {
+	if filt.Actor == "" && filt.Text == "" && !filt.IsAnnounce {
 		log.Printf("blank filter")
+		http.Error(w, "can't save a blank filter", http.StatusInternalServerError)
 		return
 	}
 
