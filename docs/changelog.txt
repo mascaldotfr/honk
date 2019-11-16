@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Option to switch map links to Apple.
+
 -- 0.8.2
 
 ++ Import command to preserve those embarssassing old posts from Twitter.

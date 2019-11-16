@@ -59,6 +59,18 @@ func getuserstyle(u *login.UserInfo) template.CSS {
 	return ""
 }
 
+func getmaplink(u *login.UserInfo) string {
+	if u == nil {
+		return "osm"
+	}
+	user, _ := butwhatabout(u.Username)
+	ml := user.Options.MapLink
+	if ml == "" {
+		ml = "osm"
+	}
+	return ml
+}
+
 func getInfo(r *http.Request) map[string]interface{} {
 	u := login.GetUserInfo(r)
 	templinfo := make(map[string]interface{})
@@ -1032,6 +1044,7 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 	}
 	reverbolate(userid, honks)
 	templinfo["Honks"] = honks
+	templinfo["MapLink"] = getmaplink(u)
 	if templinfo["TopHID"] == nil {
 		if len(honks) > 0 {
 			templinfo["TopHID"] = honks[0].ID
@@ -1055,6 +1068,9 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	var options UserOptions
 	if r.FormValue("skinny") == "skinny" {
 		options.SkinnyCSS = true
+	}
+	if r.FormValue("maps") == "apple" {
+		options.MapLink = "apple"
 	}
 	j, err := jsonify(options)
 	if err == nil {
@@ -1271,6 +1287,7 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	templinfo["Honks"] = honks
+	templinfo["MapLink"] = getmaplink(u)
 	templinfo["Noise"] = noise
 	templinfo["SavedPlace"] = honk.Place
 	templinfo["ServerMessage"] = "honk edit"
@@ -1557,6 +1574,7 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 		templinfo := getInfo(r)
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 		templinfo["Honks"] = honks
+		templinfo["MapLink"] = getmaplink(userinfo)
 		templinfo["InReplyTo"] = r.FormValue("rid")
 		templinfo["Noise"] = r.FormValue("noise")
 		templinfo["SavedFile"] = donkxid
@@ -2027,6 +2045,7 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	}
 	reverbolate(userid, honks)
 	templinfo["Honks"] = honks
+	templinfo["MapLink"] = getmaplink(u)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	err := readviews.Execute(w, "honkfrags.html", templinfo)
 	if err != nil {
