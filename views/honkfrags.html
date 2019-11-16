@@ -4,6 +4,6 @@
 <div><p>{{ .ServerMessage }}</div>
 <div>
 {{ range .Honks }}
-{{ template "honk.html" map "Honk" . "MapLink" .MapLink "BonkCSRF" $BonkCSRF }}
+{{ template "honk.html" map "Honk" . "MapLink" $MapLink "BonkCSRF" $BonkCSRF }}
 {{ end }}
 </div>
