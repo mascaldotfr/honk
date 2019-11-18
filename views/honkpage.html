@@ -22,8 +22,9 @@
 <div>
 {{ $BonkCSRF := .HonkCSRF }}
 {{ $IsPreview := .IsPreview }}
+{{ $MapLink := .MapLink }}
 {{ range .Honks }}
-{{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF "IsPreview" $IsPreview }}
+{{ template "honk.html" map "Honk" . "MapLink" $MapLink "BonkCSRF" $BonkCSRF "IsPreview" $IsPreview }}
 {{ end }}
 </div>
 </div>
