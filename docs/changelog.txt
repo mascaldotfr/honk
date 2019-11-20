@@ -2,9 +2,17 @@ changelog
 
 -- next
 
++ Can never seem to version the changelog correctly.
+
+-- 0.8.4
+
 + Fix bug preventing import of keys
 
 + Option to switch map links to Apple.
+
+-- 0.8.3
+
+- mistag.
 
 -- 0.8.2
 
