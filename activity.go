@@ -853,6 +853,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				prev.Donks = xonk.Donks
 				prev.Onts = xonk.Onts
 				prev.Place = xonk.Place
+				prev.Whofore = xonk.Whofore
 				updatehonk(prev)
 			}
 		}
