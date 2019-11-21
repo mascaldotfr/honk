@@ -287,3 +287,15 @@ img.emu {
 		height: 48px;
 	}
 }
+@media print {
+	#topmenu, #topspacer, #infobox, #refreshbox, .actions {
+		display: none;
+	}
+	html {
+		--bg-page: white;
+		--bg-dark: white;
+		--fg: black;
+		--fg-subtle: black;
+		--fg-limited: #a79;
+	}
+}
