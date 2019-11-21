@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ @media print styles.
+
 + Disable overscroll (pull down) refresh.
 
 + Can never seem to version the changelog correctly.
