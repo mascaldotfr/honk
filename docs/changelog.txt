@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Disable overscroll (pull down) refresh.
+
 + Can never seem to version the changelog correctly.
 
 -- 0.8.4
