@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Add cite tag for block quote attributions.
+
 + @media print styles.
 
 + Disable overscroll (pull down) refresh.

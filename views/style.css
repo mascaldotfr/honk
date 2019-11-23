@@ -23,6 +23,9 @@ blockquote {
 	padding-left: 0.5em;
 	border-left: 1px solid var(--fg-subtle);
 }
+blockquote cite {
+	margin-left: 2em;
+}
 table {
 	display: block;
 	max-width: 100%;
