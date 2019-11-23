@@ -1064,13 +1064,18 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 func saveuser(w http.ResponseWriter, r *http.Request) {
 	whatabout := r.FormValue("whatabout")
 	u := login.GetUserInfo(r)
+	user, _ := butwhatabout(u.Username)
 	db := opendatabase()
-	var options UserOptions
+	options := user.Options
 	if r.FormValue("skinny") == "skinny" {
 		options.SkinnyCSS = true
+	} else {
+		options.SkinnyCSS = false
 	}
 	if r.FormValue("maps") == "apple" {
 		options.MapLink = "apple"
+	} else {
+		options.MapLink = ""
 	}
 	j, err := jsonify(options)
 	if err == nil {
