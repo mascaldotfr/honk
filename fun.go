@@ -615,7 +615,7 @@ func zaggy(keyname string) *rsa.PublicKey {
 }
 
 func savingthrow(keyname string) {
-	when := time.Now().UTC().Sub(30 * time.Minute).Format(dbtimeformat)
+	when := time.Now().UTC().Add(-30 * time.Minute).Format(dbtimeformat)
 	stmtDeleteXonker.Exec(keyname, "pubkey", when)
 	zaggies.Clear(keyname)
 }
