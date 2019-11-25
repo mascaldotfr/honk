@@ -1317,7 +1317,8 @@ var handfull = cache.New(cache.Options{Filler: func(name string) (string, bool) 
 		rel, _ := l.GetString("rel")
 		t, _ := l.GetString("type")
 		if rel == "self" && friendorfoe(t) {
-			_, err := stmtSaveXonker.Exec(name, href, "fishname")
+			when := time.Now().UTC().Format(dbtimeformat)
+			_, err := stmtSaveXonker.Exec(name, href, "fishname", when)
 			if err != nil {
 				log.Printf("error saving fishname: %s", err)
 			}
@@ -1430,7 +1431,8 @@ func ingestpubkey(origin string, obj junk.Junk) {
 		log.Printf("error decoding %s pubkey: %s", keyname, err)
 		return
 	}
-	_, err = stmtSaveXonker.Exec(keyname, data, "pubkey")
+	when := time.Now().UTC().Format(dbtimeformat)
+	_, err = stmtSaveXonker.Exec(keyname, data, "pubkey", when)
 	if err != nil {
 		log.Printf("error saving key: %s", err)
 	}
@@ -1455,8 +1457,9 @@ func ingestboxes(origin string, obj junk.Junk) {
 	outbox, _ := obj.GetString("outbox")
 	sbox, _ := obj.GetString("endpoints", "sharedInbox")
 	if inbox != "" {
+		when := time.Now().UTC().Format(dbtimeformat)
 		m := strings.Join([]string{inbox, outbox, sbox}, " ")
-		_, err = stmtSaveXonker.Exec(ident, m, "boxes")
+		_, err = stmtSaveXonker.Exec(ident, m, "boxes", when)
 		if err != nil {
 			log.Printf("error saving boxes: %s", err)
 		}
@@ -1479,7 +1482,8 @@ func ingesthandle(origin string, obj junk.Junk) {
 	}
 	handle, _ = obj.GetString("preferredUsername")
 	if handle != "" {
-		_, err = stmtSaveXonker.Exec(xid, handle, "handle")
+		when := time.Now().UTC().Format(dbtimeformat)
+		_, err = stmtSaveXonker.Exec(xid, handle, "handle", when)
 		if err != nil {
 			log.Printf("error saving handle: %s", err)
 		}
