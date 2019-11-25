@@ -330,6 +330,10 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	}
 
 	keyname, err := httpsig.VerifyRequest(r, payload, zaggy)
+	if err != nil && keyname != "" {
+		savingthrow(keyname)
+		keyname, err = httpsig.VerifyRequest(r, payload, zaggy)
+	}
 	if err != nil {
 		log.Printf("inbox message failed signature for %s from %s", keyname, r.Header.Get("X-Forwarded-For"))
 		if keyname != "" {
@@ -460,6 +464,10 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	keyname, err := httpsig.VerifyRequest(r, payload, zaggy)
+	if err != nil && keyname != "" {
+		savingthrow(keyname)
+		keyname, err = httpsig.VerifyRequest(r, payload, zaggy)
+	}
 	if err != nil {
 		log.Printf("inbox message failed signature for %s from %s", keyname, r.Header.Get("X-Forwarded-For"))
 		if keyname != "" {

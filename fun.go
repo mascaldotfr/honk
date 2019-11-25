@@ -28,6 +28,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"golang.org/x/net/html"
 	"humungus.tedunangst.com/r/webs/cache"
@@ -611,6 +612,12 @@ func zaggy(keyname string) *rsa.PublicKey {
 	var key *rsa.PublicKey
 	zaggies.Get(keyname, &key)
 	return key
+}
+
+func savingthrow(keyname string) {
+	when := time.Now().UTC().Sub(30 * time.Minute).Format(dbtimeformat)
+	stmtDeleteXonker.Exec(keyname, "pubkey", when)
+	zaggies.Clear(keyname)
 }
 
 func keymatch(keyname string, actor string) string {
