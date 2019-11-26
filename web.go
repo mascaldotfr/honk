@@ -2026,13 +2026,23 @@ func servehtml(w http.ResponseWriter, r *http.Request) {
 }
 func serveemu(w http.ResponseWriter, r *http.Request) {
 	xid := mux.Vars(r)["xid"]
+	emu, err := url.QueryUnescape(xid)
+	if err != nil {
+		log.Print(err)
+	}
+
 	w.Header().Set("Cache-Control", "max-age="+somedays())
-	http.ServeFile(w, r, dataDir+"/emus/"+xid)
+	http.ServeFile(w, r, dataDir+"/emus/"+emu)
 }
 func servememe(w http.ResponseWriter, r *http.Request) {
 	xid := mux.Vars(r)["xid"]
+	meme, err := url.QueryUnescape(xid)
+	if err != nil {
+		log.Print(err)
+	}
+
 	w.Header().Set("Cache-Control", "max-age="+somedays())
-	http.ServeFile(w, r, dataDir+"/memes/"+xid)
+	http.ServeFile(w, r, dataDir+"/memes/"+meme)
 }
 
 func servefile(w http.ResponseWriter, r *http.Request) {
@@ -2279,8 +2289,8 @@ func serve() {
 	getters.HandleFunc("/o", thelistingoftheontologies)
 	getters.HandleFunc("/o/{name:.+}", showontology)
 	getters.HandleFunc("/d/{xid:[[:alnum:].]+}", servefile)
-	getters.HandleFunc("/emu/{xid:[[:alnum:]_.-]+}", serveemu)
-	getters.HandleFunc("/meme/{xid:[[:alnum:]_.-]+}", servememe)
+	getters.HandleFunc("/emu/{xid:.+}", serveemu)
+	getters.HandleFunc("/meme/{xid:.+}", servememe)
 	getters.HandleFunc("/.well-known/webfinger", fingerlicker)
 
 	getters.HandleFunc("/server", serveractor)
