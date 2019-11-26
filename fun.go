@@ -341,6 +341,7 @@ func herdofemus(noise string) []Emu {
 }
 
 var re_memes = regexp.MustCompile("meme: ?([^\n]+)")
+var re_avatar = regexp.MustCompile("avatar: ?([^\n]+)")
 
 func memetize(honk *Honk) {
 	repl := func(x string) string {

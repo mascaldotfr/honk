@@ -1102,8 +1102,6 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 	}
 }
 
-var re_avatar = regexp.MustCompile("avatar: ?([[:alnum:]_.-]+)")
-
 func saveuser(w http.ResponseWriter, r *http.Request) {
 	whatabout := r.FormValue("whatabout")
 	u := login.GetUserInfo(r)
