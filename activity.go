@@ -199,6 +199,12 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 				format = "jpg"
 			}
 			xid = xid + "." + format
+		} else if media == "application/pdf" {
+			if len(data) > 1000000 {
+				log.Printf("not saving large pdf")
+				localize = false
+				data = []byte{}
+			}
 		} else if len(data) > 100000 {
 			log.Printf("not saving large attachment")
 			localize = false
@@ -709,7 +715,8 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				} else if at == "Document" || at == "Image" {
 					mt = strings.ToLower(mt)
 					log.Printf("attachment: %s %s", mt, u)
-					if mt == "text/plain" || strings.HasPrefix(mt, "image") {
+					if mt == "text/plain" || mt == "application/pdf" ||
+						strings.HasPrefix(mt, "image") {
 						localize = true
 					}
 				} else {
