@@ -1,5 +1,9 @@
 changelog
 
+-- next
+
++ More flexible meme names.
+
 -- 0.8.5 Turnkey Blaster
 
 + Codenames in changelog.
