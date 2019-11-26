@@ -910,7 +910,7 @@ func getbacktracks(xid string) []string {
 			f = f[:idx]
 		}
 		if !strings.HasPrefix(f, "https://") {
-			f = fmt.Sprintf("%https://%s/inbox", f)
+			f = fmt.Sprintf("%%https://%s/inbox", f)
 		}
 		rcpts = append(rcpts, f)
 	}
