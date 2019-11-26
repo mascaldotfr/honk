@@ -1209,6 +1209,9 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 				rcpts[h.XID] = true
 			}
 		}
+		for _, f := range getbacktracks(honk.XID) {
+			rcpts[f] = true
+		}
 	}
 	for a := range rcpts {
 		go deliverate(0, user.ID, a, msg)

@@ -890,6 +890,33 @@ type Track struct {
 	who string
 }
 
+func getbacktracks(xid string) []string {
+	c := make(chan bool)
+	dumptracks <- c
+	<-c
+	row := stmtGetTracks.QueryRow(xid)
+	var rawtracks string
+	err := row.Scan(&rawtracks)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			log.Printf("error scanning tracks: %s", err)
+		}
+		return nil
+	}
+	var rcpts []string
+	for _, f := range strings.Split(rawtracks, " ") {
+		idx := strings.LastIndexByte(f, '#')
+		if idx != -1 {
+			f = f[:idx]
+		}
+		if !strings.HasPrefix(f, "https://") {
+			f = fmt.Sprintf("%https://%s/inbox", f)
+		}
+		rcpts = append(rcpts, f)
+	}
+	return rcpts
+}
+
 func savetracks(tracks map[string][]string) {
 	db := opendatabase()
 	tx, err := db.Begin()
@@ -940,6 +967,7 @@ func savetracks(tracks map[string][]string) {
 }
 
 var trackchan = make(chan Track)
+var dumptracks = make(chan chan bool)
 
 func tracker() {
 	timeout := 4 * time.Minute
@@ -955,6 +983,11 @@ func tracker() {
 				tracks = make(map[string][]string)
 			}
 			sleeper.Reset(timeout)
+		case c := <-dumptracks:
+			if len(tracks) > 0 {
+				savetracks(tracks)
+			}
+			c <- true
 		case <-endoftheworld:
 			if len(tracks) > 0 {
 				savetracks(tracks)
