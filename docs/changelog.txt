@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Fix some bugs that may have interfered with federation.
+
 + Add some re: re: re: to replies.
 
 + Set an avatar. If you must.
