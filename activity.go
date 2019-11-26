@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"crypto/rsa"
 	"database/sql"
+	"errors"
 	"fmt"
 	"html"
 	"io"
@@ -141,6 +142,22 @@ func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
 	return j, nil
 }
 
+func fetchsome(url string) ([]byte, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Printf("error fetching %s: %s", url, err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, errors.New("not 200")
+	}
+	var buf bytes.Buffer
+	limiter := io.LimitReader(resp.Body, 10*1024*1024)
+	io.Copy(&buf, limiter)
+	return buf.Bytes(), nil
+}
+
 func savedonk(url string, name, desc, media string, localize bool) *Donk {
 	if url == "" {
 		return nil
@@ -154,22 +171,16 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 	xid := xfiltrate()
 	data := []byte{}
 	if localize {
-		resp, err := http.Get(url)
+		fn := func() (interface{}, error) {
+			return fetchsome(url)
+		}
+		ii, err := flightdeck.Call(url, fn)
 		if err != nil {
-			log.Printf("error fetching %s: %s", url, err)
 			localize = false
 			goto saveit
 		}
-		defer resp.Body.Close()
-		if resp.StatusCode != 200 {
-			localize = false
-			goto saveit
-		}
-		var buf bytes.Buffer
-		limiter := io.LimitReader(resp.Body, 10*1024*1024)
-		io.Copy(&buf, limiter)
+		data = ii.([]byte)
 
-		data = buf.Bytes()
 		if len(data) == 10*1024*1024 {
 			log.Printf("truncation likely")
 		}
