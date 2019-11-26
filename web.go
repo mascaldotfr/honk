@@ -1427,6 +1427,12 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 			}
 		}
 		honk.RID = rid
+		if xonk.Precis != "" && honk.Precis == "" {
+			honk.Precis = xonk.Precis
+			if !(strings.HasPrefix(honk.Precis, "DZ:") || strings.HasPrefix(honk.Precis, "re: re: re: ")) {
+				honk.Precis = "re: " + honk.Precis
+			}
+		}
 	} else {
 		honk.Audience = []string{thewholeworld}
 	}

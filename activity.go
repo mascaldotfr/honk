@@ -1022,7 +1022,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		translate(h, true)
 		jo["summary"] = html.EscapeString(h.Precis)
 		jo["content"] = h.Noise
-		if strings.HasPrefix(h.Precis, "DZ:") {
+		if h.Precis != "" {
 			jo["sensitive"] = true
 		}
 
