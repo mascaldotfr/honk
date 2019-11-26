@@ -1069,6 +1069,8 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 	}
 }
 
+var re_avatar = regexp.MustCompile("avatar: ?([[:alnum:]_.-]+)")
+
 func saveuser(w http.ResponseWriter, r *http.Request) {
 	whatabout := r.FormValue("whatabout")
 	u := login.GetUserInfo(r)
@@ -1085,6 +1087,17 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		options.MapLink = ""
 	}
+	if ava := re_avatar.FindString(whatabout); ava != "" {
+		whatabout = re_avatar.ReplaceAllString(whatabout, "")
+		ava = ava[7:]
+		if ava[0] == ' ' {
+			ava = ava[1:]
+		}
+		options.Avatar = fmt.Sprintf("https://%s/meme/%s", serverName, ava)
+	} else {
+		options.Avatar = ""
+	}
+	whatabout = strings.TrimSpace(whatabout)
 	j, err := jsonify(options)
 	if err == nil {
 		_, err = db.Exec("update users set about = ?, options = ? where username = ?", whatabout, j, u.Username)
@@ -1861,6 +1874,11 @@ func accountpage(w http.ResponseWriter, r *http.Request) {
 	templinfo["UserCSRF"] = login.GetCSRF("saveuser", r)
 	templinfo["LogoutCSRF"] = login.GetCSRF("logout", r)
 	templinfo["User"] = user
+	about := user.About
+	if ava := user.Options.Avatar; ava != "" {
+		about += "\n\navatar: " + ava[strings.LastIndexByte(ava, '/')+1:]
+	}
+	templinfo["WhatAbout"] = about
 	err := readviews.Execute(w, "account.html", templinfo)
 	if err != nil {
 		log.Print(err)

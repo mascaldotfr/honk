@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Set an avatar. If you must.
+
 + Try a little harder to recover from httpsig failures.
 
 + Add cite tag for block quote attributions.
