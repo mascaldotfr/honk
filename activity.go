@@ -1186,24 +1186,34 @@ func gimmejonk(xid string) ([]byte, bool) {
 	return j, ok
 }
 
-func honkworldwide(user *WhatAbout, honk *Honk) {
-	jonk, _ := jonkjonk(user, honk)
-	jonk["@context"] = itiswhatitis
-	msg := jonk.ToBytes()
-
+func boxuprcpts(user *WhatAbout, addresses []string, useshared bool) map[string]bool {
 	rcpts := make(map[string]bool)
-	for _, a := range honk.Audience {
-		if a == thewholeworld || a == user.URL || strings.HasSuffix(a, "/followers") {
+	for _, a := range addresses {
+		if a == "" || a == thewholeworld || a == user.URL || strings.HasSuffix(a, "/followers") {
+			continue
+		}
+		if a[0] == '%' {
+			rcpts[a] = true
 			continue
 		}
 		var box *Box
 		ok := boxofboxes.Get(a, &box)
-		if ok && honk.Public && box.Shared != "" {
+		if ok && useshared && box.Shared != "" {
 			rcpts["%"+box.Shared] = true
 		} else {
 			rcpts[a] = true
 		}
 	}
+	return rcpts
+}
+
+func honkworldwide(user *WhatAbout, honk *Honk) {
+	jonk, _ := jonkjonk(user, honk)
+	jonk["@context"] = itiswhatitis
+	msg := jonk.ToBytes()
+
+	rcpts := boxuprcpts(user, honk.Audience, honk.Public)
+
 	if honk.Public {
 		for _, h := range getdubs(user.ID) {
 			if h.XID == user.URL {
