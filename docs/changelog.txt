@@ -1,6 +1,8 @@
 changelog
 
--- next
+-- 0.8.5 Turnkey Blaster
+
++ Codenames in changelog.
 
 + Fix some bugs that may have interfered with federation.
 
@@ -28,7 +30,7 @@ changelog
 
 - mistag.
 
--- 0.8.2
+-- 0.8.2 Game Warden
 
 ++ Import command to preserve those embarssassing old posts from Twitter.
 
@@ -56,7 +58,7 @@ changelog
 	Syntax highlighting for code blocks.
 	Something resembling an actual manual.
 
--- 0.8.0
+-- 0.8.0 Ordinary Octology
 
 +++ Add Honk Filtering and Censorship System (HFCS).
 
@@ -111,7 +113,7 @@ changelog
 - Sometimes the cached state of the @me feed becomes unsynced.
 	Acked status may display incorrectly.
 
--- 0.7.7
+-- 0.7.7 More 7 Than Ever
 
 + Add another retry to workaround pixelfed's general unreliability.
 
@@ -167,7 +169,7 @@ changelog
 
 + Fix bug preventing unfollow from working.
 
--- 0.7.0
+-- 0.7.0 Father Mother Maiden Crone Honker Bonker Zonker
 
 +++ Auto fetching and inlining of hoots.
 
@@ -197,6 +199,12 @@ changelog
 
 + Add max-width for video tag.
 
--- 0.6.0 and prior
+-- 0.6.0 Sixy Delights
 
-All records from this time of primitive development have been lost.
+Most records from this time of primitive development have been lost.
+
+-- 0.5.0 Halfway to Heaven
+
+-- 0.4.0 Fore Score
+
+-- 0.3.0 Valorous Varaha
