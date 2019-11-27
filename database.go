@@ -491,7 +491,7 @@ func updatehonk(h *Honk) error {
 		return err
 	}
 
-	err = deleteextras(tx, h.ID)
+	err = deleteextras(tx, h.ID, false)
 	if err == nil {
 		_, err = tx.Stmt(stmtUpdateHonk).Exec(h.Precis, h.Noise, h.Format, h.Whofore, dt, h.ID)
 	}
@@ -527,10 +527,7 @@ func deletehonk(honkid int64) error {
 		return err
 	}
 
-	err = deleteextras(tx, honkid)
-	if err == nil {
-		_, err = tx.Stmt(stmtDeleteMeta).Exec(honkid, "nonsense")
-	}
+	err = deleteextras(tx, honkid, true)
 	if err == nil {
 		_, err = tx.Stmt(stmtDeleteHonk).Exec(honkid)
 	}
@@ -583,7 +580,7 @@ func saveextras(tx *sql.Tx, h *Honk) error {
 	return nil
 }
 
-func deleteextras(tx *sql.Tx, honkid int64) error {
+func deleteextras(tx *sql.Tx, honkid int64, everything bool) error {
 	_, err := tx.Stmt(stmtDeleteDonks).Exec(honkid)
 	if err != nil {
 		return err
@@ -592,7 +589,11 @@ func deleteextras(tx *sql.Tx, honkid int64) error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Stmt(stmtDeleteMeta).Exec(honkid, "oldrev")
+	if everything {
+		_, err = tx.Stmt(stmtDeleteAllMeta).Exec(honkid)
+	} else {
+		_, err = tx.Stmt(stmtDeleteSomeMeta).Exec(honkid)
+	}
 	if err != nil {
 		return err
 	}
@@ -691,7 +692,8 @@ var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover, stmtOneHonker 
 var stmtUntagged, stmtDeleteHonk, stmtDeleteDonks, stmtDeleteOnts, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
 var stmtAllOnts, stmtSaveOnt, stmtUpdateFlags, stmtClearFlags *sql.Stmt
-var stmtHonksForUserFirstClass, stmtSaveMeta, stmtDeleteMeta, stmtUpdateHonk *sql.Stmt
+var stmtHonksForUserFirstClass *sql.Stmt
+var stmtSaveMeta, stmtDeleteAllMeta, stmtDeleteSomeMeta, stmtUpdateHonk *sql.Stmt
 var stmtHonksISaved, stmtGetFilters, stmtSaveFilter, stmtDeleteFilter *sql.Stmt
 var stmtGetTracks *sql.Stmt
 
@@ -735,7 +737,8 @@ func prepareStatements(db *sql.DB) {
 	stmtHonksByOntology = preparetodie(db, selecthonks+"join onts on honks.honkid = onts.honkid where honks.honkid > ? and onts.ontology = ? and (honks.userid = ? or (? = -1 and honks.whofore = 2))"+limit)
 
 	stmtSaveMeta = preparetodie(db, "insert into honkmeta (honkid, genus, json) values (?, ?, ?)")
-	stmtDeleteMeta = preparetodie(db, "delete from honkmeta where honkid = ? and genus <> ?")
+	stmtDeleteAllMeta = preparetodie(db, "delete from honkmeta where honkid = ?")
+	stmtDeleteSomeMeta = preparetodie(db, "delete from honkmeta where honkid = ? and genus not in ('oldrev')")
 	stmtSaveHonk = preparetodie(db, "insert into honks (userid, what, honker, xid, rid, dt, url, audience, noise, convoy, whofore, format, precis, oonker, flags) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	stmtDeleteHonk = preparetodie(db, "delete from honks where honkid = ?")
 	stmtUpdateHonk = preparetodie(db, "update honks set precis = ?, noise = ?, format = ?, whofore = ?, dt = ? where honkid = ?")
