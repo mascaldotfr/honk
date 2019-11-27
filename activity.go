@@ -635,7 +635,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		xonk.Audience = append(xonk.Audience, xonk.Honker)
 		xonk.Audience = oneofakind(xonk.Audience)
 
-		var mentions []string
+		var mentions []Mention
 		if obj != nil {
 			ot, _ := obj.GetString("type")
 			url, _ = obj.GetString("url")
@@ -773,7 +773,9 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					xonk.Place = p
 				}
 				if tt == "Mention" {
-					m, _ := tag.GetString("href")
+					var m Mention
+					m.Who, _ = tag.GetString("name")
+					m.Where, _ = tag.GetString("href")
 					mentions = append(mentions, m)
 				}
 			}
@@ -852,8 +854,9 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		xonk.Precis = precis
 		xonk.Format = "html"
 		xonk.Convoy = convoy
+		xonk.Mentions = mentions
 		for _, m := range mentions {
-			if m == user.URL {
+			if m.Where == user.URL {
 				xonk.Whofore = 1
 			}
 		}
@@ -873,6 +876,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				prev.Onts = xonk.Onts
 				prev.Place = xonk.Place
 				prev.Whofore = xonk.Whofore
+				prev.Mentions = xonk.Mentions
 				updatehonk(prev)
 			}
 		}
@@ -1050,8 +1054,8 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		for _, m := range mentions {
 			t := junk.New()
 			t["type"] = "Mention"
-			t["name"] = m.who
-			t["href"] = m.where
+			t["name"] = m.Who
+			t["href"] = m.Where
 			tags = append(tags, t)
 		}
 		for _, o := range h.Onts {

@@ -277,11 +277,6 @@ func ontologies(s string) []string {
 	return m[:j]
 }
 
-type Mention struct {
-	who   string
-	where string
-}
-
 var re_mentions = regexp.MustCompile(`@[[:alnum:]._-]+@[[:alnum:].-]*[[:alnum:]]`)
 var re_urltions = regexp.MustCompile(`@https://\S+`)
 
@@ -307,12 +302,12 @@ func bunchofgrapes(s string) []Mention {
 	for i := range m {
 		where := gofish(m[i])
 		if where != "" {
-			mentions = append(mentions, Mention{who: m[i], where: where})
+			mentions = append(mentions, Mention{Who: m[i], Where: where})
 		}
 	}
 	m = re_urltions.FindAllString(s, -1)
 	for i := range m {
-		mentions = append(mentions, Mention{who: m[i][1:], where: m[i][1:]})
+		mentions = append(mentions, Mention{Who: m[i][1:], Where: m[i][1:]})
 	}
 	return mentions
 }

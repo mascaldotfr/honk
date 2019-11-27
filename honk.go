@@ -88,6 +88,12 @@ type Honk struct {
 	Onts     []string
 	Place    *Place
 	Time     *Time
+	Mentions []Mention
+}
+
+type Mention struct {
+	Who   string
+	Where string
 }
 
 type OldRevision struct {
