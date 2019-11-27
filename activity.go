@@ -869,15 +869,8 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				log.Printf("didn't find old version for update: %s", xonk.XID)
 				isUpdate = false
 			} else {
-				prev.Noise = xonk.Noise
-				prev.Precis = xonk.Precis
-				prev.Date = xonk.Date
-				prev.Donks = xonk.Donks
-				prev.Onts = xonk.Onts
-				prev.Place = xonk.Place
-				prev.Whofore = xonk.Whofore
-				prev.Mentions = xonk.Mentions
-				updatehonk(prev)
+				xonk.ID = prev.ID
+				updatehonk(&xonk)
 			}
 		}
 		if !isUpdate && needxonk(user, &xonk) {
