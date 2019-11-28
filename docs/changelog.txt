@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Negated search -terms.
+
 + A raw sendactivity API action for the bold.
 
 + More flexible meme names.

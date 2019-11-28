@@ -143,11 +143,14 @@ The following keywords are supported:
 Substring match on the post domain name.
 .It honker
 Exact match, either AP actor or honker nickname.
+.It -
+Negate term.
 .El
 .Pp
 Example:
-.Dl honker:goose big moose
-This query will find honks by the goose about the big moose.
+.Dl honker:goose big moose -footloose
+This query will find honks by the goose about the big moose, but excluding
+those about footloose.
 .Ss Filtering
 Sometimes other users of the federation can get unruly.
 The honk filtering and censorship system,
