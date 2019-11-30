@@ -242,6 +242,9 @@ func needxonk(user *WhatAbout, x *Honk) bool {
 	return needxonkid(user, x.XID)
 }
 func needxonkid(user *WhatAbout, xid string) bool {
+	if !strings.HasPrefix(xid, "https://") {
+		return false
+	}
 	if strings.HasPrefix(xid, user.URL+"/") {
 		return false
 	}
