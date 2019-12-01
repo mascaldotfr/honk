@@ -1575,14 +1575,6 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 			log.Printf("can't find file: %s", xid)
 		}
 	}
-	herd := herdofemus(noise)
-	for _, e := range herd {
-		donk := savedonk(e.ID, e.Name, e.Name, "image/png", true)
-		if donk != nil {
-			donk.Name = e.Name
-			honk.Donks = append(honk.Donks, donk)
-		}
-	}
 	memetize(honk)
 	imaginate(honk)
 

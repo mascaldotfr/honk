@@ -62,6 +62,10 @@ func reverbolate(userid int64, honks []*Honk) {
 			h.Style += " limited"
 		}
 		translate(h, false)
+		local := false
+		if (h.Whofore == 2 || h.Whofore == 3) || h.What != "bonked" {
+			local = true
+		}
 		if h.Whofore == 2 || h.Whofore == 3 {
 			h.URL = h.XID
 			if h.What != "bonked" {
@@ -128,6 +132,13 @@ func reverbolate(userid int64, honks []*Honk) {
 					if d.Local {
 						return fmt.Sprintf(`<img class="emu" title="%s" src="/d/%s">`, d.Name, d.XID)
 					}
+				}
+			}
+			if local {
+				var emu Emu
+				emucache.Get(e, &emu)
+				if emu.ID != "" {
+					return fmt.Sprintf(`<img class="emu" title="%s" src="%s">`, emu.Name, emu.ID)
 				}
 			}
 			return e
@@ -319,18 +330,27 @@ type Emu struct {
 
 var re_emus = regexp.MustCompile(`:[[:alnum:]_-]+:`)
 
+var emucache = cache.New(cache.Options{Filler: func(ename string) (Emu, bool) {
+	fname := ename[1 : len(ename)-1]
+	_, err := os.Stat(dataDir + "/emus/" + fname + ".png")
+	if err != nil {
+		return Emu{Name: ename, ID: ""}, true
+	}
+	url := fmt.Sprintf("https://%s/emu/%s.png", serverName, fname)
+	return Emu{ID: url, Name: ename}, true
+}, Duration: 10 * time.Second})
+
 func herdofemus(noise string) []Emu {
 	m := re_emus.FindAllString(noise, -1)
 	m = oneofakind(m)
 	var emus []Emu
 	for _, e := range m {
-		fname := e[1 : len(e)-1]
-		_, err := os.Stat("emus/" + fname + ".png")
-		if err != nil {
+		var emu Emu
+		emucache.Get(e, &emu)
+		if emu.ID == "" {
 			continue
 		}
-		url := fmt.Sprintf("https://%s/emu/%s.png", serverName, fname)
-		emus = append(emus, Emu{ID: url, Name: e})
+		emus = append(emus, emu)
 	}
 	return emus
 }
