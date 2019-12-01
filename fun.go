@@ -63,31 +63,26 @@ func reverbolate(userid int64, honks []*Honk) {
 		}
 		translate(h, false)
 		local := false
-		if (h.Whofore == 2 || h.Whofore == 3) || h.What != "bonked" {
+		if (h.Whofore == 2 || h.Whofore == 3) && h.What != "bonked" {
 			local = true
 		}
-		if h.Whofore == 2 || h.Whofore == 3 {
-			h.URL = h.XID
-			if h.What != "bonked" {
-				h.Noise = re_memes.ReplaceAllString(h.Noise, "")
-				h.Noise = mentionize(h.Noise)
-				h.Noise = ontologize(h.Noise)
-			}
-			h.Username, h.Handle = handles(h.Honker)
+		if local {
+			h.Noise = re_memes.ReplaceAllString(h.Noise, "")
+			h.Noise = mentionize(h.Noise)
+			h.Noise = ontologize(h.Noise)
+		}
+		h.Username, h.Handle = handles(h.Honker)
+		short := shortname(userid, h.Honker)
+		if short != "" {
+			h.Username = short
 		} else {
-			_, h.Handle = handles(h.Honker)
-			short := shortname(userid, h.Honker)
-			if short != "" {
-				h.Username = short
-			} else {
-				h.Username = h.Handle
-				if len(h.Username) > 20 {
-					h.Username = h.Username[:20] + ".."
-				}
+			h.Username = h.Handle
+			if len(h.Username) > 20 {
+				h.Username = h.Username[:20] + ".."
 			}
-			if h.URL == "" {
-				h.URL = h.XID
-			}
+		}
+		if h.URL == "" {
+			h.URL = h.XID
 		}
 		if h.Oonker != "" {
 			_, h.Oondle = handles(h.Oonker)
