@@ -72,13 +72,15 @@ func reverbolate(userid int64, honks []*Honk) {
 			h.Noise = ontologize(h.Noise)
 		}
 		h.Username, h.Handle = handles(h.Honker)
-		short := shortname(userid, h.Honker)
-		if short != "" {
-			h.Username = short
-		} else {
-			h.Username = h.Handle
-			if len(h.Username) > 20 {
-				h.Username = h.Username[:20] + ".."
+		if !local {
+			short := shortname(userid, h.Honker)
+			if short != "" {
+				h.Username = short
+			} else {
+				h.Username = h.Handle
+				if len(h.Username) > 20 {
+					h.Username = h.Username[:20] + ".."
+				}
 			}
 		}
 		if h.URL == "" {
