@@ -16,11 +16,11 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"regexp"
 	"strings"
 
-	"golang.org/x/net/html"
 	"humungus.tedunangst.com/r/webs/synlight"
 )
 
@@ -37,27 +37,8 @@ var re_lister = regexp.MustCompile(`((^|\n)(\+|-).*)+\n?`)
 
 var lighter = synlight.New(synlight.Options{Format: synlight.HTML})
 
-func markitzero(s string) string {
-	// prepare the string
-	s = strings.TrimSpace(s)
-	s = strings.Replace(s, "\r", "", -1)
-
-	// save away the code blocks so we don't mess them up further
-	var bigcodes, lilcodes, images []string
-	s = re_bigcoder.ReplaceAllStringFunc(s, func(code string) string {
-		bigcodes = append(bigcodes, code)
-		return "``````"
-	})
-	s = re_coder.ReplaceAllStringFunc(s, func(code string) string {
-		lilcodes = append(lilcodes, code)
-		return "`x`"
-	})
-	s = re_imgfix.ReplaceAllStringFunc(s, func(img string) string {
-		images = append(images, img)
-		return "<img x>"
-	})
-
-	// fewer side effects than html.EscapeString
+// fewer side effects than html.EscapeString
+func fasterescaper(s []byte) []byte {
 	buf := make([]byte, 0, len(s))
 	for _, c := range []byte(s) {
 		switch c {
@@ -71,64 +52,130 @@ func markitzero(s string) string {
 			buf = append(buf, c)
 		}
 	}
-	s = string(buf)
+	return buf
+}
 
-	// mark it zero
-	s = re_link.ReplaceAllStringFunc(s, linkreplacer)
-	s = re_zerolink.ReplaceAllString(s, `<a href="$2">$1</a>`)
-	s = re_bolder.ReplaceAllString(s, "$1<b>$2</b>$3")
-	s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
-	s = re_quoter.ReplaceAllString(s, "<blockquote>$1<br><cite>$3</cite></blockquote><p>")
-	s = re_reciter.ReplaceAllString(s, "$1$2$3")
-	s = strings.Replace(s, "\n---\n", "<hr><p>", -1)
+func replaceifmatch(re *regexp.Regexp, input []byte, repl []byte) []byte {
+	if !re.Match(input) {
+		return input
+	}
+	return re.ReplaceAll(input, repl)
+}
 
-	s = re_lister.ReplaceAllStringFunc(s, func(m string) string {
-		m = strings.Trim(m, "\n")
-		items := strings.Split(m, "\n")
-		r := "<ul>"
-		for _, item := range items {
-			r += "<li>" + strings.Trim(item[1:], " ")
-		}
-		r += "</ul><p>"
-		return r
+func replaceifmatchfn(re *regexp.Regexp, input []byte, repl func([]byte) []byte) []byte {
+	if !re.Match(input) {
+		return input
+	}
+	return re.ReplaceAllFunc(input, repl)
+}
+
+func replacenocopy(input []byte, pat []byte, repl []byte) []byte {
+	if !bytes.Contains(input, pat) {
+		return input
+	}
+	return bytes.Replace(input, pat, repl, -1)
+}
+
+func markitzero(ss string) string {
+	s := []byte(ss)
+	// prepare the string
+	s = bytes.TrimSpace(s)
+	s = replacenocopy(s, []byte("\r"), []byte(""))
+
+	hascode := bytes.Contains(s, []byte("`"))
+
+	// save away the code blocks so we don't mess them up further
+	var bigcodes, lilcodes, images [][]byte
+	if hascode {
+		s = replaceifmatchfn(re_bigcoder, s, func(code []byte) []byte {
+			bigcodes = append(bigcodes, code)
+			return []byte("``````")
+		})
+		s = replaceifmatchfn(re_coder, s, func(code []byte) []byte {
+			lilcodes = append(lilcodes, code)
+			return []byte("`x`")
+		})
+	}
+	s = replaceifmatchfn(re_imgfix, s, func(img []byte) []byte {
+		images = append(images, img)
+		return []byte("<img x>")
 	})
 
+	s = fasterescaper(s)
+
+	// mark it zero
+	if bytes.Contains(s, []byte("http")) {
+		s = replaceifmatchfn(re_link, s, linkreplacer)
+	}
+	s = replaceifmatch(re_zerolink, s, []byte(`<a href="$2">$1</a>`))
+	if bytes.Contains(s, []byte("**")) {
+		s = replaceifmatch(re_bolder, s, []byte("$1<b>$2</b>$3"))
+	}
+	if bytes.Contains(s, []byte("*")) {
+		s = replaceifmatch(re_italicer, s, []byte("$1<i>$2</i>$3"))
+	}
+	if bytes.Contains(s, []byte("&gt; ")) {
+		s = replaceifmatch(re_quoter, s, []byte("<blockquote>$1<br><cite>$3</cite></blockquote><p>"))
+		s = replaceifmatch(re_reciter, s, []byte("$1$2$3"))
+	}
+	s = replacenocopy(s, []byte("\n---\n"), []byte("<hr><p>"))
+
+	if bytes.Contains(s, []byte("\n+")) || bytes.Contains(s, []byte("\n-")) {
+		s = replaceifmatchfn(re_lister, s, func(m []byte) []byte {
+			m = bytes.Trim(m, "\n")
+			items := bytes.Split(m, []byte("\n"))
+			r := []byte("<ul>")
+			for _, item := range items {
+				r = append(r, []byte("<li>")...)
+				r = append(r, bytes.Trim(item[1:], " ")...)
+			}
+			r = append(r, []byte("</ul><p>")...)
+			return r
+		})
+	}
+
 	// restore images
-	s = strings.Replace(s, "&lt;img x&gt;", "<img x>", -1)
-	s = re_imgfix.ReplaceAllStringFunc(s, func(string) string {
+	s = replacenocopy(s, []byte("&lt;img x&gt;"), []byte("<img x>"))
+	s = replaceifmatchfn(re_imgfix, s, func([]byte) []byte {
 		img := images[0]
 		images = images[1:]
 		return img
 	})
 
 	// now restore the code blocks
-	s = re_coder.ReplaceAllStringFunc(s, func(string) string {
-		code := lilcodes[0]
-		lilcodes = lilcodes[1:]
-		code = html.EscapeString(code)
-		return code
-	})
-	s = re_bigcoder.ReplaceAllStringFunc(s, func(string) string {
-		code := bigcodes[0]
-		bigcodes = bigcodes[1:]
-		m := re_bigcoder.FindStringSubmatch(code)
-		return "<pre><code>" + lighter.HighlightString(m[2], m[1]) + "</code></pre><p>"
-	})
-	s = re_coder.ReplaceAllString(s, "<code>$1</code>")
+	if hascode {
+		s = replaceifmatchfn(re_coder, s, func([]byte) []byte {
+			code := lilcodes[0]
+			lilcodes = lilcodes[1:]
+			return fasterescaper(code)
+		})
+		s = replaceifmatchfn(re_bigcoder, s, func([]byte) []byte {
+			code := bigcodes[0]
+			bigcodes = bigcodes[1:]
+			m := re_bigcoder.FindSubmatch(code)
+			var buf bytes.Buffer
+			buf.WriteString("<pre><code>")
+			lighter.Highlight(m[2], string(m[1]), &buf)
+			buf.WriteString("</code></pre><p>")
+			return buf.Bytes()
+		})
+		s = replaceifmatch(re_coder, s, []byte("<code>$1</code>"))
+	}
 
 	// some final fixups
-	s = strings.Replace(s, "\n", "<br>", -1)
-	s = strings.Replace(s, "<br><blockquote>", "<blockquote>", -1)
-	s = strings.Replace(s, "<br><cite></cite>", "", -1)
-	s = strings.Replace(s, "<br><pre>", "<pre>", -1)
-	s = strings.Replace(s, "<br><ul>", "<ul>", -1)
-	s = strings.Replace(s, "<p><br>", "<p>", -1)
-	return s
+	s = replacenocopy(s, []byte("\n"), []byte("<br>"))
+	s = replacenocopy(s, []byte("<br><blockquote>"), []byte("<blockquote>"))
+	s = replacenocopy(s, []byte("<br><cite></cite>"), []byte(""))
+	s = replacenocopy(s, []byte("<br><pre>"), []byte("<pre>"))
+	s = replacenocopy(s, []byte("<br><ul>"), []byte("<ul>"))
+	s = replacenocopy(s, []byte("<p><br>"), []byte("<p>"))
+	return string(s)
 }
 
-func linkreplacer(url string) string {
+func linkreplacer(burl []byte) []byte {
+	url := string(burl)
 	if url[0:2] == "](" {
-		return url
+		return burl
 	}
 	prefix := ""
 	for !strings.HasPrefix(url, "http") {
@@ -152,5 +199,5 @@ func linkreplacer(url string) string {
 	if addparen {
 		url += ")"
 	}
-	return prefix + url
+	return []byte(prefix + url)
 }
