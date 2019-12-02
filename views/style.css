@@ -143,10 +143,13 @@ textarea {
 	background: var(--bg-page);
 	color: var(--fg);
 	width: 600px;
-	height: 8em;
+	height: 4em;
 	margin-bottom: 0.5em;
 	box-sizing: border-box;
 	max-width: 100%;
+}
+textarea#hostnoise {
+	height: 8em;
 }
 input[type="checkbox"] {
 	position: fixed;

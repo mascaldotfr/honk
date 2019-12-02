@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Add notes field to filters for record keeping.
+
 + Negated search -terms.
 
 + A raw sendactivity API action for the bold.

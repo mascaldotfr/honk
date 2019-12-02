@@ -1878,6 +1878,7 @@ func savehfcs(w http.ResponseWriter, r *http.Request) {
 	if dur := parseDuration(r.FormValue("filtduration")); dur > 0 {
 		filt.Expiration = time.Now().UTC().Add(dur)
 	}
+	filt.Notes = strings.TrimSpace(r.FormValue("filtnotes"))
 
 	if filt.Actor == "" && filt.Text == "" && !filt.IsAnnounce {
 		log.Printf("blank filter")
