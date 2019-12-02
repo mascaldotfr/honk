@@ -1715,6 +1715,10 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	combos = " " + combos + " "
 	honkerid, _ := strconv.ParseInt(r.FormValue("honkerid"), 10, 0)
 
+	var meta HonkerMeta
+	meta.Notes = strings.TrimSpace(r.FormValue("notes"))
+	mj, _ := jsonify(&meta)
+
 	defer honkerinvalidator.Clear(u.UserID)
 
 	if honkerid > 0 {
@@ -1765,7 +1769,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 			return
 		}
-		_, err := stmtUpdateHonker.Exec(name, combos, honkerid, u.UserID)
+		_, err := stmtUpdateHonker.Exec(name, combos, mj, honkerid, u.UserID)
 		if err != nil {
 			log.Printf("update honker err: %s", err)
 			return
@@ -1789,7 +1793,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		if name == "" {
 			name = url
 		}
-		_, err := stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos, url)
+		_, err := stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos, url, mj)
 		if err != nil {
 			log.Print(err)
 			return
@@ -1821,7 +1825,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	if name == "" {
 		name = info.Name
 	}
-	_, err = stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos, info.Owner)
+	_, err = stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos, info.Owner, mj)
 	if err != nil {
 		log.Print(err)
 		return

@@ -101,13 +101,16 @@ func gethonkers(userid int64) []*Honker {
 	var honkers []*Honker
 	for rows.Next() {
 		h := new(Honker)
-		var combos string
-		err = rows.Scan(&h.ID, &h.UserID, &h.Name, &h.XID, &h.Flavor, &combos)
-		h.Combos = strings.Split(strings.TrimSpace(combos), " ")
+		var combos, meta string
+		err = rows.Scan(&h.ID, &h.UserID, &h.Name, &h.XID, &h.Flavor, &combos, &meta)
+		if err == nil {
+			err = unjsonify(meta, &h.Meta)
+		}
 		if err != nil {
 			log.Printf("error scanning honker: %s", err)
-			return nil
+			continue
 		}
+		h.Combos = strings.Split(strings.TrimSpace(combos), " ")
 		honkers = append(honkers, h)
 	}
 	return honkers
@@ -738,10 +741,10 @@ func preparetodie(db *sql.DB, s string) *sql.Stmt {
 }
 
 func prepareStatements(db *sql.DB) {
-	stmtHonkers = preparetodie(db, "select honkerid, userid, name, xid, flavor, combos from honkers where userid = ? and (flavor = 'presub' or flavor = 'sub' or flavor = 'peep' or flavor = 'unsub') order by name")
-	stmtSaveHonker = preparetodie(db, "insert into honkers (userid, name, xid, flavor, combos, owner) values (?, ?, ?, ?, ?, ?)")
+	stmtHonkers = preparetodie(db, "select honkerid, userid, name, xid, flavor, combos, meta from honkers where userid = ? and (flavor = 'presub' or flavor = 'sub' or flavor = 'peep' or flavor = 'unsub') order by name")
+	stmtSaveHonker = preparetodie(db, "insert into honkers (userid, name, xid, flavor, combos, owner, meta) values (?, ?, ?, ?, ?, ?, ?)")
 	stmtUpdateFlavor = preparetodie(db, "update honkers set flavor = ? where userid = ? and xid = ? and name = ? and flavor = ?")
-	stmtUpdateHonker = preparetodie(db, "update honkers set name = ?, combos = ? where honkerid = ? and userid = ?")
+	stmtUpdateHonker = preparetodie(db, "update honkers set name = ?, combos = ?, meta = ? where honkerid = ? and userid = ?")
 	stmtOneHonker = preparetodie(db, "select xid from honkers where name = ? and userid = ?")
 	stmtDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
 	stmtNamedDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and name = ? and flavor = 'dub'")
