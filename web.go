@@ -2280,8 +2280,8 @@ func serve() {
 	getters.HandleFunc("/o", thelistingoftheontologies)
 	getters.HandleFunc("/o/{name:.+}", showontology)
 	getters.HandleFunc("/d/{xid:[[:alnum:].]+}", servefile)
-	getters.HandleFunc("/emu/{emu:[^/]+}", serveemu)
-	getters.HandleFunc("/meme/{meme:[^/]+}", servememe)
+	getters.HandleFunc("/emu/{emu:[^.]*[^/]+}", serveemu)
+	getters.HandleFunc("/meme/{meme:[^.]*[^/]+}", servememe)
 	getters.HandleFunc("/.well-known/webfinger", fingerlicker)
 
 	getters.HandleFunc("/server", serveractor)
