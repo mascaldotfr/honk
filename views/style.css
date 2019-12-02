@@ -148,8 +148,8 @@ textarea {
 	box-sizing: border-box;
 	max-width: 100%;
 }
-textarea#hostnoise {
-	height: 8em;
+textarea#honknoise {
+	height: 10em;
 }
 input[type="checkbox"] {
 	position: fixed;
