@@ -179,7 +179,7 @@ type Honker struct {
 	Handle string
 	Flavor string
 	Combos []string
-	Meta HonkerMeta
+	Meta   HonkerMeta
 }
 
 type HonkerMeta struct {

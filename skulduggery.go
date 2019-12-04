@@ -21,7 +21,6 @@ import (
 	"github.com/mattn/go-runewidth"
 )
 
-
 var skinTones = "\U0001F3FB\U0001F3FC\U0001F3FD\U0001F3FE\U0001F3FF"
 var re_moredumb = regexp.MustCompile("[\U0001f44f\U0001f6a8\U000026a0][" + skinTones + "\ufe0f]*")
 

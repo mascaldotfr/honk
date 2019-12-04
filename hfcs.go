@@ -44,7 +44,7 @@ type Filter struct {
 	re_rewrite      *regexp.Regexp
 	Replace         string `json:",omitempty"`
 	Expiration      time.Time
-	Notes string
+	Notes           string
 }
 
 type filtType uint

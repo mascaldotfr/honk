@@ -48,6 +48,8 @@ var readviews *templates.Template
 var userSep = "u"
 var honkSep = "h"
 
+var debugMode = false
+
 func getuserstyle(u *login.UserInfo) template.CSS {
 	if u == nil {
 		return ""
@@ -223,8 +225,10 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 			modtime = honk.Date
 		}
 	}
-	w.Header().Set("Cache-Control", "max-age=300")
-	w.Header().Set("Last-Modified", modtime.Format(http.TimeFormat))
+	if !debugMode {
+		w.Header().Set("Cache-Control", "max-age=300")
+		w.Header().Set("Last-Modified", modtime.Format(http.TimeFormat))
+	}
 
 	err := feed.Write(w)
 	if err != nil {
@@ -874,7 +878,7 @@ func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
 	sort.Slice(onts, func(i, j int) bool {
 		return onts[i].Name < onts[j].Name
 	})
-	if u == nil {
+	if u == nil && !debugMode {
 		w.Header().Set("Cache-Control", "max-age=300")
 	}
 	templinfo := getInfo(r)
@@ -1093,7 +1097,7 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 			templinfo["TopHID"] = 0
 		}
 	}
-	if u == nil {
+	if u == nil && !debugMode {
 		w.Header().Set("Cache-Control", "max-age=60")
 	}
 	err := readviews.Execute(w, "honkpage.html", templinfo)
@@ -1991,7 +1995,9 @@ func avatate(w http.ResponseWriter, r *http.Request) {
 }
 
 func serveasset(w http.ResponseWriter, r *http.Request) {
-	//w.Header().Set("Cache-Control", "max-age=7776000")
+	if !debugMode {
+		w.Header().Set("Cache-Control", "max-age=7776000")
+	}
 	dir := viewDir
 	if r.URL.Path == "/local.css" {
 		dir = dataDir
@@ -2000,7 +2006,9 @@ func serveasset(w http.ResponseWriter, r *http.Request) {
 }
 func servehelp(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
-	//w.Header().Set("Cache-Control", "max-age=3600")
+	if !debugMode {
+		w.Header().Set("Cache-Control", "max-age=3600")
+	}
 	http.ServeFile(w, r, viewDir+"/docs/"+name)
 }
 func servehtml(w http.ResponseWriter, r *http.Request) {
@@ -2012,7 +2020,7 @@ func servehtml(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/about" {
 		templinfo["Sensors"] = getSensors()
 	}
-	if u == nil {
+	if u == nil && !debugMode {
 		w.Header().Set("Cache-Control", "max-age=60")
 	}
 	err := readviews.Execute(w, r.URL.Path[1:]+".html", templinfo)
@@ -2229,9 +2237,8 @@ func serve() {
 	go redeliverator()
 	go tracker()
 
-	debug := false
-	getconfig("debug", &debug)
-	readviews = templates.Load(debug,
+	getconfig("debug", &debugMode)
+	readviews = templates.Load(debugMode,
 		viewDir+"/views/honkpage.html",
 		viewDir+"/views/honkfrags.html",
 		viewDir+"/views/honkers.html",
@@ -2249,7 +2256,7 @@ func serve() {
 		viewDir+"/views/onts.html",
 		viewDir+"/views/honkpage.js",
 	)
-	if !debug {
+	if !debugMode {
 		assets := []string{viewDir + "/views/style.css", dataDir + "/views/local.css", viewDir + "/views/honkpage.js"}
 		for _, s := range assets {
 			savedassetparams[s] = getassetparam(s)
