@@ -1441,7 +1441,7 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 	noise = hooterize(noise)
 	honk.Mentions = bunchofgrapes(noise)
 	honk.Noise = noise
-	translate(honk, false)
+	translate(honk)
 
 	var convoy string
 	if rid != "" {

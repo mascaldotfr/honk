@@ -1027,7 +1027,8 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			jo["directMessage"] = true
 		}
 		mentions := bunchofgrapes(h.Noise)
-		translate(h, true)
+		translate(h)
+		redoimages(h)
 		jo["summary"] = html.EscapeString(h.Precis)
 		jo["content"] = h.Noise
 		if h.Precis != "" {

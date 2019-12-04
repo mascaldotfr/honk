@@ -61,7 +61,7 @@ func reverbolate(userid int64, honks []*Honk) {
 		if !h.Public {
 			h.Style += " limited"
 		}
-		translate(h, false)
+		translate(h)
 		local := false
 		if (h.Whofore == 2 || h.Whofore == 3) && h.What != "bonked" {
 			local = true
@@ -198,7 +198,7 @@ func imaginate(honk *Honk) {
 	htf.String(honk.Noise)
 }
 
-func translate(honk *Honk, redoimages bool) {
+func translate(honk *Honk) {
 	if honk.Format == "html" {
 		return
 	}
@@ -219,31 +219,31 @@ func translate(honk *Honk, redoimages bool) {
 	noise = markitzero(noise)
 	honk.Noise = noise
 	honk.Onts = oneofakind(ontologies(honk.Noise))
+}
 
-	if redoimages {
-		zap := make(map[string]bool)
-		{
-			var htf htfilter.Filter
-			htf.Imager = replaceimgsand(zap, true)
-			htf.SpanClasses = allowedclasses
-			p, _ := htf.String(honk.Precis)
-			n, _ := htf.String(honk.Noise)
-			honk.Precis = string(p)
-			honk.Noise = string(n)
-		}
-		j := 0
-		for i := 0; i < len(honk.Donks); i++ {
-			if !zap[honk.Donks[i].XID] {
-				honk.Donks[j] = honk.Donks[i]
-				j++
-			}
-		}
-		honk.Donks = honk.Donks[:j]
-
-		honk.Noise = re_memes.ReplaceAllString(honk.Noise, "")
-		honk.Noise = ontologize(mentionize(honk.Noise))
-		honk.Noise = strings.Replace(honk.Noise, "<a href=", "<a class=\"mention u-url\" href=", -1)
+func redoimages(honk *Honk) {
+	zap := make(map[string]bool)
+	{
+		var htf htfilter.Filter
+		htf.Imager = replaceimgsand(zap, true)
+		htf.SpanClasses = allowedclasses
+		p, _ := htf.String(honk.Precis)
+		n, _ := htf.String(honk.Noise)
+		honk.Precis = string(p)
+		honk.Noise = string(n)
 	}
+	j := 0
+	for i := 0; i < len(honk.Donks); i++ {
+		if !zap[honk.Donks[i].XID] {
+			honk.Donks[j] = honk.Donks[i]
+			j++
+		}
+	}
+	honk.Donks = honk.Donks[:j]
+
+	honk.Noise = re_memes.ReplaceAllString(honk.Noise, "")
+	honk.Noise = ontologize(mentionize(honk.Noise))
+	honk.Noise = strings.Replace(honk.Noise, "<a href=", "<a class=\"mention u-url\" href=", -1)
 }
 
 func xcelerate(b []byte) string {
