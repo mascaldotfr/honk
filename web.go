@@ -1991,7 +1991,7 @@ func avatate(w http.ResponseWriter, r *http.Request) {
 }
 
 func serveasset(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Cache-Control", "max-age=7776000")
+	//w.Header().Set("Cache-Control", "max-age=7776000")
 	dir := viewDir
 	if r.URL.Path == "/local.css" {
 		dir = dataDir
@@ -2000,7 +2000,7 @@ func serveasset(w http.ResponseWriter, r *http.Request) {
 }
 func servehelp(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
-	w.Header().Set("Cache-Control", "max-age=3600")
+	//w.Header().Set("Cache-Control", "max-age=3600")
 	http.ServeFile(w, r, viewDir+"/docs/"+name)
 }
 func servehtml(w http.ResponseWriter, r *http.Request) {
