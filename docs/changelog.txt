@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Add unplug command for servers that have dropped off the net.
+
 + Add notes field to honkers to document their downfall.
 
 + Add notes field to filters for record keeping.

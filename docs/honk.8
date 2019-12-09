@@ -133,6 +133,12 @@ file which is important to backup and restore.
 The current version of the honk binary may be printed with the
 .Ic version
 command.
+.Ss unplug
+Sometimes servers simply disappear, resulting in many errors trying to deliver
+undeliverable messages.
+Running
+.Ic unplug Ar hostname
+will delete all subscriptions and pending deliveries.
 .Ss Security
 .Nm
 is not currently hardened against SSRF, server side request forgery.

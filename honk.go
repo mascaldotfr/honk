@@ -210,6 +210,13 @@ var loginMsg template.HTML
 func ElaborateUnitTests() {
 }
 
+func unplugserver(hostname string) {
+	db := opendatabase()
+	xid := fmt.Sprintf("%%https://%s/%%", hostname)
+	db.Exec("delete from honkers where xid like ? and flavor = 'dub'", xid)
+	db.Exec("delete from doovers where rcpt like ?", xid)
+}
+
 func main() {
 	flag.StringVar(&dataDir, "datadir", dataDir, "data directory")
 	flag.StringVar(&viewDir, "viewdir", viewDir, "view directory")
@@ -271,6 +278,13 @@ func main() {
 			arg = args[1]
 		}
 		cleanupdb(arg)
+	case "unplug":
+		if len(args) < 2 {
+			fmt.Printf("usage: honk unplug servername\n")
+			return
+		}
+		name := args[1]
+		unplugserver(name)
 	case "ping":
 		if len(args) < 3 {
 			fmt.Printf("usage: honk ping from to\n")
