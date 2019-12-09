@@ -169,14 +169,23 @@ func getfilters(userid int64, scope filtType) []*Filter {
 	return nil
 }
 
-func rejectorigin(userid int64, origin string) bool {
+func rejectorigin(userid int64, origin string, isannounce bool) bool {
 	if o := originate(origin); o != "" {
 		origin = o
 	}
 	filts := getfilters(userid, filtReject)
 	for _, f := range filts {
-		if f.IsAnnounce || f.Text != "" {
+		if f.Text != "" {
 			continue
+		}
+		if f.IsAnnounce {
+			if !isannounce {
+				continue
+			}
+			if f.AnnounceOf == origin {
+				log.Printf("rejecting announce: %s", origin)
+				return true
+			}
 		}
 		if f.Actor == origin {
 			log.Printf("rejecting origin: %s", origin)
@@ -205,7 +214,7 @@ func stealthmode(userid int64, r *http.Request) bool {
 	agent := r.UserAgent()
 	agent = originate(agent)
 	if agent != "" {
-		fake := rejectorigin(userid, agent)
+		fake := rejectorigin(userid, agent, false)
 		if fake {
 			log.Printf("faking 404 for %s", agent)
 			return true

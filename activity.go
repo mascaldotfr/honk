@@ -241,14 +241,20 @@ func needxonk(user *WhatAbout, x *Honk) bool {
 	}
 	return needxonkid(user, x.XID)
 }
+func needbonkid(user *WhatAbout, xid string) bool {
+	return needxonkidX(user, xid, true)
+}
 func needxonkid(user *WhatAbout, xid string) bool {
+	return needxonkidX(user, xid, false)
+}
+func needxonkidX(user *WhatAbout, xid string, isannounce bool) bool {
 	if !strings.HasPrefix(xid, "https://") {
 		return false
 	}
 	if strings.HasPrefix(xid, user.URL+"/") {
 		return false
 	}
-	if rejectorigin(user.ID, xid) {
+	if rejectorigin(user.ID, xid, isannounce) {
 		return false
 	}
 	if iszonked(user.ID, xid) {
@@ -504,7 +510,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			} else {
 				xid, _ = item.GetString("object")
 			}
-			if !needxonkid(user, xid) {
+			if !needbonkid(user, xid) {
 				return nil
 			}
 			log.Printf("getting bonk: %s", xid)
