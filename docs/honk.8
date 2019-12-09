@@ -200,6 +200,12 @@ honk-v98> ./honk -datadir ../honkdata admin
 honk-v98> date; ./honk -datadir ../honkdata >> log 2>&1
 .Ed
 .Pp
+The views directory includes a sample pleroma.css to change color scheme.
+.Bd -literal -offset indent
+honk-v98> mkdir ../honkdata/views
+honk-v98> cp views/pleroma.css ../honkdata/views/local.css
+.Ed
+.Pp
 Upgrade to the next version.
 Clean things up a bit.
 .Bd -literal -offset indent

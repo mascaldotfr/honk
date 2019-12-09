@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Optional pleroma color scheme for the home sick...
+
 + Rebalance colors slightly. Looks a little fresher now?
 
 + Add unplug command for servers that have dropped off the net.
