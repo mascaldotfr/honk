@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Rebalance colors slightly. Looks a little fresher now?
+
 + Add unplug command for servers that have dropped off the net.
 
 + Add notes field to honkers to document their downfall.
