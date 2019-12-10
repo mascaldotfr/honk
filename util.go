@@ -105,7 +105,6 @@ func initdb() {
 			return
 		}
 	}
-	defer db.Close()
 	r := bufio.NewReader(os.Stdin)
 
 	err = createuser(db, r)
@@ -208,7 +207,6 @@ func adduser() {
 		return
 	}
 
-	db.Close()
 	os.Exit(0)
 }
 
