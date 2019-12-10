@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ deluser command.
+
 + Configurable avatar colors.
 
 + Optional pleroma color scheme for the home sick...
@@ -33,8 +35,6 @@ changelog
 + Try a little harder to recover from httpsig failures.
 
 + Add cite tag for block quote attributions.
-
-+ deluser command.
 
 + @media print styles.
 
