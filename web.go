@@ -1988,8 +1988,11 @@ func somedays() string {
 }
 
 func avatate(w http.ResponseWriter, r *http.Request) {
+	if debugMode {
+		loadAvatarColors()
+	}
 	n := r.FormValue("a")
-	a := avatar(n)
+	a := genAvatar(n)
 	w.Header().Set("Cache-Control", "max-age="+somedays())
 	w.Write(a)
 }
@@ -2261,6 +2264,7 @@ func serve() {
 		for _, s := range assets {
 			savedassetparams[s] = getassetparam(s)
 		}
+		loadAvatarColors()
 	}
 
 	for _, h := range preservehooks {

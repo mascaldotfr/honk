@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ Configurable avatar colors.
+
 + Optional pleroma color scheme for the home sick...
 
 + Rebalance colors slightly. Looks a little fresher now?

@@ -262,9 +262,9 @@ func main() {
 		}
 		switch args[1] {
 		case "on":
-			updateconfig("debug", 1)
+			setconfig("debug", 1)
 		case "off":
-			updateconfig("debug", 0)
+			setconfig("debug", 0)
 		default:
 			log.Fatal("argument must be on or off")
 		}
