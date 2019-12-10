@@ -252,6 +252,12 @@ func main() {
 		}
 	case "adduser":
 		adduser()
+	case "deluser":
+		if len(args) < 2 {
+			fmt.Printf("usage: honk deluser username\n")
+			return
+		}
+		deluser(args[1])
 	case "chpass":
 		chpass()
 	case "cleanup":

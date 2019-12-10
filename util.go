@@ -210,6 +210,29 @@ func adduser() {
 	os.Exit(0)
 }
 
+func deluser(username string) {
+	user, _ := butwhatabout(username)
+	if user == nil {
+		log.Printf("no userfound")
+		return
+	}
+	userid := user.ID
+	db := opendatabase()
+
+	where := " where honkid in (select honkid from honks where userid = ?)"
+	doordie(db, "delete from donks"+where, userid)
+	doordie(db, "delete from onts"+where, userid)
+	doordie(db, "delete from honkmeta"+where, userid)
+
+	doordie(db, "delete from honks where userid = ?", userid)
+	doordie(db, "delete from honkers where userid = ?", userid)
+	doordie(db, "delete from zonkers where userid = ?", userid)
+	doordie(db, "delete from doovers where userid = ?", userid)
+	doordie(db, "delete from hfcs where userid = ?", userid)
+	doordie(db, "delete from auth where userid = ?", userid)
+	doordie(db, "delete from users where userid = ?", userid)
+}
+
 func chpass() {
 	if len(os.Args) < 3 {
 		fmt.Printf("need a username\n")

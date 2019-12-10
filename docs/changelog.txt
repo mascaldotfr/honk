@@ -2,6 +2,8 @@ changelog
 
 -- next
 
++ deluser command.
+
 + @media print styles.
 
 + Disable overscroll (pull down) refresh.
