@@ -44,6 +44,7 @@ type Filter struct {
 	re_rewrite      *regexp.Regexp
 	Replace         string `json:",omitempty"`
 	Expiration      time.Time
+	Notes           string
 }
 
 type filtType uint
@@ -168,14 +169,23 @@ func getfilters(userid int64, scope filtType) []*Filter {
 	return nil
 }
 
-func rejectorigin(userid int64, origin string) bool {
+func rejectorigin(userid int64, origin string, isannounce bool) bool {
 	if o := originate(origin); o != "" {
 		origin = o
 	}
 	filts := getfilters(userid, filtReject)
 	for _, f := range filts {
-		if f.IsAnnounce || f.Text != "" {
+		if f.Text != "" {
 			continue
+		}
+		if f.IsAnnounce {
+			if !isannounce {
+				continue
+			}
+			if f.AnnounceOf == origin {
+				log.Printf("rejecting announce: %s", origin)
+				return true
+			}
 		}
 		if f.Actor == origin {
 			log.Printf("rejecting origin: %s", origin)
@@ -204,7 +214,7 @@ func stealthmode(userid int64, r *http.Request) bool {
 	agent := r.UserAgent()
 	agent = originate(agent)
 	if agent != "" {
-		fake := rejectorigin(userid, agent)
+		fake := rejectorigin(userid, agent, false)
 		if fake {
 			log.Printf("faking 404 for %s", agent)
 			return true
@@ -214,21 +224,29 @@ func stealthmode(userid int64, r *http.Request) bool {
 }
 
 func matchfilter(h *Honk, f *Filter) bool {
+	return matchfilterX(h, f) != ""
+}
+
+func matchfilterX(h *Honk, f *Filter) string {
+	rv := ""
 	match := true
 	if match && f.Actor != "" {
 		match = false
 		if f.Actor == h.Honker || f.Actor == h.Oonker {
 			match = true
+			rv = f.Actor
 		}
 		if !match && (f.Actor == originate(h.Honker) ||
 			f.Actor == originate(h.Oonker) ||
 			f.Actor == originate(h.XID)) {
 			match = true
+			rv = f.Actor
 		}
 		if !match && f.IncludeAudience {
 			for _, a := range h.Audience {
 				if f.Actor == a || f.Actor == originate(a) {
 					match = true
+					rv = f.Actor
 					break
 				}
 			}
@@ -239,23 +257,33 @@ func matchfilter(h *Honk, f *Filter) bool {
 		if (f.AnnounceOf == "" && h.Oonker != "") || f.AnnounceOf == h.Oonker ||
 			f.AnnounceOf == originate(h.Oonker) {
 			match = true
+			rv += " announce"
 		}
 	}
 	if match && f.Text != "" {
 		match = false
 		re := f.re_text
-		if re.MatchString(h.Noise) || re.MatchString(h.Precis) {
-			match = true
+		m := re.FindString(h.Precis)
+		if m == "" {
+			m = re.FindString(h.Noise)
 		}
-		if !match {
+		if m == "" {
 			for _, d := range h.Donks {
-				if re.MatchString(d.Desc) {
-					match = true
+				m = re.FindString(d.Desc)
+				if m != "" {
+					break
 				}
 			}
 		}
+		if m != "" {
+			match = true
+			rv = m
+		}
 	}
-	return match
+	if match {
+		return rv
+	}
+	return ""
 }
 
 func rejectxonk(xonk *Honk) bool {
@@ -282,11 +310,7 @@ func skipMedia(xonk *Honk) bool {
 func unsee(userid int64, h *Honk) {
 	filts := getfilters(userid, filtCollapse)
 	for _, f := range filts {
-		if matchfilter(h, f) {
-			bad := f.Text
-			if f.Actor != "" {
-				bad = f.Actor
-			}
+		if bad := matchfilterX(h, f); bad != "" {
 			if h.Precis == "" {
 				h.Precis = bad
 			}

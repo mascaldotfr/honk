@@ -23,6 +23,7 @@ import (
 	"os"
 	"os/exec"
 
+	"humungus.tedunangst.com/r/webs/gate"
 	"humungus.tedunangst.com/r/webs/image"
 )
 
@@ -38,7 +39,11 @@ type ShrinkerResult struct {
 	Image *image.Image
 }
 
+var shrinkgate = gate.NewLimiter(4)
+
 func (s *Shrinker) Shrink(args *ShrinkerArgs, res *ShrinkerResult) error {
+	shrinkgate.Start()
+	defer shrinkgate.Finish()
 	img, err := image.Vacuum(bytes.NewReader(args.Buf), args.Params)
 	if err != nil {
 		return err
@@ -68,6 +73,8 @@ func shrinkit(data []byte) (*image.Image, error) {
 	return res.Image, nil
 }
 
+var backendhooks []func()
+
 func backendServer() {
 	log.Printf("backend server running")
 	shrinker := new(Shrinker)
@@ -87,7 +94,7 @@ func backendServer() {
 	if err != nil {
 		log.Panicf("unable to register shrinker: %s", err)
 	}
-	for _, h := range preservehooks {
+	for _, h := range backendhooks {
 		h()
 	}
 	srv.Accept(lis)

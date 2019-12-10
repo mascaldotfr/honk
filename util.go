@@ -412,13 +412,8 @@ func getconfig(key string, value interface{}) error {
 
 func setconfig(key string, val interface{}) error {
 	db := opendatabase()
+	db.Exec("delete from config where key = ?", key)
 	_, err := db.Exec("insert into config (key, value) values (?, ?)", key, val)
-	return err
-}
-
-func updateconfig(key string, val interface{}) error {
-	db := opendatabase()
-	_, err := db.Exec("update config set value = ? where key = ?", val, key)
 	return err
 }
 

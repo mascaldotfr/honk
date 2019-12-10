@@ -88,6 +88,12 @@ type Honk struct {
 	Onts     []string
 	Place    *Place
 	Time     *Time
+	Mentions []Mention
+}
+
+type Mention struct {
+	Who   string
+	Where string
 }
 
 type OldRevision struct {
@@ -173,6 +179,11 @@ type Honker struct {
 	Handle string
 	Flavor string
 	Combos []string
+	Meta   HonkerMeta
+}
+
+type HonkerMeta struct {
+	Notes string
 }
 
 type SomeThing struct {
@@ -197,6 +208,13 @@ var aboutMsg template.HTML
 var loginMsg template.HTML
 
 func ElaborateUnitTests() {
+}
+
+func unplugserver(hostname string) {
+	db := opendatabase()
+	xid := fmt.Sprintf("%%https://%s/%%", hostname)
+	db.Exec("delete from honkers where xid like ? and flavor = 'dub'", xid)
+	db.Exec("delete from doovers where rcpt like ?", xid)
 }
 
 func main() {
@@ -244,9 +262,9 @@ func main() {
 		}
 		switch args[1] {
 		case "on":
-			updateconfig("debug", 1)
+			setconfig("debug", 1)
 		case "off":
-			updateconfig("debug", 0)
+			setconfig("debug", 0)
 		default:
 			log.Fatal("argument must be on or off")
 		}
@@ -266,6 +284,13 @@ func main() {
 			arg = args[1]
 		}
 		cleanupdb(arg)
+	case "unplug":
+		if len(args) < 2 {
+			fmt.Printf("usage: honk unplug servername\n")
+			return
+		}
+		name := args[1]
+		unplugserver(name)
 	case "ping":
 		if len(args) < 3 {
 			fmt.Printf("usage: honk ping from to\n")

@@ -28,6 +28,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"golang.org/x/net/html"
 	"humungus.tedunangst.com/r/webs/cache"
@@ -60,17 +61,18 @@ func reverbolate(userid int64, honks []*Honk) {
 		if !h.Public {
 			h.Style += " limited"
 		}
-		translate(h, false)
-		if h.Whofore == 2 || h.Whofore == 3 {
-			h.URL = h.XID
-			if h.What != "bonked" {
-				h.Noise = re_memes.ReplaceAllString(h.Noise, "")
-				h.Noise = mentionize(h.Noise)
-				h.Noise = ontologize(h.Noise)
-			}
-			h.Username, h.Handle = handles(h.Honker)
-		} else {
-			_, h.Handle = handles(h.Honker)
+		translate(h)
+		local := false
+		if (h.Whofore == 2 || h.Whofore == 3) && h.What != "bonked" {
+			local = true
+		}
+		if local {
+			h.Noise = re_memes.ReplaceAllString(h.Noise, "")
+			h.Noise = mentionize(h.Noise)
+			h.Noise = ontologize(h.Noise)
+		}
+		h.Username, h.Handle = handles(h.Honker)
+		if !local {
 			short := shortname(userid, h.Honker)
 			if short != "" {
 				h.Username = short
@@ -80,9 +82,9 @@ func reverbolate(userid int64, honks []*Honk) {
 					h.Username = h.Username[:20] + ".."
 				}
 			}
-			if h.URL == "" {
-				h.URL = h.XID
-			}
+		}
+		if h.URL == "" {
+			h.URL = h.XID
 		}
 		if h.Oonker != "" {
 			_, h.Oondle = handles(h.Oonker)
@@ -127,6 +129,13 @@ func reverbolate(userid int64, honks []*Honk) {
 					if d.Local {
 						return fmt.Sprintf(`<img class="emu" title="%s" src="/d/%s">`, d.Name, d.XID)
 					}
+				}
+			}
+			if local {
+				var emu Emu
+				emucache.Get(e, &emu)
+				if emu.ID != "" {
+					return fmt.Sprintf(`<img class="emu" title="%s" src="%s">`, emu.Name, emu.ID)
 				}
 			}
 			return e
@@ -189,7 +198,7 @@ func imaginate(honk *Honk) {
 	htf.String(honk.Noise)
 }
 
-func translate(honk *Honk, redoimages bool) {
+func translate(honk *Honk) {
 	if honk.Format == "html" {
 		return
 	}
@@ -210,31 +219,31 @@ func translate(honk *Honk, redoimages bool) {
 	noise = markitzero(noise)
 	honk.Noise = noise
 	honk.Onts = oneofakind(ontologies(honk.Noise))
+}
 
-	if redoimages {
-		zap := make(map[string]bool)
-		{
-			var htf htfilter.Filter
-			htf.Imager = replaceimgsand(zap, true)
-			htf.SpanClasses = allowedclasses
-			p, _ := htf.String(honk.Precis)
-			n, _ := htf.String(honk.Noise)
-			honk.Precis = string(p)
-			honk.Noise = string(n)
-		}
-		j := 0
-		for i := 0; i < len(honk.Donks); i++ {
-			if !zap[honk.Donks[i].XID] {
-				honk.Donks[j] = honk.Donks[i]
-				j++
-			}
-		}
-		honk.Donks = honk.Donks[:j]
-
-		honk.Noise = re_memes.ReplaceAllString(honk.Noise, "")
-		honk.Noise = ontologize(mentionize(honk.Noise))
-		honk.Noise = strings.Replace(honk.Noise, "<a href=", "<a class=\"mention u-url\" href=", -1)
+func redoimages(honk *Honk) {
+	zap := make(map[string]bool)
+	{
+		var htf htfilter.Filter
+		htf.Imager = replaceimgsand(zap, true)
+		htf.SpanClasses = allowedclasses
+		p, _ := htf.String(honk.Precis)
+		n, _ := htf.String(honk.Noise)
+		honk.Precis = string(p)
+		honk.Noise = string(n)
 	}
+	j := 0
+	for i := 0; i < len(honk.Donks); i++ {
+		if !zap[honk.Donks[i].XID] {
+			honk.Donks[j] = honk.Donks[i]
+			j++
+		}
+	}
+	honk.Donks = honk.Donks[:j]
+
+	honk.Noise = re_memes.ReplaceAllString(honk.Noise, "")
+	honk.Noise = ontologize(mentionize(honk.Noise))
+	honk.Noise = strings.Replace(honk.Noise, "<a href=", "<a class=\"mention u-url\" href=", -1)
 }
 
 func xcelerate(b []byte) string {
@@ -276,11 +285,6 @@ func ontologies(s string) []string {
 	return m[:j]
 }
 
-type Mention struct {
-	who   string
-	where string
-}
-
 var re_mentions = regexp.MustCompile(`@[[:alnum:]._-]+@[[:alnum:].-]*[[:alnum:]]`)
 var re_urltions = regexp.MustCompile(`@https://\S+`)
 
@@ -306,12 +310,12 @@ func bunchofgrapes(s string) []Mention {
 	for i := range m {
 		where := gofish(m[i])
 		if where != "" {
-			mentions = append(mentions, Mention{who: m[i], where: where})
+			mentions = append(mentions, Mention{Who: m[i], Where: where})
 		}
 	}
 	m = re_urltions.FindAllString(s, -1)
 	for i := range m {
-		mentions = append(mentions, Mention{who: m[i][1:], where: m[i][1:]})
+		mentions = append(mentions, Mention{Who: m[i][1:], Where: m[i][1:]})
 	}
 	return mentions
 }
@@ -323,23 +327,33 @@ type Emu struct {
 
 var re_emus = regexp.MustCompile(`:[[:alnum:]_-]+:`)
 
+var emucache = cache.New(cache.Options{Filler: func(ename string) (Emu, bool) {
+	fname := ename[1 : len(ename)-1]
+	_, err := os.Stat(dataDir + "/emus/" + fname + ".png")
+	if err != nil {
+		return Emu{Name: ename, ID: ""}, true
+	}
+	url := fmt.Sprintf("https://%s/emu/%s.png", serverName, fname)
+	return Emu{ID: url, Name: ename}, true
+}, Duration: 10 * time.Second})
+
 func herdofemus(noise string) []Emu {
 	m := re_emus.FindAllString(noise, -1)
 	m = oneofakind(m)
 	var emus []Emu
 	for _, e := range m {
-		fname := e[1 : len(e)-1]
-		_, err := os.Stat("emus/" + fname + ".png")
-		if err != nil {
+		var emu Emu
+		emucache.Get(e, &emu)
+		if emu.ID == "" {
 			continue
 		}
-		url := fmt.Sprintf("https://%s/emu/%s.png", serverName, fname)
-		emus = append(emus, Emu{ID: url, Name: e})
+		emus = append(emus, emu)
 	}
 	return emus
 }
 
-var re_memes = regexp.MustCompile("meme: ?([[:alnum:]_.-]+)")
+var re_memes = regexp.MustCompile("meme: ?([^\n]+)")
+var re_avatar = regexp.MustCompile("avatar: ?([^\n]+)")
 
 func memetize(honk *Honk) {
 	repl := func(x string) string {
@@ -377,7 +391,7 @@ func memetize(honk *Honk) {
 	honk.Noise = re_memes.ReplaceAllStringFunc(honk.Noise, repl)
 }
 
-var re_quickmention = regexp.MustCompile("(^|[ \n])@[[:alnum:]]+([ \n]|$)")
+var re_quickmention = regexp.MustCompile("(^|[ \n])@[[:alnum:]]+([ \n.]|$)")
 
 func quickrename(s string, userid int64) string {
 	nonstop := true
@@ -392,7 +406,7 @@ func quickrename(s string, userid int64) string {
 			prefix += "@"
 			m = m[1:]
 			tail := ""
-			if m[len(m)-1] == ' ' || m[len(m)-1] == '\n' {
+			if last := m[len(m)-1]; last == ' ' || last == '\n' || last == '.' {
 				tail = m[len(m)-1:]
 				m = m[:len(m)-1]
 			}
@@ -611,6 +625,12 @@ func zaggy(keyname string) *rsa.PublicKey {
 	var key *rsa.PublicKey
 	zaggies.Get(keyname, &key)
 	return key
+}
+
+func savingthrow(keyname string) {
+	when := time.Now().UTC().Add(-30 * time.Minute).Format(dbtimeformat)
+	stmtDeleteXonker.Exec(keyname, "pubkey", when)
+	zaggies.Clear(keyname)
 }
 
 func keymatch(keyname string, actor string) string {

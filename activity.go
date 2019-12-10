@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"crypto/rsa"
 	"database/sql"
+	"errors"
 	"fmt"
 	"html"
 	"io"
@@ -141,6 +142,22 @@ func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
 	return j, nil
 }
 
+func fetchsome(url string) ([]byte, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Printf("error fetching %s: %s", url, err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, errors.New("not 200")
+	}
+	var buf bytes.Buffer
+	limiter := io.LimitReader(resp.Body, 10*1024*1024)
+	io.Copy(&buf, limiter)
+	return buf.Bytes(), nil
+}
+
 func savedonk(url string, name, desc, media string, localize bool) *Donk {
 	if url == "" {
 		return nil
@@ -154,22 +171,16 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 	xid := xfiltrate()
 	data := []byte{}
 	if localize {
-		resp, err := http.Get(url)
+		fn := func() (interface{}, error) {
+			return fetchsome(url)
+		}
+		ii, err := flightdeck.Call(url, fn)
 		if err != nil {
-			log.Printf("error fetching %s: %s", url, err)
 			localize = false
 			goto saveit
 		}
-		defer resp.Body.Close()
-		if resp.StatusCode != 200 {
-			localize = false
-			goto saveit
-		}
-		var buf bytes.Buffer
-		limiter := io.LimitReader(resp.Body, 10*1024*1024)
-		io.Copy(&buf, limiter)
+		data = ii.([]byte)
 
-		data = buf.Bytes()
 		if len(data) == 10*1024*1024 {
 			log.Printf("truncation likely")
 		}
@@ -188,6 +199,12 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 				format = "jpg"
 			}
 			xid = xid + "." + format
+		} else if media == "application/pdf" {
+			if len(data) > 1000000 {
+				log.Printf("not saving large pdf")
+				localize = false
+				data = []byte{}
+			}
 		} else if len(data) > 100000 {
 			log.Printf("not saving large attachment")
 			localize = false
@@ -224,11 +241,20 @@ func needxonk(user *WhatAbout, x *Honk) bool {
 	}
 	return needxonkid(user, x.XID)
 }
+func needbonkid(user *WhatAbout, xid string) bool {
+	return needxonkidX(user, xid, true)
+}
 func needxonkid(user *WhatAbout, xid string) bool {
+	return needxonkidX(user, xid, false)
+}
+func needxonkidX(user *WhatAbout, xid string, isannounce bool) bool {
+	if !strings.HasPrefix(xid, "https://") {
+		return false
+	}
 	if strings.HasPrefix(xid, user.URL+"/") {
 		return false
 	}
-	if rejectorigin(user.ID, xid) {
+	if rejectorigin(user.ID, xid, isannounce) {
 		return false
 	}
 	if iszonked(user.ID, xid) {
@@ -277,7 +303,8 @@ var boxofboxes = cache.New(cache.Options{Filler: func(ident string) (*Box, bool)
 	err := row.Scan(&info)
 	if err != nil {
 		log.Printf("need to get boxes for %s", ident)
-		j, err := GetJunk(ident)
+		var j junk.Junk
+		j, err = GetJunk(ident)
 		if err != nil {
 			log.Printf("error getting boxes: %s", err)
 			return nil, false
@@ -483,7 +510,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			} else {
 				xid, _ = item.GetString("object")
 			}
-			if !needxonkid(user, xid) {
+			if !needbonkid(user, xid) {
 				return nil
 			}
 			log.Printf("getting bonk: %s", xid)
@@ -617,7 +644,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		xonk.Audience = append(xonk.Audience, xonk.Honker)
 		xonk.Audience = oneofakind(xonk.Audience)
 
-		var mentions []string
+		var mentions []Mention
 		if obj != nil {
 			ot, _ := obj.GetString("type")
 			url, _ = obj.GetString("url")
@@ -697,7 +724,8 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				} else if at == "Document" || at == "Image" {
 					mt = strings.ToLower(mt)
 					log.Printf("attachment: %s %s", mt, u)
-					if mt == "text/plain" || strings.HasPrefix(mt, "image") {
+					if mt == "text/plain" || mt == "application/pdf" ||
+						strings.HasPrefix(mt, "image") {
 						localize = true
 					}
 				} else {
@@ -754,7 +782,9 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					xonk.Place = p
 				}
 				if tt == "Mention" {
-					m, _ := tag.GetString("href")
+					var m Mention
+					m.Who, _ = tag.GetString("name")
+					m.Where, _ = tag.GetString("href")
 					mentions = append(mentions, m)
 				}
 			}
@@ -833,8 +863,9 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		xonk.Precis = precis
 		xonk.Format = "html"
 		xonk.Convoy = convoy
+		xonk.Mentions = mentions
 		for _, m := range mentions {
-			if m == user.URL {
+			if m.Where == user.URL {
 				xonk.Whofore = 1
 			}
 		}
@@ -847,14 +878,8 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				log.Printf("didn't find old version for update: %s", xonk.XID)
 				isUpdate = false
 			} else {
-				prev.Noise = xonk.Noise
-				prev.Precis = xonk.Precis
-				prev.Date = xonk.Date
-				prev.Donks = xonk.Donks
-				prev.Onts = xonk.Onts
-				prev.Place = xonk.Place
-				prev.Whofore = xonk.Whofore
-				updatehonk(prev)
+				xonk.ID = prev.ID
+				updatehonk(&xonk)
 			}
 		}
 		if !isUpdate && needxonk(user, &xonk) {
@@ -883,7 +908,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				convoy = currenttid
 			}
 			if convoy == "" {
-				convoy = "missing-" + xfiltrate()
+				convoy = "data:,missing-" + xfiltrate()
 				currenttid = convoy
 			}
 			xonk.Convoy = convoy
@@ -1008,10 +1033,11 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			jo["directMessage"] = true
 		}
 		mentions := bunchofgrapes(h.Noise)
-		translate(h, true)
+		translate(h)
+		redoimages(h)
 		jo["summary"] = html.EscapeString(h.Precis)
 		jo["content"] = h.Noise
-		if strings.HasPrefix(h.Precis, "DZ:") {
+		if h.Precis != "" {
 			jo["sensitive"] = true
 		}
 
@@ -1031,8 +1057,8 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		for _, m := range mentions {
 			t := junk.New()
 			t["type"] = "Mention"
-			t["name"] = m.who
-			t["href"] = m.where
+			t["name"] = m.Who
+			t["href"] = m.Where
 			tags = append(tags, t)
 		}
 		for _, o := range h.Onts {
@@ -1167,24 +1193,34 @@ func gimmejonk(xid string) ([]byte, bool) {
 	return j, ok
 }
 
-func honkworldwide(user *WhatAbout, honk *Honk) {
-	jonk, _ := jonkjonk(user, honk)
-	jonk["@context"] = itiswhatitis
-	msg := jonk.ToBytes()
-
+func boxuprcpts(user *WhatAbout, addresses []string, useshared bool) map[string]bool {
 	rcpts := make(map[string]bool)
-	for _, a := range honk.Audience {
-		if a == thewholeworld || a == user.URL || strings.HasSuffix(a, "/followers") {
+	for _, a := range addresses {
+		if a == "" || a == thewholeworld || a == user.URL || strings.HasSuffix(a, "/followers") {
+			continue
+		}
+		if a[0] == '%' {
+			rcpts[a] = true
 			continue
 		}
 		var box *Box
 		ok := boxofboxes.Get(a, &box)
-		if ok && honk.Public && box.Shared != "" {
+		if ok && useshared && box.Shared != "" {
 			rcpts["%"+box.Shared] = true
 		} else {
 			rcpts[a] = true
 		}
 	}
+	return rcpts
+}
+
+func honkworldwide(user *WhatAbout, honk *Honk) {
+	jonk, _ := jonkjonk(user, honk)
+	jonk["@context"] = itiswhatitis
+	msg := jonk.ToBytes()
+
+	rcpts := boxuprcpts(user, honk.Audience, honk.Public)
+
 	if honk.Public {
 		for _, h := range getdubs(user.ID) {
 			if h.XID == user.URL {
@@ -1197,6 +1233,9 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 			} else {
 				rcpts[h.XID] = true
 			}
+		}
+		for _, f := range getbacktracks(honk.XID) {
+			rcpts[f] = true
 		}
 	}
 	for a := range rcpts {
@@ -1317,7 +1356,8 @@ var handfull = cache.New(cache.Options{Filler: func(name string) (string, bool) 
 		rel, _ := l.GetString("rel")
 		t, _ := l.GetString("type")
 		if rel == "self" && friendorfoe(t) {
-			_, err := stmtSaveXonker.Exec(name, href, "fishname")
+			when := time.Now().UTC().Format(dbtimeformat)
+			_, err := stmtSaveXonker.Exec(name, href, "fishname", when)
 			if err != nil {
 				log.Printf("error saving fishname: %s", err)
 			}
@@ -1430,7 +1470,8 @@ func ingestpubkey(origin string, obj junk.Junk) {
 		log.Printf("error decoding %s pubkey: %s", keyname, err)
 		return
 	}
-	_, err = stmtSaveXonker.Exec(keyname, data, "pubkey")
+	when := time.Now().UTC().Format(dbtimeformat)
+	_, err = stmtSaveXonker.Exec(keyname, data, "pubkey", when)
 	if err != nil {
 		log.Printf("error saving key: %s", err)
 	}
@@ -1455,8 +1496,9 @@ func ingestboxes(origin string, obj junk.Junk) {
 	outbox, _ := obj.GetString("outbox")
 	sbox, _ := obj.GetString("endpoints", "sharedInbox")
 	if inbox != "" {
+		when := time.Now().UTC().Format(dbtimeformat)
 		m := strings.Join([]string{inbox, outbox, sbox}, " ")
-		_, err = stmtSaveXonker.Exec(ident, m, "boxes")
+		_, err = stmtSaveXonker.Exec(ident, m, "boxes", when)
 		if err != nil {
 			log.Printf("error saving boxes: %s", err)
 		}
@@ -1479,7 +1521,8 @@ func ingesthandle(origin string, obj junk.Junk) {
 	}
 	handle, _ = obj.GetString("preferredUsername")
 	if handle != "" {
-		_, err = stmtSaveXonker.Exec(xid, handle, "handle")
+		when := time.Now().UTC().Format(dbtimeformat)
+		_, err = stmtSaveXonker.Exec(xid, handle, "handle", when)
 		if err != nil {
 			log.Printf("error saving handle: %s", err)
 		}
