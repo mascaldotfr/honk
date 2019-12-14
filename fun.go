@@ -63,10 +63,10 @@ func reverbolate(userid int64, honks []*Honk) {
 		}
 		translate(h)
 		local := false
-		if (h.Whofore == 2 || h.Whofore == 3) && h.What != "bonked" {
+		if h.Whofore == 2 || h.Whofore == 3 {
 			local = true
 		}
-		if local {
+		if local && h.What != "bonked" {
 			h.Noise = re_memes.ReplaceAllString(h.Noise, "")
 			h.Noise = mentionize(h.Noise)
 			h.Noise = ontologize(h.Noise)
@@ -131,7 +131,7 @@ func reverbolate(userid int64, honks []*Honk) {
 					}
 				}
 			}
-			if local {
+			if local && h.What != "bonked" {
 				var emu Emu
 				emucache.Get(e, &emu)
 				if emu.ID != "" {
