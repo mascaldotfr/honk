@@ -191,7 +191,11 @@ func geteventhonks(userid int64) []*Honk {
 	})
 	now := time.Now().Add(-24 * time.Hour)
 	for i, h := range honks {
-		if h.Time.StartTime.Before(now) {
+		t := h.Date
+		if tm := h.Time; tm != nil {
+			t = tm.StartTime
+		}
+		if t.Before(now) {
 			honks = honks[:i]
 			break
 		}
