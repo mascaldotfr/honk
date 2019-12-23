@@ -2,6 +2,8 @@ changelog
 
 === next
 
+++ Import command now supports the elephant in the room.
+
 + deluser command.
 
 + Configurable avatar colors.

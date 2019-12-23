@@ -253,7 +253,7 @@ func main() {
 		adminscreen()
 	case "import":
 		if len(args) != 4 {
-			log.Fatal("import username twitter [srcdir]")
+			log.Fatal("import username mastodon|twitter srcdir")
 		}
 		importMain(args[1], args[2], args[3])
 	case "debug":
