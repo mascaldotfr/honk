@@ -353,21 +353,34 @@ func skipMedia(xonk *Honk) bool {
 	return false
 }
 
-func unsee(userid int64, h *Honk) {
-	filts := getfilters(userid, filtCollapse)
-	for _, f := range filts {
-		if bad := matchfilterX(h, f); bad != "" {
-			if h.Precis == "" {
-				h.Precis = bad
+func unsee(honks []*Honk, userid int64) {
+	if userid != -1 {
+		colfilts := getfilters(userid, filtCollapse)
+		rwfilts := getfilters(userid, filtRewrite)
+		for _, h := range honks {
+			for _, f := range colfilts {
+				if bad := matchfilterX(h, f); bad != "" {
+					if h.Precis == "" {
+						h.Precis = bad
+					}
+					h.Open = ""
+					break
+				}
 			}
-			h.Open = ""
-			break
-		}
-	}
-	filts = getfilters(userid, filtRewrite)
-	for _, f := range filts {
-		if matchfilter(h, f) {
-			h.Noise = f.re_rewrite.ReplaceAllString(h.Noise, f.Replace)
+			if h.Open == "open" && h.Precis == "unspecified horror" {
+				h.Precis = ""
+			}
+			for _, f := range rwfilts {
+				if matchfilter(h, f) {
+					h.Noise = f.re_rewrite.ReplaceAllString(h.Noise, f.Replace)
+				}
+			}
+			if len(h.Noise) > 6000 && h.Open == "open" {
+				if h.Precis == "" {
+					h.Precis = "really freaking long"
+				}
+				h.Open = ""
+			}
 		}
 	}
 }

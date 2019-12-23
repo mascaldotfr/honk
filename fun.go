@@ -104,24 +104,24 @@ func reverbolate(userid int64, honks []*Honk) {
 			h.Precis = string(p)
 			h.Noise = string(n)
 		}
-
-		if userid == -1 {
-			if h.Precis != "" {
-				h.Open = ""
-			}
-		} else {
-			unsee(userid, h)
-			if h.Open == "open" && h.Precis == "unspecified horror" {
-				h.Precis = ""
+		j := 0
+		for i := 0; i < len(h.Donks); i++ {
+			if !zap[h.Donks[i].XID] {
+				h.Donks[j] = h.Donks[i]
+				j++
 			}
 		}
-		if len(h.Noise) > 6000 && h.Open == "open" {
-			if h.Precis == "" {
-				h.Precis = "really freaking long"
-			}
-			h.Open = ""
-		}
+		h.Donks = h.Donks[:j]
+	}
 
+	unsee(honks, userid)
+
+	for _, h := range honks {
+		local := false
+		if h.Whofore == 2 || h.Whofore == 3 {
+			local = true
+		}
+		zap := make(map[string]bool)
 		emuxifier := func(e string) string {
 			for _, d := range h.Donks {
 				if d.Name == e {
