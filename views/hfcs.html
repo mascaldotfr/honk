@@ -54,6 +54,7 @@ Honk Filtering and Censorship System
 {{ with .Notes }}<p>Notes: {{ . }}{{ end }}
 <p>Date: {{ .Date.Format "2006-01-02" }}
 {{ with .Actor }}<p>Who: {{ . }}{{ end }} {{ with .IncludeAudience }} (inclusive) {{ end }}
+{{ if .IsAnnounce }}<p>Announce: {{ .AnnounceOf }}{{ end }}
 {{ with .Text }}<p>Text: {{ . }}{{ end }}
 <p>Actions: {{ range .Actions }} {{ . }} {{ end }}
 {{ with .Rewrite }}<p>Rewrite: {{ . }}{{ end }}
