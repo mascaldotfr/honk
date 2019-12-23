@@ -1874,7 +1874,7 @@ func savehfcs(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Printf("error deleting filter: %s", err)
 		}
-		filtcache.Clear(userinfo.UserID)
+		filtInvalidator.Clear(userinfo.UserID)
 		http.Redirect(w, r, "/hfcs", http.StatusSeeOther)
 		return
 	}
@@ -1912,7 +1912,7 @@ func savehfcs(w http.ResponseWriter, r *http.Request) {
 		log.Printf("error saving filter: %s", err)
 	}
 
-	filtcache.Clear(userinfo.UserID)
+	filtInvalidator.Clear(userinfo.UserID)
 	http.Redirect(w, r, "/hfcs", http.StatusSeeOther)
 }
 
