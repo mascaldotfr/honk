@@ -26,8 +26,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-
-	"humungus.tedunangst.com/r/webs/htfilter"
 )
 
 func importMain(username, flavor, source string) {
