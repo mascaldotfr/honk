@@ -604,26 +604,22 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		}
 
 		if obj != nil {
-			_, ok := obj.GetString("diaspora:guid")
-			if ok {
+			if _, ok := obj.GetString("diaspora:guid"); ok {
 				// friendica does the silliest bonks
-				c, ok := obj.GetString("source", "content")
-				if ok {
+				if c, ok := obj.GetString("source", "content"); ok {
 					re_link := regexp.MustCompile(`link='([^']*)'`)
-					m := re_link.FindStringSubmatch(c)
-					if len(m) > 1 {
+					if m := re_link.FindStringSubmatch(c); len(m) > 1 {
 						xid := m[1]
 						log.Printf("getting friendica flavored bonk: %s", xid)
 						if !needxonkid(user, xid) {
 							return nil
 						}
-						newobj, err := GetJunkHardMode(xid)
-						if err != nil {
-							log.Printf("error getting bonk: %s: %s", xid, err)
-						} else {
+						if newobj, err := GetJunkHardMode(xid); err == nil {
 							obj = newobj
 							origin = originate(xid)
 							what = "bonk"
+						} else {
+							log.Printf("error getting bonk: %s: %s", xid, err)
 						}
 					}
 				}
@@ -654,8 +650,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		if obj != nil {
 			ot, _ := obj.GetString("type")
 			url, _ = obj.GetString("url")
-			dt2, ok := obj.GetString("published")
-			if ok {
+			if dt2, ok := obj.GetString("published"); ok {
 				dt = dt2
 			}
 			xid, _ = obj.GetString("id")
@@ -670,14 +665,12 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if !strings.HasPrefix(content, "<p>") {
 				content = "<p>" + content
 			}
-			sens, _ := obj["sensitive"].(bool)
-			if sens && precis == "" {
+			if sens, _ := obj["sensitive"].(bool); sens && precis == "" {
 				precis = "unspecified horror"
 			}
 			rid, ok = obj.GetString("inReplyTo")
 			if !ok {
-				robj, ok := obj.GetMap("inReplyTo")
-				if ok {
+				if robj, ok := obj.GetMap("inReplyTo"); ok {
 					rid, _ = robj.GetString("id")
 				}
 			}
@@ -801,10 +794,8 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					mentions = append(mentions, m)
 				}
 			}
-			starttime, ok := obj.GetString("startTime")
-			if ok {
-				start, err := time.Parse(time.RFC3339, starttime)
-				if err == nil {
+			if starttime, ok := obj.GetString("startTime"); ok {
+				if start, err := time.Parse(time.RFC3339, starttime); err == nil {
 					t := new(Time)
 					t.StartTime = start
 					endtime, _ := obj.GetString("endTime")
@@ -818,13 +809,10 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					xonk.Time = t
 				}
 			}
-			loca, ok := obj.GetMap("location")
-			if ok {
-				tt, _ := loca.GetString("type")
-				name, _ := loca.GetString("name")
-				if tt == "Place" {
+			if loca, ok := obj.GetMap("location"); ok {
+				if tt, _ := loca.GetString("type"); tt == "Place" {
 					p := new(Place)
-					p.Name = name
+					p.Name, _ = loca.GetString("name")
 					p.Latitude, _ = loca["latitude"].(float64)
 					p.Longitude, _ = loca["longitude"].(float64)
 					p.Url, _ = loca.GetString("url")
