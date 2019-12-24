@@ -36,6 +36,7 @@ import (
 	"humungus.tedunangst.com/r/webs/gate"
 	"humungus.tedunangst.com/r/webs/httpsig"
 	"humungus.tedunangst.com/r/webs/junk"
+	"humungus.tedunangst.com/r/webs/templates"
 )
 
 var theonetruename = `application/ld+json; profile="https://www.w3.org/ns/activitystreams"`
@@ -465,13 +466,15 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 	xonkxonkfn = func(item junk.Junk, origin string) *Honk {
 		// id, _ := item.GetString( "id")
 		what, _ := item.GetString("type")
-		dt, _ := item.GetString("published")
+		dt, ok := item.GetString("published")
+		if !ok {
+			dt = time.Now().Format(time.RFC3339)
+		}
 
 		var err error
 		var xid, rid, url, content, precis, convoy string
 		var replies []string
 		var obj junk.Junk
-		var ok bool
 		isUpdate := false
 		switch what {
 		case "Delete":
@@ -572,6 +575,9 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				return xonkxonkfn(obj, originate(xid))
 			}
 			return nil
+		case "Move":
+			obj = item
+			what = "move"
 		case "Audio":
 			fallthrough
 		case "Video":
@@ -700,6 +706,10 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					content += "<li>" + as
 				}
 				content += "</ul>"
+			}
+			if ot == "Move" {
+				targ, _ := obj.GetString("target")
+				content += string(templates.Sprintf(`<p>Moved to <a href="%s">%s</a>`, targ, targ))
 			}
 			if what == "honk" && rid != "" {
 				what = "tonk"

@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Minimal support for Move activity.
+
 ++ Import command now supports the elephant in the room.
 
 + deluser command.
