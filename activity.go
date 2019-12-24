@@ -660,8 +660,11 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			}
 			xid, _ = obj.GetString("id")
 			precis, _ = obj.GetString("summary")
-			if precis == "" {
-				precis, _ = obj.GetString("name")
+			if name, ok := obj.GetString("name"); ok {
+				if precis != "" {
+					precis = "\n" + precis
+				}
+				precis = name + precis
 			}
 			content, _ = obj.GetString("content")
 			if !strings.HasPrefix(content, "<p>") {
