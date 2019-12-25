@@ -1,10 +1,10 @@
 changelog
 
-=== next
-
-+ Minimal support for Move activity.
+=== 0.8.6 Sartorial Headpiece
 
 ++ Import command now supports the elephant in the room.
+
++ Minimal support for Move activity.
 
 + deluser command.
 
