@@ -1,5 +1,9 @@
 changelog
 
+=== next
+
++ Reduce retries talking to dumb servers.
+
 === 0.8.6 Sartorial Headpiece
 
 ++ Import command now supports the elephant in the room.

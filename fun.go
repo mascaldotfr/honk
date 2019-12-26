@@ -603,6 +603,8 @@ var zaggies = cache.New(cache.Options{Filler: func(keyname string) (*rsa.PublicK
 		j, err := GetJunk(keyname)
 		if err != nil {
 			log.Printf("error getting %s pubkey: %s", keyname, err)
+			when := time.Now().UTC().Format(dbtimeformat)
+			stmtSaveXonker.Exec(keyname, "failed", "pubkey", when)
 			return nil, true
 		}
 		allinjest(originate(keyname), j)
@@ -610,6 +612,8 @@ var zaggies = cache.New(cache.Options{Filler: func(keyname string) (*rsa.PublicK
 		err = row.Scan(&data)
 		if err != nil {
 			log.Printf("key not found after ingesting")
+			when := time.Now().UTC().Format(dbtimeformat)
+			stmtSaveXonker.Exec(keyname, "failed", "pubkey", when)
 			return nil, true
 		}
 	}
