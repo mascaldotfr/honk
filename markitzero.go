@@ -34,6 +34,7 @@ var re_link = regexp.MustCompile(`.?.?https?://[^\s"]+[\w/)!]`)
 var re_zerolink = regexp.MustCompile(`\[([^]]*)\]\(([^)]*\)?)\)`)
 var re_imgfix = regexp.MustCompile(`<img ([^>]*)>`)
 var re_lister = regexp.MustCompile(`((^|\n)(\+|-).*)+\n?`)
+var re_tabler = regexp.MustCompile(`((^|\n)\|.*)+\n?`)
 
 var lighter = synlight.New(synlight.Options{Format: synlight.HTML})
 
@@ -92,6 +93,26 @@ func markitzero(s string) string {
 		r += "</ul><p>"
 		return r
 	})
+	s = re_tabler.ReplaceAllStringFunc(s, func(m string) string {
+		m = strings.Trim(m, "\n")
+		rows := strings.Split(m, "\n")
+		var r strings.Builder
+		r.WriteString("<table>")
+		for _, row := range rows {
+			r.WriteString("<tr>")
+			cells := strings.Split(row, "|")
+			for i, cell := range cells {
+				cell = strings.TrimSpace(cell)
+				if cell == "" && (i == 0 || i == len(cells)-1) {
+					continue
+				}
+				r.WriteString("<td>")
+				r.WriteString(cell)
+			}
+		}
+		r.WriteString("</table><p>")
+		return r.String()
+	})
 
 	// restore images
 	s = strings.Replace(s, "&lt;img x&gt;", "<img x>", -1)
@@ -122,6 +143,7 @@ func markitzero(s string) string {
 	s = strings.Replace(s, "<br><cite></cite>", "", -1)
 	s = strings.Replace(s, "<br><pre>", "<pre>", -1)
 	s = strings.Replace(s, "<br><ul>", "<ul>", -1)
+	s = strings.Replace(s, "<br><table>", "<table>", -1)
 	s = strings.Replace(s, "<p><br>", "<p>", -1)
 	return s
 }
