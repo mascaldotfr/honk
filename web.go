@@ -1108,6 +1108,7 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 
 func saveuser(w http.ResponseWriter, r *http.Request) {
 	whatabout := r.FormValue("whatabout")
+	whatabout = strings.Replace(whatabout, "\r", "", -1)
 	u := login.GetUserInfo(r)
 	user, _ := butwhatabout(u.Username)
 	db := opendatabase()
@@ -1132,7 +1133,7 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		options.Avatar = ""
 	}
-	whatabout = strings.Replace(strings.TrimSpace(whatabout), "\r", "", -1)
+	whatabout = strings.TrimSpace(whatabout)
 	j, err := jsonify(options)
 	if err == nil {
 		_, err = db.Exec("update users set about = ?, options = ? where username = ?", whatabout, j, u.Username)
