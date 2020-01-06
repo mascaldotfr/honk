@@ -1132,7 +1132,7 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		options.Avatar = ""
 	}
-	whatabout = strings.TrimSpace(whatabout)
+	whatabout = strings.Replace(strings.TrimSpace(whatabout), "\r", "", -1)
 	j, err := jsonify(options)
 	if err == nil {
 		_, err = db.Exec("update users set about = ?, options = ? where username = ?", whatabout, j, u.Username)
