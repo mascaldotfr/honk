@@ -665,7 +665,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if precis != "" {
 					content = precis + "<p>" + content
 				}
-				precis = name
+				precis = html.EscapeString(name)
 			}
 			if sens, _ := obj["sensitive"].(bool); sens && precis == "" {
 				precis = "unspecified horror"
