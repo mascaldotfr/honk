@@ -656,16 +656,16 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				dt = dt2
 			}
 			xid, _ = obj.GetString("id")
-			precis, _ = obj.GetString("summary")
-			if name, ok := obj.GetString("name"); ok {
-				if precis != "" {
-					precis = "\n" + precis
-				}
-				precis = name + precis
-			}
 			content, _ = obj.GetString("content")
 			if !strings.HasPrefix(content, "<p>") {
 				content = "<p>" + content
+			}
+			precis, _ = obj.GetString("summary")
+			if name, ok := obj.GetString("name"); ok {
+				if precis != "" {
+					content = precis + "<p>" + content
+				}
+				precis = name
 			}
 			if sens, _ := obj["sensitive"].(bool); sens && precis == "" {
 				precis = "unspecified horror"
