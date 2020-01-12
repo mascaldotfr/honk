@@ -580,6 +580,8 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			what = "move"
 		case "Audio":
 			fallthrough
+		case "Image":
+			fallthrough
 		case "Video":
 			fallthrough
 		case "Question":
