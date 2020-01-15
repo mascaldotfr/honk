@@ -1762,7 +1762,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		if goodbye == "X" {
 			var owner string
 			db := opendatabase()
-			row := db.QueryRow("select xid, owner from honkers where honkerid = ? and userid = ? and flavor in ('unsub', 'peep')",
+			row := db.QueryRow("select xid, owner from honkers where honkerid = ? and userid = ? and flavor in ('unsub', 'peep', 'presub')",
 				honkerid, u.UserID)
 			err := row.Scan(&url, &owner)
 			if err != nil {
