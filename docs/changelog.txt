@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Quick fix to hide all images.
+
 + Allow resending follow requests.
 
 + Improved search query parsing.

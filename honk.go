@@ -47,6 +47,7 @@ type WhatAbout struct {
 
 type UserOptions struct {
 	SkinnyCSS bool   `json:",omitempty"`
+	OmitImages bool   `json:",omitempty"`
 	Avatar    string `json:",omitempty"`
 	MapLink   string `json:",omitempty"`
 }

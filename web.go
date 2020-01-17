@@ -55,10 +55,14 @@ func getuserstyle(u *login.UserInfo) template.CSS {
 		return ""
 	}
 	user, _ := butwhatabout(u.Username)
+	css := template.CSS("")
 	if user.Options.SkinnyCSS {
-		return "main { max-width: 700px; }"
+		css += "main { max-width: 700px; }\n"
 	}
-	return ""
+	if user.Options.OmitImages {
+		css += ".honk .noise img { display: none; }\n"
+	}
+	return css
 }
 
 func getmaplink(u *login.UserInfo) string {
@@ -1117,6 +1121,11 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 		options.SkinnyCSS = true
 	} else {
 		options.SkinnyCSS = false
+	}
+	if r.FormValue("omitimages") == "omitimages" {
+		options.OmitImages = true
+	} else {
+		options.OmitImages = false
 	}
 	if r.FormValue("maps") == "apple" {
 		options.MapLink = "apple"
