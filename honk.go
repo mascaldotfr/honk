@@ -16,7 +16,6 @@
 package main
 
 import (
-	"crypto/rsa"
 	"flag"
 	"fmt"
 	"html/template"
@@ -26,6 +25,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"humungus.tedunangst.com/r/webs/httpsig"
 )
 
 var softwareVersion = "develop"
@@ -42,19 +43,19 @@ type WhatAbout struct {
 	Key     string
 	URL     string
 	Options UserOptions
-	SecKey  *rsa.PrivateKey
+	SecKey  httpsig.PrivateKey
 }
 
 type UserOptions struct {
-	SkinnyCSS bool   `json:",omitempty"`
+	SkinnyCSS  bool   `json:",omitempty"`
 	OmitImages bool   `json:",omitempty"`
-	Avatar    string `json:",omitempty"`
-	MapLink   string `json:",omitempty"`
+	Avatar     string `json:",omitempty"`
+	MapLink    string `json:",omitempty"`
 }
 
 type KeyInfo struct {
 	keyname string
-	seckey  *rsa.PrivateKey
+	seckey  httpsig.PrivateKey
 }
 
 const serverUID int64 = -2

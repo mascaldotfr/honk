@@ -17,7 +17,6 @@ package main
 
 import (
 	"bytes"
-	"crypto/rsa"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -58,11 +57,11 @@ func friendorfoe(ct string) bool {
 	return false
 }
 
-func PostJunk(keyname string, key *rsa.PrivateKey, url string, j junk.Junk) error {
+func PostJunk(keyname string, key httpsig.PrivateKey, url string, j junk.Junk) error {
 	return PostMsg(keyname, key, url, j.ToBytes())
 }
 
-func PostMsg(keyname string, key *rsa.PrivateKey, url string, msg []byte) error {
+func PostMsg(keyname string, key httpsig.PrivateKey, url string, msg []byte) error {
 	client := http.DefaultClient
 	req, err := http.NewRequest("POST", url, bytes.NewReader(msg))
 	if err != nil {

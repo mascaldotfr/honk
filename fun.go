@@ -17,7 +17,6 @@ package main
 
 import (
 	"crypto/rand"
-	"crypto/rsa"
 	"crypto/sha512"
 	"fmt"
 	"html/template"
@@ -594,10 +593,11 @@ func ziggy(userid int64) *KeyInfo {
 	return ki
 }
 
-var zaggies = cache.New(cache.Options{Filler: func(keyname string) (*rsa.PublicKey, bool) {
+var zaggies = cache.New(cache.Options{Filler: func(keyname string) (httpsig.PublicKey, bool) {
 	var data string
 	row := stmtGetXonker.QueryRow(keyname, "pubkey")
 	err := row.Scan(&data)
+	var key httpsig.PublicKey
 	if err != nil {
 		log.Printf("hitting the webs for missing pubkey: %s", keyname)
 		j, err := GetJunk(keyname)
@@ -605,7 +605,7 @@ var zaggies = cache.New(cache.Options{Filler: func(keyname string) (*rsa.PublicK
 			log.Printf("error getting %s pubkey: %s", keyname, err)
 			when := time.Now().UTC().Format(dbtimeformat)
 			stmtSaveXonker.Exec(keyname, "failed", "pubkey", when)
-			return nil, true
+			return key, true
 		}
 		allinjest(originate(keyname), j)
 		row = stmtGetXonker.QueryRow(keyname, "pubkey")
@@ -614,19 +614,19 @@ var zaggies = cache.New(cache.Options{Filler: func(keyname string) (*rsa.PublicK
 			log.Printf("key not found after ingesting")
 			when := time.Now().UTC().Format(dbtimeformat)
 			stmtSaveXonker.Exec(keyname, "failed", "pubkey", when)
-			return nil, true
+			return key, true
 		}
 	}
-	_, key, err := httpsig.DecodeKey(data)
+	_, key, err = httpsig.DecodeKey(data)
 	if err != nil {
 		log.Printf("error decoding %s pubkey: %s", keyname, err)
-		return nil, true
+		return key, true
 	}
 	return key, true
 }, Limit: 512})
 
-func zaggy(keyname string) *rsa.PublicKey {
-	var key *rsa.PublicKey
+func zaggy(keyname string) httpsig.PublicKey {
+	var key httpsig.PublicKey
 	zaggies.Get(keyname, &key)
 	return key
 }
