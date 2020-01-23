@@ -2,6 +2,8 @@ changelog
 
 === next
 
+--- Add Reactions.
+
 + Quick fix to hide all images.
 
 + Allow resending follow requests.

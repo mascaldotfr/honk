@@ -1267,6 +1267,18 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if wherefore == "react" {
+		xonk := getxonk(userinfo.UserID, what)
+		if xonk != nil {
+			_, err := stmtUpdateFlags.Exec(flagIsReacted, xonk.ID)
+			if err != nil {
+				log.Printf("error saving: %s", err)
+			}
+			sendzonkofsorts(xonk, user, "react")
+		}
+		return
+	}
+
 	// my hammer is too big, oh well
 	defer oldjonks.Flush()
 

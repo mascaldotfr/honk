@@ -51,6 +51,7 @@ type UserOptions struct {
 	OmitImages bool   `json:",omitempty"`
 	Avatar     string `json:",omitempty"`
 	MapLink    string `json:",omitempty"`
+	Reaction   string `json:",omitempty"`
 }
 
 type KeyInfo struct {
@@ -108,6 +109,7 @@ const (
 	flagIsBonked   = 2
 	flagIsSaved    = 4
 	flagIsUntagged = 8
+	flagIsReacted  = 16
 )
 
 func (honk *Honk) IsAcked() bool {
@@ -124,6 +126,10 @@ func (honk *Honk) IsSaved() bool {
 
 func (honk *Honk) IsUntagged() bool {
 	return honk.Flags&flagIsUntagged != 0
+}
+
+func (honk *Honk) IsReacted() bool {
+	return honk.Flags&flagIsReacted != 0
 }
 
 type Donk struct {

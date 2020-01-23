@@ -1152,6 +1152,13 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		if h.Convoy != "" {
 			j["context"] = h.Convoy
 		}
+	case "react":
+		j["type"] = "EmojiReaction"
+		j["object"] = h.XID
+		if h.Convoy != "" {
+			j["context"] = h.Convoy
+		}
+		j["content"] = user.Options.Reaction
 	case "deack":
 		b := junk.New()
 		b["id"] = user.URL + "/" + "ack" + "/" + shortxid(h.XID)
