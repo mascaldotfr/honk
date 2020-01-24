@@ -1132,6 +1132,7 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		options.MapLink = ""
 	}
+	options.Reaction = r.FormValue("reaction")
 	if ava := re_avatar.FindString(whatabout); ava != "" {
 		whatabout = re_avatar.ReplaceAllString(whatabout, "")
 		ava = ava[7:]
