@@ -98,15 +98,31 @@ func markitzero(s string) string {
 		rows := strings.Split(m, "\n")
 		var r strings.Builder
 		r.WriteString("<table>")
+		alignments := make(map[int]string)
 		for _, row := range rows {
-			r.WriteString("<tr>")
+			hastr := false
 			cells := strings.Split(row, "|")
 			for i, cell := range cells {
 				cell = strings.TrimSpace(cell)
 				if cell == "" && (i == 0 || i == len(cells)-1) {
 					continue
 				}
-				r.WriteString("<td>")
+				switch cell {
+				case ":---":
+					alignments[i] = `style="text-align: left"`
+					continue
+				case ":---:":
+					alignments[i] = `style="text-align: center"`
+					continue
+				case "---:":
+					alignments[i] = `style="text-align: right"`
+					continue
+				}
+				if !hastr {
+					r.WriteString("<tr>")
+					hastr = true
+				}
+				fmt.Fprintf(&r, "<td %s>", alignments[i])
 				r.WriteString(cell)
 			}
 		}
