@@ -625,6 +625,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					}
 				}
 			}
+			xid, _ = obj.GetString("id")
 		}
 
 		if xid == "" {
