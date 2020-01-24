@@ -610,7 +610,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if c, ok := obj.GetString("source", "content"); ok {
 					re_link := regexp.MustCompile(`link='([^']*)'`)
 					if m := re_link.FindStringSubmatch(c); len(m) > 1 {
-						xid := m[1]
+						xid = m[1]
 						log.Printf("getting friendica flavored bonk: %s", xid)
 						if !needxonkid(user, xid) {
 							return nil
@@ -627,8 +627,20 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			}
 		}
 
+		if xid == "" {
+			log.Printf("don't know what xid is")
+			item.Write(os.Stdout)
+			return nil
+		}
+		if originate(xid) != origin {
+			log.Printf("original sin: %s <> %s", xid, origin)
+			item.Write(os.Stdout)
+			return nil
+		}
+
 		var xonk Honk
 		// early init
+		xonk.XID = xid
 		xonk.UserID = user.ID
 		xonk.Honker, _ = item.GetString("actor")
 		if xonk.Honker == "" {
@@ -654,7 +666,6 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if dt2, ok := obj.GetString("published"); ok {
 				dt = dt2
 			}
-			xid, _ = obj.GetString("id")
 			content, _ = obj.GetString("content")
 			if !strings.HasPrefix(content, "<p>") {
 				content = "<p>" + content
@@ -713,6 +724,10 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			}
 			atts, _ := obj.GetArray("attachment")
 			for i, atti := range atts {
+				if rejectxonk(&xonk) {
+					log.Printf("skipping rejected attachment: %s", xid)
+					continue
+				}
 				att, ok := atti.(junk.Junk)
 				if !ok {
 					continue
@@ -748,6 +763,10 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			}
 			tags, _ := obj.GetArray("tag")
 			for _, tagi := range tags {
+				if rejectxonk(&xonk) {
+					log.Printf("skipping rejected attachment: %s", xid)
+					continue
+				}
 				tag, ok := tagi.(junk.Junk)
 				if !ok {
 					continue
@@ -840,11 +859,6 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			}
 
 		}
-		if originate(xid) != origin {
-			log.Printf("original sin: %s <> %s", xid, origin)
-			item.Write(os.Stdout)
-			return nil
-		}
 
 		if currenttid == "" {
 			currenttid = convoy
@@ -857,7 +871,6 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 
 		// init xonk
 		xonk.What = what
-		xonk.XID = xid
 		xonk.RID = rid
 		xonk.Date, _ = time.Parse(time.RFC3339, dt)
 		xonk.URL = url
