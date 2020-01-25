@@ -176,6 +176,7 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 		}
 		ii, err := flightdeck.Call(url, fn)
 		if err != nil {
+			log.Printf("error fetching donk: %s", err)
 			localize = false
 			goto saveit
 		}
