@@ -209,12 +209,10 @@ func rejectorigin(userid int64, origin string, isannounce bool) bool {
 	for _, f := range filts {
 		if isannounce && f.IsAnnounce {
 			if f.AnnounceOf == origin {
-				log.Printf("rejecting announce: %s", origin)
 				return true
 			}
 		}
 		if f.Actor == origin {
-			log.Printf("rejecting origin: %s", origin)
 			return true
 		}
 	}

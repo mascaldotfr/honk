@@ -255,6 +255,7 @@ func needxonkidX(user *WhatAbout, xid string, isannounce bool) bool {
 		return false
 	}
 	if rejectorigin(user.ID, xid, isannounce) {
+		log.Printf("rejecting origin: %s", xid)
 		return false
 	}
 	if iszonked(user.ID, xid) {
