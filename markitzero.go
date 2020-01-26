@@ -75,10 +75,14 @@ func markitzero(s string) string {
 	s = string(buf)
 
 	// mark it zero
-	s = re_link.ReplaceAllStringFunc(s, linkreplacer)
+	if strings.Contains(s, "http") {
+		s = re_link.ReplaceAllStringFunc(s, linkreplacer)
+	}
 	s = re_zerolink.ReplaceAllString(s, `<a href="$2">$1</a>`)
-	s = re_bolder.ReplaceAllString(s, "$1<b>$2</b>$3")
-	s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
+	if strings.Contains(s, "*") {
+		s = re_bolder.ReplaceAllString(s, "$1<b>$2</b>$3")
+		s = re_italicer.ReplaceAllString(s, "$1<i>$2</i>$3")
+	}
 	s = re_quoter.ReplaceAllString(s, "<blockquote>$1<br><cite>$3</cite></blockquote><p>")
 	s = re_reciter.ReplaceAllString(s, "$1$2$3")
 	s = strings.Replace(s, "\n---\n", "<hr><p>", -1)
