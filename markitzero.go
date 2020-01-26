@@ -109,20 +109,20 @@ func markitzero(s string) string {
 				}
 				switch cell {
 				case ":---":
-					alignments[i] = `style="text-align: left"`
+					alignments[i] = ` style="text-align: left"`
 					continue
 				case ":---:":
-					alignments[i] = `style="text-align: center"`
+					alignments[i] = ` style="text-align: center"`
 					continue
 				case "---:":
-					alignments[i] = `style="text-align: right"`
+					alignments[i] = ` style="text-align: right"`
 					continue
 				}
 				if !hastr {
 					r.WriteString("<tr>")
 					hastr = true
 				}
-				fmt.Fprintf(&r, "<td %s>", alignments[i])
+				fmt.Fprintf(&r, "<td%s>", alignments[i])
 				r.WriteString(cell)
 			}
 		}
