@@ -329,7 +329,8 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	what, _ := j.GetString("type")
-	if what == "Like" {
+	obj, _ := j.GetString("object")
+	if what == "Like" || (what == "EmojiReaction" && originate(obj) != serverName) {
 		return
 	}
 	who, _ := j.GetString("actor")
@@ -361,14 +362,12 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 
 	switch what {
 	case "Ping":
-		obj, _ := j.GetString("id")
-		log.Printf("ping from %s: %s", who, obj)
+		id, _ := j.GetString("id")
+		log.Printf("ping from %s: %s", who, id)
 		pong(user, who, obj)
 	case "Pong":
-		obj, _ := j.GetString("object")
 		log.Printf("pong from %s: %s", who, obj)
 	case "Follow":
-		obj, _ := j.GetString("object")
 		if obj != user.URL {
 			log.Printf("can't follow %s", obj)
 			return
