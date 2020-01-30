@@ -18,17 +18,6 @@
 <button onclick="oldestnewest(this)">scroll down</button>
 </div>
 {{ end }}
-<div id="honksonpage">
-<div>
-{{ $BonkCSRF := .HonkCSRF }}
-{{ $IsPreview := .IsPreview }}
-{{ $MapLink := .MapLink }}
-{{ range .Honks }}
-{{ template "honk.html" map "Honk" . "MapLink" $MapLink "BonkCSRF" $BonkCSRF "IsPreview" $IsPreview }}
-{{ end }}
-</div>
-</div>
-</main>
 {{ if .HonkCSRF }}
 <script>
 var csrftoken = {{ .HonkCSRF }}
@@ -42,3 +31,14 @@ servermsgs[curpagestate.name + ":" + curpagestate.arg] = "{{ .ServerMessage }}"
 </script>
 <script src="/honkpage.js{{ .JSParam }}"></script>
 {{ end }}
+<div id="honksonpage">
+<div>
+{{ $BonkCSRF := .HonkCSRF }}
+{{ $IsPreview := .IsPreview }}
+{{ $MapLink := .MapLink }}
+{{ range .Honks }}
+{{ template "honk.html" map "Honk" . "MapLink" $MapLink "BonkCSRF" $BonkCSRF "IsPreview" $IsPreview }}
+{{ end }}
+</div>
+</div>
+</main>
