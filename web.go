@@ -215,7 +215,10 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 		}
 		for _, d := range honk.Donks {
 			desc += string(templates.Sprintf(`<p><a href="%s">Attachment: %s</a>`,
-				d.URL, d.Name))
+				d.URL, d.Desc))
+			if strings.HasPrefix(d.Media, "image") {
+				desc += string(templates.Sprintf(`<img src="%s">`, d.URL))
+			}
 		}
 
 		feed.Items = append(feed.Items, &rss.Item{
