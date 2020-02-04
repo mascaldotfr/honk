@@ -1433,6 +1433,14 @@ func submitwebhonk(w http.ResponseWriter, r *http.Request) {
 func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 	rid := r.FormValue("rid")
 	noise := r.FormValue("noise")
+	format := r.FormValue("format")
+	if format == "" {
+		format = "markdown"
+	}
+	if !(format == "markdown" || format == "html") {
+		http.Error(w, "unknown format", 500)
+		return
+	}
 
 	userinfo := login.GetUserInfo(r)
 	user, _ := butwhatabout(userinfo.Username)
@@ -1448,7 +1456,7 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 		}
 		honk.Date = dt
 		honk.What = "update"
-		honk.Format = "markdown"
+		honk.Format = format
 	} else {
 		xid := fmt.Sprintf("%s/%s/%s", user.URL, honkSep, xfiltrate())
 		what := "honk"
@@ -1462,7 +1470,7 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 			Honker:   user.URL,
 			XID:      xid,
 			Date:     dt,
-			Format:   "markdown",
+			Format:   format,
 		}
 	}
 
