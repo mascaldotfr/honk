@@ -1476,16 +1476,14 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 	var convoy string
 	if rid != "" {
 		xonk := getxonk(userinfo.UserID, rid)
-		if xonk != nil {
-			if xonk.Public {
-				honk.Audience = append(honk.Audience, xonk.Audience...)
-			}
-			convoy = xonk.Convoy
-		} else {
-			xonkaud, c := whosthere(rid)
-			honk.Audience = append(honk.Audience, xonkaud...)
-			convoy = c
+		if xonk == nil {
+			http.Error(w, "replyto disappeared", http.StatusNotFound)
+			return
 		}
+		if xonk.Public {
+			honk.Audience = append(honk.Audience, xonk.Audience...)
+		}
+		convoy = xonk.Convoy
 		for i, a := range honk.Audience {
 			if a == thewholeworld {
 				honk.Audience[0], honk.Audience[i] = honk.Audience[i], honk.Audience[0]

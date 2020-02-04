@@ -381,19 +381,6 @@ func gimmexonks(user *WhatAbout, outbox string) {
 	}
 }
 
-func whosthere(xid string) ([]string, string) {
-	obj, err := GetJunk(xid)
-	if err != nil {
-		log.Printf("error getting remote xonk: %s", err)
-		return nil, ""
-	}
-	convoy, _ := obj.GetString("context")
-	if convoy == "" {
-		convoy, _ = obj.GetString("conversation")
-	}
-	return newphone(nil, obj), convoy
-}
-
 func newphone(a []string, obj junk.Junk) []string {
 	for _, addr := range []string{"to", "cc", "attributedTo"} {
 		who, _ := obj.GetString(addr)
