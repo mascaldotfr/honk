@@ -2,7 +2,6 @@
 {{ $bonkcsrf := .BonkCSRF }}
 {{ $IsPreview := .IsPreview }}
 {{ $maplink := .MapLink }}
-{{ $hasbadonk := .HasBadonk }}
 {{ with .Honk }}
 <header>
 {{ if $bonkcsrf }}
@@ -122,12 +121,10 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 <button onclick="return flogit(this, 'untag', '{{ .Honk.XID }}');">untag me</button>
 {{ end }}
 <button><a href="/edit?xid={{ .Honk.XID }}">edit</a></button>
-{{ if $hasbadonk }}
 {{ if .Honk.IsReacted }}
 <button disabled>badonkadonked</button>
 {{ else }}
 <button onclick="return flogit(this, 'react', '{{ .Honk.XID }}');">badonkadonk</button>
-{{ end }}
 {{ end }}
 </div>
 </details>
