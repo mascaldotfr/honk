@@ -4,7 +4,7 @@ changelog
 
 --- Add Reactions.
 
-+++ Rename reactions to badonkadonks.
++++ Rename react to badonk
 
 + Quick fix to hide all images.
 
