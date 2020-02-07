@@ -1127,7 +1127,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			j["context"] = h.Convoy
 		}
 	case "react":
-		j["type"] = "EmojiReaction"
+		j["type"] = "EmojiReact"
 		j["object"] = h.XID
 		if h.Convoy != "" {
 			j["context"] = h.Convoy

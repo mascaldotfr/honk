@@ -16,6 +16,7 @@
 <input tabindex=1 type="checkbox" id="maps" name="maps" value="apple" {{ if eq "apple" .User.Options.MapLink }}checked{{ end }}><span></span>
 <p><label class="button" for="reaction">reaction:</label>
 <select tabindex=1 name="reaction">
+<option {{ and (eq .User.Options.Reaction "none") "selected" }}>none</option>
 <option {{ and (eq .User.Options.Reaction "😞") "selected" }}>😞</option>
 <option {{ and (eq .User.Options.Reaction "\U0001F937") "selected" }}>{{ "\U0001F937" }}</option>
 <option {{ and (eq .User.Options.Reaction "🙈") "selected" }}>🙈</option>

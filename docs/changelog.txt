@@ -4,6 +4,8 @@ changelog
 
 --- Add Reactions.
 
++++ Rename reactions to badonkadonks.
+
 + Quick fix to hide all images.
 
 + Allow resending follow requests.

@@ -333,7 +333,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	}
 	what, _ := j.GetString("type")
 	obj, _ := j.GetString("object")
-	if what == "Like" || (what == "EmojiReaction" && originate(obj) != serverName) {
+	if what == "Like" || (what == "EmojiReact" && originate(obj) != serverName) {
 		return
 	}
 	who, _ := j.GetString("actor")
@@ -1271,6 +1271,9 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if wherefore == "react" {
+		if user.Options.Reaction == "none" {
+			return
+		}
 		xonk := getxonk(userinfo.UserID, what)
 		if xonk != nil {
 			_, err := stmtUpdateFlags.Exec(flagIsReacted, xonk.ID)

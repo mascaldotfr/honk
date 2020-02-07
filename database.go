@@ -51,7 +51,7 @@ func userfromrow(row *sql.Row) (*WhatAbout, error) {
 		user.URL = fmt.Sprintf("https://%s/%s", serverName, user.Name)
 	}
 	if user.Options.Reaction == "" {
-		user.Options.Reaction = "😞"
+		user.Options.Reaction = "none"
 	}
 	return user, nil
 }
