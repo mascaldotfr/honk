@@ -257,10 +257,10 @@ function showhonkform(elem, rid, hname) {
 		elem.insertAdjacentElement('afterend', form)
 	}
 	var ridinput = document.getElementById("ridinput")
-	var honknoise = document.getElementById("honknoise")
+	var elmentions = document.getElementById("mentions")
 	if (rid) {
 		ridinput.value = rid
-		honknoise.value = "@" + hname + " "
+		elmentions.value = hname
 	} else {
 		ridinput.value = ""
 		honknoise.value = ""

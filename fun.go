@@ -287,18 +287,21 @@ func ontologies(s string) []string {
 var re_mentions = regexp.MustCompile(`@[[:alnum:]._-]+@[[:alnum:].-]*[[:alnum:]]`)
 var re_urltions = regexp.MustCompile(`@https://\S+`)
 
-func grapevine(s string) []string {
-	var mentions []string
-	m := re_mentions.FindAllString(s, -1)
-	for i := range m {
-		where := gofish(m[i])
-		if where != "" {
-			mentions = append(mentions, where)
-		}
+func grapevine(mentions []Mention) []string {
+	var s []string
+	for _, m := range mentions {
+		s = append(s, m.Where)
 	}
-	m = re_urltions.FindAllString(s, -1)
-	for i := range m {
-		mentions = append(mentions, m[i][1:])
+	return s
+}
+
+func grapeape(s string) []Mention {
+	var mentions []Mention
+	for _, m := range strings.Split(s, " ") {
+		where := gofish(m)
+		if where != "" {
+			mentions = append(mentions, Mention{Who: m, Where: where})
+		}
 	}
 	return mentions
 }
