@@ -585,10 +585,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			what = "event"
 		default:
 			log.Printf("unknown activity: %s", what)
-			fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-			item.Write(fd)
-			io.WriteString(fd, "\n")
-			fd.Close()
+			dumpactivity(item)
 			return nil
 		}
 
@@ -902,6 +899,17 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 	}
 
 	return xonkxonkfn(item, origin)
+}
+
+func dumpactivity(item junk.Junk) {
+	fd, err := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Printf("error opening inbox! %s", err)
+		return
+	}
+	defer fd.Close()
+	item.Write(fd)
+	io.WriteString(fd, "\n")
 }
 
 func rubadubdub(user *WhatAbout, req junk.Junk) {

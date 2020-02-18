@@ -422,11 +422,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		log.Printf("unknown Update activity")
-		fd, _ := os.OpenFile("savedinbox.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		j.Write(fd)
-		io.WriteString(fd, "\n")
-		fd.Close()
-
+		dumpactivity(j)
 	case "Undo":
 		obj, ok := j.GetMap("object")
 		if !ok {
@@ -553,6 +549,9 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 			log.Printf("error updating honker: %s", err)
 			return
 		}
+	default:
+		log.Printf("unhandled server activity: %s", what)
+		dumpactivity(j)
 	}
 }
 
