@@ -1016,7 +1016,12 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		if !h.Public {
 			jo["directMessage"] = true
 		}
-		mentions := bunchofgrapes(h.Noise)
+		var mentions []Mention
+		if len(h.Mentions) > 0 {
+			mentions = h.Mentions
+		} else {
+			mentions = bunchofgrapes(h.Noise)
+		}
 		translate(h)
 		redoimages(h)
 		jo["summary"] = html.EscapeString(h.Precis)
