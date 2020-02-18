@@ -59,6 +59,7 @@ function flogit(el, how, xid) {
 	if (s[s.length-1] != "e") { s += "e" }
 	s += "d"
 	if (s == "untaged") s = "untagged"
+	if (s == "reacted") s = "badonked"
 	el.innerHTML = s
 	el.disabled = true
 	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": how, "what": xid}))
