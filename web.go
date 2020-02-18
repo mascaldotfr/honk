@@ -455,7 +455,8 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 }
 
 func serverinbox(w http.ResponseWriter, r *http.Request) {
-	if stealthmode(serverUID, r) {
+	user := getserveruser()
+	if stealthmode(user.ID, r) {
 		http.NotFound(w, r)
 		return
 	}
@@ -489,7 +490,6 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "what did you call me?", http.StatusTeapot)
 		return
 	}
-	user := getserveruser()
 	who, _ := j.GetString("actor")
 	origin := keymatch(keyname, who)
 	if origin == "" {
@@ -557,11 +557,11 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 }
 
 func serveractor(w http.ResponseWriter, r *http.Request) {
-	if stealthmode(serverUID, r) {
+	user := getserveruser()
+	if stealthmode(user.ID, r) {
 		http.NotFound(w, r)
 		return
 	}
-	user := getserveruser()
 	j := junkuser(user)
 	w.Write(j)
 }
@@ -2342,6 +2342,7 @@ func serve() {
 
 	getters.HandleFunc("/server", serveractor)
 	posters.HandleFunc("/server/inbox", serverinbox)
+	posters.HandleFunc("/inbox", serverinbox)
 
 	getters.HandleFunc("/style.css", serveasset)
 	getters.HandleFunc("/local.css", serveasset)
