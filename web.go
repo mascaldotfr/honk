@@ -983,6 +983,7 @@ func tracker() {
 	timeout := 4 * time.Minute
 	sleeper := time.NewTimer(timeout)
 	tracks := make(map[string][]string)
+	workinprogress++
 	for {
 		select {
 		case track := <-trackchan:
@@ -2245,25 +2246,19 @@ func apihandler(w http.ResponseWriter, r *http.Request) {
 
 var endoftheworld = make(chan bool)
 var readyalready = make(chan bool)
+var workinprogress = 0
 
 func enditall() {
 	sig := make(chan os.Signal)
 	signal.Notify(sig, os.Interrupt)
 	signal.Notify(sig, syscall.SIGTERM)
 	<-sig
-	count := 0
 	log.Printf("stopping...")
-sendloop:
-	for {
-		select {
-		case endoftheworld <- true:
-			count++
-		default:
-			break sendloop
-		}
+	for i := 0; i < workinprogress; i++ {
+		endoftheworld <- true
 	}
 	log.Printf("waiting...")
-	for i := 0; i < count; i++ {
+	for i := 0; i < workinprogress; i++ {
 		<-readyalready
 	}
 	log.Printf("apocalypse")
