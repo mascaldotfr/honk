@@ -1,5 +1,17 @@
 {{ template "header.html" . }}
 <main>
+{{ if .HonkCSRF }}
+<script>
+var csrftoken = {{ .HonkCSRF }}
+var honksforpage = { }
+var curpagestate = { name: "{{ .PageName }}", arg : "{{ .PageArg }}" }
+var tophid = { }
+tophid[curpagestate.name + ":" + curpagestate.arg] = "{{ .TopHID }}"
+var servermsgs = { }
+servermsgs[curpagestate.name + ":" + curpagestate.arg] = "{{ .ServerMessage }}"
+</script>
+<script src="/honkpage.js{{ .JSParam }}"></script>
+{{ end }}
 <div class="info" id="infobox">
 <div id="srvmsg">
 {{ if .Name }}
@@ -17,19 +29,7 @@
 <p><button onclick="refreshhonks(this)">refresh</button><span></span>
 <button onclick="oldestnewest(this)">scroll down</button>
 </div>
-{{ end }}
-{{ if .HonkCSRF }}
-<script>
-var csrftoken = {{ .HonkCSRF }}
-var honksforpage = { }
-var curpagestate = { name: "{{ .PageName }}", arg : "{{ .PageArg }}" }
-var tophid = { }
-tophid[curpagestate.name + ":" + curpagestate.arg] = "{{ .TopHID }}"
-var servermsgs = { }
-servermsgs[curpagestate.name + ":" + curpagestate.arg] = "{{ .ServerMessage }}"
-
-</script>
-<script src="/honkpage.js{{ .JSParam }}"></script>
+{{ if eq .ServerMessage "one honk maybe more" }} <script> hideelement("refreshbox")</script> {{ end }}
 {{ end }}
 <div id="honksonpage">
 <div>

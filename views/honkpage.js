@@ -167,6 +167,7 @@ function switchtopage(name, arg) {
 		msg.remove()
 		servermsgs[stash] = msg
 	}
+	showelement("refreshbox")
 
 	honksforpage[stash] = holder
 
