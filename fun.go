@@ -298,6 +298,9 @@ func grapevine(mentions []Mention) []string {
 func grapeape(s string) []Mention {
 	var mentions []Mention
 	for _, m := range strings.Split(s, " ") {
+		if m ==  "" {
+			continue
+		}
 		where := gofish(m)
 		if where != "" {
 			mentions = append(mentions, Mention{Who: m, Where: where})
