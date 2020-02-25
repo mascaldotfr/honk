@@ -1481,7 +1481,7 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 	noise = strings.Replace(noise, "\r", "", -1)
 	noise = quickrename(noise, userinfo.UserID)
 	noise = hooterize(noise)
-	honk.Mentions = append(grapeape(mentions), bunchofgrapes(noise)...)
+	honk.Mentions = append(grapeape(userinfo.UserID, mentions), bunchofgrapes(noise)...)
 	honk.Noise = noise
 	translate(honk)
 
