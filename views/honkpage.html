@@ -1,17 +1,5 @@
 {{ template "header.html" . }}
 <main>
-{{ if .HonkCSRF }}
-<script>
-var csrftoken = {{ .HonkCSRF }}
-var honksforpage = { }
-var curpagestate = { name: "{{ .PageName }}", arg : "{{ .PageArg }}" }
-var tophid = { }
-tophid[curpagestate.name + ":" + curpagestate.arg] = "{{ .TopHID }}"
-var servermsgs = { }
-servermsgs[curpagestate.name + ":" + curpagestate.arg] = "{{ .ServerMessage }}"
-</script>
-<script src="/honkpage.js{{ .JSParam }}"></script>
-{{ end }}
 <div class="info" id="infobox">
 <div id="srvmsg">
 {{ if .Name }}
@@ -22,6 +10,16 @@ servermsgs[curpagestate.name + ":" + curpagestate.arg] = "{{ .ServerMessage }}"
 </div>
 {{ if .HonkCSRF }}
 {{ template "honkform.html" . }}
+<script>
+var csrftoken = {{ .HonkCSRF }}
+var honksforpage = { }
+var curpagestate = { name: "{{ .PageName }}", arg : "{{ .PageArg }}" }
+var tophid = { }
+tophid[curpagestate.name + ":" + curpagestate.arg] = "{{ .TopHID }}"
+var servermsgs = { }
+servermsgs[curpagestate.name + ":" + curpagestate.arg] = "{{ .ServerMessage }}"
+</script>
+<script src="/honkpage.js{{ .JSParam }}"></script>
 {{ end }}
 </div>
 {{ if and .HonkCSRF (not .IsPreview) }}

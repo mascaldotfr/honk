@@ -243,8 +243,7 @@ function relinklinks() {
 	history.replaceState(curpagestate, "some title", "")
 })();
 (function() {
-	var el = document.getElementById("donkdescriptor")
-	el.style.display = "none"
+	hideelement("donkdescriptor")
 })();
 function showhonkform(elem, rid, hname) {
 	var form = lehonkform
@@ -278,11 +277,13 @@ function cancelhonking() {
 function showelement(el) {
 	if (typeof(el) == "string")
 		el = document.getElementById(el)
+	if (!el) return
 	el.style.display = "block"
 }
 function hideelement(el) {
 	if (typeof(el) == "string")
 		el = document.getElementById(el)
+	if (!el) return
 	el.style.display = "none"
 }
 function updatedonker() {
