@@ -295,25 +295,6 @@ func grapevine(mentions []Mention) []string {
 	return s
 }
 
-func grapeape(userid int64, s string) []Mention {
-	var mentions []Mention
-	for _, m := range strings.Split(s, " ") {
-		if m == "" {
-			continue
-		}
-		var where string
-		if name := fullname(m, userid); name != "" {
-			where = name
-		} else {
-			where = gofish(m)
-		}
-		if where != "" {
-			mentions = append(mentions, Mention{Who: m, Where: where})
-		}
-	}
-	return mentions
-}
-
 func bunchofgrapes(s string) []Mention {
 	m := re_mentions.FindAllString(s, -1)
 	var mentions []Mention

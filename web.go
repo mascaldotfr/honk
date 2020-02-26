@@ -1436,7 +1436,6 @@ func submitwebhonk(w http.ResponseWriter, r *http.Request) {
 func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 	rid := r.FormValue("rid")
 	noise := r.FormValue("noise")
-	mentions := r.FormValue("mentions")
 	format := r.FormValue("format")
 	if format == "" {
 		format = "markdown"
@@ -1481,7 +1480,7 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 	noise = strings.Replace(noise, "\r", "", -1)
 	noise = quickrename(noise, userinfo.UserID)
 	noise = hooterize(noise)
-	honk.Mentions = append(grapeape(userinfo.UserID, mentions), bunchofgrapes(noise)...)
+	honk.Mentions = bunchofgrapes(noise)
 	honk.Noise = noise
 	translate(honk)
 
@@ -1512,10 +1511,10 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 	} else {
 		honk.Audience = []string{thewholeworld}
 	}
-	if mentions != "" {
-		honk.Audience = append(grapevine(honk.Mentions), honk.Audience...)
+	if honk.Noise != "" && honk.Noise[0] == '@' {
+		honk.Audience = append(grapevine(bunchofgrapes(honk.Noise)), honk.Audience...)
 	} else {
-		honk.Audience = append(honk.Audience, grapevine(honk.Mentions)...)
+		honk.Audience = append(honk.Audience, grapevine(bunchofgrapes(honk.Noise))...)
 	}
 
 	if convoy == "" {
@@ -1677,7 +1676,6 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 		templinfo["MapLink"] = getmaplink(userinfo)
 		templinfo["InReplyTo"] = r.FormValue("rid")
 		templinfo["Noise"] = r.FormValue("noise")
-		templinfo["Mentions"] = r.FormValue("mentions")
 		templinfo["SavedFile"] = donkxid
 		if tm := honk.Time; tm != nil {
 			templinfo["ShowTime"] = ";"
