@@ -208,6 +208,7 @@ const (
 )
 
 var serverName string
+var masqName string
 var dataDir = "."
 var viewDir = "."
 var iconName = "icon.png"
@@ -253,6 +254,10 @@ func main() {
 	getconfig("aboutmsg", &aboutMsg)
 	getconfig("loginmsg", &loginMsg)
 	getconfig("servername", &serverName)
+	getconfig("masqname", &masqName)
+	if masqName == "" {
+		masqName = serverName
+	}
 	getconfig("usersep", &userSep)
 	getconfig("honksep", &honkSep)
 	prepareStatements(db)

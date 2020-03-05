@@ -1997,7 +1997,7 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 		idx = strings.IndexByte(name, '@')
 		if idx != -1 {
 			name = name[:idx]
-			if name+"@"+serverName != orig {
+			if !(name+"@"+serverName == orig || name+"@"+masqName == orig) {
 				log.Printf("foreign request rejected")
 				name = ""
 			}
@@ -2014,7 +2014,7 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	j := junk.New()
-	j["subject"] = fmt.Sprintf("acct:%s@%s", user.Name, serverName)
+	j["subject"] = fmt.Sprintf("acct:%s@%s", user.Name, masqName)
 	j["aliases"] = []string{user.URL}
 	l := junk.New()
 	l["rel"] = "self"
