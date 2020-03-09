@@ -1,10 +1,10 @@
 changelog
 
-=== next
+=== 0.9.0 Monitor vs Merrimack
 
 --- Add Reactions.
 
-+++ Rename react to badonk
++++ Rename react to badonk.
 
 + Quick fix to hide all images.
 
@@ -15,6 +15,8 @@ changelog
 + Tables
 
 + Reduce retries talking to dumb servers.
+
++ Maybe possible to use @user@example.com wihtout subdomain.
 
 === 0.8.6 Sartorial Headpiece
 
