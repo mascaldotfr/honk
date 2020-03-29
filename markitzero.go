@@ -43,11 +43,13 @@ func markitzero(s string) string {
 	s = strings.TrimSpace(s)
 	s = strings.Replace(s, "\r", "", -1)
 
+	codeword := "`elided big code`"
+
 	// save away the code blocks so we don't mess them up further
 	var bigcodes, lilcodes, images []string
 	s = re_bigcoder.ReplaceAllStringFunc(s, func(code string) string {
 		bigcodes = append(bigcodes, code)
-		return "``````"
+		return codeword
 	})
 	s = re_coder.ReplaceAllStringFunc(s, func(code string) string {
 		lilcodes = append(lilcodes, code)
@@ -146,15 +148,16 @@ func markitzero(s string) string {
 	s = re_coder.ReplaceAllStringFunc(s, func(string) string {
 		code := lilcodes[0]
 		lilcodes = lilcodes[1:]
+		if code == codeword && len(bigcodes) > 0 {
+			code := bigcodes[0]
+			bigcodes = bigcodes[1:]
+			m := re_bigcoder.FindStringSubmatch(code)
+			return "<pre><code>" + lighter.HighlightString(m[2], m[1]) + "</code></pre><p>"
+		}
 		code = html.EscapeString(code)
 		return code
 	})
-	s = re_bigcoder.ReplaceAllStringFunc(s, func(string) string {
-		code := bigcodes[0]
-		bigcodes = bigcodes[1:]
-		m := re_bigcoder.FindStringSubmatch(code)
-		return "<pre><code>" + lighter.HighlightString(m[2], m[1]) + "</code></pre><p>"
-	})
+
 	s = re_coder.ReplaceAllString(s, "<code>$1</code>")
 
 	// some final fixups
