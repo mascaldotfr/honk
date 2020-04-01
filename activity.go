@@ -1537,7 +1537,7 @@ func updateMe(username string) {
 	j["published"] = dt
 	j["to"] = []string{thewholeworld, user.URL + "/followers"}
 	j["type"] = "Update"
-	jo := junkuser(user)
+	jo, _ := asjonker(username)
 	j["object"] = jo
 
 	msg := j.ToBytes()

@@ -1155,6 +1155,7 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	}
 	somenamedusers.Clear(u.Username)
 	somenumberedusers.Clear(u.UserID)
+	oldjonkers.Clear(u.Username)
 
 	updateMe(u.Username)
 
