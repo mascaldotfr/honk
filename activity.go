@@ -1298,6 +1298,7 @@ func junkuser(user *WhatAbout) []byte {
 			a["url"] = fmt.Sprintf("https://%s/a?a=%s", serverName, url.QueryEscape(user.URL))
 		}
 		j["icon"] = a
+		j["image"] = a
 	} else {
 		j["type"] = "Service"
 	}
