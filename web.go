@@ -1156,6 +1156,8 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	somenamedusers.Clear(u.Username)
 	somenumberedusers.Clear(u.UserID)
 
+	updateMe(u.Username)
+
 	http.Redirect(w, r, "/account", http.StatusSeeOther)
 }
 

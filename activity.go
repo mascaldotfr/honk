@@ -1524,3 +1524,38 @@ func ingesthandle(origin string, obj junk.Junk) {
 		}
 	}
 }
+
+func updateMe(username string) {
+	var user *WhatAbout
+	somenamedusers.Get(username, &user)
+	dt := time.Now().UTC().Format(time.RFC3339)
+	j := junk.New()
+	j["@context"] = itiswhatitis
+	j["id"] = fmt.Sprintf("%s/upme/%s/%d", user.URL, user.Name, time.Now().Unix())
+	j["actor"] = user.URL
+	j["published"] = dt
+	j["to"] = []string{thewholeworld, user.URL + "/followers"}
+	j["type"] = "Update"
+	jo := junkuser(user)
+	j["object"] = jo
+
+	msg := j.ToBytes()
+
+	rcpts := make(map[string]bool)
+	for _, f := range getdubs(user.ID) {
+		if f.XID == user.URL {
+			continue
+		}
+		var box *Box
+		boxofboxes.Get(f.XID, &box)
+		if box != nil && box.Shared != "" {
+			rcpts["%"+box.Shared] = true
+		} else {
+			rcpts[f.XID] = true
+		}
+	}
+	for a := range rcpts {
+		go deliverate(0, user.ID, a, msg)
+	}
+}
+
