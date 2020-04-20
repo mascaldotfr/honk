@@ -1092,6 +1092,7 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 	var userid int64 = -1
 	if u != nil {
 		userid = u.UserID
+		templinfo["User"], _ = butwhatabout(u.Username)
 	}
 	reverbolate(userid, honks)
 	templinfo["Honks"] = honks
