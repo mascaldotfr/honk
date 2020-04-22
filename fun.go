@@ -454,18 +454,17 @@ func fullname(name string, userid int64) string {
 }
 
 func mentionize(s string) string {
+	fill := `<span class="h-card"><a class="u-url mention" href="%s">%s</a></span>`
 	s = re_mentions.ReplaceAllStringFunc(s, func(m string) string {
 		where := gofish(m)
 		if where == "" {
 			return m
 		}
 		who := m[0 : 1+strings.IndexByte(m[1:], '@')]
-		return fmt.Sprintf(`<span class="h-card"><a class="u-url mention" href="%s">%s</a></span>`,
-			html.EscapeString(where), html.EscapeString(who))
+		return fmt.Sprintf(fill, html.EscapeString(where), html.EscapeString(who))
 	})
 	s = re_urltions.ReplaceAllStringFunc(s, func(m string) string {
-		return fmt.Sprintf(`<span class="h-card"><a class="u-url mention" href="%s">%s</a></span>`,
-			html.EscapeString(m[1:]), html.EscapeString(m))
+		return fmt.Sprintf(fill, html.EscapeString(m[1:]), html.EscapeString(m))
 	})
 	return s
 }
