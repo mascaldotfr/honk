@@ -1361,7 +1361,7 @@ var handfull = cache.New(cache.Options{Filler: func(name string) (string, bool) 
 		}
 	}
 	return href, true
-}})
+}, Duration: 1 * time.Minute})
 
 func gofish(name string) string {
 	if name[0] == '@' {
