@@ -1558,4 +1558,3 @@ func updateMe(username string) {
 		go deliverate(0, user.ID, a, msg)
 	}
 }
-

@@ -1432,12 +1432,100 @@ func canedithonk(user *WhatAbout, honk *Honk) bool {
 	return true
 }
 
+func submitdonk(w http.ResponseWriter, r *http.Request) (*Donk, error) {
+	file, filehdr, err := r.FormFile("donk")
+	if err != nil {
+		if err != http.ErrMissingFile {
+			log.Printf("error reading donk: %s", err)
+			http.Error(w, "error reading donk", http.StatusUnsupportedMediaType)
+		}
+		return nil, err
+	}
+	var buf bytes.Buffer
+	io.Copy(&buf, file)
+	file.Close()
+	data := buf.Bytes()
+	xid := xfiltrate()
+	var media, name string
+	img, err := shrinkit(data)
+	if err == nil {
+		data = img.Data
+		format := img.Format
+		media = "image/" + format
+		if format == "jpeg" {
+			format = "jpg"
+		}
+		name = xid + "." + format
+		xid = name
+	} else {
+		ct := http.DetectContentType(data)
+		switch ct {
+		case "application/pdf":
+			maxsize := 1000000
+			if len(data) > maxsize {
+				log.Printf("bad image: %s too much pdf: %d", err, len(data))
+				http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
+				return nil, err
+			}
+			media = ct
+			xid += ".pdf"
+			name = filehdr.Filename
+			if name == "" {
+				name = xid
+			}
+		default:
+			maxsize := 100000
+			if len(data) > maxsize {
+				log.Printf("bad image: %s too much text: %d", err, len(data))
+				http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
+				return nil, err
+			}
+			for i := 0; i < len(data); i++ {
+				if data[i] < 32 && data[i] != '\t' && data[i] != '\r' && data[i] != '\n' {
+					log.Printf("bad image: %s not text: %d", err, data[i])
+					http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
+					return nil, err
+				}
+			}
+			media = "text/plain"
+			xid += ".txt"
+			name = filehdr.Filename
+			if name == "" {
+				name = xid
+			}
+		}
+	}
+	desc := strings.TrimSpace(r.FormValue("donkdesc"))
+	if desc == "" {
+		desc = name
+	}
+	url := fmt.Sprintf("https://%s/d/%s", serverName, xid)
+	fileid, err := savefile(xid, name, desc, url, media, true, data)
+	if err != nil {
+		log.Printf("unable to save image: %s", err)
+		http.Error(w, "failed to save attachment", http.StatusUnsupportedMediaType)
+		return nil, err
+	}
+	d := &Donk{
+		FileID: fileid,
+		XID:    xid,
+		Desc:   desc,
+		URL:    url,
+		Local:  true,
+	}
+	return d, nil
+}
+
 func submitwebhonk(w http.ResponseWriter, r *http.Request) {
-	submithonk(w, r, false)
+	h := submithonk(w, r)
+	if h == nil {
+		return
+	}
+	http.Redirect(w, r, h.XID[len(serverName)+8:], http.StatusSeeOther)
 }
 
 // what a hot mess this function is
-func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
+func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 	rid := r.FormValue("rid")
 	noise := r.FormValue("noise")
 	format := r.FormValue("format")
@@ -1446,7 +1534,7 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 	}
 	if !(format == "markdown" || format == "html") {
 		http.Error(w, "unknown format", 500)
-		return
+		return nil
 	}
 
 	userinfo := login.GetUserInfo(r)
@@ -1459,7 +1547,7 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 		honk = getxonk(userinfo.UserID, updatexid)
 		if !canedithonk(user, honk) {
 			http.Error(w, "no editing that please", http.StatusInternalServerError)
-			return
+			return nil
 		}
 		honk.Date = dt
 		honk.What = "update"
@@ -1493,7 +1581,7 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 		xonk := getxonk(userinfo.UserID, rid)
 		if xonk == nil {
 			http.Error(w, "replyto disappeared", http.StatusNotFound)
-			return
+			return nil
 		}
 		if xonk.Public {
 			honk.Audience = append(honk.Audience, xonk.Audience...)
@@ -1529,88 +1617,20 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 	if len(honk.Audience) == 0 {
 		log.Printf("honk to nowhere")
 		http.Error(w, "honk to nowhere...", http.StatusNotFound)
-		return
+		return nil
 	}
 	honk.Public = loudandproud(honk.Audience)
 	honk.Convoy = convoy
 
 	donkxid := r.FormValue("donkxid")
 	if donkxid == "" {
-		file, filehdr, err := r.FormFile("donk")
-		if err == nil {
-			var buf bytes.Buffer
-			io.Copy(&buf, file)
-			file.Close()
-			data := buf.Bytes()
-			xid := xfiltrate()
-			var media, name string
-			img, err := shrinkit(data)
-			if err == nil {
-				data = img.Data
-				format := img.Format
-				media = "image/" + format
-				if format == "jpeg" {
-					format = "jpg"
-				}
-				name = xid + "." + format
-				xid = name
-			} else {
-				ct := http.DetectContentType(data)
-				switch ct {
-				case "application/pdf":
-					maxsize := 1000000
-					if len(data) > maxsize {
-						log.Printf("bad image: %s too much pdf: %d", err, len(data))
-						http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
-						return
-					}
-					media = ct
-					xid += ".pdf"
-					name = filehdr.Filename
-					if name == "" {
-						name = xid
-					}
-				default:
-					maxsize := 100000
-					if len(data) > maxsize {
-						log.Printf("bad image: %s too much text: %d", err, len(data))
-						http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
-						return
-					}
-					for i := 0; i < len(data); i++ {
-						if data[i] < 32 && data[i] != '\t' && data[i] != '\r' && data[i] != '\n' {
-							log.Printf("bad image: %s not text: %d", err, data[i])
-							http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
-							return
-						}
-					}
-					media = "text/plain"
-					xid += ".txt"
-					name = filehdr.Filename
-					if name == "" {
-						name = xid
-					}
-				}
-			}
-			desc := strings.TrimSpace(r.FormValue("donkdesc"))
-			if desc == "" {
-				desc = name
-			}
-			url := fmt.Sprintf("https://%s/d/%s", serverName, xid)
-			fileid, err := savefile(xid, name, desc, url, media, true, data)
-			if err != nil {
-				log.Printf("unable to save image: %s", err)
-				return
-			}
-			d := &Donk{
-				FileID: fileid,
-				XID:    xid,
-				Desc:   desc,
-				URL:    url,
-				Local:  true,
-			}
+		d, err := submitdonk(w, r)
+		if err != nil && err != http.ErrMissingFile {
+			return nil
+		}
+		if d != nil {
 			honk.Donks = append(honk.Donks, d)
-			donkxid = xid
+			donkxid = d.XID
 		}
 	} else {
 		xid := donkxid
@@ -1693,7 +1713,7 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 		if err != nil {
 			log.Print(err)
 		}
-		return
+		return nil
 	}
 
 	if updatexid != "" {
@@ -1703,7 +1723,7 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 		err := savehonk(honk)
 		if err != nil {
 			log.Printf("uh oh")
-			return
+			return nil
 		}
 	}
 
@@ -1713,11 +1733,7 @@ func submithonk(w http.ResponseWriter, r *http.Request, isAPI bool) {
 
 	go honkworldwide(user, honk)
 
-	if isAPI {
-		w.Write([]byte(honk.XID))
-	} else {
-		http.Redirect(w, r, honk.XID[len(serverName)+8:], http.StatusSeeOther)
-	}
+	return honk
 }
 
 func showhonkers(w http.ResponseWriter, r *http.Request) {
@@ -2202,7 +2218,20 @@ func apihandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("api request '%s' on behalf of %s", action, u.Username)
 	switch action {
 	case "honk":
-		submithonk(w, r, true)
+		h := submithonk(w, r)
+		if h == nil {
+			return
+		}
+		w.Write([]byte(h.XID))
+	case "donk":
+		d, err := submitdonk(w, r)
+		if err != nil {
+			if err == http.ErrMissingFile {
+				http.Error(w, "missing donk", http.StatusBadRequest)
+			}
+			return
+		}
+		w.Write([]byte(d.XID))
 	case "gethonks":
 		var honks []*Honk
 		wanted, _ := strconv.ParseInt(r.FormValue("after"), 10, 0)
