@@ -1461,7 +1461,7 @@ func submitdonk(w http.ResponseWriter, r *http.Request) (*Donk, error) {
 		ct := http.DetectContentType(data)
 		switch ct {
 		case "application/pdf":
-			maxsize := 1000000
+			maxsize := 10000000
 			if len(data) > maxsize {
 				log.Printf("bad image: %s too much pdf: %d", err, len(data))
 				http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
