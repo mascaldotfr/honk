@@ -79,6 +79,8 @@ May also be html.
 A file to attach.
 .It Fa donkdesc
 A description for the attached file.
+.It Fa donkxid
+The XID of a previously uploaded attachment.
 .It Fa placename
 The name of an associated location.
 .It Fa placeurl
@@ -94,6 +96,12 @@ The ActivityPub ID that this honk is in reply to.
 .El
 .Pp
 Upon success, the honk action will return the URL for the created honk.
+.Ss donk
+Upload just an attachment using
+.Fa donk
+and
+.Fa donkdesc .
+Will return the XID.
 .Ss gethonks
 The
 .Dq gethonks
