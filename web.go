@@ -1163,14 +1163,10 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/account", http.StatusSeeOther)
 }
 
-func submitbonk(w http.ResponseWriter, r *http.Request) {
-	xid := r.FormValue("xid")
-	userinfo := login.GetUserInfo(r)
-	user, _ := butwhatabout(userinfo.Username)
-
+func bonkit(xid string, user *WhatAbout) {
 	log.Printf("bonking %s", xid)
 
-	xonk := getxonk(userinfo.UserID, xid)
+	xonk := getxonk(user.ID, xid)
 	if xonk == nil {
 		return
 	}
@@ -1193,8 +1189,8 @@ func submitbonk(w http.ResponseWriter, r *http.Request) {
 	}
 	dt := time.Now().UTC()
 	bonk := &Honk{
-		UserID:   userinfo.UserID,
-		Username: userinfo.Username,
+		UserID:   user.ID,
+		Username: user.Name,
 		What:     "bonk",
 		Honker:   user.URL,
 		Oonker:   oonker,
@@ -1222,11 +1218,19 @@ func submitbonk(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go honkworldwide(user, bonk)
+}
+
+func submitbonk(w http.ResponseWriter, r *http.Request) {
+	xid := r.FormValue("xid")
+	userinfo := login.GetUserInfo(r)
+	user, _ := butwhatabout(userinfo.Username)
+
+	bonkit(xid, user)
 
 	if r.FormValue("js") != "1" {
 		templinfo := getInfo(r)
 		templinfo["ServerMessage"] = "Bonked!"
-		err = readviews.Execute(w, "msg.html", templinfo)
+		err := readviews.Execute(w, "msg.html", templinfo)
 		if err != nil {
 			log.Print(err)
 		}
@@ -1318,6 +1322,12 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 			}
 			sendzonkofsorts(xonk, user, "deack", "")
 		}
+		return
+	}
+
+	if wherefore == "bonk" {
+		user, _ := butwhatabout(userinfo.Username)
+		bonkit(what, user)
 		return
 	}
 
@@ -2237,6 +2247,8 @@ func apihandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.Write([]byte(d.XID))
+	case "zonkit":
+		zonkit(w, r)
 	case "gethonks":
 		var honks []*Honk
 		wanted, _ := strconv.ParseInt(r.FormValue("after"), 10, 0)

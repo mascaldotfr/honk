@@ -123,6 +123,41 @@ If there are no results, wait this many seconds for something to appear.
 .El
 .Pp
 The result will be returned as json.
+.Ss zonkit
+The
+.Dq zonkit
+action began life as a delete function, but has since evolved some other
+powers as specified by the
+.Fa wherefore
+parameter.
+The target of the action is specified by the
+.Fa what
+parameter and is generally the XID of a honk.
+.Pp
+Wherefore must be one of the following.
+.Bl -tag -width zonvoy
+.It bonk
+Share honk with others.
+.It unbonk
+Undo share.
+.It save
+Mark honk as saved.
+.It unsave
+Unmark honk as saved.
+.It react
+Post an emoji reaction.
+A custom reaction may be specified with
+.Fa reaction .
+.It ack
+Mark honk as read.
+.It deack
+Unmark honk as read.
+.It zonk
+Delete this honk.
+.It zonvoy
+Mute this thread.
+What should identify a convoy.
+.El
 .Ss sendactivity
 Send anything.
 No limits, no error checking.
