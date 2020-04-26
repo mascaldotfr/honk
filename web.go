@@ -2205,6 +2205,7 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	reverbolate(userid, honks)
 	templinfo["Honks"] = honks
 	templinfo["MapLink"] = getmaplink(u)
+	templinfo["User"], _ = butwhatabout(u.Username)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	err := readviews.Execute(w, "honkfrags.html", templinfo)
 	if err != nil {
