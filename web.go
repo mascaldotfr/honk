@@ -1233,12 +1233,13 @@ func submitbonk(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func sendzonkofsorts(xonk *Honk, user *WhatAbout, what string) {
+func sendzonkofsorts(xonk *Honk, user *WhatAbout, what string, aux string) {
 	zonk := &Honk{
 		What:     what,
 		XID:      xonk.XID,
 		Date:     time.Now().UTC(),
 		Audience: oneofakind(xonk.Audience),
+		Noise:    aux,
 	}
 	zonk.Public = loudandproud(zonk.Audience)
 
@@ -1275,7 +1276,11 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if wherefore == "react" {
-		if user.Options.Reaction == "none" {
+		reaction := user.Options.Reaction
+		if r2 := r.FormValue("reaction"); r2 != "" {
+			reaction = r2
+		}
+		if reaction == "none" {
 			return
 		}
 		xonk := getxonk(userinfo.UserID, what)
@@ -1284,7 +1289,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Printf("error saving: %s", err)
 			}
-			sendzonkofsorts(xonk, user, "react")
+			sendzonkofsorts(xonk, user, "react", reaction)
 		}
 		return
 	}
@@ -1299,7 +1304,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Printf("error acking: %s", err)
 			}
-			sendzonkofsorts(xonk, user, "ack")
+			sendzonkofsorts(xonk, user, "ack", "")
 		}
 		return
 	}
@@ -1311,7 +1316,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Printf("error deacking: %s", err)
 			}
-			sendzonkofsorts(xonk, user, "deack")
+			sendzonkofsorts(xonk, user, "deack", "")
 		}
 		return
 	}
@@ -1325,7 +1330,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Printf("error unbonking: %s", err)
 			}
-			sendzonkofsorts(xonk, user, "unbonk")
+			sendzonkofsorts(xonk, user, "unbonk", "")
 		}
 		return
 	}
@@ -1351,7 +1356,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		if xonk != nil {
 			deletehonk(xonk.ID)
 			if xonk.Whofore == 2 || xonk.Whofore == 3 {
-				sendzonkofsorts(xonk, user, "zonk")
+				sendzonkofsorts(xonk, user, "zonk", "")
 			}
 		}
 	}

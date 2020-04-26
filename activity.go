@@ -1145,7 +1145,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		if h.Convoy != "" {
 			j["context"] = h.Convoy
 		}
-		j["content"] = user.Options.Reaction
+		j["content"] = h.Noise
 	case "deack":
 		b := junk.New()
 		b["id"] = user.URL + "/" + "ack" + "/" + shortxid(h.XID)
