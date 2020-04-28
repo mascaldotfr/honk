@@ -2325,7 +2325,7 @@ func serve() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	startBackendServer()
+	go runBackendServer()
 	go enditall()
 	go redeliverator()
 	go tracker()
