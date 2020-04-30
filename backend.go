@@ -109,5 +109,5 @@ func runBackendServer() {
 		log.Panicf("can't exec backend: %s", err)
 	}
 	err = proc.Wait()
-	log.Panicf("lost the backend: %s", err)
+	log.Printf("lost the backend: %s", err)
 }
