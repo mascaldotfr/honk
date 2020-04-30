@@ -161,11 +161,9 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 	if url == "" {
 		return nil
 	}
-	donk := finddonk(url)
-	if donk != nil {
+	if donk := finddonk(url); donk != nil {
 		return donk
 	}
-	donk = new(Donk)
 	log.Printf("saving donk: %s", url)
 	xid := xfiltrate()
 	data := []byte{}
@@ -217,6 +215,7 @@ saveit:
 		log.Printf("error saving file %s: %s", url, err)
 		return nil
 	}
+	donk := new(Donk)
 	donk.FileID = fileid
 	donk.XID = xid
 	return donk
