@@ -1272,7 +1272,7 @@ func collectiveaction(honk *Honk) {
 	}
 }
 
-func junkuser(user *WhatAbout) []byte {
+func junkuser(user *WhatAbout) junk.Junk {
 	about := markitzero(user.About)
 
 	j := junk.New()
@@ -1306,7 +1306,7 @@ func junkuser(user *WhatAbout) []byte {
 	k["publicKeyPem"] = user.Key
 	j["publicKey"] = k
 
-	return j.ToBytes()
+	return j
 }
 
 var oldjonkers = cache.New(cache.Options{Filler: func(name string) ([]byte, bool) {
@@ -1314,7 +1314,10 @@ var oldjonkers = cache.New(cache.Options{Filler: func(name string) ([]byte, bool
 	if err != nil {
 		return nil, false
 	}
-	return junkuser(user), true
+	var buf bytes.Buffer
+	j := junkuser(user)
+	j.Write(&buf)
+	return buf.Bytes(), true
 }, Duration: 1 * time.Minute})
 
 func asjonker(name string) ([]byte, bool) {
@@ -1535,8 +1538,7 @@ func updateMe(username string) {
 	j["published"] = dt
 	j["to"] = []string{thewholeworld, user.URL + "/followers"}
 	j["type"] = "Update"
-	jo, _ := asjonker(username)
-	j["object"] = jo
+	j["object"] = junkuser(user)
 
 	msg := j.ToBytes()
 

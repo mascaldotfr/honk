@@ -1,5 +1,11 @@
 changelog
 
+=== next
+
++ Fix update activity.
+
++ A few API refinements and additions.
+
 === 0.9.0 Monitor vs Merrimack
 
 --- Add Reactions.

@@ -562,7 +562,7 @@ func serveractor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	j := junkuser(user)
-	w.Write(j)
+	j.Write(w)
 }
 
 func ximport(w http.ResponseWriter, r *http.Request) {
