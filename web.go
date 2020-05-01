@@ -1119,6 +1119,7 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	user, _ := butwhatabout(u.Username)
 	db := opendatabase()
+
 	options := user.Options
 	if r.FormValue("skinny") == "skinny" {
 		options.SkinnyCSS = true
@@ -1136,17 +1137,25 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 		options.MapLink = ""
 	}
 	options.Reaction = r.FormValue("reaction")
-	if ava := re_avatar.FindString(whatabout); ava != "" {
+
+	sendupdate := false
+	ava := re_avatar.FindString(whatabout)
+	if ava != "" {
 		whatabout = re_avatar.ReplaceAllString(whatabout, "")
 		ava = ava[7:]
 		if ava[0] == ' ' {
 			ava = ava[1:]
 		}
-		options.Avatar = fmt.Sprintf("https://%s/meme/%s", serverName, ava)
-	} else {
-		options.Avatar = ""
+		ava = fmt.Sprintf("https://%s/meme/%s", serverName, ava)
+	}
+	if ava != options.Avatar {
+		options.Avatar = ava
+		sendupdate = true
 	}
 	whatabout = strings.TrimSpace(whatabout)
+	if whatabout != user.About {
+		sendupdate = true
+	}
 	j, err := jsonify(options)
 	if err == nil {
 		_, err = db.Exec("update users set about = ?, options = ? where username = ?", whatabout, j, u.Username)
@@ -1158,7 +1167,9 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	somenumberedusers.Clear(u.UserID)
 	oldjonkers.Clear(u.Username)
 
-	updateMe(u.Username)
+	if sendupdate {
+		updateMe(u.Username)
+	}
 
 	http.Redirect(w, r, "/account", http.StatusSeeOther)
 }
