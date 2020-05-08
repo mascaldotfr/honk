@@ -2325,6 +2325,15 @@ func enditall() {
 
 var preservehooks []func()
 
+func wait100ms() chan struct{} {
+	c := make(chan struct{})
+	go func() {
+		time.Sleep(100 * time.Millisecond)
+		close(c)
+	}()
+	return c
+}
+
 func serve() {
 	db := opendatabase()
 	login.Init(db)
@@ -2337,6 +2346,7 @@ func serve() {
 	go enditall()
 	go redeliverator()
 	go tracker()
+	w100 := wait100ms()
 
 	getconfig("debug", &debugMode)
 	readviews = templates.Load(debugMode,
@@ -2364,6 +2374,7 @@ func serve() {
 		}
 		loadAvatarColors()
 	}
+	<-w100
 
 	for _, h := range preservehooks {
 		h()
