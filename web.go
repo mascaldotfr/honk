@@ -59,9 +59,6 @@ func getuserstyle(u *login.UserInfo) template.CSS {
 	if user.Options.SkinnyCSS {
 		css += "main { max-width: 700px; }\n"
 	}
-	if user.Options.OmitImages {
-		css += ".honk .noise img { display: none; }\n"
-	}
 	return css
 }
 

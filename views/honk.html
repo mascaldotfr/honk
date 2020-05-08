@@ -2,6 +2,7 @@
 {{ $bonkcsrf := .BonkCSRF }}
 {{ $IsPreview := .IsPreview }}
 {{ $maplink := .MapLink }}
+{{ $omitimages := .OmitImages }}
 {{ with .Honk }}
 <header>
 {{ if $bonkcsrf }}
@@ -70,7 +71,11 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ else if eq .Media "application/pdf" }}
 <p><a href="/d/{{ .XID }}">Attachment: {{ .Name }}</a>{{ if not (eq .Desc .Name) }} {{ .Desc }}{{ end }}
 {{ else }}
+{{ if $omitimages }}
+<p><a href="/d/{{ .XID }}">Image: {{ .Name }}</a>{{ if not (eq .Desc .Name) }} {{ .Desc }}{{ end }}
+{{ else }}
 <p><img src="/d/{{ .XID }}" title="{{ .Desc }}" alt="{{ .Desc }}">
+{{ end }}
 {{ end }}
 {{ else }}
 {{ if .XID }}

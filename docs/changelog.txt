@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Much better omit images handling.
+
 + Fix update activity.
 
 + A few API refinements and additions.
