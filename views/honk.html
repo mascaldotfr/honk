@@ -94,8 +94,7 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ if and $bonkcsrf (not $IsPreview) }}
 <p>
 <details class="actions">
-<summary>Actions
-</summary>
+<summary>Actions</summary>
 <div>
 <p>
 {{ if .Honk.Public }}
@@ -109,6 +108,10 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ end }}
 <button onclick="return showhonkform(this, '{{ .Honk.XID }}', '{{ .Honk.Handle }}');"><a href="/newhonk?rid={{ .Honk.XID }}">honk back</a></button>
 <button onclick="return muteit(this, '{{ .Honk.Convoy }}');">mute</button>
+<button onclick="return showelement('evenmore{{ .Honk.ID }}')">even more</button>
+</div>
+<div id="evenmore{{ .Honk.ID }}" style="display:none">
+<p>
 <button onclick="return zonkit(this, '{{ .Honk.XID }}');">zonk</button>
 {{ if .Honk.IsAcked }}
 <button onclick="return flogit(this, 'deack', '{{ .Honk.XID }}');">deack</button>
