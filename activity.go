@@ -17,6 +17,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -69,6 +70,9 @@ func PostMsg(keyname string, key httpsig.PrivateKey, url string, msg []byte) err
 	req.Header.Set("User-Agent", "honksnonk/5.0; "+serverName)
 	req.Header.Set("Content-Type", theonetruename)
 	httpsig.SignRequest(keyname, key, req, msg)
+	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Minute)
+	defer cancel()
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
