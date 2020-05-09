@@ -2338,7 +2338,7 @@ func bgmonitor() {
 	for {
 		time.Sleep(5 * time.Minute)
 		log.Printf("good morning!")
-		log.Printf("outstanding deliveries: %s", garage.Outstanding())
+		log.Printf("outstanding deliveries: %d", garage.Outstanding())
 	}
 }
 
