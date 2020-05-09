@@ -2,6 +2,11 @@ changelog
 
 === next
 
+- known issues:
+	file descriptor leak.
+	outbound connection stall.
+	possibly related?
+
 + Much better omit images handling.
 
 + Fix update activity.
