@@ -2334,6 +2334,14 @@ func wait100ms() chan struct{} {
 	return c
 }
 
+func bgmonitor() {
+	for {
+		time.Sleep(5 * time.Minute)
+		log.Printf("good morning!")
+		log.Printf("outstanding deliveries: %s", garage.Outstanding())
+	}
+}
+
 func serve() {
 	db := opendatabase()
 	login.Init(db)
@@ -2346,6 +2354,7 @@ func serve() {
 	go enditall()
 	go redeliverator()
 	go tracker()
+	go bgmonitor()
 	w100 := wait100ms()
 
 	getconfig("debug", &debugMode)
