@@ -2,10 +2,7 @@ changelog
 
 === next
 
-- known issues:
-	file descriptor leak.
-	outbound connection stall.
-	possibly related?
++ Quote unquote reliability improvements.
 
 + Much better omit images handling.
 
