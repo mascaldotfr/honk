@@ -1035,8 +1035,6 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		}
 		translate(h)
 		redoimages(h)
-		jo["summary"] = html.EscapeString(h.Precis)
-		jo["content"] = h.Noise
 		if h.Precis != "" {
 			jo["sensitive"] = true
 		}
@@ -1070,6 +1068,18 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			tags = append(tags, t)
 		}
 		for _, e := range herdofemus(h.Noise) {
+			t := junk.New()
+			t["id"] = e.ID
+			t["type"] = "Emoji"
+			t["name"] = e.Name
+			i := junk.New()
+			i["type"] = "Image"
+			i["mediaType"] = "image/png"
+			i["url"] = e.ID
+			t["icon"] = i
+			tags = append(tags, t)
+		}
+		for _, e := range bloat_fixupflags(h) {
 			t := junk.New()
 			t["id"] = e.ID
 			t["type"] = "Emoji"
@@ -1123,6 +1133,8 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		if len(atts) > 0 {
 			jo["attachment"] = atts
 		}
+		jo["summary"] = html.EscapeString(h.Precis)
+		jo["content"] = h.Noise
 		j["object"] = jo
 	case "bonk":
 		j["type"] = "Announce"

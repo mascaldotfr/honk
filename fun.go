@@ -139,6 +139,7 @@ func reverbolate(userid int64, honks []*Honk) {
 			}
 			return e
 		}
+		bloat_renderflags(h)
 		h.Precis = re_emus.ReplaceAllStringFunc(h.Precis, emuxifier)
 		h.Noise = re_emus.ReplaceAllStringFunc(h.Noise, emuxifier)
 

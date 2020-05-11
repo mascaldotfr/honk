@@ -2418,6 +2418,8 @@ func serve() {
 	getters.HandleFunc("/meme/{meme:[^.]*[^/]+}", servememe)
 	getters.HandleFunc("/.well-known/webfinger", fingerlicker)
 
+	getters.HandleFunc("/flag/{code:.+}", bloat_showflag)
+
 	getters.HandleFunc("/server", serveractor)
 	posters.HandleFunc("/server/inbox", serverinbox)
 	posters.HandleFunc("/inbox", serverinbox)

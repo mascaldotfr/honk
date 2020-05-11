@@ -14,3 +14,68 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package main
+
+import (
+	"fmt"
+	"regexp"
+	"image"
+	"image/png"
+	"net/http"
+	"strconv"
+	"strings"
+
+	"github.com/gorilla/mux"
+)
+
+func bloat_showflag(writer http.ResponseWriter, req *http.Request) {
+	code := mux.Vars(req)["code"]
+	colors := strings.Split(code, ",")
+	numcolors := len(colors)
+	h := (128 / numcolors) * numcolors
+	w := h * 3 / 2
+	img := image.NewRGBA(image.Rect(0, 0, w, h))
+	for i := 0; i < h; i++ {
+		hex := colors[i*numcolors/h]
+		if len(hex) == 3 {
+			hex = fmt.Sprintf("%c%c%c%c%c%c",
+				hex[0], hex[0], hex[1], hex[1], hex[2], hex[2])
+		}
+		c, _ := strconv.ParseUint(hex, 16, 32)
+		r := byte(c >> 16 & 0xff)
+		g := byte(c >> 8 & 0xff)
+		b := byte(c >> 0 & 0xff)
+		for j := 0; j < w; j++ {
+			p := i*img.Stride + j*4
+			img.Pix[p+0] = r
+			img.Pix[p+1] = g
+			img.Pix[p+2] = b
+			img.Pix[p+3] = 255
+		}
+	}
+	png.Encode(writer, img)
+}
+
+var re_flags = regexp.MustCompile("flag:[[:alnum:],]+")
+
+func bloat_fixupflags(h *Honk) []Emu {
+	var emus []Emu
+	count := 0
+	h.Noise = re_flags.ReplaceAllStringFunc(h.Noise, func(m string) string {
+		count++
+		var e Emu
+		e.Name = fmt.Sprintf(":flag%d:", count)
+		e.ID = fmt.Sprintf("https://%s/flag/%s", serverName, m[5:])
+		emus = append(emus, e)
+		return e.Name
+	})
+	return emus
+}
+
+func bloat_renderflags(h *Honk) {
+	h.Noise = re_flags.ReplaceAllStringFunc(h.Noise, func(m string) string {
+		code := m[5:]
+		src := fmt.Sprintf("https://%s/flag/%s", serverName, code)
+		return fmt.Sprintf(`<img class="emu" title="%s" src="%s">`, "flag", src)
+	})
+}
+
