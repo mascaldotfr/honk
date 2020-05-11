@@ -17,10 +17,10 @@ package main
 
 import (
 	"fmt"
-	"regexp"
 	"image"
 	"image/png"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -52,6 +52,7 @@ func bloat_showflag(writer http.ResponseWriter, req *http.Request) {
 			img.Pix[p+3] = 255
 		}
 	}
+	writer.Header().Set("Cache-Control", "max-age="+somedays())
 	png.Encode(writer, img)
 }
 
@@ -78,4 +79,3 @@ func bloat_renderflags(h *Honk) {
 		return fmt.Sprintf(`<img class="emu" title="%s" src="%s">`, "flag", src)
 	})
 }
-
