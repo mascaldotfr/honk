@@ -19,7 +19,6 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"html"
 	"io"
@@ -70,7 +69,7 @@ func PostMsg(keyname string, key httpsig.PrivateKey, url string, msg []byte) err
 	req.Header.Set("User-Agent", "honksnonk/5.0; "+serverName)
 	req.Header.Set("Content-Type", theonetruename)
 	httpsig.SignRequest(keyname, key, req, msg)
-	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
@@ -146,14 +145,23 @@ func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
 }
 
 func fetchsome(url string) ([]byte, error) {
-	resp, err := http.Get(url)
+	client := http.DefaultClient
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Printf("error fetching %s: %s", url, err)
+		return nil, err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+	req = req.WithContext(ctx)
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("error fetching %s: %s", url, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return nil, errors.New("not 200")
+		return nil, fmt.Errorf("not 200: %d %s", resp.StatusCode, url)
 	}
 	var buf bytes.Buffer
 	limiter := io.LimitReader(resp.Body, 10*1024*1024)
