@@ -190,7 +190,7 @@ func filterchonk(ch *Chonk) {
 	if short := shortname(ch.UserID, ch.Who); short != "" {
 		ch.Handle = short
 	} else {
-		_, ch.Handle = handles(ch.Who)
+		ch.Handle, _ = handles(ch.Who)
 	}
 
 }

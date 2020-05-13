@@ -15,10 +15,22 @@
 {{ $chonkcsrf := .ChonkCSRF }}
 {{ range .Chatter }}
 <section class="honk">
+{{ $target := "" }}
 {{ range . }}
+{{ if eq $target "" }}
+{{ $target = .Target }}
+<p>chatter: {{ .Target }}
+{{ end }}
 <p>
 {{ .Handle }}: {{ .HTML }}
 {{ end }}
+<form action="/sendchonk" method="POST">
+<input type="hidden" name="CSRF" value="{{ $chonkcsrf }}">
+<input type="hidden" name="target" value="{{ $target }}" autocomplete=off>
+<p><label for=noise>noise:</label><br>
+<textarea name="noise" id="noise"></textarea>
+<p><button name="chonk" value="chonk">chonk</button>
+</form>
 </section>
 {{ end }}
 </main>
