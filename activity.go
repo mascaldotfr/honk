@@ -462,7 +462,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 	}
 
 	xonkxonkfn = func(item junk.Junk, origin string) *Honk {
-		// id, _ := item.GetString( "id")
+		id, _ := item.GetString("id")
 		what, _ := item.GetString("type")
 		dt, ok := item.GetString("published")
 		if !ok {
@@ -529,19 +529,20 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if !ok {
 				xid, _ = item.GetString("object")
 				log.Printf("getting created honk: %s", xid)
+				if originate(xid) != origin {
+					log.Printf("out of bounds %s not from %s", xid, origin)
+					return nil
+				}
 				obj, err = GetJunkHardMode(xid)
 				if err != nil {
 					log.Printf("error getting creation: %s", err)
 				}
 			}
-			what = "honk"
-			if obj != nil {
-				t, _ := obj.GetString("type")
-				switch t {
-				case "Event":
-					what = "event"
-				}
+			if obj == nil {
+				log.Printf("no object for creation %s", id)
+				return nil
 			}
+			return xonkxonkfn(obj, origin)
 		case "Read":
 			xid, ok = item.GetString("object")
 			if ok {
@@ -610,7 +611,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			return nil
 		}
 		if originate(xid) != origin {
-			log.Printf("original sin: %s <> %s", xid, origin)
+			log.Printf("original sin: %s not from %s", xid, origin)
 			item.Write(os.Stdout)
 			return nil
 		}
