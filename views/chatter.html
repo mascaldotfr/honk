@@ -1,0 +1,24 @@
+{{ template "header.html" . }}
+<main>
+<div class="info">
+<p>
+<form action="/sendchonk" method="POST">
+<h3>new chatter</h3>
+<input type="hidden" name="CSRF" value="{{ .ChonkCSRF }}">
+<p><label for=target>target:</label><br>
+<input type="text" name="target" value="" autocomplete=off>
+<p><label for=noise>noise:</label><br>
+<textarea name="noise" id="noise"></textarea>
+<p><button name="chonk" value="chonk">chonk</button>
+</form>
+</div>
+{{ $chonkcsrf := .ChonkCSRF }}
+{{ range .Chatter }}
+<section class="honk">
+{{ range . }}
+<p>
+{{ .Handle }}: {{ .HTML }}
+{{ end }}
+</section>
+{{ end }}
+</main>
