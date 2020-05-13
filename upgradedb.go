@@ -24,7 +24,7 @@ import (
 	"time"
 )
 
-var myVersion = 34
+var myVersion = 35
 
 func doordie(db *sql.DB, s string, args ...interface{}) {
 	_, err := db.Exec(s, args...)
@@ -366,6 +366,10 @@ func upgradedb() {
 		doordie(db, "update config set value = 34 where key = 'dbversion'")
 		fallthrough
 	case 34:
+		doordie(db, "create table chonks (chonkid integer primary key, userid integer, xid text, who txt, target text, dt text, noise text, format text)")
+		doordie(db, "update config set value = 35 where key = 'dbversion'")
+		fallthrough
+	case 35:
 
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)

@@ -94,6 +94,19 @@ type Honk struct {
 	Mentions []Mention
 }
 
+type Chonk struct {
+	ID     int64
+	UserID int64
+	XID    string
+	Who    string
+	Target string
+	Date   time.Time
+	Noise  string
+	Format string
+	Handle string
+	HTML   template.HTML
+}
+
 type Mention struct {
 	Who   string
 	Where string

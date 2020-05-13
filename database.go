@@ -482,6 +482,37 @@ func finddonk(url string) *Donk {
 	return nil
 }
 
+func savechonk(ch *Chonk) error {
+	dt := ch.Date.UTC().Format(dbtimeformat)
+	res, err := stmtSaveChonk.Exec(ch.UserID, ch.XID, ch.Who, ch.Target, dt, ch.Noise, ch.Format)
+	if err == nil {
+		ch.ID, _ = res.LastInsertId()
+	}
+	return err
+}
+
+func loadchatter(userid int64) map[string][]*Chonk {
+	rows, err := stmtLoadChonks.Query(userid)
+	if err != nil {
+		log.Printf("error loading chonks: %s", err)
+		return nil
+	}
+	defer rows.Close()
+	chonks := make(map[string][]*Chonk)
+	for rows.Next() {
+		ch := new(Chonk)
+		var dt string
+		err = rows.Scan(&ch.ID, &ch.UserID, &ch.XID, &ch.Who, &ch.Target, &dt, &ch.Noise, &ch.Format)
+		if err != nil {
+			log.Printf("error scanning chonk: %s", err)
+			continue
+		}
+		ch.Date, _ = time.Parse(dbtimeformat, dt)
+		chonks[ch.Target] = append(chonks[ch.Target], ch)
+	}
+	return chonks
+}
+
 func savehonk(h *Honk) error {
 	dt := h.Date.UTC().Format(dbtimeformat)
 	aud := strings.Join(h.Audience, " ")
@@ -739,6 +770,7 @@ var stmtHonksForUserFirstClass *sql.Stmt
 var stmtSaveMeta, stmtDeleteAllMeta, stmtDeleteSomeMeta, stmtUpdateHonk *sql.Stmt
 var stmtHonksISaved, stmtGetFilters, stmtSaveFilter, stmtDeleteFilter *sql.Stmt
 var stmtGetTracks *sql.Stmt
+var stmtSaveChonk, stmtLoadChonks *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -816,4 +848,6 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveFilter = preparetodie(db, "insert into hfcs (userid, json) values (?, ?)")
 	stmtDeleteFilter = preparetodie(db, "delete from hfcs where userid = ? and hfcsid = ?")
 	stmtGetTracks = preparetodie(db, "select fetches from tracks where xid = ?")
+	stmtSaveChonk = preparetodie(db, "insert into chonks (userid, xid, who, target, dt, noise, format) values (?, ?, ?, ?, ?, ?, ?)")
+	stmtLoadChonks = preparetodie(db, "select chonkid, userid, xid, who, target, dt, noise, format from chonks where userid = ?")
 }

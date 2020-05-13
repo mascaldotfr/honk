@@ -178,6 +178,23 @@ func replaceimgsand(zap map[string]bool, absolute bool) func(node *html.Node) st
 	}
 }
 
+func filterchonk(ch *Chonk) {
+	var htf htfilter.Filter
+	htf.SpanClasses = allowedclasses
+	htf.BaseURL, _ = url.Parse(ch.XID)
+	ch.HTML, _ = htf.String(ch.Noise)
+	n := string(ch.HTML)
+	if strings.HasPrefix(n, "<p>") {
+		ch.HTML = template.HTML(n[3:])
+	}
+	if short := shortname(ch.UserID, ch.Who); short != "" {
+		ch.Handle = short
+	} else {
+		_, ch.Handle = handles(ch.Who)
+	}
+
+}
+
 func inlineimgsfor(honk *Honk) func(node *html.Node) string {
 	return func(node *html.Node) string {
 		src := htfilter.GetAttr(node, "src")

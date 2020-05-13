@@ -1770,6 +1770,56 @@ func showhonkers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func showchatter(w http.ResponseWriter, r *http.Request) {
+	u := login.GetUserInfo(r)
+	chatter := loadchatter(u.UserID)
+	for _, chonks := range chatter {
+		for _, ch := range chonks {
+			filterchonk(ch)
+		}
+	}
+
+	templinfo := getInfo(r)
+	templinfo["Chatter"] = chatter
+	templinfo["ChonkCSRF"] = login.GetCSRF("sendchonk", r)
+	err := readviews.Execute(w, "chatter.html", templinfo)
+	if err != nil {
+		log.Print(err)
+	}
+}
+
+func submitchonk(w http.ResponseWriter, r *http.Request) {
+	u := login.GetUserInfo(r)
+	user, _ := butwhatabout(u.Username)
+	noise := r.FormValue("noise")
+	target := r.FormValue("target")
+	format := "markdown"
+	dt := time.Now().UTC()
+	xid := fmt.Sprintf("%s/%s/%s", user.URL, "chonk", xfiltrate())
+
+	if !strings.HasPrefix(target, "https://") {
+		target = fullname(target, u.UserID)
+	}
+	if target == "" {
+		http.Error(w, "who is that?", http.StatusInternalServerError)
+		return
+	}
+
+	ch := Chonk{
+		UserID: u.UserID,
+		XID:    xid,
+		Who:    user.URL,
+		Target: target,
+		Date:   dt,
+		Noise:  noise,
+		Format: format,
+	}
+	savechonk(&ch)
+	go sendchonk(user, &ch)
+
+	http.Redirect(w, r, "/chatter", http.StatusSeeOther)
+}
+
 var combocache = cache.New(cache.Options{Filler: func(userid int64) ([]string, bool) {
 	honkers := gethonkers(userid)
 	var combos []string
@@ -2361,6 +2411,7 @@ func serve() {
 		viewDir+"/views/honkpage.html",
 		viewDir+"/views/honkfrags.html",
 		viewDir+"/views/honkers.html",
+		viewDir+"/views/chatter.html",
 		viewDir+"/views/hfcs.html",
 		viewDir+"/views/combos.html",
 		viewDir+"/views/honkform.html",
@@ -2435,6 +2486,8 @@ func serve() {
 	loggedin := mux.NewRoute().Subrouter()
 	loggedin.Use(login.Required)
 	loggedin.HandleFunc("/first", homepage)
+	loggedin.HandleFunc("/chatter", showchatter)
+	loggedin.Handle("/sendchonk", login.CSRFWrap("sendchonk", http.HandlerFunc(submitchonk)))
 	loggedin.HandleFunc("/saved", homepage)
 	loggedin.HandleFunc("/account", accountpage)
 	loggedin.HandleFunc("/funzone", showfunzone)
