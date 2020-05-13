@@ -18,6 +18,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"database/sql"
 	"fmt"
 	"html"
@@ -56,12 +57,23 @@ func friendorfoe(ct string) bool {
 	return false
 }
 
+var debugClient = &http.Client{
+	Transport: &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	},
+}
+
 func PostJunk(keyname string, key httpsig.PrivateKey, url string, j junk.Junk) error {
 	return PostMsg(keyname, key, url, j.ToBytes())
 }
 
 func PostMsg(keyname string, key httpsig.PrivateKey, url string, msg []byte) error {
 	client := http.DefaultClient
+	if debugMode {
+		client = debugClient
+	}
 	req, err := http.NewRequest("POST", url, bytes.NewReader(msg))
 	if err != nil {
 		return err

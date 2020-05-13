@@ -260,6 +260,7 @@ func main() {
 	}
 	getconfig("usersep", &userSep)
 	getconfig("honksep", &honkSep)
+	getconfig("debug", &debugMode)
 	prepareStatements(db)
 	switch cmd {
 	case "admin":

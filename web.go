@@ -2357,7 +2357,6 @@ func serve() {
 	go bgmonitor()
 	w100 := wait100ms()
 
-	getconfig("debug", &debugMode)
 	readviews = templates.Load(debugMode,
 		viewDir+"/views/honkpage.html",
 		viewDir+"/views/honkfrags.html",
