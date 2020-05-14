@@ -723,7 +723,12 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				}
 				at, _ := att.GetString("type")
 				mt, _ := att.GetString("mediaType")
-				u, _ := att.GetString("url")
+				u, ok := att.GetString("url")
+				if !ok {
+					if uu, ok := att.GetMap("url"); ok {
+						u, _ = uu.GetString("href")
+					}
+				}
 				name, _ := att.GetString("name")
 				desc, _ := att.GetString("summary")
 				if desc == "" {
