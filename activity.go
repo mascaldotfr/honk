@@ -715,15 +715,11 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if what == "honk" && rid != "" {
 				what = "tonk"
 			}
-			atts, _ := obj.GetArray("attachment")
-			for i, atti := range atts {
+			numatts := 0
+			procatt := func(att junk.Junk) {
 				if rejectxonk(&xonk) {
 					log.Printf("skipping rejected attachment: %s", xid)
-					continue
-				}
-				att, ok := atti.(junk.Junk)
-				if !ok {
-					continue
+					return
 				}
 				at, _ := att.GetString("type")
 				mt, _ := att.GetString("mediaType")
@@ -734,7 +730,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					desc = name
 				}
 				localize := false
-				if i > 4 {
+				if numatts > 4 {
 					log.Printf("excessive attachment: %s", at)
 				} else if at == "Document" || at == "Image" {
 					mt = strings.ToLower(mt)
@@ -753,6 +749,19 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if donk != nil {
 					xonk.Donks = append(xonk.Donks, donk)
 				}
+				numatts++
+			}
+			atts, _ := obj.GetArray("attachment")
+			for _, atti := range atts {
+				att, ok := atti.(junk.Junk)
+				if !ok {
+					log.Printf("attachment that wasn't map?")
+					continue
+				}
+				procatt(att)
+			}
+			if att, ok := obj.GetMap("attachment"); ok {
+				procatt(att)
 			}
 			tags, _ := obj.GetArray("tag")
 			for _, tagi := range tags {
