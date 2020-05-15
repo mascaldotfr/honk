@@ -1287,7 +1287,7 @@ func sendchonk(user *WhatAbout, ch *Chonk) {
 	jo["published"] = dt
 	jo["attributedTo"] = user.URL
 	jo["to"] = aud
-	jo["content"] = ch.Noise
+	jo["content"] = ch.HTML
 
 	j := junk.New()
 	j["@context"] = itiswhatitis

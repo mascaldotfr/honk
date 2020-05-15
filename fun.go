@@ -182,7 +182,11 @@ func filterchonk(ch *Chonk) {
 	var htf htfilter.Filter
 	htf.SpanClasses = allowedclasses
 	htf.BaseURL, _ = url.Parse(ch.XID)
-	ch.HTML, _ = htf.String(ch.Noise)
+	noise := ch.Noise
+	if ch.Format == "markdown" {
+		noise = markitzero(noise)
+	}
+	ch.HTML, _ = htf.String(noise)
 	n := string(ch.HTML)
 	if strings.HasPrefix(n, "<p>") {
 		ch.HTML = template.HTML(n[3:])

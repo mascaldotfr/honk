@@ -1814,6 +1814,7 @@ func submitchonk(w http.ResponseWriter, r *http.Request) {
 		Noise:  noise,
 		Format: format,
 	}
+	filterchonk(&ch)
 	savechonk(&ch)
 	go sendchonk(user, &ch)
 
