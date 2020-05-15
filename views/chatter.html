@@ -19,10 +19,14 @@
 {{ range . }}
 {{ if eq $target "" }}
 {{ $target = .Target }}
-<p>chatter: {{ .Target }}
+<p class="chattarget">
+chatter: {{ .Target }}
 {{ end }}
+<div class="chat">
 <p>
-{{ .Handle }}: {{ .HTML }}
+<span class="chatstamp">{{ .Date.Format "15:04" }} {{ .Handle }}:</span>
+{{ .HTML }}
+</div>
 {{ end }}
 <form action="/sendchonk" method="POST">
 <input type="hidden" name="CSRF" value="{{ $chonkcsrf }}">
