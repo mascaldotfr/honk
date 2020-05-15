@@ -24,7 +24,7 @@ chatter: {{ .Target }}
 {{ end }}
 <div class="chat">
 <p>
-<span class="chatstamp">{{ .Date.Format "15:04" }} {{ .Handle }}:</span>
+<span class="chatstamp">{{ .Date.Local.Format "15:04" }} {{ .Handle }}:</span>
 {{ .HTML }}
 </div>
 {{ end }}
