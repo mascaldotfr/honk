@@ -103,6 +103,7 @@ type Chonk struct {
 	Date   time.Time
 	Noise  string
 	Format string
+	Donks  []*Donk
 	Handle string
 	HTML   template.HTML
 }

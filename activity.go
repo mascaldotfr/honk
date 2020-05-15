@@ -902,6 +902,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				Date:   xonk.Date,
 				Noise:  xonk.Noise,
 				Format: xonk.Format,
+				Donks:  xonk.Donks,
 			}
 			savechonk(&ch)
 			return nil

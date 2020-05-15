@@ -484,9 +484,26 @@ func finddonk(url string) *Donk {
 
 func savechonk(ch *Chonk) error {
 	dt := ch.Date.UTC().Format(dbtimeformat)
-	res, err := stmtSaveChonk.Exec(ch.UserID, ch.XID, ch.Who, ch.Target, dt, ch.Noise, ch.Format)
+	db := opendatabase()
+	tx, err := db.Begin()
+	if err != nil {
+		log.Printf("can't begin tx: %s", err)
+		return err
+	}
+
+	res, err := tx.Stmt(stmtSaveChonk).Exec(ch.UserID, ch.XID, ch.Who, ch.Target, dt, ch.Noise, ch.Format)
 	if err == nil {
 		ch.ID, _ = res.LastInsertId()
+		for _, d := range ch.Donks {
+			_, err := tx.Stmt(stmtSaveDonk).Exec(-1, ch.ID, d.FileID)
+			if err != nil {
+				log.Printf("error saving donk: %s", err)
+				break
+			}
+		}
+		err = tx.Commit()
+	} else {
+		tx.Rollback()
 	}
 	return err
 }
@@ -608,7 +625,7 @@ func deletehonk(honkid int64) error {
 
 func saveextras(tx *sql.Tx, h *Honk) error {
 	for _, d := range h.Donks {
-		_, err := tx.Stmt(stmtSaveDonk).Exec(h.ID, d.FileID)
+		_, err := tx.Stmt(stmtSaveDonk).Exec(h.ID, -1, d.FileID)
 		if err != nil {
 			log.Printf("error saving donk: %s", err)
 			return err
@@ -706,7 +723,7 @@ func cleanupdb(arg string) {
 		sqlargs = append(sqlargs, expdate)
 	}
 	doordie(db, "delete from honks where flags & 4 = 0 and whofore = 0 and "+where, sqlargs...)
-	doordie(db, "delete from donks where honkid not in (select honkid from honks)")
+	doordie(db, "delete from donks where honkid > 0 and honkid not in (select honkid from honks)")
 	doordie(db, "delete from onts where honkid not in (select honkid from honks)")
 	doordie(db, "delete from honkmeta where honkid not in (select honkid from honks)")
 
@@ -818,7 +835,7 @@ func prepareStatements(db *sql.DB) {
 	stmtUpdateHonk = preparetodie(db, "update honks set precis = ?, noise = ?, format = ?, whofore = ?, dt = ? where honkid = ?")
 	stmtSaveOnt = preparetodie(db, "insert into onts (ontology, honkid) values (?, ?)")
 	stmtDeleteOnts = preparetodie(db, "delete from onts where honkid = ?")
-	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, fileid) values (?, ?)")
+	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, chonkid, fileid) values (?, ?, ?)")
 	stmtDeleteDonks = preparetodie(db, "delete from donks where honkid = ?")
 	stmtSaveFile = preparetodie(db, "insert into filemeta (xid, name, description, url, media, local) values (?, ?, ?, ?, ?, ?)")
 	blobdb := openblobdb()
