@@ -745,6 +745,10 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if numatts > 4 {
 					log.Printf("excessive attachment: %s", at)
 				} else if at == "Document" || at == "Image" {
+					if mt == "" {
+						log.Printf("assuming image media")
+						mt = "image/jpeg"
+					}
 					mt = strings.ToLower(mt)
 					log.Printf("attachment: %s %s", mt, u)
 					if mt == "text/plain" || mt == "application/pdf" ||
