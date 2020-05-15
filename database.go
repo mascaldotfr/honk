@@ -546,6 +546,7 @@ func loadchatter(userid int64) map[string][]*Chonk {
 	}
 	defer rows.Close()
 	chonks := make(map[string][]*Chonk)
+	var allchonks []*Chonk
 	for rows.Next() {
 		ch := new(Chonk)
 		var dt string
@@ -556,7 +557,9 @@ func loadchatter(userid int64) map[string][]*Chonk {
 		}
 		ch.Date, _ = time.Parse(dbtimeformat, dt)
 		chonks[ch.Target] = append(chonks[ch.Target], ch)
+		allchonks = append(allchonks, ch)
 	}
+	donksforchonks(allchonks)
 	return chonks
 }
 
