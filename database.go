@@ -454,6 +454,36 @@ func donksforhonks(honks []*Honk) {
 	rows.Close()
 }
 
+func donksforchonks(chonks []*Chonk) {
+	db := opendatabase()
+	var ids []string
+	chmap := make(map[int64]*Chonk)
+	for _, ch := range chonks {
+		ids = append(ids, fmt.Sprintf("%d", ch.ID))
+		chmap[ch.ID] = ch
+	}
+	idset := strings.Join(ids, ",")
+	// grab donks
+	q := fmt.Sprintf("select chonkid, donks.fileid, xid, name, description, url, media, local from donks join filemeta on donks.fileid = filemeta.fileid where chonkid in (%s)", idset)
+	rows, err := db.Query(q)
+	if err != nil {
+		log.Printf("error querying donks: %s", err)
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var chid int64
+		d := new(Donk)
+		err = rows.Scan(&chid, &d.FileID, &d.XID, &d.Name, &d.Desc, &d.URL, &d.Media, &d.Local)
+		if err != nil {
+			log.Printf("error scanning donk: %s", err)
+			continue
+		}
+		ch := chmap[chid]
+		ch.Donks = append(ch.Donks, d)
+	}
+}
+
 func savefile(xid string, name string, desc string, url string, media string, local bool, data []byte) (int64, error) {
 	res, err := stmtSaveFile.Exec(xid, name, desc, url, media, local)
 	if err != nil {
