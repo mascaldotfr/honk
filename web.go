@@ -1823,6 +1823,9 @@ func submitchonk(w http.ResponseWriter, r *http.Request) {
 
 	filterchonk(&ch)
 	savechonk(&ch)
+	// reload for consistency
+	ch.Donks = nil
+	donksforchonks([]*Chonk{&ch})
 	go sendchonk(user, &ch)
 
 	http.Redirect(w, r, "/chatter", http.StatusSeeOther)
