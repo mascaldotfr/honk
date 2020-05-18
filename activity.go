@@ -1294,7 +1294,7 @@ func boxuprcpts(user *WhatAbout, addresses []string, useshared bool) map[string]
 	return rcpts
 }
 
-func sendchonk(user *WhatAbout, ch *Chonk) {
+func chonkifymsg(user *WhatAbout, ch *Chonk) []byte {
 	dt := ch.Date.Format(time.RFC3339)
 	aud := []string{ch.Target}
 
@@ -1319,7 +1319,12 @@ func sendchonk(user *WhatAbout, ch *Chonk) {
 	j["to"] = aud
 	j["object"] = jo
 
-	msg := j.ToBytes()
+	return j.ToBytes()
+}
+
+func sendchonk(user *WhatAbout, ch *Chonk) {
+	msg := chonkifymsg(user, ch)
+
 	rcpts := make(map[string]bool)
 	rcpts[ch.Target] = true
 	for a := range rcpts {
