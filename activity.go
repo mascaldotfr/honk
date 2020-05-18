@@ -730,10 +730,16 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 						if !ok {
 							if uu, ok := ua[0].(junk.Junk); ok {
 								u, _ = uu.GetString("href")
+								if mt == "" {
+									mt, _ = uu.GetString("mediaType")
+								}
 							}
 						}
 					} else if uu, ok := att.GetMap("url"); ok {
 						u, _ = uu.GetString("href")
+						if mt == "" {
+							mt, _ = uu.GetString("mediaType")
+						}
 					}
 				}
 				name, _ := att.GetString("name")
@@ -745,10 +751,6 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if numatts > 4 {
 					log.Printf("excessive attachment: %s", at)
 				} else if at == "Document" || at == "Image" {
-					if mt == "" {
-						log.Printf("assuming image media")
-						mt = "image/jpeg"
-					}
 					mt = strings.ToLower(mt)
 					log.Printf("attachment: %s %s", mt, u)
 					if mt == "text/plain" || mt == "application/pdf" ||
