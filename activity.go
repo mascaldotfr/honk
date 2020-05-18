@@ -1030,6 +1030,23 @@ func subsub(user *WhatAbout, xid string, owner string) {
 	deliverate(0, user.ID, owner, j.ToBytes())
 }
 
+func activatedonks(donks []*Donk) []junk.Junk {
+	var atts []junk.Junk
+	for _, d := range donks {
+		if re_emus.MatchString(d.Name) {
+			continue
+		}
+		jd := junk.New()
+		jd["mediaType"] = d.Media
+		jd["name"] = d.Name
+		jd["summary"] = html.EscapeString(d.Desc)
+		jd["type"] = "Document"
+		jd["url"] = d.URL
+		atts = append(atts, jd)
+	}
+	return atts
+}
+
 // returns activity, object
 func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 	dt := h.Date.Format(time.RFC3339)
@@ -1173,19 +1190,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 				jo["duration"] = "PT" + strings.ToUpper(t.Duration.String())
 			}
 		}
-		var atts []junk.Junk
-		for _, d := range h.Donks {
-			if re_emus.MatchString(d.Name) {
-				continue
-			}
-			jd := junk.New()
-			jd["mediaType"] = d.Media
-			jd["name"] = d.Name
-			jd["summary"] = html.EscapeString(d.Desc)
-			jd["type"] = "Document"
-			jd["url"] = d.URL
-			atts = append(atts, jd)
-		}
+		atts := activatedonks(h.Donks)
 		if len(atts) > 0 {
 			jo["attachment"] = atts
 		}
@@ -1300,6 +1305,10 @@ func sendchonk(user *WhatAbout, ch *Chonk) {
 	jo["attributedTo"] = user.URL
 	jo["to"] = aud
 	jo["content"] = ch.HTML
+	atts := activatedonks(ch.Donks)
+	if len(atts) > 0 {
+		jo["attachment"] = atts
+	}
 
 	j := junk.New()
 	j["@context"] = itiswhatitis

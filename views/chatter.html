@@ -2,7 +2,7 @@
 <main>
 <div class="info">
 <p>
-<form action="/sendchonk" method="POST">
+<form action="/sendchonk" method="POST" enctype="multipart/form-data">
 <h3>new chatter</h3>
 <input type="hidden" name="CSRF" value="{{ .ChonkCSRF }}">
 <p><label for=target>target:</label><br>
@@ -11,6 +11,12 @@
 <textarea name="noise" id="noise"></textarea>
 <p><button name="chonk" value="chonk">chonk</button>
 </form>
+<script>
+function updatedonker(el) {
+	el = el.parentElement
+	el.children[1].textContent = el.children[0].value.slice(-20)
+}
+</script>
 </div>
 {{ $chonkcsrf := .ChonkCSRF }}
 {{ range .Chatter }}
@@ -49,12 +55,13 @@ chatter: {{ .Target }}
 {{ end }}
 </div>
 {{ end }}
-<form action="/sendchonk" method="POST">
+<form action="/sendchonk" method="POST" enctype="multipart/form-data">
 <input type="hidden" name="CSRF" value="{{ $chonkcsrf }}">
 <input type="hidden" name="target" value="{{ $target }}" autocomplete=off>
 <p><label for=noise>noise:</label><br>
 <textarea name="noise" id="noise"></textarea>
 <p><button name="chonk" value="chonk">chonk</button>
+<label class=button id="donker">attach: <input onchange="updatedonker(this);" type="file" name="donk"><span></span></label>
 </form>
 </section>
 {{ end }}

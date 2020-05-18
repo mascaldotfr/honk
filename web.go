@@ -1804,7 +1804,6 @@ func submitchonk(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "who is that?", http.StatusInternalServerError)
 		return
 	}
-
 	ch := Chonk{
 		UserID: u.UserID,
 		XID:    xid,
@@ -1814,6 +1813,14 @@ func submitchonk(w http.ResponseWriter, r *http.Request) {
 		Noise:  noise,
 		Format: format,
 	}
+	d, err := submitdonk(w, r)
+	if err != nil && err != http.ErrMissingFile {
+		return
+	}
+	if d != nil {
+		ch.Donks = append(ch.Donks, d)
+	}
+
 	filterchonk(&ch)
 	savechonk(&ch)
 	go sendchonk(user, &ch)
