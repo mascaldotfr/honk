@@ -482,7 +482,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		}
 
 		var err error
-		var xid, rid, url, content, precis, convoy string
+		var xid, rid, url, convoy string
 		var replies []string
 		var obj junk.Junk
 		isUpdate := false
@@ -659,11 +659,11 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if dt2, ok := obj.GetString("published"); ok {
 				dt = dt2
 			}
-			content, _ = obj.GetString("content")
+			content, _ := obj.GetString("content")
 			if !strings.HasPrefix(content, "<p>") {
 				content = "<p>" + content
 			}
-			precis, _ = obj.GetString("summary")
+			precis, _ := obj.GetString("summary")
 			if name, ok := obj.GetString("name"); ok {
 				if precis != "" {
 					content = precis + "<p>" + content
@@ -715,12 +715,20 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if what == "honk" && rid != "" {
 				what = "tonk"
 			}
+			if len(content) > 90001 {
+				log.Printf("content too long. truncating")
+				content = content[:90001]
+			}
+
+			xonk.Noise = content
+			xonk.Precis = precis
+			if rejectxonk(&xonk) {
+				log.Printf("fast reject: %s", xid)
+				return nil
+			}
+
 			numatts := 0
 			procatt := func(att junk.Junk) {
-				if rejectxonk(&xonk) {
-					log.Printf("skipping rejected attachment: %s", xid)
-					return
-				}
 				at, _ := att.GetString("type")
 				mt, _ := att.GetString("mediaType")
 				u, ok := att.GetString("url")
@@ -783,10 +791,6 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			}
 			tags, _ := obj.GetArray("tag")
 			for _, tagi := range tags {
-				if rejectxonk(&xonk) {
-					log.Printf("skipping rejected attachment: %s", xid)
-					continue
-				}
 				tag, ok := tagi.(junk.Junk)
 				if !ok {
 					continue
@@ -884,18 +888,11 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			currenttid = convoy
 		}
 
-		if len(content) > 90001 {
-			log.Printf("content too long. truncating")
-			content = content[:90001]
-		}
-
 		// init xonk
 		xonk.What = what
 		xonk.RID = rid
 		xonk.Date, _ = time.Parse(time.RFC3339, dt)
 		xonk.URL = url
-		xonk.Noise = content
-		xonk.Precis = precis
 		xonk.Format = "html"
 		xonk.Convoy = convoy
 		xonk.Mentions = mentions
