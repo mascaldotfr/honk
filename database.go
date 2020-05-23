@@ -539,7 +539,8 @@ func savechonk(ch *Chonk) error {
 }
 
 func loadchatter(userid int64) map[string][]*Chonk {
-	rows, err := stmtLoadChonks.Query(userid)
+	duedt := time.Now().Add(-3 * 24 * time.Hour).UTC().Format(dbtimeformat)
+	rows, err := stmtLoadChonks.Query(userid, duedt)
 	if err != nil {
 		log.Printf("error loading chonks: %s", err)
 		return nil
@@ -899,5 +900,5 @@ func prepareStatements(db *sql.DB) {
 	stmtDeleteFilter = preparetodie(db, "delete from hfcs where userid = ? and hfcsid = ?")
 	stmtGetTracks = preparetodie(db, "select fetches from tracks where xid = ?")
 	stmtSaveChonk = preparetodie(db, "insert into chonks (userid, xid, who, target, dt, noise, format) values (?, ?, ?, ?, ?, ?, ?)")
-	stmtLoadChonks = preparetodie(db, "select chonkid, userid, xid, who, target, dt, noise, format from chonks where userid = ?")
+	stmtLoadChonks = preparetodie(db, "select chonkid, userid, xid, who, target, dt, noise, format from chonks where userid = ? and dt > ? order by chonkid asc")
 }
