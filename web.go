@@ -1773,8 +1773,8 @@ func showhonkers(w http.ResponseWriter, r *http.Request) {
 func showchatter(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	chatter := loadchatter(u.UserID)
-	for _, chonks := range chatter {
-		for _, ch := range chonks {
+	for _, chat := range chatter {
+		for _, ch := range chat.Chonks {
 			filterchonk(ch)
 		}
 	}

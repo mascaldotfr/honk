@@ -108,6 +108,11 @@ type Chonk struct {
 	HTML   template.HTML
 }
 
+type Chatter struct {
+	Target string
+	Chonks []*Chonk
+}
+
 type Mention struct {
 	Who   string
 	Where string
@@ -337,18 +342,6 @@ func main() {
 	case "backend":
 		backendServer()
 	case "test":
-		xid := args[1]
-		chatter := loadchatter(1)
-		for _, chonks := range chatter {
-			for _, ch := range chonks {
-				if ch.XID == xid {
-					var user *WhatAbout
-					somenumberedusers.Get(ch.UserID, &user)
-					msg := chonkifymsg(user, ch)
-					fmt.Println(string(msg))
-				}
-			}
-		}
 		ElaborateUnitTests()
 	default:
 		log.Fatal("unknown command")

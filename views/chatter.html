@@ -21,13 +21,10 @@ function updatedonker(el) {
 {{ $chonkcsrf := .ChonkCSRF }}
 {{ range .Chatter }}
 <section class="honk">
-{{ $target := "" }}
-{{ range . }}
-{{ if eq $target "" }}
-{{ $target = .Target }}
 <p class="chattarget">
 chatter: {{ .Target }}
-{{ end }}
+{{ $target := .Target }}
+{{ range .Chonks }}
 <div class="chat">
 <p>
 <span class="chatstamp">{{ .Date.Local.Format "15:04" }} {{ .Handle }}:</span>

@@ -538,7 +538,7 @@ func savechonk(ch *Chonk) error {
 	return err
 }
 
-func loadchatter(userid int64) map[string][]*Chonk {
+func loadchatter(userid int64) []*Chatter {
 	duedt := time.Now().Add(-3 * 24 * time.Hour).UTC().Format(dbtimeformat)
 	rows, err := stmtLoadChonks.Query(userid, duedt)
 	if err != nil {
@@ -561,7 +561,32 @@ func loadchatter(userid int64) map[string][]*Chonk {
 		allchonks = append(allchonks, ch)
 	}
 	donksforchonks(allchonks)
-	return chonks
+	rows.Close()
+	rows, err = stmtGetChatters.Query(userid)
+	if err != nil {
+		log.Printf("error getting chatters: %s", err)
+		return nil
+	}
+	for rows.Next() {
+		var target string
+		err = rows.Scan(&target)
+		if err != nil {
+			log.Printf("error scanning chatter: %s", target)
+			continue
+		}
+		if _, ok := chonks[target]; !ok {
+			chonks[target] = []*Chonk{}
+
+		}
+	}
+	var chatter []*Chatter
+	for target, chonks := range chonks {
+		chatter = append(chatter, &Chatter{
+			Target: target,
+			Chonks: chonks,
+		})
+	}
+	return chatter
 }
 
 func savehonk(h *Honk) error {
@@ -821,7 +846,7 @@ var stmtHonksForUserFirstClass *sql.Stmt
 var stmtSaveMeta, stmtDeleteAllMeta, stmtDeleteSomeMeta, stmtUpdateHonk *sql.Stmt
 var stmtHonksISaved, stmtGetFilters, stmtSaveFilter, stmtDeleteFilter *sql.Stmt
 var stmtGetTracks *sql.Stmt
-var stmtSaveChonk, stmtLoadChonks *sql.Stmt
+var stmtSaveChonk, stmtLoadChonks, stmtGetChatters *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -901,4 +926,5 @@ func prepareStatements(db *sql.DB) {
 	stmtGetTracks = preparetodie(db, "select fetches from tracks where xid = ?")
 	stmtSaveChonk = preparetodie(db, "insert into chonks (userid, xid, who, target, dt, noise, format) values (?, ?, ?, ?, ?, ?, ?)")
 	stmtLoadChonks = preparetodie(db, "select chonkid, userid, xid, who, target, dt, noise, format from chonks where userid = ? and dt > ? order by chonkid asc")
+	stmtGetChatters = preparetodie(db, "select distinct(target) from chonks where userid = ?")
 }
