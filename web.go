@@ -2397,9 +2397,7 @@ func wait100ms() chan struct{} {
 
 func bgmonitor() {
 	for {
-		time.Sleep(5 * time.Minute)
-		log.Printf("good morning!")
-		log.Printf("outstanding deliveries: %d", garage.Outstanding())
+		time.Sleep(50 * time.Minute)
 	}
 }
 
