@@ -120,6 +120,15 @@ para
 	doonezerotest(t, input, output)
 }
 
+func TestHeaders(t *testing.T) {
+	input := `hello
+## fruits
+Love 'em. Eat 'em.
+`
+	output := `hello<h2>fruits</h2><p>Love 'em. Eat 'em.`
+	doonezerotest(t, input, output)
+}
+
 var benchData, simpleData string
 
 func init() {

@@ -35,6 +35,7 @@ var re_zerolink = regexp.MustCompile(`\[([^]]*)\]\(([^)]*\)?)\)`)
 var re_imgfix = regexp.MustCompile(`<img ([^>]*)>`)
 var re_lister = regexp.MustCompile(`((^|\n)(\+|-).*)+\n?`)
 var re_tabler = regexp.MustCompile(`((^|\n)\|.*)+\n?`)
+var re_header = regexp.MustCompile(`(^|\n)(#+) (.*)`)
 
 var lighter = synlight.New(synlight.Options{Format: synlight.HTML})
 
@@ -134,6 +135,11 @@ func markitzero(s string) string {
 		}
 		r.WriteString("</table><p>")
 		return r.String()
+	})
+	s = re_header.ReplaceAllStringFunc(s, func(s string) string {
+		m := re_header.FindStringSubmatch(s)
+		num := len(m[2])
+		return fmt.Sprintf("<h%d>%s</h%d><p>", num, m[3], num)
 	})
 
 	// restore images
