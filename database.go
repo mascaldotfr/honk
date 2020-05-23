@@ -586,6 +586,17 @@ func loadchatter(userid int64) []*Chatter {
 			Chonks: chonks,
 		})
 	}
+	sort.Slice(chatter, func(i, j int) bool {
+		a, b := chatter[i], chatter[j]
+		if len(a.Chonks) == 0 || len(b.Chonks) == 0 {
+			if len(a.Chonks) == len(b.Chonks) {
+				return a.Target < b.Target
+			}
+			return len(a.Chonks) > len(b.Chonks)
+		}
+		return a.Chonks[len(a.Chonks)-1].Date.After(b.Chonks[len(b.Chonks)-1].Date)
+	})
+
 	return chatter
 }
 
