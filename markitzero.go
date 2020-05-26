@@ -35,9 +35,11 @@ var re_zerolink = regexp.MustCompile(`\[([^]]*)\]\(([^)]*\)?)\)`)
 var re_imgfix = regexp.MustCompile(`<img ([^>]*)>`)
 var re_lister = regexp.MustCompile(`((^|\n)(\+|-).*)+\n?`)
 var re_tabler = regexp.MustCompile(`((^|\n)\|.*)+\n?`)
-var re_header = regexp.MustCompile(`(^|\n)(#+) (.*)`)
+var re_header = regexp.MustCompile(`(^|\n)(#+) (.*)\n?`)
 
 var lighter = synlight.New(synlight.Options{Format: synlight.HTML})
+
+var allowInlineHtml = false
 
 func markitzero(s string) string {
 	// prepare the string
@@ -137,6 +139,7 @@ func markitzero(s string) string {
 		return r.String()
 	})
 	s = re_header.ReplaceAllStringFunc(s, func(s string) string {
+		s = strings.TrimSpace(s)
 		m := re_header.FindStringSubmatch(s)
 		num := len(m[2])
 		return fmt.Sprintf("<h%d>%s</h%d><p>", num, m[3], num)
@@ -150,6 +153,9 @@ func markitzero(s string) string {
 		return img
 	})
 
+	s = strings.Replace(s, "\n\n", "<p>", -1)
+	s = strings.Replace(s, "\n", "<br>", -1)
+
 	// now restore the code blocks
 	s = re_coder.ReplaceAllStringFunc(s, func(string) string {
 		code := lilcodes[0]
@@ -158,6 +164,9 @@ func markitzero(s string) string {
 			code := bigcodes[0]
 			bigcodes = bigcodes[1:]
 			m := re_bigcoder.FindStringSubmatch(code)
+			if allowInlineHtml && m[1] == "inlinehtml" {
+				return m[2]
+			}
 			return "<pre><code>" + lighter.HighlightString(m[2], m[1]) + "</code></pre><p>"
 		}
 		code = html.EscapeString(code)
@@ -167,7 +176,6 @@ func markitzero(s string) string {
 	s = re_coder.ReplaceAllString(s, "<code>$1</code>")
 
 	// some final fixups
-	s = strings.Replace(s, "\n", "<br>", -1)
 	s = strings.Replace(s, "<br><blockquote>", "<blockquote>", -1)
 	s = strings.Replace(s, "<br><cite></cite>", "", -1)
 	s = strings.Replace(s, "<br><pre>", "<pre>", -1)

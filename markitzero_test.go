@@ -32,19 +32,19 @@ func TestLinebreak1(t *testing.T) {
 
 func TestLinebreak2(t *testing.T) {
 	input := "hello\n\n> a quote\n\na comment"
-	output := "hello<br><blockquote>a quote</blockquote><p>a comment"
+	output := "hello<p><blockquote>a quote</blockquote><p>a comment"
 	doonezerotest(t, input, output)
 }
 
 func TestLinebreak3(t *testing.T) {
 	input := "hello\n\n```\nfunc(s string)\n```\n\ndoes it go?"
-	output := "hello<br><pre><code>func(s string)</code></pre><p>does it go?"
+	output := "hello<p><pre><code>func(s string)</code></pre><p>does it go?"
 	doonezerotest(t, input, output)
 }
 
 func TestCodeStyles(t *testing.T) {
 	input := "hello\n\n```go\nfunc(s string)\n```\n\ndoes it go?"
-	output := "hello<br><pre><code><span class=kw>func</span><span class=op>(</span>s <span class=tp>string</span><span class=op>)</span></code></pre><p>does it go?"
+	output := "hello<p><pre><code><span class=kw>func</span><span class=op>(</span>s <span class=tp>string</span><span class=op>)</span></code></pre><p>does it go?"
 	doonezerotest(t, input, output)
 }
 
