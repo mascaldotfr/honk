@@ -1,10 +1,16 @@
 changelog
 
-=== next
+=== 0.9.1 Late Stage Lusciousness
+
+++ Boing boom tschak chonky chatter. Chat messages with Pleroma.
+
++ Custom rgb flag: emoji.
+
++ Slightly better ActivityPub compat
+
++ ## headings for markdown
 
 + Workaround js only twitter for hoot: feature.
-
-++ Boing boom tschak chonky chatter.
 
 + Quote unquote reliability improvements.
 
