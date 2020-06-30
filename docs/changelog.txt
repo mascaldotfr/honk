@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Workaround js only twitter for hoot: feature.
+
 ++ Boing boom tschak chonky chatter.
 
 + Quote unquote reliability improvements.
