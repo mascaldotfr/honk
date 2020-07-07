@@ -509,7 +509,7 @@ func ontologize(s string) string {
 }
 
 var re_unurl = regexp.MustCompile("https://([^/]+).*/([^/]+)")
-var re_urlhost = regexp.MustCompile("https://([^/ ]+)")
+var re_urlhost = regexp.MustCompile("https://([^/ #]+)")
 
 func originate(u string) string {
 	m := re_urlhost.FindStringSubmatch(u)
