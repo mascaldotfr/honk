@@ -264,6 +264,9 @@ func gethonksbysearch(userid int64, q string, wanted int64) []*Honk {
 
 	terms := strings.Split(q, " ")
 	for _, t := range terms {
+		if t == "" {
+			continue
+		}
 		negate := " "
 		if t[0] == '-' {
 			t = t[1:]
