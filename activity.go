@@ -1151,7 +1151,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			t["icon"] = i
 			tags = append(tags, t)
 		}
-		for _, e := range bloat_fixupflags(h) {
+		for _, e := range fixupflags(h) {
 			t := junk.New()
 			t["id"] = e.ID
 			t["type"] = "Emoji"
