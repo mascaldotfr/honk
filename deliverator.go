@@ -16,6 +16,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	notrand "math/rand"
 	"time"
@@ -43,6 +44,7 @@ func sayitagain(goarounds int64, userid int64, rcpt string, msg []byte) {
 		drift = 24 * time.Hour
 	default:
 		log.Printf("he's dead jim: %s", rcpt)
+		clearoutbound(rcpt)
 		return
 	}
 	drift += time.Duration(notrand.Int63n(int64(drift / 10)))
@@ -55,6 +57,17 @@ func sayitagain(goarounds int64, userid int64, rcpt string, msg []byte) {
 	case pokechan <- 0:
 	default:
 	}
+}
+
+func clearoutbound(rcpt string) {
+	hostname := originate(rcpt)
+	if hostname == "" {
+		return
+	}
+	xid := fmt.Sprintf("%%https://%s/%%", hostname)
+	log.Printf("clearing outbound for %s", xid)
+	db := opendatabase()
+	db.Exec("delete from doovers where rcpt like ?", xid)
 }
 
 var garage = gate.NewLimiter(40)
