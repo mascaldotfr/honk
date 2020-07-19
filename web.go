@@ -120,7 +120,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 		case "/longago":
 			templinfo["ServerMessage"] = "long ago and far away!"
 			templinfo["PageName"] = "longago"
-			honks = gethonksforme(userid, 0)
+			honks = gethonksfromlongago(userid, 0)
 			honks = osmosis(honks, userid, false)
 		case "/events":
 			templinfo["ServerMessage"] = "some recent and upcoming events"
