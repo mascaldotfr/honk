@@ -117,6 +117,11 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 			templinfo["PageName"] = "atme"
 			honks = gethonksforme(userid, 0)
 			honks = osmosis(honks, userid, false)
+		case "/longago":
+			templinfo["ServerMessage"] = "long ago and far away!"
+			templinfo["PageName"] = "longago"
+			honks = gethonksforme(userid, 0)
+			honks = osmosis(honks, userid, false)
 		case "/events":
 			templinfo["ServerMessage"] = "some recent and upcoming events"
 			templinfo["PageName"] = "events"
@@ -2236,6 +2241,10 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 		honks = gethonksforme(userid, wanted)
 		honks = osmosis(honks, userid, false)
 		templinfo["ServerMessage"] = "at me!"
+	case "longago":
+		honks = gethonksfromlongago(userid, wanted)
+		honks = osmosis(honks, userid, false)
+		templinfo["ServerMessage"] = "from long ago"
 	case "home":
 		honks = gethonksforuser(userid, wanted)
 		honks = osmosis(honks, userid, true)
@@ -2328,6 +2337,9 @@ func apihandler(w http.ResponseWriter, r *http.Request) {
 		switch page {
 		case "atme":
 			honks = gethonksforme(userid, wanted)
+			honks = osmosis(honks, userid, false)
+		case "longago":
+			honks = gethonksfromlongago(userid, wanted)
 			honks = osmosis(honks, userid, false)
 		case "home":
 			honks = gethonksforuser(userid, wanted)
@@ -2502,6 +2514,7 @@ func serve() {
 	loggedin.HandleFunc("/funzone", showfunzone)
 	loggedin.HandleFunc("/chpass", dochpass)
 	loggedin.HandleFunc("/atme", homepage)
+	loggedin.HandleFunc("/longago", homepage)
 	loggedin.HandleFunc("/hfcs", hfcspage)
 	loggedin.HandleFunc("/xzone", xzone)
 	loggedin.HandleFunc("/newhonk", newhonkpage)
