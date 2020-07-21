@@ -16,7 +16,7 @@
 package main
 
 import (
-	mz "humungus.tedunangst.com/r/webs/markitzero"
+	"humungus.tedunangst.com/r/webs/mz"
 )
 
 func markitzero(s string) string {

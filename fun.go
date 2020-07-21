@@ -34,6 +34,7 @@ import (
 	"humungus.tedunangst.com/r/webs/htfilter"
 	"humungus.tedunangst.com/r/webs/httpsig"
 	"humungus.tedunangst.com/r/webs/templates"
+	"humungus.tedunangst.com/r/webs/mz"
 )
 
 var allowedclasses = make(map[string]bool)
@@ -68,7 +69,6 @@ func reverbolate(userid int64, honks []*Honk) {
 		if local && h.What != "bonked" {
 			h.Noise = re_memes.ReplaceAllString(h.Noise, "")
 			h.Noise = mentionize(h.Noise)
-			h.Noise = ontologize(h.Noise)
 		}
 		h.Username, h.Handle = handles(h.Honker)
 		if !local {
@@ -236,10 +236,12 @@ func translate(honk *Honk) {
 	}
 	honk.Precis = markitzero(strings.TrimSpace(honk.Precis))
 
+	var marker mz.Marker
+	marker.HashLinker = ontoreplacer
 	noise = strings.TrimSpace(noise)
-	noise = markitzero(noise)
+	noise = marker.Mark(noise)
 	honk.Noise = noise
-	honk.Onts = oneofakind(ontologies(honk.Noise))
+	honk.Onts = oneofakind(marker.HashTags)
 }
 
 func redoimages(honk *Honk) {
@@ -263,7 +265,7 @@ func redoimages(honk *Honk) {
 	honk.Donks = honk.Donks[:j]
 
 	honk.Noise = re_memes.ReplaceAllString(honk.Noise, "")
-	honk.Noise = ontologize(mentionize(honk.Noise))
+	honk.Noise = mentionize(honk.Noise)
 	honk.Noise = strings.Replace(honk.Noise, "<a href=", "<a class=\"mention u-url\" href=", -1)
 }
 
@@ -286,24 +288,6 @@ func xfiltrate() string {
 	var b [18]byte
 	rand.Read(b[:])
 	return xcelerate(b[:])
-}
-
-var re_hashes = regexp.MustCompile(`(?:^| |>)#[[:alnum:]]*[[:alpha:]][[:alnum:]_-]*`)
-
-func ontologies(s string) []string {
-	m := re_hashes.FindAllString(s, -1)
-	j := 0
-	for _, h := range m {
-		if h[0] == '&' {
-			continue
-		}
-		if h[0] != '#' {
-			h = h[1:]
-		}
-		m[j] = h
-		j++
-	}
-	return m[:j]
 }
 
 var re_mentions = regexp.MustCompile(`@[[:alnum:]._-]+@[[:alnum:].-]*[[:alnum:]]`)
@@ -491,21 +475,9 @@ func mentionize(s string) string {
 	return s
 }
 
-func ontologize(s string) string {
-	s = re_hashes.ReplaceAllStringFunc(s, func(o string) string {
-		if o[0] == '&' {
-			return o
-		}
-		p := ""
-		h := o
-		if h[0] != '#' {
-			p = h[:1]
-			h = h[1:]
-		}
-		return fmt.Sprintf(`%s<a href="https://%s/o/%s">%s</a>`, p, serverName,
+func ontoreplacer(h string) string {
+	return fmt.Sprintf(`<a href="https://%s/o/%s">%s</a>`, serverName,
 			strings.ToLower(h[1:]), h)
-	})
-	return s
 }
 
 var re_unurl = regexp.MustCompile("https://([^/]+).*/([^/]+)")
