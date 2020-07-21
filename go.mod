@@ -11,3 +11,5 @@ require (
 	humungus.tedunangst.com/r/go-sqlite3 v1.1.3
 	humungus.tedunangst.com/r/webs v0.6.41
 )
+
+replace humungus.tedunangst.com/r/webs => ../webs
