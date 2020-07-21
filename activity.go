@@ -1099,12 +1099,6 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		if !h.Public {
 			jo["directMessage"] = true
 		}
-		var mentions []Mention
-		if len(h.Mentions) > 0 {
-			mentions = h.Mentions
-		} else {
-			mentions = bunchofgrapes(h.Noise)
-		}
 		translate(h)
 		redoimages(h)
 		if h.Precis != "" {
@@ -1124,7 +1118,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		}
 
 		var tags []junk.Junk
-		for _, m := range mentions {
+		for _, m := range h.Mentions {
 			t := junk.New()
 			t["type"] = "Mention"
 			t["name"] = m.Who

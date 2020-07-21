@@ -1600,7 +1600,6 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 	noise = strings.Replace(noise, "\r", "", -1)
 	noise = quickrename(noise, userinfo.UserID)
 	noise = hooterize(noise)
-	honk.Mentions = bunchofgrapes(noise)
 	honk.Noise = noise
 	translate(honk)
 
@@ -1632,9 +1631,9 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 		honk.Audience = []string{thewholeworld}
 	}
 	if honk.Noise != "" && honk.Noise[0] == '@' {
-		honk.Audience = append(grapevine(bunchofgrapes(honk.Noise)), honk.Audience...)
+		honk.Audience = append(grapevine(honk.Mentions), honk.Audience...)
 	} else {
-		honk.Audience = append(honk.Audience, grapevine(bunchofgrapes(honk.Noise))...)
+		honk.Audience = append(honk.Audience, grapevine(honk.Mentions)...)
 	}
 
 	if convoy == "" {

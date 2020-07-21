@@ -33,8 +33,8 @@ import (
 	"humungus.tedunangst.com/r/webs/cache"
 	"humungus.tedunangst.com/r/webs/htfilter"
 	"humungus.tedunangst.com/r/webs/httpsig"
-	"humungus.tedunangst.com/r/webs/templates"
 	"humungus.tedunangst.com/r/webs/mz"
+	"humungus.tedunangst.com/r/webs/templates"
 )
 
 var allowedclasses = make(map[string]bool)
@@ -68,7 +68,6 @@ func reverbolate(userid int64, honks []*Honk) {
 		}
 		if local && h.What != "bonked" {
 			h.Noise = re_memes.ReplaceAllString(h.Noise, "")
-			h.Noise = mentionize(h.Noise)
 		}
 		h.Username, h.Handle = handles(h.Honker)
 		if !local {
@@ -238,10 +237,12 @@ func translate(honk *Honk) {
 
 	var marker mz.Marker
 	marker.HashLinker = ontoreplacer
+	marker.AtLinker = attoreplacer
 	noise = strings.TrimSpace(noise)
 	noise = marker.Mark(noise)
 	honk.Noise = noise
 	honk.Onts = oneofakind(marker.HashTags)
+	honk.Mentions = bunchofgrapes(marker.Mentions)
 }
 
 func redoimages(honk *Honk) {
@@ -265,7 +266,6 @@ func redoimages(honk *Honk) {
 	honk.Donks = honk.Donks[:j]
 
 	honk.Noise = re_memes.ReplaceAllString(honk.Noise, "")
-	honk.Noise = mentionize(honk.Noise)
 	honk.Noise = strings.Replace(honk.Noise, "<a href=", "<a class=\"mention u-url\" href=", -1)
 }
 
@@ -290,9 +290,6 @@ func xfiltrate() string {
 	return xcelerate(b[:])
 }
 
-var re_mentions = regexp.MustCompile(`@[[:alnum:]._-]+@[[:alnum:].-]*[[:alnum:]]`)
-var re_urltions = regexp.MustCompile(`@https://\S+`)
-
 func grapevine(mentions []Mention) []string {
 	var s []string
 	for _, m := range mentions {
@@ -301,18 +298,13 @@ func grapevine(mentions []Mention) []string {
 	return s
 }
 
-func bunchofgrapes(s string) []Mention {
-	m := re_mentions.FindAllString(s, -1)
+func bunchofgrapes(m []string) []Mention {
 	var mentions []Mention
 	for i := range m {
 		where := gofish(m[i])
 		if where != "" {
 			mentions = append(mentions, Mention{Who: m[i], Where: where})
 		}
-	}
-	m = re_urltions.FindAllString(s, -1)
-	for i := range m {
-		mentions = append(mentions, Mention{Who: m[i][1:], Where: m[i][1:]})
 	}
 	return mentions
 }
@@ -459,25 +451,19 @@ func fullname(name string, userid int64) string {
 	return ""
 }
 
-func mentionize(s string) string {
+func attoreplacer(m string) string {
 	fill := `<span class="h-card"><a class="u-url mention" href="%s">%s</a></span>`
-	s = re_mentions.ReplaceAllStringFunc(s, func(m string) string {
-		where := gofish(m)
-		if where == "" {
-			return m
-		}
-		who := m[0 : 1+strings.IndexByte(m[1:], '@')]
-		return fmt.Sprintf(fill, html.EscapeString(where), html.EscapeString(who))
-	})
-	s = re_urltions.ReplaceAllStringFunc(s, func(m string) string {
-		return fmt.Sprintf(fill, html.EscapeString(m[1:]), html.EscapeString(m))
-	})
-	return s
+	where := gofish(m)
+	if where == "" {
+		return m
+	}
+	who := m[0 : 1+strings.IndexByte(m[1:], '@')]
+	return fmt.Sprintf(fill, html.EscapeString(where), html.EscapeString(who))
 }
 
 func ontoreplacer(h string) string {
 	return fmt.Sprintf(`<a href="https://%s/o/%s">%s</a>`, serverName,
-			strings.ToLower(h[1:]), h)
+		strings.ToLower(h[1:]), h)
 }
 
 var re_unurl = regexp.MustCompile("https://([^/]+).*/([^/]+)")
