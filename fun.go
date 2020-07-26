@@ -188,6 +188,9 @@ func filterchonk(ch *Chonk) {
 		local = true
 	}
 
+	ch.HTML, _ = htf.String(noise)
+	noise = string(ch.HTML)
+
 	zap := make(map[string]bool)
 	emuxifier := func(e string) string {
 		for _, d := range ch.Donks {
@@ -217,12 +220,10 @@ func filterchonk(ch *Chonk) {
 	}
 	ch.Donks = ch.Donks[:j]
 
-	ch.HTML, _ = htf.String(noise)
-	n := string(ch.HTML)
-
-	if strings.HasPrefix(n, "<p>") {
-		ch.HTML = template.HTML(n[3:])
+	if strings.HasPrefix(noise, "<p>") {
+		noise = noise[3:]
 	}
+	ch.HTML = template.HTML(noise)
 	if short := shortname(ch.UserID, ch.Who); short != "" {
 		ch.Handle = short
 	} else {
