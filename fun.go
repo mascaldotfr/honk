@@ -182,11 +182,44 @@ func filterchonk(ch *Chonk) {
 	htf.SpanClasses = allowedclasses
 	htf.BaseURL, _ = url.Parse(ch.XID)
 	noise := ch.Noise
+	local := false
 	if ch.Format == "markdown" {
 		noise = markitzero(noise)
+		local = true
 	}
+
+	zap := make(map[string]bool)
+	emuxifier := func(e string) string {
+		for _, d := range ch.Donks {
+			if d.Name == e {
+				zap[d.XID] = true
+				if d.Local {
+					return fmt.Sprintf(`<img class="emu" title="%s" src="/d/%s">`, d.Name, d.XID)
+				}
+			}
+		}
+		if local {
+			var emu Emu
+			emucache.Get(e, &emu)
+			if emu.ID != "" {
+				return fmt.Sprintf(`<img class="emu" title="%s" src="%s">`, emu.Name, emu.ID)
+			}
+		}
+		return e
+	}
+	noise = re_emus.ReplaceAllStringFunc(noise, emuxifier)
+	j := 0
+	for i := 0; i < len(ch.Donks); i++ {
+		if !zap[ch.Donks[i].XID] {
+			ch.Donks[j] = ch.Donks[i]
+			j++
+		}
+	}
+	ch.Donks = ch.Donks[:j]
+
 	ch.HTML, _ = htf.String(noise)
 	n := string(ch.HTML)
+
 	if strings.HasPrefix(n, "<p>") {
 		ch.HTML = template.HTML(n[3:])
 	}
