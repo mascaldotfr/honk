@@ -1306,6 +1306,22 @@ func chonkifymsg(user *WhatAbout, ch *Chonk) []byte {
 	if len(atts) > 0 {
 		jo["attachment"] = atts
 	}
+	var tags []junk.Junk
+	for _, e := range herdofemus(ch.Noise) {
+		t := junk.New()
+		t["id"] = e.ID
+		t["type"] = "Emoji"
+		t["name"] = e.Name
+		i := junk.New()
+		i["type"] = "Image"
+		i["mediaType"] = "image/png"
+		i["url"] = e.ID
+		t["icon"] = i
+		tags = append(tags, t)
+	}
+	if len(tags) > 0 {
+		jo["tag"] = tags
+	}
 
 	j := junk.New()
 	j["@context"] = itiswhatitis

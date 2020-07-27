@@ -1825,7 +1825,7 @@ func submitchonk(w http.ResponseWriter, r *http.Request) {
 		ch.Donks = append(ch.Donks, d)
 	}
 
-	filterchonk(&ch)
+	translatechonk(&ch)
 	savechonk(&ch)
 	// reload for consistency
 	ch.Donks = nil

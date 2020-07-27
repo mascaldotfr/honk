@@ -177,19 +177,23 @@ func replaceimgsand(zap map[string]bool, absolute bool) func(node *html.Node) st
 	}
 }
 
-func filterchonk(ch *Chonk) {
+func translatechonk(ch *Chonk) {
+	noise := ch.Noise
+	if ch.Format == "markdown" {
+		noise = markitzero(noise)
+	}
 	var htf htfilter.Filter
 	htf.SpanClasses = allowedclasses
 	htf.BaseURL, _ = url.Parse(ch.XID)
-	noise := ch.Noise
-	local := false
-	if ch.Format == "markdown" {
-		noise = markitzero(noise)
-		local = true
-	}
-
 	ch.HTML, _ = htf.String(noise)
-	noise = string(ch.HTML)
+}
+
+func filterchonk(ch *Chonk) {
+	translatechonk(ch)
+
+	noise := string(ch.HTML)
+
+	local := originate(ch.XID) == serverName
 
 	zap := make(map[string]bool)
 	emuxifier := func(e string) string {
