@@ -158,11 +158,15 @@ func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
 
 func fetchsome(url string) ([]byte, error) {
 	client := http.DefaultClient
+	if debugMode {
+		client = debugClient
+	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Printf("error fetching %s: %s", url, err)
 		return nil, err
 	}
+	req.Header.Set("User-Agent", "honksnonk/5.0; "+serverName)
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 	req = req.WithContext(ctx)
