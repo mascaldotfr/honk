@@ -97,6 +97,29 @@ func reverbolate(userid int64, honks []*Honk) {
 			htf.Imager = replaceimgsand(zap, false)
 			htf.SpanClasses = allowedclasses
 			htf.BaseURL, _ = url.Parse(h.XID)
+			emuxifier := func(e string) string {
+				for _, d := range h.Donks {
+					if d.Name == e {
+						zap[d.XID] = true
+						if d.Local {
+							return fmt.Sprintf(`<img class="emu" title="%s" src="/d/%s">`, d.Name, d.XID)
+						}
+					}
+				}
+				if local && h.What != "bonked" {
+					var emu Emu
+					emucache.Get(e, &emu)
+					if emu.ID != "" {
+						return fmt.Sprintf(`<img class="emu" title="%s" src="%s">`, emu.Name, emu.ID)
+					}
+				}
+				return e
+			}
+			htf.FilterText = func(w io.Writer, data string) {
+				data = htfilter.EscapeText(data)
+				data = re_emus.ReplaceAllStringFunc(data, emuxifier)
+				io.WriteString(w, data)
+			}
 			p, _ := htf.String(h.Precis)
 			n, _ := htf.String(h.Noise)
 			h.Precis = string(p)
@@ -115,41 +138,7 @@ func reverbolate(userid int64, honks []*Honk) {
 	unsee(honks, userid)
 
 	for _, h := range honks {
-		local := false
-		if h.Whofore == 2 || h.Whofore == 3 {
-			local = true
-		}
-		zap := make(map[string]bool)
-		emuxifier := func(e string) string {
-			for _, d := range h.Donks {
-				if d.Name == e {
-					zap[d.XID] = true
-					if d.Local {
-						return fmt.Sprintf(`<img class="emu" title="%s" src="/d/%s">`, d.Name, d.XID)
-					}
-				}
-			}
-			if local && h.What != "bonked" {
-				var emu Emu
-				emucache.Get(e, &emu)
-				if emu.ID != "" {
-					return fmt.Sprintf(`<img class="emu" title="%s" src="%s">`, emu.Name, emu.ID)
-				}
-			}
-			return e
-		}
 		renderflags(h)
-		h.Precis = re_emus.ReplaceAllStringFunc(h.Precis, emuxifier)
-		h.Noise = re_emus.ReplaceAllStringFunc(h.Noise, emuxifier)
-
-		j := 0
-		for i := 0; i < len(h.Donks); i++ {
-			if !zap[h.Donks[i].XID] {
-				h.Donks[j] = h.Donks[i]
-				j++
-			}
-		}
-		h.Donks = h.Donks[:j]
 
 		h.HTPrecis = template.HTML(h.Precis)
 		h.HTML = template.HTML(h.Noise)

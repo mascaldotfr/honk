@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Reduce interference between various text substitution rules.
+
 + Fix crash in search with extra space.
 
 + Fix pubkey issue with domain only keys.
