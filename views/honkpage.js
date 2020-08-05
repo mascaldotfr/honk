@@ -261,7 +261,7 @@ function showhonkform(elem, rid, hname) {
 	var ridinput = document.getElementById("ridinput")
 	if (rid) {
 		ridinput.value = rid
-		honknoise.value = "@" + hname + " "
+		honknoise.value = hname + " "
 	} else {
 		ridinput.value = ""
 		honknoise.value = ""

@@ -52,6 +52,7 @@ type UserOptions struct {
 	Avatar     string `json:",omitempty"`
 	MapLink    string `json:",omitempty"`
 	Reaction   string `json:",omitempty"`
+	MentionAll bool
 }
 
 type KeyInfo struct {
@@ -68,6 +69,7 @@ type Honk struct {
 	What     string
 	Honker   string
 	Handle   string
+	Handles  string
 	Oonker   string
 	Oondle   string
 	XID      string

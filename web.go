@@ -1133,6 +1133,11 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		options.OmitImages = false
 	}
+	if r.FormValue("mentionall") == "mentionall" {
+		options.MentionAll = true
+	} else {
+		options.MentionAll = false
+	}
 	if r.FormValue("maps") == "apple" {
 		options.MapLink = "apple"
 	} else {

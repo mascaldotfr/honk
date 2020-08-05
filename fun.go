@@ -52,6 +52,8 @@ func init() {
 }
 
 func reverbolate(userid int64, honks []*Honk) {
+	var user *WhatAbout
+	somenumberedusers.Get(userid, &user)
 	for _, h := range honks {
 		h.What += "ed"
 		if h.What == "tonked" {
@@ -80,6 +82,22 @@ func reverbolate(userid int64, honks []*Honk) {
 					h.Username = h.Username[:20] + ".."
 				}
 			}
+		}
+		if user.Options.MentionAll {
+			hset := []string{"@" + h.Handle}
+			for _, a := range h.Audience {
+				if a == h.Honker {
+					continue
+				}
+				_, hand := handles(a)
+				if hand != "" {
+					hand = "@" + hand
+					hset = append(hset, hand)
+				}
+			}
+			h.Handles = strings.Join(hset, " ")
+		} else {
+			h.Handles = "@" + h.Handle
 		}
 		if h.URL == "" {
 			h.URL = h.XID
@@ -527,7 +545,7 @@ var allhandles = cache.New(cache.Options{Filler: func(xid string) (string, bool)
 
 // handle, handle@host
 func handles(xid string) (string, string) {
-	if xid == "" {
+	if xid == "" || xid == thewholeworld || strings.HasSuffix(xid, "/followers") {
 		return "", ""
 	}
 	var handle string
