@@ -429,6 +429,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		obj, ok := j.GetMap("object")
 		if !ok {
 			log.Printf("unknown undo no object")
+			dumpactivity(j)
 			return
 		}
 		what, _ := obj.GetString("type")
