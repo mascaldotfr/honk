@@ -983,11 +983,10 @@ func dumpactivity(item junk.Junk) {
 }
 
 func rubadubdub(user *WhatAbout, req junk.Junk) {
-	xid, _ := req.GetString("id")
 	actor, _ := req.GetString("actor")
 	j := junk.New()
 	j["@context"] = itiswhatitis
-	j["id"] = user.URL + "/dub/" + url.QueryEscape(xid)
+	j["id"] = user.URL + "/dub/" + xfiltrate()
 	j["type"] = "Accept"
 	j["actor"] = user.URL
 	j["to"] = actor
@@ -1005,7 +1004,7 @@ func itakeitallback(user *WhatAbout, xid string) {
 	j["actor"] = user.URL
 	j["to"] = xid
 	f := junk.New()
-	f["id"] = user.URL + "/sub/" + url.QueryEscape(xid)
+	f["id"] = user.URL + "/sub/" + xfiltrate()
 	f["type"] = "Follow"
 	f["actor"] = user.URL
 	f["to"] = xid
@@ -1023,7 +1022,7 @@ func subsub(user *WhatAbout, xid string, owner string) {
 	}
 	j := junk.New()
 	j["@context"] = itiswhatitis
-	j["id"] = user.URL + "/sub/" + url.QueryEscape(xid)
+	j["id"] = user.URL + "/sub/" + xfiltrate()
 	j["type"] = "Follow"
 	j["actor"] = user.URL
 	j["to"] = owner
