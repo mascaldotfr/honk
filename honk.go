@@ -326,6 +326,13 @@ func main() {
 		}
 		name := args[1]
 		unplugserver(name)
+	case "backup":
+		if len(args) < 2 {
+			fmt.Printf("usage: honk backup dirname\n")
+			return
+		}
+		name := args[1]
+		svalbard(name)
 	case "ping":
 		if len(args) < 3 {
 			fmt.Printf("usage: honk ping from to\n")
