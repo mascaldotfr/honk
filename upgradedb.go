@@ -23,9 +23,13 @@ import (
 	"time"
 )
 
-var myVersion = 37
+var myVersion = 38
 
-func doordie(db *sql.DB, s string, args ...interface{}) {
+type dbexecer interface {
+	Exec(query string, args ...interface{}) (sql.Result, error)
+}
+
+func doordie(db dbexecer, s string, args ...interface{}) {
 	_, err := db.Exec(s, args...)
 	if err != nil {
 		log.Fatalf("can't run %s: %s", s, err)
@@ -153,6 +157,13 @@ func upgradedb() {
 		doordie(db, "update config set value = 37 where key = 'dbversion'")
 		fallthrough
 	case 37:
+		doordie(db, "update honkers set combos = '' where combos is null")
+		doordie(db, "update honkers set owner = '' where owner is null")
+		doordie(db, "update honkers set meta = '' where meta is null")
+		doordie(db, "update honkers set folxid = '' where folxid is null")
+		doordie(db, "update config set value = 38 where key = 'dbversion'")
+		fallthrough
+	case 38:
 
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
