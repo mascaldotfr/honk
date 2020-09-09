@@ -377,38 +377,9 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			log.Printf("can't follow %s", obj)
 			return
 		}
-		log.Printf("updating honker follow: %s", who)
-
-		var x string
-		db := opendatabase()
-		row := db.QueryRow("select xid from honkers where xid = ? and userid = ? and flavor in ('dub', 'undub')", who, user.ID)
-		err = row.Scan(&x)
-		if err != sql.ErrNoRows {
-			log.Printf("duplicate follow request: %s", who)
-			_, err = stmtUpdateFlavor.Exec("dub", user.ID, who, who, "undub")
-			if err != nil {
-				log.Printf("error updating honker: %s", err)
-			}
-		} else {
-			stmtSaveDub.Exec(user.ID, who, who, "dub")
-		}
-		go rubadubdub(user, j)
+		followme(user, who, who, j)
 	case "Accept":
-		log.Printf("updating honker accept: %s", who)
-		var name string
-		db := opendatabase()
-		row := db.QueryRow("select name from honkers where userid = ? and xid = ? and flavor in ('presub')",
-			user.ID, who)
-		err := row.Scan(&name)
-		if err != nil {
-			log.Printf("can't get honker name: %s", err)
-			return
-		}
-		_, err = stmtUpdateFlavor.Exec("sub", user.ID, who, name, "presub")
-		if err != nil {
-			log.Printf("error updating honker: %s", err)
-			return
-		}
+		followyou2(user, j)
 	case "Update":
 		obj, ok := j.GetMap("object")
 		if ok {
@@ -435,12 +406,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		what, _ := obj.GetString("type")
 		switch what {
 		case "Follow":
-			log.Printf("updating honker undo: %s", who)
-			_, err = stmtUpdateFlavor.Exec("undub", user.ID, who, who, "dub")
-			if err != nil {
-				log.Printf("error updating honker: %s", err)
-				return
-			}
+			unfollowme(user, who, who, j)
 		case "Announce":
 			xid, _ := obj.GetString("object")
 			log.Printf("undo announce: %s", xid)
@@ -514,21 +480,8 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		ont := "#" + m[1]
-		log.Printf("%s wants to follow %s", who, ont)
-		var x string
-		db := opendatabase()
-		row := db.QueryRow("select xid from honkers where name = ? and xid = ? and userid = ? and flavor in ('dub', 'undub')", ont, who, user.ID)
-		err = row.Scan(&x)
-		if err != sql.ErrNoRows {
-			log.Printf("duplicate follow request: %s", who)
-			_, err = stmtUpdateFlavor.Exec("dub", user.ID, who, ont, "undub")
-			if err != nil {
-				log.Printf("error updating honker: %s", err)
-			}
-		} else {
-			stmtSaveDub.Exec(user.ID, ont, who, "dub")
-		}
-		go rubadubdub(user, j)
+
+		followme(user, who, ont, j)
 	case "Undo":
 		obj, ok := j.GetMap("object")
 		if !ok {
@@ -538,6 +491,7 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 		what, _ := obj.GetString("type")
 		if what != "Follow" {
 			log.Printf("unknown undo: %s", what)
+			return
 		}
 		targ, _ := obj.GetString("object")
 		m := re_ont.FindStringSubmatch(targ)
@@ -546,12 +500,7 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		ont := "#" + m[1]
-		log.Printf("updating honker undo: %s %s", who, ont)
-		_, err = stmtUpdateFlavor.Exec("undub", user.ID, who, ont, "dub")
-		if err != nil {
-			log.Printf("error updating honker: %s", err)
-			return
-		}
+		unfollowme(user, who, ont, j)
 	default:
 		log.Printf("unhandled server activity: %s", what)
 		dumpactivity(j)
@@ -1896,7 +1845,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 			}
 			log.Printf("unsubscribing from %s", url)
 			user, _ := butwhatabout(u.Username)
-			_, err = stmtUpdateFlavor.Exec("unsub", u.UserID, url, name, "sub")
+			_, err = stmtUpdateFlavor.Exec("unsub", u.UserID, name, url, "sub")
 			if err != nil {
 				log.Printf("error updating honker: %s", err)
 				return
@@ -1918,9 +1867,9 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 			}
 			log.Printf("resubscribing to %s", url)
 			user, _ := butwhatabout(u.Username)
-			_, err = stmtUpdateFlavor.Exec("presub", u.UserID, url, name, "unsub")
+			_, err = stmtUpdateFlavor.Exec("presub", u.UserID, name, url, "unsub")
 			if err == nil {
-				_, err = stmtUpdateFlavor.Exec("presub", u.UserID, url, name, "peep")
+				_, err = stmtUpdateFlavor.Exec("presub", u.UserID, name, url, "peep")
 			}
 			if err != nil {
 				log.Printf("error updating honker: %s", err)

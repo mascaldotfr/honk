@@ -881,7 +881,7 @@ func preparetodie(db *sql.DB, s string) *sql.Stmt {
 func prepareStatements(db *sql.DB) {
 	stmtHonkers = preparetodie(db, "select honkerid, userid, name, xid, flavor, combos, meta from honkers where userid = ? and (flavor = 'presub' or flavor = 'sub' or flavor = 'peep' or flavor = 'unsub') order by name")
 	stmtSaveHonker = preparetodie(db, "insert into honkers (userid, name, xid, flavor, combos, owner, meta, folxid) values (?, ?, ?, ?, ?, ?, ?, '')")
-	stmtUpdateFlavor = preparetodie(db, "update honkers set flavor = ? where userid = ? and xid = ? and name = ? and flavor = ?")
+	stmtUpdateFlavor = preparetodie(db, "update honkers set flavor = ? where userid = ? and name = ? and xid = ? and flavor = ?")
 	stmtUpdateHonker = preparetodie(db, "update honkers set name = ?, combos = ?, meta = ? where honkerid = ? and userid = ?")
 	stmtOneHonker = preparetodie(db, "select xid from honkers where name = ? and userid = ?")
 	stmtDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and flavor = 'dub'")
