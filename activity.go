@@ -1733,6 +1733,45 @@ func followyou(user *WhatAbout, target string) {
 
 }
 
+func refollowyou(user *WhatAbout, honkerid int64) {
+	var url, owner string
+	db := opendatabase()
+	row := db.QueryRow("select xid, owner from honkers where honkerid = ? and userid = ? and flavor in ('unsub', 'peep', 'presub', 'sub')",
+		honkerid, user.ID)
+	err := row.Scan(&url, &owner)
+	if err != nil {
+		log.Printf("can't get honker xid: %s", err)
+		return
+	}
+	log.Printf("resubscribing to %s", url)
+	_, err = db.Exec("update honkers set flavor = ? where honkerid = ?", "presub", honkerid)
+	if err != nil {
+		log.Printf("error updating honker: %s", err)
+		return
+	}
+	go subsub(user, url, owner)
+
+}
+func unfollowyou(user *WhatAbout, honkerid int64) {
+	var url string
+	db := opendatabase()
+	row := db.QueryRow("select xid from honkers where honkerid = ? and userid = ? and flavor in ('sub')",
+		honkerid, user.ID)
+	err := row.Scan(&url)
+	if err != nil {
+		log.Printf("can't get honker xid: %s", err)
+		return
+	}
+	log.Printf("unsubscribing from %s", url)
+	_, err = db.Exec("update honkers set flavor = ? where honkerid = ?", "unsub", honkerid)
+	if err != nil {
+		log.Printf("error updating honker: %s", err)
+		return
+	}
+	go itakeitallback(user, url)
+
+}
+
 func followyou2(user *WhatAbout, j junk.Junk) {
 	who, _ := j.GetString("actor")
 

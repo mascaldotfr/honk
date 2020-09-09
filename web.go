@@ -1819,6 +1819,7 @@ func showcombos(w http.ResponseWriter, r *http.Request) {
 
 func submithonker(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
+	user, _ := butwhatabout(u.Username)
 	name := strings.TrimSpace(r.FormValue("name"))
 	url := strings.TrimSpace(r.FormValue("url"))
 	peep := r.FormValue("peep")
@@ -1835,48 +1836,12 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	if honkerid > 0 {
 		goodbye := r.FormValue("goodbye")
 		if goodbye == "F" {
-			db := opendatabase()
-			row := db.QueryRow("select xid from honkers where honkerid = ? and userid = ? and flavor in ('sub')",
-				honkerid, u.UserID)
-			err := row.Scan(&url)
-			if err != nil {
-				log.Printf("can't get honker xid: %s", err)
-				return
-			}
-			log.Printf("unsubscribing from %s", url)
-			user, _ := butwhatabout(u.Username)
-			_, err = stmtUpdateFlavor.Exec("unsub", u.UserID, name, url, "sub")
-			if err != nil {
-				log.Printf("error updating honker: %s", err)
-				return
-			}
-			go itakeitallback(user, url)
-
+			unfollowyou(user, honkerid)
 			http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 			return
 		}
 		if goodbye == "X" {
-			var owner string
-			db := opendatabase()
-			row := db.QueryRow("select xid, owner from honkers where honkerid = ? and userid = ? and flavor in ('unsub', 'peep', 'presub', 'sub')",
-				honkerid, u.UserID)
-			err := row.Scan(&url, &owner)
-			if err != nil {
-				log.Printf("can't get honker xid: %s", err)
-				return
-			}
-			log.Printf("resubscribing to %s", url)
-			user, _ := butwhatabout(u.Username)
-			_, err = stmtUpdateFlavor.Exec("presub", u.UserID, name, url, "unsub")
-			if err == nil {
-				_, err = stmtUpdateFlavor.Exec("presub", u.UserID, name, url, "peep")
-			}
-			if err != nil {
-				log.Printf("error updating honker: %s", err)
-				return
-			}
-			go subsub(user, url, owner)
-
+			refollowyou(user, honkerid)
 			http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 			return
 		}
@@ -1921,6 +1886,10 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	}
 	url = info.XID
 
+	if name == "" {
+		name = info.Name
+	}
+
 	var x string
 	db := opendatabase()
 	row := db.QueryRow("select xid from honkers where xid = ? and userid = ? and flavor in ('sub', 'unsub', 'peep')", url, u.UserID)
@@ -1933,16 +1902,12 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if name == "" {
-		name = info.Name
-	}
 	_, err = stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos, info.Owner, mj)
 	if err != nil {
 		log.Print(err)
 		return
 	}
 	if flavor == "presub" {
-		user, _ := butwhatabout(u.Username)
 		go subsub(user, url, info.Owner)
 	}
 	http.Redirect(w, r, "/honkers", http.StatusSeeOther)
