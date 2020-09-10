@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Follow and unfollow should work a little better.
+
 ++ backup command.
 
 + Option to mention all in replies.
