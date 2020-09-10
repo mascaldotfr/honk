@@ -1841,7 +1841,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if goodbye == "X" {
-			refollowyou(user, honkerid)
+			followyou(user, honkerid)
 			http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 			return
 		}
@@ -1902,13 +1902,14 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos, info.Owner, mj)
+	res, err := stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos, info.Owner, mj)
 	if err != nil {
 		log.Print(err)
 		return
 	}
+	honkerid, _ = res.LastInsertId()
 	if flavor == "presub" {
-		go subsub(user, url, info.Owner)
+		followyou(user, honkerid)
 	}
 	http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 }

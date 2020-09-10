@@ -1729,11 +1729,7 @@ func unfollowme(user *WhatAbout, who string, name string, j junk.Junk) {
 	}
 }
 
-func followyou(user *WhatAbout, target string) {
-
-}
-
-func refollowyou(user *WhatAbout, honkerid int64) {
+func followyou(user *WhatAbout, honkerid int64) {
 	var url, owner string
 	db := opendatabase()
 	row := db.QueryRow("select xid, owner from honkers where honkerid = ? and userid = ? and flavor in ('unsub', 'peep', 'presub', 'sub')",
