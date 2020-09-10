@@ -996,33 +996,33 @@ func rubadubdub(user *WhatAbout, req junk.Junk) {
 	deliverate(0, user.ID, actor, j.ToBytes())
 }
 
-func itakeitallback(user *WhatAbout, xid string) {
+func itakeitallback(user *WhatAbout, xid string, owner string, folxid string) {
 	j := junk.New()
 	j["@context"] = itiswhatitis
-	j["id"] = user.URL + "/unsub/" + url.QueryEscape(xid)
+	j["id"] = user.URL + "/unsub/" + folxid
 	j["type"] = "Undo"
 	j["actor"] = user.URL
-	j["to"] = xid
+	j["to"] = owner
 	f := junk.New()
-	f["id"] = user.URL + "/sub/" + xfiltrate()
+	f["id"] = user.URL + "/sub/" + folxid
 	f["type"] = "Follow"
 	f["actor"] = user.URL
-	f["to"] = xid
+	f["to"] = owner
 	f["object"] = xid
 	j["object"] = f
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 
-	deliverate(0, user.ID, xid, j.ToBytes())
+	deliverate(0, user.ID, owner, j.ToBytes())
 }
 
-func subsub(user *WhatAbout, xid string, owner string) {
+func subsub(user *WhatAbout, xid string, owner string, folxid string) {
 	if xid == "" {
 		log.Printf("can't subscribe to empty")
 		return
 	}
 	j := junk.New()
 	j["@context"] = itiswhatitis
-	j["id"] = user.URL + "/sub/" + xfiltrate()
+	j["id"] = user.URL + "/sub/" + folxid
 	j["type"] = "Follow"
 	j["actor"] = user.URL
 	j["to"] = owner
@@ -1739,21 +1739,22 @@ func followyou(user *WhatAbout, honkerid int64) {
 		log.Printf("can't get honker xid: %s", err)
 		return
 	}
-	log.Printf("resubscribing to %s", url)
-	_, err = db.Exec("update honkers set flavor = ? where honkerid = ?", "presub", honkerid)
+	folxid := xfiltrate()
+	log.Printf("subscribing to %s", url)
+	_, err = db.Exec("update honkers set flavor = ?, folxid = ? where honkerid = ?", "presub", folxid, honkerid)
 	if err != nil {
 		log.Printf("error updating honker: %s", err)
 		return
 	}
-	go subsub(user, url, owner)
+	go subsub(user, url, owner, folxid)
 
 }
 func unfollowyou(user *WhatAbout, honkerid int64) {
-	var url string
 	db := opendatabase()
-	row := db.QueryRow("select xid from honkers where honkerid = ? and userid = ? and flavor in ('sub')",
+	row := db.QueryRow("select xid, owner, folxid from honkers where honkerid = ? and userid = ? and flavor in ('sub')",
 		honkerid, user.ID)
-	err := row.Scan(&url)
+	var url, owner, folxid string
+	err := row.Scan(&url, &owner, &folxid)
 	if err != nil {
 		log.Printf("can't get honker xid: %s", err)
 		return
@@ -1764,8 +1765,7 @@ func unfollowyou(user *WhatAbout, honkerid int64) {
 		log.Printf("error updating honker: %s", err)
 		return
 	}
-	go itakeitallback(user, url)
-
+	go itakeitallback(user, url, owner, folxid)
 }
 
 func followyou2(user *WhatAbout, j junk.Junk) {
