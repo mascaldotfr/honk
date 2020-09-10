@@ -830,8 +830,8 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if tt == "Place" {
 					p := new(Place)
 					p.Name = name
-					p.Latitude, _ = tag["latitude"].(float64)
-					p.Longitude, _ = tag["longitude"].(float64)
+					p.Latitude, _ = tag.GetNumber("latitude")
+					p.Longitude, _ = tag.GetNumber("longitude")
 					p.Url, _ = tag.GetString("url")
 					xonk.Place = p
 				}
@@ -861,8 +861,8 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if tt, _ := loca.GetString("type"); tt == "Place" {
 					p := new(Place)
 					p.Name, _ = loca.GetString("name")
-					p.Latitude, _ = loca["latitude"].(float64)
-					p.Longitude, _ = loca["longitude"].(float64)
+					p.Latitude, _ = loca.GetNumber("latitude")
+					p.Longitude, _ = loca.GetNumber("longitude")
 					p.Url, _ = loca.GetString("url")
 					xonk.Place = p
 				}
