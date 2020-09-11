@@ -445,7 +445,7 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 		keyname, err = httpsig.VerifyRequest(r, payload, zaggy)
 	}
 	if err != nil {
-		log.Printf("inbox message failed signature for %s from %s", keyname, r.Header.Get("X-Forwarded-For"))
+		log.Printf("inbox message failed signature for %s from %s: %s", keyname, r.Header.Get("X-Forwarded-For"), err)
 		if keyname != "" {
 			log.Printf("bad signature from %s", keyname)
 			io.WriteString(os.Stdout, "bad payload\n")
