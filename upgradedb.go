@@ -23,7 +23,7 @@ import (
 	"time"
 )
 
-var myVersion = 38
+var myVersion = 39
 
 type dbexecer interface {
 	Exec(query string, args ...interface{}) (sql.Result, error)
@@ -164,6 +164,10 @@ func upgradedb() {
 		doordie(db, "update config set value = 38 where key = 'dbversion'")
 		fallthrough
 	case 38:
+		doordie(db, "update honkers set folxid = abs(random())")
+		doordie(db, "update config set value = 39 where key = 'dbversion'")
+		fallthrough
+	case 39:
 
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)

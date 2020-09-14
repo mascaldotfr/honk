@@ -1702,7 +1702,9 @@ func updateMe(username string) {
 }
 
 func followme(user *WhatAbout, who string, name string, j junk.Junk) {
-	log.Printf("updating honker follow: %s", who)
+	folxid, _ := j.GetString("id")
+
+	log.Printf("updating honker follow: %s %s", who, folxid)
 
 	var x string
 	db := opendatabase()
@@ -1710,19 +1712,21 @@ func followme(user *WhatAbout, who string, name string, j junk.Junk) {
 	err := row.Scan(&x)
 	if err != sql.ErrNoRows {
 		log.Printf("duplicate follow request: %s", who)
-		_, err = stmtUpdateFlavor.Exec("dub", user.ID, name, who, "undub")
+		_, err = stmtUpdateFlavor.Exec("dub", folxid, user.ID, name, who, "undub")
 		if err != nil {
 			log.Printf("error updating honker: %s", err)
 		}
 	} else {
-		stmtSaveDub.Exec(user.ID, name, who, "dub")
+		stmtSaveDub.Exec(user.ID, name, who, "dub", folxid)
 	}
 	go rubadubdub(user, j)
 }
 
 func unfollowme(user *WhatAbout, who string, name string, j junk.Junk) {
-	log.Printf("updating honker undo: %s", who)
-	_, err := stmtUpdateFlavor.Exec("undub", user.ID, name, who, "dub")
+	folxid, _ := j.GetString("id")
+
+	log.Printf("updating honker undo: %s %s", who, folxid)
+	_, err := stmtUpdateFlavor.Exec("undub", folxid, user.ID, name, who, "dub")
 	if err != nil {
 		log.Printf("error updating honker: %s", err)
 		return
@@ -1772,16 +1776,16 @@ func followyou2(user *WhatAbout, j junk.Junk) {
 	who, _ := j.GetString("actor")
 
 	log.Printf("updating honker accept: %s", who)
-	var name string
 	db := opendatabase()
-	row := db.QueryRow("select name from honkers where userid = ? and xid = ? and flavor in ('presub')",
+	row := db.QueryRow("select name, folxid from honkers where userid = ? and xid = ? and flavor in ('presub')",
 		user.ID, who)
-	err := row.Scan(&name)
+	var name, folxid string
+	err := row.Scan(&name, &folxid)
 	if err != nil {
 		log.Printf("can't get honker name: %s", err)
 		return
 	}
-	_, err = stmtUpdateFlavor.Exec("sub", user.ID, name, who, "presub")
+	_, err = stmtUpdateFlavor.Exec("sub", folxid, user.ID, name, who, "presub")
 	if err != nil {
 		log.Printf("error updating honker: %s", err)
 		return
