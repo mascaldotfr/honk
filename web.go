@@ -399,6 +399,11 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	case "Undo":
 		obj, ok := j.GetMap("object")
 		if !ok {
+			folxid, ok := j.GetString("object")
+			if ok && originate(folxid) == origin {
+				unfollowme(user, "", "", j)
+				return
+			}
 			log.Printf("unknown undo no object")
 			dumpactivity(j)
 			return

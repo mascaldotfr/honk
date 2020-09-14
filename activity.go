@@ -1723,7 +1723,20 @@ func followme(user *WhatAbout, who string, name string, j junk.Junk) {
 }
 
 func unfollowme(user *WhatAbout, who string, name string, j junk.Junk) {
-	folxid, _ := j.GetString("id")
+	var folxid string
+	if who == "" {
+		folxid, _ = j.GetString("object")
+
+		db := opendatabase()
+		row := db.QueryRow("select xid, name from honkers where userid = ? and folxid = ? and flavor in ('dub', 'undub')", user.ID, folxid)
+		err := row.Scan(&who, &name)
+		if err != nil {
+			if err != sql.ErrNoRows {
+				log.Printf("error scanning honker: %s", err)
+			}
+			return
+		}
+	}
 
 	log.Printf("updating honker undo: %s %s", who, folxid)
 	_, err := stmtUpdateFlavor.Exec("undub", folxid, user.ID, name, who, "dub")
