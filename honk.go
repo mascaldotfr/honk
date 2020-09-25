@@ -40,6 +40,7 @@ type WhatAbout struct {
 	Name    string
 	Display string
 	About   string
+	HTAbout template.HTML
 	Key     string
 	URL     string
 	Options UserOptions

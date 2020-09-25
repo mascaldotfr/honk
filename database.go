@@ -20,6 +20,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"sort"
 	"strconv"
@@ -29,6 +30,7 @@ import (
 	"humungus.tedunangst.com/r/webs/cache"
 	"humungus.tedunangst.com/r/webs/httpsig"
 	"humungus.tedunangst.com/r/webs/login"
+	"humungus.tedunangst.com/r/webs/mz"
 )
 
 func userfromrow(row *sql.Row) (*WhatAbout, error) {
@@ -53,6 +55,11 @@ func userfromrow(row *sql.Row) (*WhatAbout, error) {
 	if user.Options.Reaction == "" {
 		user.Options.Reaction = "none"
 	}
+	var marker mz.Marker
+	marker.HashLinker = ontoreplacer
+	marker.AtLinker = attoreplacer
+	user.HTAbout = template.HTML(marker.Mark(user.About))
+
 	return user, nil
 }
 

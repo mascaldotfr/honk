@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Better support for rich text bios.
+
 + Follow and unfollow should work a little better.
 
 ++ backup command.

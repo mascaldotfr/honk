@@ -1410,8 +1410,6 @@ func collectiveaction(honk *Honk) {
 }
 
 func junkuser(user *WhatAbout) junk.Junk {
-	about := markitzero(user.About)
-
 	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["id"] = user.URL
@@ -1419,7 +1417,7 @@ func junkuser(user *WhatAbout) junk.Junk {
 	j["outbox"] = user.URL + "/outbox"
 	j["name"] = user.Display
 	j["preferredUsername"] = user.Name
-	j["summary"] = about
+	j["summary"] = user.HTAbout
 	if user.ID > 0 {
 		j["type"] = "Person"
 		j["url"] = user.URL

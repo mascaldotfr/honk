@@ -701,9 +701,7 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 	honks := gethonksbyuser(name, u != nil && u.Username == name, 0)
 	templinfo := getInfo(r)
 	templinfo["Name"] = user.Name
-	whatabout := user.About
-	whatabout = markitzero(user.About)
-	templinfo["WhatAbout"] = template.HTML(whatabout)
+	templinfo["WhatAbout"] = user.HTAbout
 	templinfo["ServerMessage"] = ""
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	honkpage(w, u, honks, templinfo)
