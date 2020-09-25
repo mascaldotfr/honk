@@ -59,6 +59,7 @@ func userfromrow(row *sql.Row) (*WhatAbout, error) {
 	marker.HashLinker = ontoreplacer
 	marker.AtLinker = attoreplacer
 	user.HTAbout = template.HTML(marker.Mark(user.About))
+	user.Onts = marker.HashTags
 
 	return user, nil
 }

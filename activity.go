@@ -1418,6 +1418,19 @@ func junkuser(user *WhatAbout) junk.Junk {
 	j["name"] = user.Display
 	j["preferredUsername"] = user.Name
 	j["summary"] = user.HTAbout
+	var tags []junk.Junk
+	for _, o := range user.Onts {
+		t := junk.New()
+		t["type"] = "Hashtag"
+		o = strings.ToLower(o)
+		t["href"] = fmt.Sprintf("https://%s/o/%s", serverName, o[1:])
+		t["name"] = o
+		tags = append(tags, t)
+	}
+	if len(tags) > 0 {
+		j["tag"] = tags
+	}
+
 	if user.ID > 0 {
 		j["type"] = "Person"
 		j["url"] = user.URL
