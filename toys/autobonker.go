@@ -41,6 +41,11 @@ func gethonks(server, token string, wanted int) HonkSet {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
+		if resp.StatusCode == 502 {
+			log.Printf("server error 502...")
+			time.Sleep(5 * time.Minute)
+			return HonkSet{}
+		}
 		answer, _ := ioutil.ReadAll(resp.Body)
 		log.Fatalf("status: %d: %s", resp.StatusCode, answer)
 	}
