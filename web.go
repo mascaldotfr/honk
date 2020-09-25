@@ -402,10 +402,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			folxid, ok := j.GetString("object")
 			if ok && originate(folxid) == origin {
 				unfollowme(user, "", "", j)
-				return
 			}
-			log.Printf("unknown undo no object")
-			dumpactivity(j)
 			return
 		}
 		what, _ := obj.GetString("type")
