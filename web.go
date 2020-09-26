@@ -2346,6 +2346,7 @@ func serve() {
 	go redeliverator()
 	go tracker()
 	go bgmonitor()
+	loadLingo()
 	w100 := wait100ms()
 
 	readviews = templates.Load(debugMode,

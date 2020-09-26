@@ -51,6 +51,17 @@ func init() {
 	allowedclasses["dl"] = true
 }
 
+var relingo = make(map[string]string)
+
+func loadLingo() {
+	for _, l := range []string{"honked", "bonked", "honked back", "qonked", "evented"} {
+		v := l
+		k := "lingo-" + strings.ReplaceAll(l, " ", "")
+		getconfig(k, &v)
+		relingo[l] = v
+	}
+}
+
 func reverbolate(userid int64, honks []*Honk) {
 	var user *WhatAbout
 	somenumberedusers.Get(userid, &user)
@@ -162,6 +173,7 @@ func reverbolate(userid int64, honks []*Honk) {
 
 		h.HTPrecis = template.HTML(h.Precis)
 		h.HTML = template.HTML(h.Noise)
+		h.What = relingo[h.What]
 	}
 }
 

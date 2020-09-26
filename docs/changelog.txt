@@ -2,6 +2,8 @@ changelog
 
 === next
 
+- Custom lingo for those who don't like honking.
+
 + Better support for rich text bios.
 
 + Follow and unfollow should work a little better.
