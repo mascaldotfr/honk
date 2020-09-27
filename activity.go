@@ -176,8 +176,12 @@ func fetchsome(url string) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("not 200: %d %s", resp.StatusCode, url)
+	switch resp.StatusCode {
+	case 200:
+	case 201:
+	case 202:
+	default:
+		return nil, fmt.Errorf("http get not 200: %d %s", resp.StatusCode, url)
 	}
 	var buf bytes.Buffer
 	limiter := io.LimitReader(resp.Body, 10*1024*1024)
