@@ -72,7 +72,7 @@ func clearoutbound(rcpt string) {
 
 var garage = gate.NewLimiter(40)
 
-func deliverate(goarounds int64, userid int64, rcpt string, msg []byte) {
+func deliverate(goarounds int64, userid int64, rcpt string, msg []byte, prio bool) {
 	garage.Start()
 	defer garage.Finish()
 
@@ -99,7 +99,9 @@ func deliverate(goarounds int64, userid int64, rcpt string, msg []byte) {
 	err := PostMsg(ki.keyname, ki.seckey, inbox, msg)
 	if err != nil {
 		log.Printf("failed to post json to %s: %s", inbox, err)
-		sayitagain(goarounds+1, userid, rcpt, msg)
+		if prio {
+			sayitagain(goarounds+1, userid, rcpt, msg)
+		}
 		return
 	}
 }
@@ -162,7 +164,7 @@ func redeliverator() {
 					continue
 				}
 				log.Printf("redeliverating %s try %d", rcpt, goarounds)
-				deliverate(goarounds, userid, rcpt, msg)
+				deliverate(goarounds, userid, rcpt, msg, true)
 			} else if d.When.Before(nexttime) {
 				nexttime = d.When
 			}

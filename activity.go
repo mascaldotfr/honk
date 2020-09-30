@@ -997,7 +997,7 @@ func rubadubdub(user *WhatAbout, req junk.Junk) {
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 	j["object"] = req
 
-	deliverate(0, user.ID, actor, j.ToBytes())
+	deliverate(0, user.ID, actor, j.ToBytes(), true)
 }
 
 func itakeitallback(user *WhatAbout, xid string, owner string, folxid string) {
@@ -1016,7 +1016,7 @@ func itakeitallback(user *WhatAbout, xid string, owner string, folxid string) {
 	j["object"] = f
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 
-	deliverate(0, user.ID, owner, j.ToBytes())
+	deliverate(0, user.ID, owner, j.ToBytes(), true)
 }
 
 func subsub(user *WhatAbout, xid string, owner string, folxid string) {
@@ -1033,7 +1033,7 @@ func subsub(user *WhatAbout, xid string, owner string, folxid string) {
 	j["object"] = xid
 	j["published"] = time.Now().UTC().Format(time.RFC3339)
 
-	deliverate(0, user.ID, owner, j.ToBytes())
+	deliverate(0, user.ID, owner, j.ToBytes(), true)
 }
 
 func activatedonks(donks []*Donk) []junk.Junk {
@@ -1340,7 +1340,7 @@ func sendchonk(user *WhatAbout, ch *Chonk) {
 	rcpts := make(map[string]bool)
 	rcpts[ch.Target] = true
 	for a := range rcpts {
-		go deliverate(0, user.ID, a, msg)
+		go deliverate(0, user.ID, a, msg, true)
 	}
 }
 
@@ -1375,11 +1375,23 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 		}
 	}
 	for a := range rcpts {
-		go deliverate(0, user.ID, a, msg)
+		go deliverate(0, user.ID, a, msg, doesitmatter(honk.What))
 	}
 	if honk.Public && len(honk.Onts) > 0 {
 		collectiveaction(honk)
 	}
+}
+
+func doesitmatter(what string) bool {
+	switch what {
+	case "ack":
+		return false
+	case "react":
+		return false
+	case "deack":
+		return false
+	}
+	return true
 }
 
 func collectiveaction(honk *Honk) {
@@ -1408,7 +1420,7 @@ func collectiveaction(honk *Honk) {
 		}
 		msg := j.ToBytes()
 		for a := range rcpts {
-			go deliverate(0, user.ID, a, msg)
+			go deliverate(0, user.ID, a, msg, false)
 		}
 	}
 }
@@ -1708,7 +1720,7 @@ func updateMe(username string) {
 		}
 	}
 	for a := range rcpts {
-		go deliverate(0, user.ID, a, msg)
+		go deliverate(0, user.ID, a, msg, false)
 	}
 }
 
