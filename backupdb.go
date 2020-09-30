@@ -170,20 +170,21 @@ func svalbard(dirname string) {
 	if err != nil {
 		log.Fatalf("can't open backup blob database")
 	}
-	doordie(blob, "create table filedata (xid text, media text, content blob)")
+	doordie(blob, "create table filedata (xid text, media text, hash text, content blob)")
 	doordie(blob, "create index idx_filexid on filedata(xid)")
+	doordie(blob, "create index idx_filehash on filedata(hash)")
 	tx, err = blob.Begin()
 	if err != nil {
 		log.Fatalf("can't start transaction: %s", err)
 	}
 	origblob := openblobdb()
 	for x := range filexids {
-		rows = qordie(origblob, "select xid, media, content from filedata where xid = ?", x)
+		rows = qordie(origblob, "select xid, media, hash, content from filedata where xid = ?", x)
 		for rows.Next() {
-			var xid, media string
+			var xid, media, hash string
 			var content sql.RawBytes
-			scanordie(rows, &xid, &media, &content)
-			doordie(tx, "insert into filedata (xid, media, content) values (?, ?, ?)", xid, media, content)
+			scanordie(rows, &xid, &media, &hash, &content)
+			doordie(tx, "insert into filedata (xid, media, hash, content) values (?, ?, ?)", xid, media, hash, content)
 		}
 		rows.Close()
 	}
