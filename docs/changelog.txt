@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Dedupe blob file data.
+
 - Custom lingo for those who don't like honking.
 
 + Better support for rich text bios.

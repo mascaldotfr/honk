@@ -17,6 +17,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha512"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -509,20 +510,41 @@ func savefile(name string, desc string, url string, media string, local bool, da
 	return fileid, err
 }
 
+func hashfiledata(data []byte) string {
+	h := sha512.New512_256()
+	h.Write(data)
+	return fmt.Sprintf("%x", h.Sum(nil))
+}
+
 func savefileandxid(name string, desc string, url string, media string, local bool, data []byte) (int64, string, error) {
-	xid := xfiltrate()
-	switch media {
-	case "image/png":
-		xid += ".png"
-	case "image/jpeg":
-		xid += ".jpg"
-	case "application/pdf":
-		xid += ".pdf"
-	case "text/plain":
-		xid += ".txt"
-	}
-	if url == "" {
-		url = fmt.Sprintf("https://%s/d/%s", serverName, xid)
+	var xid string
+	if local {
+		hash := hashfiledata(data)
+		row := stmtCheckFileData.QueryRow(hash)
+		err := row.Scan(&xid)
+		if err == sql.ErrNoRows {
+			xid = xfiltrate()
+			switch media {
+			case "image/png":
+				xid += ".png"
+			case "image/jpeg":
+				xid += ".jpg"
+			case "application/pdf":
+				xid += ".pdf"
+			case "text/plain":
+				xid += ".txt"
+			}
+			_, err = stmtSaveFileData.Exec(xid, media, hash, data)
+			if err != nil {
+				return 0, "", err
+			}
+		} else if err != nil {
+			log.Printf("error checking file hash: %s", err)
+			return 0, "", err
+		}
+		if url == "" {
+			url = fmt.Sprintf("https://%s/d/%s", serverName, xid)
+		}
 	}
 
 	res, err := stmtSaveFile.Exec(xid, name, desc, url, media, local)
@@ -530,12 +552,6 @@ func savefileandxid(name string, desc string, url string, media string, local bo
 		return 0, "", err
 	}
 	fileid, _ := res.LastInsertId()
-	if local {
-		_, err = stmtSaveFileData.Exec(xid, media, data)
-		if err != nil {
-			return 0, "", err
-		}
-	}
 	return fileid, xid, nil
 }
 
@@ -890,6 +906,7 @@ var stmtHonksFromLongAgo *sql.Stmt
 var stmtHonksByHonker, stmtSaveHonk, stmtUserByName, stmtUserByNumber *sql.Stmt
 var stmtEventHonks, stmtOneBonk, stmtFindZonk, stmtFindXonk, stmtSaveDonk *sql.Stmt
 var stmtFindFile, stmtGetFileData, stmtSaveFileData, stmtSaveFile *sql.Stmt
+var stmtCheckFileData *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover, stmtOneHonker *sql.Stmt
 var stmtUntagged, stmtDeleteHonk, stmtDeleteDonks, stmtDeleteOnts, stmtSaveZonker *sql.Stmt
 var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker *sql.Stmt
@@ -951,7 +968,8 @@ func prepareStatements(db *sql.DB) {
 	stmtDeleteDonks = preparetodie(db, "delete from donks where honkid = ?")
 	stmtSaveFile = preparetodie(db, "insert into filemeta (xid, name, description, url, media, local) values (?, ?, ?, ?, ?, ?)")
 	blobdb := openblobdb()
-	stmtSaveFileData = preparetodie(blobdb, "insert into filedata (xid, media, content) values (?, ?, ?)")
+	stmtSaveFileData = preparetodie(blobdb, "insert into filedata (xid, media, hash, content) values (?, ?, ?, ?)")
+	stmtCheckFileData = preparetodie(blobdb, "select xid from filedata where hash = ?")
 	stmtGetFileData = preparetodie(blobdb, "select media, content from filedata where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
 	stmtFindFile = preparetodie(db, "select fileid, xid from filemeta where url = ? and local = 1")

@@ -23,7 +23,7 @@ import (
 	"time"
 )
 
-var myVersion = 39
+var myVersion = 40
 
 type dbexecer interface {
 	Exec(query string, args ...interface{}) (sql.Result, error)
@@ -168,6 +168,39 @@ func upgradedb() {
 		doordie(db, "update config set value = 39 where key = 'dbversion'")
 		fallthrough
 	case 39:
+		blobdb := openblobdb()
+		doordie(blobdb, "alter table filedata add column hash text")
+		doordie(blobdb, "create index idx_filehash on filedata(hash)")
+		rows, err := blobdb.Query("select xid, content from filedata")
+		if err != nil {
+			log.Fatal(err)
+		}
+		m := make(map[string]string)
+		for rows.Next() {
+			var xid string
+			var data sql.RawBytes
+			err := rows.Scan(&xid, &data)
+			if err != nil {
+				log.Fatal(err)
+			}
+			hash := hashfiledata(data)
+			m[xid] = hash
+		}
+		rows.Close()
+		tx, err := blobdb.Begin()
+		if err != nil {
+			log.Fatal(err)
+		}
+		for xid, hash := range m {
+			doordie(tx, "update filedata set hash = ? where xid = ?", hash, xid)
+		}
+		err = tx.Commit()
+		if err != nil {
+			log.Fatal(err)
+		}
+		doordie(db, "update config set value = 40 where key = 'dbversion'")
+		fallthrough
+	case 40:
 
 	default:
 		log.Fatalf("can't upgrade unknown version %d", dbversion)
