@@ -184,7 +184,7 @@ func svalbard(dirname string) {
 			var xid, media, hash string
 			var content sql.RawBytes
 			scanordie(rows, &xid, &media, &hash, &content)
-			doordie(tx, "insert into filedata (xid, media, hash, content) values (?, ?, ?)", xid, media, hash, content)
+			doordie(tx, "insert into filedata (xid, media, hash, content) values (?, ?, ?, ?)", xid, media, hash, content)
 		}
 		rows.Close()
 	}
