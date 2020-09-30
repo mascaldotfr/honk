@@ -197,7 +197,6 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 		return donk
 	}
 	log.Printf("saving donk: %s", url)
-	xid := xfiltrate()
 	data := []byte{}
 	if localize {
 		fn := func() (interface{}, error) {
@@ -223,12 +222,7 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 				goto saveit
 			}
 			data = img.Data
-			format := img.Format
-			media = "image/" + format
-			if format == "jpeg" {
-				format = "jpg"
-			}
-			xid = xid + "." + format
+			media = "image/" + img.Format
 		} else if media == "application/pdf" {
 			if len(data) > 1000000 {
 				log.Printf("not saving large pdf")
@@ -242,14 +236,13 @@ func savedonk(url string, name, desc, media string, localize bool) *Donk {
 		}
 	}
 saveit:
-	fileid, err := savefile(xid, name, desc, url, media, localize, data)
+	fileid, err := savefile(name, desc, url, media, localize, data)
 	if err != nil {
 		log.Printf("error saving file %s: %s", url, err)
 		return nil
 	}
 	donk := new(Donk)
 	donk.FileID = fileid
-	donk.XID = xid
 	return donk
 }
 

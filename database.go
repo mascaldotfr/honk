@@ -504,19 +504,39 @@ func donksforchonks(chonks []*Chonk) {
 	}
 }
 
-func savefile(xid string, name string, desc string, url string, media string, local bool, data []byte) (int64, error) {
+func savefile(name string, desc string, url string, media string, local bool, data []byte) (int64, error) {
+	fileid, _, err := savefileandxid(name, desc, url, media, local, data)
+	return fileid, err
+}
+
+func savefileandxid(name string, desc string, url string, media string, local bool, data []byte) (int64, string, error) {
+	xid := xfiltrate()
+	switch media {
+	case "image/png":
+		xid += ".png"
+	case "image/jpeg":
+		xid += ".jpg"
+	case "application/pdf":
+		xid += ".pdf"
+	case "text/plain":
+		xid += ".txt"
+	}
+	if url == "" {
+		url = fmt.Sprintf("https://%s/d/%s", serverName, xid)
+	}
+
 	res, err := stmtSaveFile.Exec(xid, name, desc, url, media, local)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 	fileid, _ := res.LastInsertId()
 	if local {
 		_, err = stmtSaveFileData.Exec(xid, media, data)
 		if err != nil {
-			return 0, err
+			return 0, "", err
 		}
 	}
-	return fileid, nil
+	return fileid, xid, nil
 }
 
 func finddonk(url string) *Donk {

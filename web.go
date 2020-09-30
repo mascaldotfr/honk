@@ -1428,7 +1428,6 @@ func submitdonk(w http.ResponseWriter, r *http.Request) (*Donk, error) {
 	io.Copy(&buf, file)
 	file.Close()
 	data := buf.Bytes()
-	xid := xfiltrate()
 	var media, name string
 	img, err := shrinkit(data)
 	if err == nil {
@@ -1438,8 +1437,7 @@ func submitdonk(w http.ResponseWriter, r *http.Request) (*Donk, error) {
 		if format == "jpeg" {
 			format = "jpg"
 		}
-		name = xid + "." + format
-		xid = name
+		name = xfiltrate() + "." + format
 	} else {
 		ct := http.DetectContentType(data)
 		switch ct {
@@ -1451,10 +1449,9 @@ func submitdonk(w http.ResponseWriter, r *http.Request) (*Donk, error) {
 				return nil, err
 			}
 			media = ct
-			xid += ".pdf"
 			name = filehdr.Filename
 			if name == "" {
-				name = xid
+				name = xfiltrate() + ".pdf"
 			}
 		default:
 			maxsize := 100000
@@ -1471,10 +1468,9 @@ func submitdonk(w http.ResponseWriter, r *http.Request) (*Donk, error) {
 				}
 			}
 			media = "text/plain"
-			xid += ".txt"
 			name = filehdr.Filename
 			if name == "" {
-				name = xid
+				name = xfiltrate() + ".txt"
 			}
 		}
 	}
@@ -1482,8 +1478,7 @@ func submitdonk(w http.ResponseWriter, r *http.Request) (*Donk, error) {
 	if desc == "" {
 		desc = name
 	}
-	url := fmt.Sprintf("https://%s/d/%s", serverName, xid)
-	fileid, err := savefile(xid, name, desc, url, media, true, data)
+	fileid, xid, err := savefileandxid(name, desc, "", media, true, data)
 	if err != nil {
 		log.Printf("unable to save image: %s", err)
 		http.Error(w, "failed to save attachment", http.StatusUnsupportedMediaType)
@@ -1493,7 +1488,6 @@ func submitdonk(w http.ResponseWriter, r *http.Request) (*Donk, error) {
 		FileID: fileid,
 		XID:    xid,
 		Desc:   desc,
-		URL:    url,
 		Local:  true,
 	}
 	return d, nil
