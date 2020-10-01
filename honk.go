@@ -156,13 +156,14 @@ func (honk *Honk) IsReacted() bool {
 }
 
 type Donk struct {
-	FileID int64
-	XID    string
-	Name   string
-	Desc   string
-	URL    string
-	Media  string
-	Local  bool
+	FileID   int64
+	XID      string
+	Name     string
+	Desc     string
+	URL      string
+	Media    string
+	Local    bool
+	External bool
 }
 
 type Place struct {
@@ -231,6 +232,7 @@ const (
 )
 
 var serverName string
+var serverPrefix string
 var masqName string
 var dataDir = "."
 var viewDir = "."
@@ -281,6 +283,7 @@ func main() {
 	if masqName == "" {
 		masqName = serverName
 	}
+	serverPrefix = fmt.Sprintf("https://%s/", serverName)
 	getconfig("usersep", &userSep)
 	getconfig("honksep", &honkSep)
 	getconfig("debug", &debugMode)

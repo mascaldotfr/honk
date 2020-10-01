@@ -401,6 +401,7 @@ func donksforhonks(honks []*Honk) {
 			log.Printf("error scanning donk: %s", err)
 			continue
 		}
+		d.External = !strings.HasPrefix(d.URL, serverPrefix)
 		h := hmap[hid]
 		h.Donks = append(h.Donks, d)
 	}

@@ -78,7 +78,7 @@ in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
 {{ end }}
 {{ end }}
 {{ else }}
-{{ if .XID }}
+{{ if .External }}
 <p><a href="{{ .URL }}" rel=noreferrer>External Attachment: {{ .Name }}</a>{{ if not (eq .Desc .Name) }} {{ .Desc }}{{ end }}
 {{ else }}
 {{ if eq .Media "video/mp4" }}
