@@ -1,6 +1,6 @@
 module humungus.tedunangst.com/r/honk
 
-go 1.11
+go 1.13
 
 require (
 	github.com/andybalholm/cascadia v1.1.0
