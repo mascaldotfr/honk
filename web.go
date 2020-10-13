@@ -380,6 +380,8 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		followme(user, who, who, j)
 	case "Accept":
 		followyou2(user, j)
+	case "Reject":
+		nofollowyou2(user, j)
 	case "Update":
 		obj, ok := j.GetMap("object")
 		if ok {

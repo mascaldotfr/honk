@@ -1820,3 +1820,24 @@ func followyou2(user *WhatAbout, j junk.Junk) {
 		return
 	}
 }
+
+func nofollowyou2(user *WhatAbout, j junk.Junk) {
+	who, _ := j.GetString("actor")
+
+	log.Printf("updating honker reject: %s", who)
+	db := opendatabase()
+	row := db.QueryRow("select name, folxid from honkers where userid = ? and xid = ? and flavor in ('presub', 'sub')",
+		user.ID, who)
+	var name, folxid string
+	err := row.Scan(&name, &folxid)
+	if err != nil {
+		log.Printf("can't get honker name: %s", err)
+		return
+	}
+	_, err = stmtUpdateFlavor.Exec("unsub", folxid, user.ID, name, who, "presub")
+	_, err = stmtUpdateFlavor.Exec("unsub", folxid, user.ID, name, who, "sub")
+	if err != nil {
+		log.Printf("error updating honker: %s", err)
+		return
+	}
+}
