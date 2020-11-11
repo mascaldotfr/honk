@@ -1018,10 +1018,12 @@ func showonehonk(w http.ResponseWriter, r *http.Request) {
 			return
 
 		}
+		honks := []*Honk{honk}
+		donksforhonks(honks)
 		templinfo := getInfo(r)
 		templinfo["ServerMessage"] = "one honk maybe more"
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
-		honkpage(w, u, []*Honk{honk}, templinfo)
+		honkpage(w, u, honks, templinfo)
 		return
 	}
 	rawhonks := gethonksbyconvoy(honk.UserID, honk.Convoy, 0)
