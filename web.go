@@ -1418,12 +1418,16 @@ func canedithonk(user *WhatAbout, honk *Honk) bool {
 }
 
 func submitdonk(w http.ResponseWriter, r *http.Request) (*Donk, error) {
+	if !strings.HasPrefix(strings.ToLower(r.Header.Get("Content-Type")), "multipart/form-data") {
+		return nil, nil
+	}
 	file, filehdr, err := r.FormFile("donk")
 	if err != nil {
-		if err != http.ErrMissingFile {
-			log.Printf("error reading donk: %s", err)
-			http.Error(w, "error reading donk", http.StatusUnsupportedMediaType)
+		if err == http.ErrMissingFile {
+			return nil, nil
 		}
+		log.Printf("error reading donk: %s", err)
+		http.Error(w, "error reading donk", http.StatusUnsupportedMediaType)
 		return nil, err
 	}
 	var buf bytes.Buffer
@@ -2236,9 +2240,11 @@ func apihandler(w http.ResponseWriter, r *http.Request) {
 	case "donk":
 		d, err := submitdonk(w, r)
 		if err != nil {
-			if err == http.ErrMissingFile {
-				http.Error(w, "missing donk", http.StatusBadRequest)
-			}
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if d == nil {
+			http.Error(w, "missing donk", http.StatusBadRequest)
 			return
 		}
 		w.Write([]byte(d.XID))

@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Relax requirement for multipart/form-data posts in API.
+
 + Dedupe blob file data.
 
 - Custom lingo for those who don't like honking.
