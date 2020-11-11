@@ -1,5 +1,9 @@
 changelog
 
+=== next
+
++ Easier to use ping command.
+
 === 0.9.3 Notacanthous Nutshell
 
 ++ backup command.

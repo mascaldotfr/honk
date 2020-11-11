@@ -257,12 +257,23 @@ func crappola(j junk.Junk) bool {
 }
 
 func ping(user *WhatAbout, who string) {
+	if targ := fullname(who, user.ID); targ != "" {
+		who = targ
+	}
+	if !strings.HasPrefix(who, "https:") {
+		who = gofish(who)
+	}
+	if who == "" {
+		log.Printf("nobody to ping!")
+		return
+	}
 	var box *Box
 	ok := boxofboxes.Get(who, &box)
 	if !ok {
 		log.Printf("no inbox to ping %s", who)
 		return
 	}
+	log.Printf("sending ping to %s", box.In)
 	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["type"] = "Ping"

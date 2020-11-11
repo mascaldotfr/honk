@@ -340,7 +340,7 @@ func main() {
 		svalbard(name)
 	case "ping":
 		if len(args) < 3 {
-			fmt.Printf("usage: honk ping from to\n")
+			fmt.Printf("usage: honk ping (from username) (to username or url)\n")
 			return
 		}
 		name := args[1]
