@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Add validation to some more user inputs to prevent mistakes.
+
 + Easier to use ping command.
 
 === 0.9.3 Notacanthous Nutshell
