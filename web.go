@@ -1840,6 +1840,11 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	combos = " " + combos + " "
 	honkerid, _ := strconv.ParseInt(r.FormValue("honkerid"), 10, 0)
 
+	if name != "" && !re_plainname.MatchString(name) {
+		http.Error(w, "please use a plainer name", http.StatusInternalServerError)
+		return
+	}
+
 	var meta HonkerMeta
 	meta.Notes = strings.TrimSpace(r.FormValue("notes"))
 	mj, _ := jsonify(&meta)

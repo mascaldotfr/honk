@@ -55,6 +55,8 @@ import (
 
 var savedassetparams = make(map[string]string)
 
+var re_plainname = regexp.MustCompile("^[[:alnum:]]+$")
+
 func getassetparam(file string) string {
 	if p, ok := savedassetparams[file]; ok {
 		return p
@@ -309,8 +311,7 @@ func createuser(db *sql.DB, r *bufio.Reader) error {
 	if len(name) < 1 {
 		return fmt.Errorf("that's way too short")
 	}
-	re_name := regexp.MustCompile("^[[:alnum:]]+$")
-	if !re_name.MatchString(name) {
+	if !re_plainname.MatchString(name) {
 		return fmt.Errorf("alphanumeric only please")
 	}
 	if _, err := butwhatabout(name); err == nil {
