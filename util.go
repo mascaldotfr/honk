@@ -44,6 +44,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"regexp"
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
@@ -107,12 +108,16 @@ func initdb() {
 	}
 	r := bufio.NewReader(os.Stdin)
 
-	err = createuser(db, r)
+	initblobdb()
+
+	prepareStatements(db)
+
+	err = createserveruser(db)
 	if err != nil {
 		log.Print(err)
 		return
 	}
-	err = createserveruser(db)
+	err = createuser(db, r)
 	if err != nil {
 		log.Print(err)
 		return
@@ -153,9 +158,6 @@ func initdb() {
 	setconfig("loginmsg", "<h2>login</h2>")
 	setconfig("debug", 0)
 
-	initblobdb()
-
-	prepareStatements(db)
 	db.Close()
 	fmt.Printf("done.\n")
 	os.Exit(0)
@@ -306,6 +308,13 @@ func createuser(db *sql.DB, r *bufio.Reader) error {
 	name = name[:len(name)-1]
 	if len(name) < 1 {
 		return fmt.Errorf("that's way too short")
+	}
+	re_name := regexp.MustCompile("^[[:alnum:]]+$")
+	if !re_name.MatchString(name) {
+		return fmt.Errorf("alphanumeric only please")
+	}
+	if _, err := butwhatabout(name); err == nil {
+		return fmt.Errorf("user already exists")
 	}
 	pass, err := askpassword(r)
 	if err != nil {
