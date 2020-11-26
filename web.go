@@ -1852,16 +1852,17 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	defer honkerinvalidator.Clear(u.UserID)
 
 	if honkerid > 0 {
-		goodbye := r.FormValue("goodbye")
-		if goodbye == "F" {
+		if r.FormValue("delete") == "delete" {
 			unfollowyou(user, honkerid)
+			stmtDeleteHonker.Exec(honkerid)
 			http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 			return
 		}
-		if goodbye == "X" {
+		if r.FormValue("unsub") == "unsub" {
+			unfollowyou(user, honkerid)
+		}
+		if r.FormValue("sub") == "sub" {
 			followyou(user, honkerid)
-			http.Redirect(w, r, "/honkers", http.StatusSeeOther)
-			return
 		}
 		_, err := stmtUpdateHonker.Exec(name, combos, mj, honkerid, u.UserID)
 		if err != nil {
