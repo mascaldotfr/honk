@@ -114,12 +114,13 @@ func initdb() {
 
 	prepareStatements(db)
 
-	err = createserveruser(db)
+	err = createuser(db, r)
 	if err != nil {
 		log.Print(err)
 		return
 	}
-	err = createuser(db, r)
+	// must came later or user above will have negative id
+	err = createserveruser(db)
 	if err != nil {
 		log.Print(err)
 		return

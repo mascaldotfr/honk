@@ -1,5 +1,9 @@
 changelog
 
+=== 0.9.5 Emergency Ejection
+
++ Fix honk init user creation.
+
 === 0.9.4 Collegiate Colloquialism
 
 + Add validation to some more user inputs to prevent mistakes.
