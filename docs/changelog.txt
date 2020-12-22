@@ -1,5 +1,9 @@
 changelog
 
+=== next
+
++ Fix hoot to work with Twitter's latest crap.
+
 === 0.9.5 Emergency Ejection
 
 + Fix honk init user creation.
