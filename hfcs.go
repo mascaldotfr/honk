@@ -21,6 +21,7 @@ import (
 	"regexp"
 	"sort"
 	"time"
+	"unicode"
 
 	"humungus.tedunangst.com/r/webs/cache"
 )
@@ -108,15 +109,33 @@ func filtcachefiller(userid int64) (afiltermap, bool) {
 				expflush = filt.Expiration
 			}
 		}
-		if filt.Text != "" {
-			filt.re_text, err = regexp.Compile("\\b(?i:" + filt.Text + ")\\b")
+		if t := filt.Text; t != "" {
+			wordfront := unicode.IsLetter(rune(t[0]))
+			wordtail := unicode.IsLetter(rune(t[len(t)-1]))
+			t = "(?i:" + t + ")"
+			if wordfront {
+				t = "\\b" + t
+			}
+			if wordtail {
+				t = t + "\\b"
+			}
+			filt.re_text, err = regexp.Compile(t)
 			if err != nil {
 				log.Printf("error compiling filter text: %s", err)
 				continue
 			}
 		}
-		if filt.Rewrite != "" {
-			filt.re_rewrite, err = regexp.Compile("\\b(?i:" + filt.Rewrite + ")\\b")
+		if t := filt.Rewrite; t != "" {
+			wordfront := unicode.IsLetter(rune(t[0]))
+			wordtail := unicode.IsLetter(rune(t[len(t)-1]))
+			t = "(?i:" + t + ")"
+			if wordfront {
+				t = "\\b" + t
+			}
+			if wordtail {
+				t = t + "\\b"
+			}
+			filt.re_rewrite, err = regexp.Compile(t)
 			if err != nil {
 				log.Printf("error compiling filter rewrite: %s", err)
 				continue
