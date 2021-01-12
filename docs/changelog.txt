@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Better regex for filters.
+
 + Fix hoot to work with Twitter's latest crap.
 
 === 0.9.5 Emergency Ejection
