@@ -39,6 +39,32 @@ func importMain(username, flavor, source string) {
 	}
 }
 
+type TootObject struct {
+	Summary      string
+	Content      string
+	InReplyTo    string
+	Conversation string
+	Published    time.Time
+	Tag          []struct {
+		Type string
+		Name string
+	}
+	Attachment []struct {
+		Type      string
+		MediaType string
+		Url       string
+		Name      string
+	}
+}
+
+type PlainTootObject TootObject
+
+func (obj *TootObject) UnmarshalJSON(b []byte) error {
+	p := (*PlainTootObject)(obj)
+	json.Unmarshal(b, p)
+	return nil
+}
+
 func importMastodon(username, source string) {
 	user, err := butwhatabout(username)
 	if err != nil {
@@ -49,23 +75,7 @@ func importMastodon(username, source string) {
 		Type   string
 		To     []string
 		Cc     []string
-		Object struct {
-			Summary      string
-			Content      string
-			InReplyTo    string
-			Conversation string
-			Published    time.Time
-			Tag          []struct {
-				Type string
-				Name string
-			}
-			Attachment []struct {
-				Type      string
-				MediaType string
-				Url       string
-				Name      string
-			}
-		}
+		Object TootObject
 	}
 	var outbox struct {
 		OrderedItems []Toot
@@ -94,6 +104,9 @@ func importMastodon(username, source string) {
 	re_tootid := regexp.MustCompile("[^/]+$")
 	for _, item := range outbox.OrderedItems {
 		toot := item
+		if toot.Type != "Create" {
+			continue
+		}
 		tootid := re_tootid.FindString(toot.Id)
 		xid := fmt.Sprintf("%s/%s/%s", user.URL, honkSep, tootid)
 		if havetoot(xid) {
