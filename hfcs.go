@@ -21,7 +21,6 @@ import (
 	"regexp"
 	"sort"
 	"time"
-	"unicode"
 
 	"humungus.tedunangst.com/r/webs/cache"
 )
@@ -110,8 +109,8 @@ func filtcachefiller(userid int64) (afiltermap, bool) {
 			}
 		}
 		if t := filt.Text; t != "" {
-			wordfront := unicode.IsLetter(rune(t[0]))
-			wordtail := unicode.IsLetter(rune(t[len(t)-1]))
+			wordfront := t[0] != '#'
+			wordtail := true
 			t = "(?i:" + t + ")"
 			if wordfront {
 				t = "\\b" + t
@@ -126,8 +125,8 @@ func filtcachefiller(userid int64) (afiltermap, bool) {
 			}
 		}
 		if t := filt.Rewrite; t != "" {
-			wordfront := unicode.IsLetter(rune(t[0]))
-			wordtail := unicode.IsLetter(rune(t[len(t)-1]))
+			wordfront := t[0] != '#'
+			wordtail := true
 			t = "(?i:" + t + ")"
 			if wordfront {
 				t = "\\b" + t

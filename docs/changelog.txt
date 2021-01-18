@@ -4,7 +4,7 @@ changelog
 
 + Fix mastodon import.
 
-+ Better regex for filters.
++ Filters work better with hashtags.
 
 + Fix hoot to work with Twitter's latest crap.
 
