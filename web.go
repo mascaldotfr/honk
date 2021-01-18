@@ -78,7 +78,7 @@ func getInfo(r *http.Request) map[string]interface{} {
 	u := login.GetUserInfo(r)
 	templinfo := make(map[string]interface{})
 	templinfo["StyleParam"] = getassetparam(viewDir + "/views/style.css")
-	templinfo["LocalStyleParam"] = getassetparam(viewDir + "/views/local.css")
+	templinfo["LocalStyleParam"] = getassetparam(dataDir + "/views/local.css")
 	templinfo["JSParam"] = getassetparam(viewDir + "/views/honkpage.js")
 	templinfo["UserStyle"] = getuserstyle(u)
 	templinfo["ServerName"] = serverName
