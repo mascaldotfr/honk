@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Fix mastodon import.
+
 + Better regex for filters.
 
 + Fix hoot to work with Twitter's latest crap.
