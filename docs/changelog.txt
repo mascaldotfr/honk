@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ A new follow button in a surprise location.
+
 + Fix mastodon import.
 
 + Filters work better with hashtags.
