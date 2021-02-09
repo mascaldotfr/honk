@@ -468,6 +468,12 @@ func donksforhonks(honks []*Honk) {
 				log.Printf("error parsing mentions: %s", err)
 				continue
 			}
+		case "badonks":
+			err = unjsonify(j, &h.Badonks)
+			if err != nil {
+				log.Printf("error parsing badonks: %s", err)
+				continue
+			}
 		case "oldrev":
 		default:
 			log.Printf("unknown meta genus: %s", genus)
