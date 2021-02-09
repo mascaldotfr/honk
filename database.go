@@ -26,6 +26,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"humungus.tedunangst.com/r/webs/cache"
@@ -804,7 +805,11 @@ func saveextras(tx *sql.Tx, h *Honk) error {
 	return nil
 }
 
+var baxonker sync.Mutex
+
 func addreaction(user *WhatAbout, xid string, who, react string) {
+	baxonker.Lock()
+	defer baxonker.Unlock()
 	h := getxonk(user.ID, xid)
 	if h == nil {
 		return
