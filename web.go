@@ -429,6 +429,12 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		default:
 			log.Printf("unknown undo: %s", what)
 		}
+	case "EmojiReact":
+		obj, ok := j.GetString("object")
+		if ok {
+			content, _ := j.GetString("content")
+			addreaction(user, obj, who, content)
+		}
 	default:
 		go xonksaver(user, j, origin)
 	}

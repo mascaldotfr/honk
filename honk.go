@@ -96,6 +96,12 @@ type Honk struct {
 	Place    *Place
 	Time     *Time
 	Mentions []Mention
+	Badonks  []Badonk
+}
+
+type Badonk struct {
+	Who  string
+	What string
 }
 
 type Chonk struct {
