@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Fix Update processing.
+
 + Better cookie rotation with weekly refresh.
 
 + A new follow button in a surprise location.
