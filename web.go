@@ -2221,7 +2221,12 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	case "honker":
 		xid := r.FormValue("xid")
 		honks = gethonksbyxonker(userid, xid, wanted)
-		msg := templates.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>`, xid, xid)
+		miniform := templates.Sprintf(`<form action="/submithonker" method="POST">
+			<input type="hidden" name="CSRF" value="%s">
+			<input type="hidden" name="url" value="%s">
+			<button tabindex=1 name="add honker" value="add honker">add honker</button>
+			</form>`, login.GetCSRF("submithonker", r), xid)
+		msg := templates.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>%s`, xid, xid, miniform)
 		templinfo["ServerMessage"] = msg
 	default:
 		http.NotFound(w, r)
