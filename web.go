@@ -1851,7 +1851,8 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	combos = " " + combos + " "
 	honkerid, _ := strconv.ParseInt(r.FormValue("honkerid"), 10, 0)
 
-	if name != "" && !re_plainname.MatchString(name) {
+	re_namecheck := regexp.MustCompile("[[:alnum:]_.-]+")
+	if name != "" && !re_namecheck.MatchString(name) {
 		http.Error(w, "please use a plainer name", http.StatusInternalServerError)
 		return
 	}
@@ -1897,7 +1898,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	if url[0] == '#' {
 		flavor = "peep"
 		if name == "" {
-			name = url
+			name = url[1:]
 		}
 		_, err := stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos, url, mj)
 		if err != nil {
