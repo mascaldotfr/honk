@@ -398,6 +398,8 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		if ok {
 			what, _ := obj.GetString("type")
 			switch what {
+			case "Service":
+				fallthrough
 			case "Person":
 				return
 			case "Question":
