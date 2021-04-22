@@ -1,6 +1,8 @@
 changelog
 
-=== next
+=== 0.9.6 Virile Vigorous and Potent
+
++ A bug, a fix, a bug fix, a fix bug.
 
 + Fix Update processing.
 

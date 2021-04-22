@@ -752,6 +752,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				}
 				name, _ := att.GetString("name")
 				desc, _ := att.GetString("summary")
+				desc = html.UnescapeString(desc)
 				if desc == "" {
 					desc = name
 				}
@@ -798,6 +799,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				tt, _ := tag.GetString("type")
 				name, _ := tag.GetString("name")
 				desc, _ := tag.GetString("summary")
+				desc = html.UnescapeString(desc)
 				if desc == "" {
 					desc = name
 				}
