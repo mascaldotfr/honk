@@ -451,6 +451,19 @@ func extractattrto(obj junk.Junk) string {
 	return ""
 }
 
+func firstofmany(obj junk.Junk, key string) string {
+	if val, _ := obj.GetString(key); val != "" {
+		return val
+	}
+	if arr, _ := obj.GetArray(key); len(arr) > 0 {
+		val, ok := arr[0].(string)
+		if ok {
+			return val
+		}
+	}
+	return ""
+}
+
 func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 	depth := 0
 	maxdepth := 10
@@ -476,7 +489,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 
 	xonkxonkfn = func(item junk.Junk, origin string, isUpdate bool) *Honk {
 		id, _ := item.GetString("id")
-		what, _ := item.GetString("type")
+		what := firstofmany(item, "type")
 		dt, ok := item.GetString("published")
 		if !ok {
 			dt = time.Now().Format(time.RFC3339)
