@@ -517,6 +517,11 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			log.Printf("eradicating %s", xid)
 			eradicatexonk(user.ID, xid)
 			return nil
+		case "Remove":
+			xid, _ = item.GetString("object")
+			targ, _ := obj.GetString("target")
+			log.Printf("remove %s from %s", obj, targ)
+			return nil
 		case "Tombstone":
 			xid, _ = item.GetString("id")
 			if xid == "" {
