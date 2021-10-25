@@ -1396,8 +1396,10 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	templinfo["SavedPlace"] = honk.Place
 	if tm := honk.Time; tm != nil {
 		templinfo["ShowTime"] = ";"
-		templinfo["StartTime"] = tm.StartTime.Format("2006-01-02 03:04")
-		templinfo["Duration"] = tm.Duration
+		templinfo["StartTime"] = tm.StartTime.Format("2006-01-02 15:04")
+		if tm.Duration != 0 {
+			templinfo["Duration"] = tm.Duration
+		}
 	}
 	templinfo["ServerMessage"] = "honk edit 2"
 	templinfo["IsPreview"] = true
@@ -1711,8 +1713,10 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 		templinfo["SavedFile"] = donkxid
 		if tm := honk.Time; tm != nil {
 			templinfo["ShowTime"] = ";"
-			templinfo["StartTime"] = tm.StartTime.Format("2006-01-02 03:04")
-			templinfo["Duration"] = tm.Duration
+			templinfo["StartTime"] = tm.StartTime.Format("2006-01-02 15:04")
+			if tm.Duration != 0 {
+				templinfo["Duration"] = tm.Duration
+			}
 		}
 		templinfo["IsPreview"] = true
 		templinfo["UpdateXID"] = updatexid
