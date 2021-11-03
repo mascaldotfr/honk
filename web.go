@@ -163,6 +163,8 @@ func showfunzone(w http.ResponseWriter, r *http.Request) {
 		memenames, _ = dir.Readdirnames(0)
 		dir.Close()
 	}
+	sort.Strings(emunames)
+	sort.Strings(memenames)
 	templinfo := getInfo(r)
 	templinfo["Emus"] = emunames
 	templinfo["Memes"] = memenames
