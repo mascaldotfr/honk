@@ -409,7 +409,7 @@ func memetize(honk *Honk) {
 		if name[0] == ' ' {
 			name = name[1:]
 		}
-		fd, err := os.Open("memes/" + name)
+		fd, err := os.Open(dataDir + "/memes/" + name)
 		if err != nil {
 			log.Printf("no meme for %s", name)
 			return x
