@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Fix the memetizer to work in more environments.
+
 + Printing is prettier than ever before.
 
 === 0.9.6 Virile Vigorous and Potent
