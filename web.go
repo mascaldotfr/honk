@@ -2105,7 +2105,9 @@ func avatate(w http.ResponseWriter, r *http.Request) {
 	}
 	n := r.FormValue("a")
 	a := genAvatar(n)
-	w.Header().Set("Cache-Control", "max-age="+somedays())
+	if !debugMode {
+		w.Header().Set("Cache-Control", "max-age="+somedays())
+	}
 	w.Write(a)
 }
 
