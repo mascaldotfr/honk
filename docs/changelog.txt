@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ More flexible hashtag characters.
+
 + Fix the memetizer to work in more environments.
 
 + Printing is prettier than ever before.
