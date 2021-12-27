@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Unread count for chatter.
+
 + More flexible hashtag characters.
 
 + Fix the memetizer to work in more environments.

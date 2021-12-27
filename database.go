@@ -596,10 +596,51 @@ func savechonk(ch *Chonk) error {
 			}
 		}
 		err = tx.Commit()
+		chatplusone(ch.UserID)
 	} else {
 		tx.Rollback()
 	}
 	return err
+}
+
+func chatplusone(userid int64) {
+	var user *WhatAbout
+	ok := somenumberedusers.Get(userid, &user)
+	if !ok {
+		return
+	}
+	options := user.Options
+	options.Chats += 1
+	j, err := jsonify(options)
+	if err == nil {
+		db := opendatabase()
+		_, err = db.Exec("update users set options = ? where username = ?", j, user.Name)
+	}
+	if err != nil {
+		log.Printf("error plussing chat: %s", err)
+	}
+	somenamedusers.Clear(user.Name)
+	somenumberedusers.Clear(user.ID)
+}
+
+func chatnewnone(userid int64) {
+	var user *WhatAbout
+	ok := somenumberedusers.Get(userid, &user)
+	if !ok || user.Options.Chats == 0 {
+		return
+	}
+	options := user.Options
+	options.Chats = 0
+	j, err := jsonify(options)
+	if err == nil {
+		db := opendatabase()
+		_, err = db.Exec("update users set options = ? where username = ?", j, user.Name)
+	}
+	if err != nil {
+		log.Printf("error noneing chat: %s", err)
+	}
+	somenamedusers.Clear(user.Name)
+	somenumberedusers.Clear(user.ID)
 }
 
 func loadchatter(userid int64) []*Chatter {

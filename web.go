@@ -75,17 +75,16 @@ func getmaplink(u *login.UserInfo) string {
 }
 
 func getInfo(r *http.Request) map[string]interface{} {
-	u := login.GetUserInfo(r)
 	templinfo := make(map[string]interface{})
 	templinfo["StyleParam"] = getassetparam(viewDir + "/views/style.css")
 	templinfo["LocalStyleParam"] = getassetparam(dataDir + "/views/local.css")
 	templinfo["JSParam"] = getassetparam(viewDir + "/views/honkpage.js")
-	templinfo["UserStyle"] = getuserstyle(u)
 	templinfo["ServerName"] = serverName
 	templinfo["IconName"] = iconName
-	templinfo["UserInfo"] = u
 	templinfo["UserSep"] = userSep
-	if u != nil {
+	if u := login.GetUserInfo(r); u != nil {
+		templinfo["UserInfo"], _ = butwhatabout(u.Username)
+		templinfo["UserStyle"] = getuserstyle(u)
 		var combos []string
 		combocache.Get(u.UserID, &combos)
 		templinfo["Combos"] = combos
@@ -1763,6 +1762,7 @@ func showhonkers(w http.ResponseWriter, r *http.Request) {
 
 func showchatter(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
+	chatnewnone(u.UserID)
 	chatter := loadchatter(u.UserID)
 	for _, chat := range chatter {
 		for _, ch := range chat.Chonks {

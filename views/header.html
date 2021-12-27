@@ -17,7 +17,7 @@
 <header>
 {{ if .UserInfo }}
 <details id="topmenu">
-<summary>menu<span> {{ .UserInfo.Username }}</span></summary>
+<summary>menu<span> {{ .UserInfo.Name }}</span></summary>
 <ul>
 <li><a id="homelink" href="/">home</a>
 <li><a id="atmelink" href="/atme">@me</a>
@@ -31,7 +31,7 @@
 {{ end }}
 </ul>
 </details>
-<li><a href="/chatter">chatter</a>
+<li><a href="/chatter">chatter{{ if .UserInfo.Options.Chats }} ({{ .UserInfo.Options.Chats }}){{ end }}</a>
 <li><a href="/o">tags</a>
 <li><a href="/events">events</a>
 <li><a id="longagolink" href="/longago">long ago</a>
@@ -43,7 +43,7 @@
 <details>
 <summary>more stuff</summary>
 <ul>
-<li><a href="/{{ .UserSep }}/{{ .UserInfo.Username }}">my honks</a>
+<li><a href="/{{ .UserSep }}/{{ .UserInfo.Name }}">my honks</a>
 <li><a href="/about">about</a>
 <li><a href="/front">front</a>
 <li><a href="/funzone">funzone</a>

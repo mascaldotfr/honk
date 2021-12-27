@@ -55,6 +55,7 @@ type UserOptions struct {
 	MapLink    string `json:",omitempty"`
 	Reaction   string `json:",omitempty"`
 	MentionAll bool
+	Chats      int
 }
 
 type KeyInfo struct {
