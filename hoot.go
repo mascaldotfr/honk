@@ -32,9 +32,11 @@ import (
 var tweetsel = cascadia.MustCompile("p.tweet-text")
 var linksel = cascadia.MustCompile("a.tweet-timestamp")
 var replyingto = cascadia.MustCompile(".ReplyingToContextBelowAuthor")
+var imgsel = cascadia.MustCompile("div.js-adaptive-photo img")
 var authorregex = regexp.MustCompile("twitter.com/([^/]+)")
 
 var re_hoots = regexp.MustCompile(`hoot: ?https://\S+`)
+var re_removepics = regexp.MustCompile(`pic\.twitter\.com/[[:alnum:]]+`)
 
 func hootextractor(r io.Reader, url string, seen map[string]bool) string {
 	root, err := html.Parse(r)
@@ -52,11 +54,10 @@ func hootextractor(r io.Reader, url string, seen map[string]bool) string {
 		wanted = wantmatch[1]
 	}
 	var buf strings.Builder
-
 	fmt.Fprintf(&buf, "%s\n", url)
 	var htf htfilter.Filter
 	htf.Imager = func(node *html.Node) string {
-		return ""
+		return fmt.Sprintf(" <img src='%s'>", htfilter.GetAttr(node, "src"))
 	}
 	for i, div := range divs {
 		twp := div.Parent.Parent.Parent
@@ -86,9 +87,13 @@ func hootextractor(r io.Reader, url string, seen map[string]bool) string {
 		if author != wanted {
 			continue
 		}
+		if img := imgsel.MatchFirst(twp); img != nil {
+			img.Parent.RemoveChild(img)
+			div.AppendChild(img)
+		}
 		text := htf.NodeText(div)
 		text = strings.Replace(text, "\n", " ", -1)
-		text = strings.Replace(text, "pic.twitter.com", "https://pic.twitter.com", -1)
+		text = re_removepics.ReplaceAllString(text, "")
 
 		if seen[text] {
 			continue

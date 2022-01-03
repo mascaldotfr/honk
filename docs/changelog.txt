@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Images in the hooter.
+
 + Unread count for chatter.
 
 + More flexible hashtag characters.
