@@ -1107,6 +1107,11 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		options.SkinnyCSS = false
 	}
+	if r.FormValue("avahex") == "avahex" {
+		options.Avahex = true
+	} else {
+		options.Avahex = false
+	}
 	if r.FormValue("omitimages") == "omitimages" {
 		options.OmitImages = true
 	} else {
@@ -2104,7 +2109,8 @@ func avatate(w http.ResponseWriter, r *http.Request) {
 		loadAvatarColors()
 	}
 	n := r.FormValue("a")
-	a := genAvatar(n)
+	hex := r.FormValue("hex") == "1"
+	a := genAvatar(n, hex)
 	if !debugMode {
 		w.Header().Set("Cache-Control", "max-age="+somedays())
 	}

@@ -1470,7 +1470,11 @@ func junkuser(user *WhatAbout) junk.Junk {
 		if ava := user.Options.Avatar; ava != "" {
 			a["url"] = ava
 		} else {
-			a["url"] = fmt.Sprintf("https://%s/a?a=%s", serverName, url.QueryEscape(user.URL))
+			u := fmt.Sprintf("https://%s/a?a=%s", serverName, url.QueryEscape(user.URL))
+			if user.Options.Avahex {
+				u += "&hex=1"
+			}
+			a["url"] = u
 		}
 		j["icon"] = a
 	} else {
