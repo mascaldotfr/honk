@@ -2194,6 +2194,12 @@ func nomoroboto(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type Hydration struct {
+	Tophid int64
+	Srvmsg template.HTML
+	Honks  string
+}
+
 func webhydra(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	userid := u.UserID
@@ -2203,38 +2209,40 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 
 	wanted, _ := strconv.ParseInt(r.FormValue("tophid"), 10, 0)
 
+	var hydra Hydration
+
 	var honks []*Honk
 	switch page {
 	case "atme":
 		honks = gethonksforme(userid, wanted)
 		honks = osmosis(honks, userid, false)
-		templinfo["ServerMessage"] = "at me!"
+		hydra.Srvmsg = "at me!"
 	case "longago":
 		honks = gethonksfromlongago(userid, wanted)
 		honks = osmosis(honks, userid, false)
-		templinfo["ServerMessage"] = "from long ago"
+		hydra.Srvmsg = "from long ago"
 	case "home":
 		honks = gethonksforuser(userid, wanted)
 		honks = osmosis(honks, userid, true)
-		templinfo["ServerMessage"] = serverMsg
+		hydra.Srvmsg = serverMsg
 	case "first":
 		honks = gethonksforuserfirstclass(userid, wanted)
 		honks = osmosis(honks, userid, true)
-		templinfo["ServerMessage"] = "first class only"
+		hydra.Srvmsg = "first class only"
 	case "saved":
 		honks = getsavedhonks(userid, wanted)
 		templinfo["PageName"] = "saved"
-		templinfo["ServerMessage"] = "saved honks"
+		hydra.Srvmsg = "saved honks"
 	case "combo":
 		c := r.FormValue("c")
 		honks = gethonksbycombo(userid, c, wanted)
 		honks = osmosis(honks, userid, false)
-		templinfo["ServerMessage"] = "honks by combo: " + c
+		hydra.Srvmsg = templates.Sprintf("honks by combo: %s", c)
 	case "convoy":
 		c := r.FormValue("c")
 		honks = gethonksbyconvoy(userid, c, wanted)
 		honks = osmosis(honks, userid, false)
-		templinfo["ServerMessage"] = "honks in convoy: " + c
+		hydra.Srvmsg = templates.Sprintf("honks in convoy: %s", c)
 	case "honker":
 		xid := r.FormValue("xid")
 		honks = gethonksbyxonker(userid, xid, wanted)
@@ -2244,24 +2252,31 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 			<button tabindex=1 name="add honker" value="add honker">add honker</button>
 			</form>`, login.GetCSRF("submithonker", r), xid)
 		msg := templates.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>%s`, xid, xid, miniform)
-		templinfo["ServerMessage"] = msg
+		hydra.Srvmsg = msg
 	default:
 		http.NotFound(w, r)
 	}
+
 	if len(honks) > 0 {
-		templinfo["TopHID"] = honks[0].ID
+		hydra.Tophid = honks[0].ID
 	} else {
-		templinfo["TopHID"] = wanted
+		hydra.Tophid = wanted
 	}
 	reverbolate(userid, honks)
+
+	var buf strings.Builder
 	templinfo["Honks"] = honks
 	templinfo["MapLink"] = getmaplink(u)
 	templinfo["User"], _ = butwhatabout(u.Username)
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	err := readviews.Execute(w, "honkfrags.html", templinfo)
+	err := readviews.Execute(&buf, "honkfrags.html", templinfo)
 	if err != nil {
 		log.Printf("frag error: %s", err)
+		return
 	}
+	hydra.Honks = buf.String()
+	w.Header().Set("Content-Type", "application/json")
+	j, _ := jsonify(&hydra)
+	io.WriteString(w, j)
 }
 
 var honkline = make(chan bool)
