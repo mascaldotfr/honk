@@ -1372,12 +1372,16 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 			}
 		}
 		for _, f := range getbacktracks(honk.XID) {
-			var box *Box
-			ok := boxofboxes.Get(f, &box)
-			if ok && box.Shared != "" {
-				rcpts["%"+box.Shared] = true
-			} else {
+			if f[0] == '%' {
 				rcpts[f] = true
+			} else {
+				var box *Box
+				ok := boxofboxes.Get(f, &box)
+				if ok && box.Shared != "" {
+					rcpts["%"+box.Shared] = true
+				} else {
+					rcpts[f] = true
+				}
 			}
 		}
 	}
