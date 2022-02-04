@@ -100,11 +100,6 @@ func PostMsg(keyname string, key httpsig.PrivateKey, url string, msg []byte) err
 	return nil
 }
 
-type JunkError struct {
-	Junk junk.Junk
-	Err  error
-}
-
 func GetJunk(url string) (junk.Junk, error) {
 	return GetJunkTimeout(url, 30*time.Second)
 }
