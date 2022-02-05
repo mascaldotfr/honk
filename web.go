@@ -2302,7 +2302,6 @@ func honkhonkline() {
 func apihandler(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	userid := u.UserID
-	user, _ := butwhatabout(u.Username)
 	action := r.FormValue("action")
 	wait, _ := strconv.ParseInt(r.FormValue("wait"), 10, 0)
 	log.Printf("api request '%s' on behalf of %s", action, u.Username)
@@ -2362,6 +2361,7 @@ func apihandler(w http.ResponseWriter, r *http.Request) {
 		j["honks"] = honks
 		j.Write(w)
 	case "sendactivity":
+		user, _ := butwhatabout(u.Username)
 		public := r.FormValue("public") == "1"
 		rcpts := boxuprcpts(user, r.Form["rcpt"], public)
 		msg := []byte(r.FormValue("msg"))
