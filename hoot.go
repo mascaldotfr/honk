@@ -44,21 +44,23 @@ func hootextractor(r io.Reader, url string, seen map[string]bool) string {
 		log.Printf("error parsing hoot: %s", err)
 		return url
 	}
-	divs := tweetsel.MatchAll(root)
 
 	url = strings.Replace(url, "mobile.twitter.com", "twitter.com", -1)
-
-	var wanted string
 	wantmatch := authorregex.FindStringSubmatch(url)
+	var wanted string
 	if len(wantmatch) == 2 {
 		wanted = wantmatch[1]
 	}
-	var buf strings.Builder
-	fmt.Fprintf(&buf, "%s\n", url)
+
 	var htf htfilter.Filter
 	htf.Imager = func(node *html.Node) string {
 		return fmt.Sprintf(" <img src='%s'>", htfilter.GetAttr(node, "src"))
 	}
+
+	var buf strings.Builder
+	fmt.Fprintf(&buf, "%s\n", url)
+
+	divs := tweetsel.MatchAll(root)
 	for i, div := range divs {
 		twp := div.Parent.Parent.Parent
 		link := url
@@ -87,7 +89,7 @@ func hootextractor(r io.Reader, url string, seen map[string]bool) string {
 		if author != wanted {
 			continue
 		}
-		if img := imgsel.MatchFirst(twp); img != nil {
+		for img := imgsel.MatchFirst(twp); img != nil; imgsel.MatchFirst(twp) {
 			img.Parent.RemoveChild(img)
 			div.AppendChild(img)
 		}
