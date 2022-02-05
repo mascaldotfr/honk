@@ -56,7 +56,8 @@ type UserOptions struct {
 	Avatar     string `json:",omitempty"`
 	MapLink    string `json:",omitempty"`
 	Reaction   string `json:",omitempty"`
-	Chats      int
+	MeCount    int64
+	ChatCount  int64
 }
 
 type KeyInfo struct {

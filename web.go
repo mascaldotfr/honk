@@ -116,6 +116,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 			templinfo["PageName"] = "atme"
 			honks = gethonksforme(userid, 0)
 			honks = osmosis(honks, userid, false)
+			menewnone(userid)
 		case "/longago":
 			templinfo["ServerMessage"] = "long ago and far away!"
 			templinfo["PageName"] = "longago"
@@ -2195,9 +2196,11 @@ func nomoroboto(w http.ResponseWriter, r *http.Request) {
 }
 
 type Hydration struct {
-	Tophid int64
-	Srvmsg template.HTML
-	Honks  string
+	Tophid    int64
+	Srvmsg    template.HTML
+	Honks     string
+	MeCount   int64
+	ChatCount int64
 }
 
 func webhydra(w http.ResponseWriter, r *http.Request) {
@@ -2216,6 +2219,7 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	case "atme":
 		honks = gethonksforme(userid, wanted)
 		honks = osmosis(honks, userid, false)
+		menewnone(userid)
 		hydra.Srvmsg = "at me!"
 	case "longago":
 		honks = gethonksfromlongago(userid, wanted)
@@ -2264,6 +2268,8 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	}
 	reverbolate(userid, honks)
 
+	user, _ := butwhatabout(u.Username)
+
 	var buf strings.Builder
 	templinfo["Honks"] = honks
 	templinfo["MapLink"] = getmaplink(u)
@@ -2274,6 +2280,8 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	hydra.Honks = buf.String()
+	hydra.MeCount = user.Options.MeCount
+	hydra.ChatCount = user.Options.ChatCount
 	w.Header().Set("Content-Type", "application/json")
 	j, _ := jsonify(&hydra)
 	io.WriteString(w, j)
@@ -2328,6 +2336,7 @@ func apihandler(w http.ResponseWriter, r *http.Request) {
 		case "atme":
 			honks = gethonksforme(userid, wanted)
 			honks = osmosis(honks, userid, false)
+			menewnone(userid)
 		case "longago":
 			honks = gethonksfromlongago(userid, wanted)
 			honks = osmosis(honks, userid, false)

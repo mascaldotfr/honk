@@ -2,9 +2,9 @@ changelog
 
 === next
 
-+ Images in the hooter.
++ Low key unread counters.
 
-+ Unread count for chatter.
++ Images in the hooter.
 
 + More flexible hashtag characters.
 

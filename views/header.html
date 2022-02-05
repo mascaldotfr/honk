@@ -20,7 +20,7 @@
 <summary>menu<span> {{ .UserInfo.Name }}</span></summary>
 <ul>
 <li><a id="homelink" href="/">home</a>
-<li><a id="atmelink" href="/atme">@me</a>
+<li><a id="atmelink" href="/atme">@me<span id=mecount>{{ if .UserInfo.Options.MeCount }}({{ .UserInfo.Options.MeCount }}){{ end }}</span></a>
 <li><a id="firstlink" href="/first">first</a>
 <li style="list-style-type:none; margin-left:-1em">
 <details>
@@ -31,7 +31,7 @@
 {{ end }}
 </ul>
 </details>
-<li><a href="/chatter">chatter{{ if .UserInfo.Options.Chats }} ({{ .UserInfo.Options.Chats }}){{ end }}</a>
+<li><a href="/chatter">chatter<span id=chatcount>{{ if .UserInfo.Options.ChatCount }}({{ .UserInfo.Options.ChatCount }}){{ end }}</span></a>
 <li><a href="/o">tags</a>
 <li><a href="/events">events</a>
 <li><a id="longagolink" href="/longago">long ago</a>

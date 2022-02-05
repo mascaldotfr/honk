@@ -595,26 +595,25 @@ func savechonk(ch *Chonk) error {
 				break
 			}
 		}
+		chatplusone(tx, ch.UserID)
 		err = tx.Commit()
-		chatplusone(ch.UserID)
 	} else {
 		tx.Rollback()
 	}
 	return err
 }
 
-func chatplusone(userid int64) {
+func chatplusone(tx *sql.Tx, userid int64) {
 	var user *WhatAbout
 	ok := somenumberedusers.Get(userid, &user)
 	if !ok {
 		return
 	}
 	options := user.Options
-	options.Chats += 1
+	options.ChatCount += 1
 	j, err := jsonify(options)
 	if err == nil {
-		db := opendatabase()
-		_, err = db.Exec("update users set options = ? where username = ?", j, user.Name)
+		_, err = tx.Exec("update users set options = ? where username = ?", j, user.Name)
 	}
 	if err != nil {
 		log.Printf("error plussing chat: %s", err)
@@ -626,11 +625,11 @@ func chatplusone(userid int64) {
 func chatnewnone(userid int64) {
 	var user *WhatAbout
 	ok := somenumberedusers.Get(userid, &user)
-	if !ok || user.Options.Chats == 0 {
+	if !ok || user.Options.ChatCount == 0 {
 		return
 	}
 	options := user.Options
-	options.Chats = 0
+	options.ChatCount = 0
 	j, err := jsonify(options)
 	if err == nil {
 		db := opendatabase()
@@ -638,6 +637,45 @@ func chatnewnone(userid int64) {
 	}
 	if err != nil {
 		log.Printf("error noneing chat: %s", err)
+	}
+	somenamedusers.Clear(user.Name)
+	somenumberedusers.Clear(user.ID)
+}
+
+func meplusone(tx *sql.Tx, userid int64) {
+	var user *WhatAbout
+	ok := somenumberedusers.Get(userid, &user)
+	if !ok {
+		return
+	}
+	options := user.Options
+	options.MeCount += 1
+	j, err := jsonify(options)
+	if err == nil {
+		_, err = tx.Exec("update users set options = ? where username = ?", j, user.Name)
+	}
+	if err != nil {
+		log.Printf("error plussing me: %s", err)
+	}
+	somenamedusers.Clear(user.Name)
+	somenumberedusers.Clear(user.ID)
+}
+
+func menewnone(userid int64) {
+	var user *WhatAbout
+	ok := somenumberedusers.Get(userid, &user)
+	if !ok || user.Options.MeCount == 0 {
+		return
+	}
+	options := user.Options
+	options.MeCount = 0
+	j, err := jsonify(options)
+	if err == nil {
+		db := opendatabase()
+		_, err = db.Exec("update users set options = ? where username = ?", j, user.Name)
+	}
+	if err != nil {
+		log.Printf("error noneing me: %s", err)
 	}
 	somenamedusers.Clear(user.Name)
 	somenumberedusers.Clear(user.ID)
@@ -724,6 +762,9 @@ func savehonk(h *Honk) error {
 		err = saveextras(tx, h)
 	}
 	if err == nil {
+		if h.Whofore == 1 {
+			meplusone(tx, h.UserID)
+		}
 		err = tx.Commit()
 	} else {
 		tx.Rollback()

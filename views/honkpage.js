@@ -92,6 +92,19 @@ function fillinhonks(xhr, glowit) {
 	doc.innerHTML = resp.Honks
 	var honks = doc.children
 
+	var mecount = document.getElementById("mecount")
+	if (resp.MeCount) {
+		mecount.innerHTML = "(" + resp.MeCount + ")"
+	} else {
+		mecount.innerHTML = ""
+	}
+	var chatcount = document.getElementById("chatcount")
+	if (resp.ChatCount) {
+		chatcount.innerHTML = "(" + resp.ChatCount + ")"
+	} else {
+		chatcount.innerHTML = ""
+	}
+
 	var srvel = document.getElementById("srvmsg")
 	while (srvel.children[0]) {
 		srvel.children[0].remove()
