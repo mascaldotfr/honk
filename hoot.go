@@ -18,7 +18,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -41,7 +40,7 @@ var re_removepics = regexp.MustCompile(`pic\.twitter\.com/[[:alnum:]]+`)
 func hootextractor(r io.Reader, url string, seen map[string]bool) string {
 	root, err := html.Parse(r)
 	if err != nil {
-		log.Printf("error parsing hoot: %s", err)
+		elog.Printf("error parsing hoot: %s", err)
 		return url
 	}
 
@@ -67,7 +66,7 @@ func hootextractor(r io.Reader, url string, seen map[string]bool) string {
 		alink := linksel.MatchFirst(twp)
 		if alink == nil {
 			if i != 0 {
-				log.Printf("missing link")
+				dlog.Printf("missing link")
 				continue
 			}
 		} else {
@@ -79,7 +78,7 @@ func hootextractor(r io.Reader, url string, seen map[string]bool) string {
 		}
 		authormatch := authorregex.FindStringSubmatch(link)
 		if len(authormatch) < 2 {
-			log.Printf("no author?: %s", link)
+			dlog.Printf("no author?: %s", link)
 			continue
 		}
 		author := authormatch[1]
@@ -116,10 +115,10 @@ func hooterize(noise string) string {
 			url = url[1:]
 		}
 		url = strings.Replace(url, "mobile.twitter.com", "twitter.com", -1)
-		log.Printf("hooterizing %s", url)
+		dlog.Printf("hooterizing %s", url)
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
-			log.Printf("error: %s", err)
+			ilog.Printf("error: %s", err)
 			return hoot
 		}
 		req.Header.Set("User-Agent", "Bot")
@@ -127,12 +126,12 @@ func hooterize(noise string) string {
 		req.Header.Set("Accept-Language", "en-US,en;q=0.9")
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
-			log.Printf("error: %s", err)
+			ilog.Printf("error: %s", err)
 			return hoot
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode != 200 {
-			log.Printf("error getting %s: %d", url, resp.StatusCode)
+			ilog.Printf("error getting %s: %d", url, resp.StatusCode)
 			return hoot
 		}
 		ld, _ := os.Create("lasthoot.html")

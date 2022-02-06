@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"log"
 	notrand "math/rand"
 	"net/http"
 	"net/url"
@@ -170,7 +169,7 @@ func showfunzone(w http.ResponseWriter, r *http.Request) {
 	templinfo["Memes"] = memenames
 	err = readviews.Execute(w, "funzone.html", templinfo)
 	if err != nil {
-		log.Print(err)
+		elog.Print(err)
 	}
 }
 
@@ -243,7 +242,7 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 
 	err := feed.Write(w)
 	if err != nil {
-		log.Printf("error writing rss: %s", err)
+		elog.Printf("error writing rss: %s", err)
 	}
 }
 
@@ -252,7 +251,7 @@ func crappola(j junk.Junk) bool {
 	a, _ := j.GetString("actor")
 	o, _ := j.GetString("object")
 	if t == "Delete" && a == o {
-		log.Printf("crappola from %s", a)
+		dlog.Printf("crappola from %s", a)
 		return true
 	}
 	return false
@@ -266,16 +265,16 @@ func ping(user *WhatAbout, who string) {
 		who = gofish(who)
 	}
 	if who == "" {
-		log.Printf("nobody to ping!")
+		ilog.Printf("nobody to ping!")
 		return
 	}
 	var box *Box
 	ok := boxofboxes.Get(who, &box)
 	if !ok {
-		log.Printf("no inbox to ping %s", who)
+		ilog.Printf("no inbox to ping %s", who)
 		return
 	}
-	log.Printf("sending ping to %s", box.In)
+	ilog.Printf("sending ping to %s", box.In)
 	j := junk.New()
 	j["@context"] = itiswhatitis
 	j["type"] = "Ping"
@@ -288,17 +287,17 @@ func ping(user *WhatAbout, who string) {
 	}
 	err := PostJunk(ki.keyname, ki.seckey, box.In, j)
 	if err != nil {
-		log.Printf("can't send ping: %s", err)
+		elog.Printf("can't send ping: %s", err)
 		return
 	}
-	log.Printf("sent ping to %s: %s", who, j["id"])
+	ilog.Printf("sent ping to %s: %s", who, j["id"])
 }
 
 func pong(user *WhatAbout, who string, obj string) {
 	var box *Box
 	ok := boxofboxes.Get(who, &box)
 	if !ok {
-		log.Printf("no inbox to pong %s", who)
+		ilog.Printf("no inbox to pong %s", who)
 		return
 	}
 	j := junk.New()
@@ -314,7 +313,7 @@ func pong(user *WhatAbout, who string, obj string) {
 	}
 	err := PostJunk(ki.keyname, ki.seckey, box.In, j)
 	if err != nil {
-		log.Printf("can't send pong: %s", err)
+		elog.Printf("can't send pong: %s", err)
 		return
 	}
 }
@@ -336,7 +335,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	payload := buf.Bytes()
 	j, err := junk.FromBytes(payload)
 	if err != nil {
-		log.Printf("bad payload: %s", err)
+		ilog.Printf("bad payload: %s", err)
 		io.WriteString(os.Stdout, "bad payload\n")
 		os.Stdout.Write(payload)
 		io.WriteString(os.Stdout, "\n")
@@ -362,9 +361,9 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		keyname, err = httpsig.VerifyRequest(r, payload, zaggy)
 	}
 	if err != nil {
-		log.Printf("inbox message failed signature for %s from %s: %s", keyname, r.Header.Get("X-Forwarded-For"), err)
+		ilog.Printf("inbox message failed signature for %s from %s: %s", keyname, r.Header.Get("X-Forwarded-For"), err)
 		if keyname != "" {
-			log.Printf("bad signature from %s", keyname)
+			ilog.Printf("bad signature from %s", keyname)
 			io.WriteString(os.Stdout, "bad payload\n")
 			os.Stdout.Write(payload)
 			io.WriteString(os.Stdout, "\n")
@@ -374,20 +373,20 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	}
 	origin := keymatch(keyname, who)
 	if origin == "" {
-		log.Printf("keyname actor mismatch: %s <> %s", keyname, who)
+		ilog.Printf("keyname actor mismatch: %s <> %s", keyname, who)
 		return
 	}
 
 	switch what {
 	case "Ping":
 		id, _ := j.GetString("id")
-		log.Printf("ping from %s: %s", who, id)
+		ilog.Printf("ping from %s: %s", who, id)
 		pong(user, who, obj)
 	case "Pong":
-		log.Printf("pong from %s: %s", who, obj)
+		ilog.Printf("pong from %s: %s", who, obj)
 	case "Follow":
 		if obj != user.URL {
-			log.Printf("can't follow %s", obj)
+			ilog.Printf("can't follow %s", obj)
 			return
 		}
 		followme(user, who, who, j)
@@ -411,7 +410,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		log.Printf("unknown Update activity")
+		ilog.Printf("unknown Update activity")
 		dumpactivity(j)
 	case "Undo":
 		obj, ok := j.GetMap("object")
@@ -428,10 +427,10 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 			unfollowme(user, who, who, j)
 		case "Announce":
 			xid, _ := obj.GetString("object")
-			log.Printf("undo announce: %s", xid)
+			dlog.Printf("undo announce: %s", xid)
 		case "Like":
 		default:
-			log.Printf("unknown undo: %s", what)
+			ilog.Printf("unknown undo: %s", what)
 		}
 	case "EmojiReact":
 		obj, ok := j.GetString("object")
@@ -455,7 +454,7 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 	payload := buf.Bytes()
 	j, err := junk.FromBytes(payload)
 	if err != nil {
-		log.Printf("bad payload: %s", err)
+		ilog.Printf("bad payload: %s", err)
 		io.WriteString(os.Stdout, "bad payload\n")
 		os.Stdout.Write(payload)
 		io.WriteString(os.Stdout, "\n")
@@ -470,9 +469,9 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 		keyname, err = httpsig.VerifyRequest(r, payload, zaggy)
 	}
 	if err != nil {
-		log.Printf("inbox message failed signature for %s from %s: %s", keyname, r.Header.Get("X-Forwarded-For"), err)
+		ilog.Printf("inbox message failed signature for %s from %s: %s", keyname, r.Header.Get("X-Forwarded-For"), err)
 		if keyname != "" {
-			log.Printf("bad signature from %s", keyname)
+			ilog.Printf("bad signature from %s", keyname)
 			io.WriteString(os.Stdout, "bad payload\n")
 			os.Stdout.Write(payload)
 			io.WriteString(os.Stdout, "\n")
@@ -483,7 +482,7 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 	who, _ := j.GetString("actor")
 	origin := keymatch(keyname, who)
 	if origin == "" {
-		log.Printf("keyname actor mismatch: %s <> %s", keyname, who)
+		ilog.Printf("keyname actor mismatch: %s <> %s", keyname, who)
 		return
 	}
 	if rejectactor(user.ID, who) {
@@ -491,17 +490,17 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 	}
 	re_ont := regexp.MustCompile("https://" + serverName + "/o/([[:alnum:]]+)")
 	what, _ := j.GetString("type")
-	log.Printf("server got a %s", what)
+	dlog.Printf("server got a %s", what)
 	switch what {
 	case "Follow":
 		obj, _ := j.GetString("object")
 		if obj == user.URL {
-			log.Printf("can't follow the server!")
+			ilog.Printf("can't follow the server!")
 			return
 		}
 		m := re_ont.FindStringSubmatch(obj)
 		if len(m) != 2 {
-			log.Printf("not sure how to handle this")
+			ilog.Printf("not sure how to handle this")
 			return
 		}
 		ont := "#" + m[1]
@@ -510,24 +509,24 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 	case "Undo":
 		obj, ok := j.GetMap("object")
 		if !ok {
-			log.Printf("unknown undo no object")
+			ilog.Printf("unknown undo no object")
 			return
 		}
 		what, _ := obj.GetString("type")
 		if what != "Follow" {
-			log.Printf("unknown undo: %s", what)
+			ilog.Printf("unknown undo: %s", what)
 			return
 		}
 		targ, _ := obj.GetString("object")
 		m := re_ont.FindStringSubmatch(targ)
 		if len(m) != 2 {
-			log.Printf("not sure how to handle this")
+			ilog.Printf("not sure how to handle this")
 			return
 		}
 		ont := "#" + m[1]
 		unfollowme(user, who, ont, j)
 	default:
-		log.Printf("unhandled server activity: %s", what)
+		ilog.Printf("unhandled server activity: %s", what)
 		dumpactivity(j)
 	}
 }
@@ -554,11 +553,11 @@ func ximport(w http.ResponseWriter, r *http.Request) {
 		j, err := GetJunk(xid)
 		if err != nil {
 			http.Error(w, "error getting external object", http.StatusInternalServerError)
-			log.Printf("error getting external object: %s", err)
+			ilog.Printf("error getting external object: %s", err)
 			return
 		}
 		allinjest(originate(xid), j)
-		log.Printf("importing %s", xid)
+		dlog.Printf("importing %s", xid)
 		user, _ := butwhatabout(u.Username)
 
 		info, _ := somethingabout(j)
@@ -586,7 +585,7 @@ func xzone(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	rows, err := stmtRecentHonkers.Query(u.UserID, u.UserID)
 	if err != nil {
-		log.Printf("query err: %s", err)
+		elog.Printf("query err: %s", err)
 		return
 	}
 	defer rows.Close()
@@ -605,7 +604,7 @@ func xzone(w http.ResponseWriter, r *http.Request) {
 	templinfo["Honkers"] = honkers
 	err = readviews.Execute(w, "xzone.html", templinfo)
 	if err != nil {
-		log.Print(err)
+		elog.Print(err)
 	}
 }
 
@@ -699,7 +698,7 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	user, err := butwhatabout(name)
 	if err != nil {
-		log.Printf("user not found %s: %s", name, err)
+		ilog.Printf("user not found %s: %s", name, err)
 		http.NotFound(w, r)
 		return
 	}
@@ -842,7 +841,7 @@ func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
 	}
 	rows, err := stmtAllOnts.Query(userid)
 	if err != nil {
-		log.Printf("selection error: %s", err)
+		elog.Printf("selection error: %s", err)
 		return
 	}
 	defer rows.Close()
@@ -851,7 +850,7 @@ func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
 		var o Ont
 		err := rows.Scan(&o.Name, &o.Count)
 		if err != nil {
-			log.Printf("error scanning ont: %s", err)
+			elog.Printf("error scanning ont: %s", err)
 			continue
 		}
 		if len(o.Name) > 24 {
@@ -870,7 +869,7 @@ func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
 	templinfo["Onts"] = onts
 	err = readviews.Execute(w, "onts.html", templinfo)
 	if err != nil {
-		log.Print(err)
+		elog.Print(err)
 	}
 }
 
@@ -888,7 +887,7 @@ func getbacktracks(xid string) []string {
 	err := row.Scan(&rawtracks)
 	if err != nil {
 		if err != sql.ErrNoRows {
-			log.Printf("error scanning tracks: %s", err)
+			elog.Printf("error scanning tracks: %s", err)
 		}
 		return nil
 	}
@@ -910,29 +909,29 @@ func savetracks(tracks map[string][]string) {
 	db := opendatabase()
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("savetracks begin error: %s", err)
+		elog.Printf("savetracks begin error: %s", err)
 		return
 	}
 	defer func() {
 		err := tx.Commit()
 		if err != nil {
-			log.Printf("savetracks commit error: %s", err)
+			elog.Printf("savetracks commit error: %s", err)
 		}
 
 	}()
 	stmtGetTracks, err := tx.Prepare("select fetches from tracks where xid = ?")
 	if err != nil {
-		log.Printf("savetracks error: %s", err)
+		elog.Printf("savetracks error: %s", err)
 		return
 	}
 	stmtNewTracks, err := tx.Prepare("insert into tracks (xid, fetches) values (?, ?)")
 	if err != nil {
-		log.Printf("savetracks error: %s", err)
+		elog.Printf("savetracks error: %s", err)
 		return
 	}
 	stmtUpdateTracks, err := tx.Prepare("update tracks set fetches = ? where xid = ?")
 	if err != nil {
-		log.Printf("savetracks error: %s", err)
+		elog.Printf("savetracks error: %s", err)
 		return
 	}
 	count := 0
@@ -949,10 +948,10 @@ func savetracks(tracks map[string][]string) {
 			all = oneofakind(all)
 			stmtUpdateTracks.Exec(strings.Join(all, " "))
 		} else {
-			log.Printf("savetracks error: %s", err)
+			elog.Printf("savetracks error: %s", err)
 		}
 	}
-	log.Printf("saved %d new fetches", count)
+	dlog.Printf("saved %d new fetches", count)
 }
 
 var trackchan = make(chan Track)
@@ -1091,7 +1090,7 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 	}
 	err := readviews.Execute(w, "honkpage.html", templinfo)
 	if err != nil {
-		log.Print(err)
+		elog.Print(err)
 	}
 }
 
@@ -1153,7 +1152,7 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 		_, err = db.Exec("update users set about = ?, options = ? where username = ?", whatabout, j, u.Username)
 	}
 	if err != nil {
-		log.Printf("error bouting what: %s", err)
+		elog.Printf("error bouting what: %s", err)
 	}
 	somenamedusers.Clear(u.Username)
 	somenumberedusers.Clear(u.UserID)
@@ -1167,7 +1166,7 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 }
 
 func bonkit(xid string, user *WhatAbout) {
-	log.Printf("bonking %s", xid)
+	dlog.Printf("bonking %s", xid)
 
 	xonk := getxonk(user.ID, xid)
 	if xonk == nil {
@@ -1183,7 +1182,7 @@ func bonkit(xid string, user *WhatAbout) {
 
 	_, err := stmtUpdateFlags.Exec(flagIsBonked, xonk.ID)
 	if err != nil {
-		log.Printf("error acking bonk: %s", err)
+		elog.Printf("error acking bonk: %s", err)
 	}
 
 	oonker := xonk.Oonker
@@ -1216,7 +1215,7 @@ func bonkit(xid string, user *WhatAbout) {
 
 	err = savehonk(bonk)
 	if err != nil {
-		log.Printf("uh oh")
+		elog.Printf("uh oh")
 		return
 	}
 
@@ -1235,7 +1234,7 @@ func submitbonk(w http.ResponseWriter, r *http.Request) {
 		templinfo["ServerMessage"] = "Bonked!"
 		err := readviews.Execute(w, "msg.html", templinfo)
 		if err != nil {
-			log.Print(err)
+			elog.Print(err)
 		}
 	}
 }
@@ -1250,7 +1249,7 @@ func sendzonkofsorts(xonk *Honk, user *WhatAbout, what string, aux string) {
 	}
 	zonk.Public = loudandproud(zonk.Audience)
 
-	log.Printf("announcing %sed honk: %s", what, xonk.XID)
+	dlog.Printf("announcing %sed honk: %s", what, xonk.XID)
 	go honkworldwide(user, zonk)
 }
 
@@ -1265,7 +1264,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		if xonk != nil {
 			_, err := stmtUpdateFlags.Exec(flagIsSaved, xonk.ID)
 			if err != nil {
-				log.Printf("error saving: %s", err)
+				elog.Printf("error saving: %s", err)
 			}
 		}
 		return
@@ -1276,7 +1275,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		if xonk != nil {
 			_, err := stmtClearFlags.Exec(flagIsSaved, xonk.ID)
 			if err != nil {
-				log.Printf("error unsaving: %s", err)
+				elog.Printf("error unsaving: %s", err)
 			}
 		}
 		return
@@ -1294,7 +1293,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		if xonk != nil {
 			_, err := stmtUpdateFlags.Exec(flagIsReacted, xonk.ID)
 			if err != nil {
-				log.Printf("error saving: %s", err)
+				elog.Printf("error saving: %s", err)
 			}
 			sendzonkofsorts(xonk, user, "react", reaction)
 		}
@@ -1309,7 +1308,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		if xonk != nil && !xonk.IsAcked() {
 			_, err := stmtUpdateFlags.Exec(flagIsAcked, xonk.ID)
 			if err != nil {
-				log.Printf("error acking: %s", err)
+				elog.Printf("error acking: %s", err)
 			}
 			sendzonkofsorts(xonk, user, "ack", "")
 		}
@@ -1321,7 +1320,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		if xonk != nil && xonk.IsAcked() {
 			_, err := stmtClearFlags.Exec(flagIsAcked, xonk.ID)
 			if err != nil {
-				log.Printf("error deacking: %s", err)
+				elog.Printf("error deacking: %s", err)
 			}
 			sendzonkofsorts(xonk, user, "deack", "")
 		}
@@ -1341,7 +1340,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 			xonk = getxonk(userinfo.UserID, what)
 			_, err := stmtClearFlags.Exec(flagIsBonked, xonk.ID)
 			if err != nil {
-				log.Printf("error unbonking: %s", err)
+				elog.Printf("error unbonking: %s", err)
 			}
 			sendzonkofsorts(xonk, user, "unbonk", "")
 		}
@@ -1353,7 +1352,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		if xonk != nil {
 			_, err := stmtUpdateFlags.Exec(flagIsUntagged, xonk.ID)
 			if err != nil {
-				log.Printf("error untagging: %s", err)
+				elog.Printf("error untagging: %s", err)
 			}
 		}
 		var badparents map[string]bool
@@ -1363,7 +1362,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("zonking %s %s", wherefore, what)
+	ilog.Printf("zonking %s %s", wherefore, what)
 	if wherefore == "zonk" {
 		xonk := getxonk(userinfo.UserID, what)
 		if xonk != nil {
@@ -1375,7 +1374,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	}
 	_, err := stmtSaveZonker.Exec(userinfo.UserID, what, wherefore)
 	if err != nil {
-		log.Printf("error saving zonker: %s", err)
+		elog.Printf("error saving zonker: %s", err)
 		return
 	}
 }
@@ -1416,7 +1415,7 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	}
 	err := readviews.Execute(w, "honkpage.html", templinfo)
 	if err != nil {
-		log.Print(err)
+		elog.Print(err)
 	}
 }
 
@@ -1441,7 +1440,7 @@ func newhonkpage(w http.ResponseWriter, r *http.Request) {
 	templinfo["IsPreview"] = true
 	err := readviews.Execute(w, "honkpage.html", templinfo)
 	if err != nil {
-		log.Print(err)
+		elog.Print(err)
 	}
 }
 
@@ -1461,7 +1460,7 @@ func submitdonk(w http.ResponseWriter, r *http.Request) (*Donk, error) {
 		if err == http.ErrMissingFile {
 			return nil, nil
 		}
-		log.Printf("error reading donk: %s", err)
+		elog.Printf("error reading donk: %s", err)
 		http.Error(w, "error reading donk", http.StatusUnsupportedMediaType)
 		return nil, err
 	}
@@ -1485,7 +1484,7 @@ func submitdonk(w http.ResponseWriter, r *http.Request) (*Donk, error) {
 		case "application/pdf":
 			maxsize := 10000000
 			if len(data) > maxsize {
-				log.Printf("bad image: %s too much pdf: %d", err, len(data))
+				ilog.Printf("bad image: %s too much pdf: %d", err, len(data))
 				http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
 				return nil, err
 			}
@@ -1497,13 +1496,13 @@ func submitdonk(w http.ResponseWriter, r *http.Request) (*Donk, error) {
 		default:
 			maxsize := 100000
 			if len(data) > maxsize {
-				log.Printf("bad image: %s too much text: %d", err, len(data))
+				ilog.Printf("bad image: %s too much text: %d", err, len(data))
 				http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
 				return nil, err
 			}
 			for i := 0; i < len(data); i++ {
 				if data[i] < 32 && data[i] != '\t' && data[i] != '\r' && data[i] != '\n' {
-					log.Printf("bad image: %s not text: %d", err, data[i])
+					ilog.Printf("bad image: %s not text: %d", err, data[i])
 					http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
 					return nil, err
 				}
@@ -1521,7 +1520,7 @@ func submitdonk(w http.ResponseWriter, r *http.Request) (*Donk, error) {
 	}
 	fileid, xid, err := savefileandxid(name, desc, "", media, true, data)
 	if err != nil {
-		log.Printf("unable to save image: %s", err)
+		elog.Printf("unable to save image: %s", err)
 		http.Error(w, "failed to save attachment", http.StatusUnsupportedMediaType)
 		return nil, err
 	}
@@ -1632,7 +1631,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 	butnottooloud(honk.Audience)
 	honk.Audience = oneofakind(honk.Audience)
 	if len(honk.Audience) == 0 {
-		log.Printf("honk to nowhere")
+		ilog.Printf("honk to nowhere")
 		http.Error(w, "honk to nowhere...", http.StatusNotFound)
 		return nil
 	}
@@ -1656,7 +1655,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 		if donk != nil {
 			honk.Donks = append(honk.Donks, donk)
 		} else {
-			log.Printf("can't find file: %s", xid)
+			ilog.Printf("can't find file: %s", xid)
 		}
 	}
 	memetize(honk)
@@ -1730,7 +1729,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 		templinfo["ServerMessage"] = "honk preview"
 		err := readviews.Execute(w, "honkpage.html", templinfo)
 		if err != nil {
-			log.Print(err)
+			elog.Print(err)
 		}
 		return nil
 	}
@@ -1741,7 +1740,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 	} else {
 		err := savehonk(honk)
 		if err != nil {
-			log.Printf("uh oh")
+			elog.Printf("uh oh")
 			return nil
 		}
 	}
@@ -1762,7 +1761,7 @@ func showhonkers(w http.ResponseWriter, r *http.Request) {
 	templinfo["HonkerCSRF"] = login.GetCSRF("submithonker", r)
 	err := readviews.Execute(w, "honkers.html", templinfo)
 	if err != nil {
-		log.Print(err)
+		elog.Print(err)
 	}
 }
 
@@ -1781,7 +1780,7 @@ func showchatter(w http.ResponseWriter, r *http.Request) {
 	templinfo["ChonkCSRF"] = login.GetCSRF("sendchonk", r)
 	err := readviews.Execute(w, "chatter.html", templinfo)
 	if err != nil {
-		log.Print(err)
+		elog.Print(err)
 	}
 }
 
@@ -1851,7 +1850,7 @@ func showcombos(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
 	err := readviews.Execute(w, "combos.html", templinfo)
 	if err != nil {
-		log.Print(err)
+		elog.Print(err)
 	}
 }
 
@@ -1892,7 +1891,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		}
 		_, err := stmtUpdateHonker.Exec(name, combos, mj, honkerid, u.UserID)
 		if err != nil {
-			log.Printf("update honker err: %s", err)
+			elog.Printf("update honker err: %s", err)
 			return
 		}
 		http.Redirect(w, r, "/honkers", http.StatusSeeOther)
@@ -1916,7 +1915,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		}
 		_, err := stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos, url, mj)
 		if err != nil {
-			log.Print(err)
+			elog.Print(err)
 			return
 		}
 		http.Redirect(w, r, "/honkers", http.StatusSeeOther)
@@ -1926,7 +1925,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	info, err := investigate(url)
 	if err != nil {
 		http.Error(w, "error investigating: "+err.Error(), http.StatusInternalServerError)
-		log.Printf("failed to investigate honker: %s", err)
+		ilog.Printf("failed to investigate honker: %s", err)
 		return
 	}
 	url = info.XID
@@ -1942,14 +1941,14 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	if err != sql.ErrNoRows {
 		http.Error(w, "it seems you are already subscribed to them", http.StatusInternalServerError)
 		if err != nil {
-			log.Printf("honker scan err: %s", err)
+			elog.Printf("honker scan err: %s", err)
 		}
 		return
 	}
 
 	res, err := stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos, info.Owner, mj)
 	if err != nil {
-		log.Print(err)
+		elog.Print(err)
 		return
 	}
 	honkerid, _ = res.LastInsertId()
@@ -1969,7 +1968,7 @@ func hfcspage(w http.ResponseWriter, r *http.Request) {
 	templinfo["FilterCSRF"] = login.GetCSRF("filter", r)
 	err := readviews.Execute(w, "hfcs.html", templinfo)
 	if err != nil {
-		log.Print(err)
+		elog.Print(err)
 	}
 }
 
@@ -1980,7 +1979,7 @@ func savehfcs(w http.ResponseWriter, r *http.Request) {
 		hfcsid, _ := strconv.ParseInt(r.FormValue("hfcsid"), 10, 0)
 		_, err := stmtDeleteFilter.Exec(userinfo.UserID, hfcsid)
 		if err != nil {
-			log.Printf("error deleting filter: %s", err)
+			elog.Printf("error deleting filter: %s", err)
 		}
 		filtInvalidator.Clear(userinfo.UserID)
 		http.Redirect(w, r, "/hfcs", http.StatusSeeOther)
@@ -2007,7 +2006,7 @@ func savehfcs(w http.ResponseWriter, r *http.Request) {
 	filt.Notes = strings.TrimSpace(r.FormValue("filtnotes"))
 
 	if filt.Actor == "" && filt.Text == "" && !filt.IsAnnounce {
-		log.Printf("blank filter")
+		ilog.Printf("blank filter")
 		http.Error(w, "can't save a blank filter", http.StatusInternalServerError)
 		return
 	}
@@ -2017,7 +2016,7 @@ func savehfcs(w http.ResponseWriter, r *http.Request) {
 		_, err = stmtSaveFilter.Exec(userinfo.UserID, j)
 	}
 	if err != nil {
-		log.Printf("error saving filter: %s", err)
+		elog.Printf("error saving filter: %s", err)
 	}
 
 	filtInvalidator.Clear(userinfo.UserID)
@@ -2038,14 +2037,14 @@ func accountpage(w http.ResponseWriter, r *http.Request) {
 	templinfo["WhatAbout"] = about
 	err := readviews.Execute(w, "account.html", templinfo)
 	if err != nil {
-		log.Print(err)
+		elog.Print(err)
 	}
 }
 
 func dochpass(w http.ResponseWriter, r *http.Request) {
 	err := login.ChangePassword(w, r)
 	if err != nil {
-		log.Printf("error changing password: %s", err)
+		elog.Printf("error changing password: %s", err)
 	}
 	http.Redirect(w, r, "/account", http.StatusSeeOther)
 }
@@ -2053,7 +2052,7 @@ func dochpass(w http.ResponseWriter, r *http.Request) {
 func fingerlicker(w http.ResponseWriter, r *http.Request) {
 	orig := r.FormValue("resource")
 
-	log.Printf("finger lick: %s", orig)
+	dlog.Printf("finger lick: %s", orig)
 
 	if strings.HasPrefix(orig, "acct:") {
 		orig = orig[5:]
@@ -2064,7 +2063,7 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 	if idx != -1 {
 		name = name[idx+1:]
 		if fmt.Sprintf("https://%s/%s/%s", serverName, userSep, name) != orig {
-			log.Printf("foreign request rejected")
+			ilog.Printf("foreign request rejected")
 			name = ""
 		}
 	} else {
@@ -2072,7 +2071,7 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 		if idx != -1 {
 			name = name[:idx]
 			if !(name+"@"+serverName == orig || name+"@"+masqName == orig) {
-				log.Printf("foreign request rejected")
+				ilog.Printf("foreign request rejected")
 				name = ""
 			}
 		}
@@ -2149,7 +2148,7 @@ func servehtml(w http.ResponseWriter, r *http.Request) {
 	}
 	err := readviews.Execute(w, r.URL.Path[1:]+".html", templinfo)
 	if err != nil {
-		log.Print(err)
+		elog.Print(err)
 	}
 }
 func serveemu(w http.ResponseWriter, r *http.Request) {
@@ -2172,7 +2171,7 @@ func servefile(w http.ResponseWriter, r *http.Request) {
 	row := stmtGetFileData.QueryRow(xid)
 	err := row.Scan(&media, &data)
 	if err != nil {
-		log.Printf("error loading file: %s", err)
+		elog.Printf("error loading file: %s", err)
 		http.NotFound(w, r)
 		return
 	}
@@ -2276,7 +2275,7 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	templinfo["User"], _ = butwhatabout(u.Username)
 	err := readviews.Execute(&buf, "honkfrags.html", templinfo)
 	if err != nil {
-		log.Printf("frag error: %s", err)
+		elog.Printf("frag error: %s", err)
 		return
 	}
 	hydra.Honks = buf.String()
@@ -2304,7 +2303,7 @@ func apihandler(w http.ResponseWriter, r *http.Request) {
 	userid := u.UserID
 	action := r.FormValue("action")
 	wait, _ := strconv.ParseInt(r.FormValue("wait"), 10, 0)
-	log.Printf("api request '%s' on behalf of %s", action, u.Username)
+	dlog.Printf("api request '%s' on behalf of %s", action, u.Username)
 	switch action {
 	case "honk":
 		h := submithonk(w, r)
@@ -2383,15 +2382,15 @@ func enditall() {
 	signal.Notify(sig, os.Interrupt)
 	signal.Notify(sig, syscall.SIGTERM)
 	<-sig
-	log.Printf("stopping...")
+	ilog.Printf("stopping...")
 	for i := 0; i < workinprogress; i++ {
 		endoftheworld <- true
 	}
-	log.Printf("waiting...")
+	ilog.Printf("waiting...")
 	for i := 0; i < workinprogress; i++ {
 		<-readyalready
 	}
-	log.Printf("apocalypse")
+	ilog.Printf("apocalypse")
 	os.Exit(0)
 }
 
@@ -2418,7 +2417,7 @@ func serve() {
 
 	listener, err := openListener()
 	if err != nil {
-		log.Fatal(err)
+		elog.Fatal(err)
 	}
 	go runBackendServer()
 	go enditall()
@@ -2537,6 +2536,6 @@ func serve() {
 
 	err = http.Serve(listener, mux)
 	if err != nil {
-		log.Fatal(err)
+		elog.Fatal(err)
 	}
 }

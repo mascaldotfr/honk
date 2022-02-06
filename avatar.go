@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"image"
 	"image/png"
-	"log"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -56,7 +55,7 @@ func loadAvatarColors() {
 		}
 		c, err := strconv.ParseUint(l, 16, 32)
 		if err != nil {
-			log.Printf("error reading avatar color %d: %s", i, err)
+			elog.Printf("error reading avatar color %d: %s", i, err)
 			continue
 		}
 		avatarcolors[i][0] = byte(c >> 24 & 0xff)

@@ -19,7 +19,6 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
-	"log"
 	notrand "math/rand"
 	"os"
 	"strconv"
@@ -264,6 +263,14 @@ func main() {
 	flag.StringVar(&dataDir, "datadir", dataDir, "data directory")
 	flag.StringVar(&viewDir, "viewdir", viewDir, "view directory")
 	flag.Parse()
+
+	if alllogname != "stderr" {
+		elogname = alllogname
+		ilogname = alllogname
+		dlogname = alllogname
+	}
+	initLogging(elogname, ilogname, dlogname)
+
 	args := flag.Args()
 	cmd := "run"
 	if len(args) > 0 {
@@ -282,7 +289,7 @@ func main() {
 	dbversion := 0
 	getconfig("dbversion", &dbversion)
 	if dbversion != myVersion {
-		log.Fatal("incorrect database version. run upgrade.")
+		elog.Fatal("incorrect database version. run upgrade.")
 	}
 	getconfig("servermsg", &serverMsg)
 	getconfig("aboutmsg", &aboutMsg)
@@ -302,12 +309,12 @@ func main() {
 		adminscreen()
 	case "import":
 		if len(args) != 4 {
-			log.Fatal("import username mastodon|twitter srcdir")
+			elog.Fatal("import username mastodon|twitter srcdir")
 		}
 		importMain(args[1], args[2], args[3])
 	case "debug":
 		if len(args) != 2 {
-			log.Fatal("need an argument: debug (on|off)")
+			elog.Fatal("need an argument: debug (on|off)")
 		}
 		switch args[1] {
 		case "on":
@@ -315,7 +322,7 @@ func main() {
 		case "off":
 			setconfig("debug", 0)
 		default:
-			log.Fatal("argument must be on or off")
+			elog.Fatal("argument must be on or off")
 		}
 	case "adduser":
 		adduser()
@@ -356,7 +363,7 @@ func main() {
 		targ := args[2]
 		user, err := butwhatabout(name)
 		if err != nil {
-			log.Printf("unknown user")
+			elog.Printf("unknown user")
 			return
 		}
 		ping(user, targ)
@@ -367,6 +374,6 @@ func main() {
 	case "test":
 		ElaborateUnitTests()
 	default:
-		log.Fatal("unknown command")
+		elog.Fatal("unknown command")
 	}
 }
