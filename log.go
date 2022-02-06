@@ -23,9 +23,14 @@ import (
 	"os"
 )
 
-var elog = log.Default()
-var ilog = log.Default()
-var dlog = log.Default()
+// log.Default() not added until go 1.16
+func logdefault() *log.Logger {
+       return log.New(os.Stderr, os.Args[0], log.LstdFlags)
+}
+
+var elog = logdefault()
+var ilog = logdefault()
+var dlog = logdefault()
 
 var elogname, ilogname, dlogname, alllogname string
 
@@ -45,7 +50,7 @@ func initLogging(elogname, ilogname, dlogname string) {
 
 func openlog(name string, prio syslog.Priority) *log.Logger {
 	if name == "stderr" {
-		return log.Default()
+		return log.New(os.Stderr, os.Args[0], log.LstdFlags)
 	}
 	if name == "stdout" {
 		return log.New(os.Stdout, os.Args[0], log.LstdFlags)
@@ -57,14 +62,14 @@ func openlog(name string, prio syslog.Priority) *log.Logger {
 		logger, err := syslog.NewLogger(syslog.LOG_UUCP|prio, 0)
 		if err != nil {
 			elog.Printf("can't create syslog: %s", err)
-			return log.Default()
+			return logdefault()
 		}
 		return logger
 	}
 	fd, err := os.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
 	if err != nil {
 		elog.Printf("can't open log file %s: %s", name, err)
-		return log.Default()
+		return logdefault()
 	}
 	logger := log.New(fd, os.Args[0], log.LstdFlags)
 	logger.Printf("new log started")
