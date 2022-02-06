@@ -1,5 +1,10 @@
 
-all: autobonker gettoken saytheday sprayandpray youvegothonks
+PROGS=autobonker gettoken saytheday sprayandpray youvegothonks
+
+all: $(PROGS)
+
+clean:
+	rm -f $(PROGS)
 
 autobonker: autobonker.go
 	go build autobonker.go
