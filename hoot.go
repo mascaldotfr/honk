@@ -88,7 +88,7 @@ func hootextractor(r io.Reader, url string, seen map[string]bool) string {
 		if author != wanted {
 			continue
 		}
-		for img := imgsel.MatchFirst(twp); img != nil; imgsel.MatchFirst(twp) {
+		for _, img := range imgsel.MatchAll(twp) {
 			img.Parent.RemoveChild(img)
 			div.AppendChild(img)
 		}
