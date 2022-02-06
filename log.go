@@ -47,6 +47,12 @@ func openlog(name string, prio syslog.Priority) *log.Logger {
 	if name == "stderr" {
 		return log.Default()
 	}
+	if name == "stdout" {
+		return log.New(os.Stdout, os.Args[0], log.LstdFlags)
+	}
+	if name == "null" {
+		return log.New(ioutil.Discard, os.Args[0], log.LstdFlags)
+	}
 	if name == "syslog" {
 		logger, err := syslog.NewLogger(syslog.LOG_UUCP|prio, 0)
 		if err != nil {
@@ -54,9 +60,6 @@ func openlog(name string, prio syslog.Priority) *log.Logger {
 			return log.Default()
 		}
 		return logger
-	}
-	if name == "null" {
-		return log.New(ioutil.Discard, os.Args[0], log.LstdFlags)
 	}
 	fd, err := os.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
 	if err != nil {
