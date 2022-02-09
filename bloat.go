@@ -37,6 +37,10 @@ func servewonkles(w http.ResponseWriter, r *http.Request) {
 	for _, l := range strings.Split(wonkles, "\n") {
 		words = append(words, l)
 	}
+	if !debugMode {
+		w.Header().Set("Cache-Control", "max-age=7776000")
+	}
+
 	j := junk.New()
 	j["wordlist"] = words
 	j.Write(w)
