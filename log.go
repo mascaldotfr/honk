@@ -42,6 +42,10 @@ func init() {
 
 }
 
+func loggingArgs() []string {
+	return []string{"-errorlog", elogname, "-infolog", ilogname, "-debuglog", dlogname}
+}
+
 func initLogging(elogname, ilogname, dlogname string) {
 	elog = openlog(elogname, syslog.LOG_ERR)
 	ilog = openlog(ilogname, syslog.LOG_INFO)

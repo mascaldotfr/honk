@@ -259,6 +259,13 @@ func unplugserver(hostname string) {
 	db.Exec("delete from doovers where rcpt like ?", xid)
 }
 
+func reexecArgs(cmd string) []string {
+	args := []string{"-datadir", dataDir}
+	args = append(args, loggingArgs()...)
+	args = append(args, cmd)
+	return args
+}
+
 func main() {
 	flag.StringVar(&dataDir, "datadir", dataDir, "data directory")
 	flag.StringVar(&viewDir, "viewdir", viewDir, "view directory")

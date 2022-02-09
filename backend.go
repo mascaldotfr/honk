@@ -104,7 +104,7 @@ func backendServer() {
 }
 
 func runBackendServer() {
-	proc := exec.Command(os.Args[0], "-datadir", dataDir, "backend")
+	proc := exec.Command(os.Args[0], reexecArgs("backend")...)
 	proc.Stdout = os.Stdout
 	proc.Stderr = os.Stderr
 	err := proc.Start()
