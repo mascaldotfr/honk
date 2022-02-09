@@ -128,7 +128,10 @@ func GetJunkHardMode(url string) (junk.Junk, error) {
 var flightdeck = gate.NewSerializer()
 
 func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
-
+	client := http.DefaultClient
+	if debugMode {
+		client = debugClient
+	}
 	fn := func() (interface{}, error) {
 		at := thefakename
 		if strings.Contains(url, ".well-known/webfinger?resource") {
@@ -138,6 +141,7 @@ func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
 			Accept:  at,
 			Agent:   "honksnonk/5.0; " + serverName,
 			Timeout: timeout,
+			Client:  client,
 		})
 		return j, err
 	}
@@ -601,6 +605,8 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		case "Move":
 			obj = item
 			what = "move"
+		case "GuessWord": // dealt with below
+			fallthrough
 		case "Audio":
 			fallthrough
 		case "Image":
@@ -723,6 +729,12 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if ot == "Move" {
 				targ, _ := obj.GetString("target")
 				content += string(templates.Sprintf(`<p>Moved to <a href="%s">%s</a>`, targ, targ))
+			}
+			if ot == "GuessWord" {
+				what = "wonk"
+				content, _ = obj.GetString("content")
+				xonk.Wonkles, _ = obj.GetString("wordlist")
+				go savewonkles(xonk.Wonkles)
 			}
 			if what == "honk" && rid != "" {
 				what = "tonk"
@@ -1079,6 +1091,8 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		fallthrough
 	case "event":
 		fallthrough
+	case "wonk":
+		fallthrough
 	case "honk":
 		j["type"] = "Create"
 		if h.What == "update" {
@@ -1090,6 +1104,8 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		jo["type"] = "Note"
 		if h.What == "event" {
 			jo["type"] = "Event"
+		} else if h.What == "wonk" {
+			jo["type"] = "GuessWord"
 		}
 		jo["published"] = dt
 		jo["url"] = h.XID
@@ -1191,6 +1207,9 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			if t.Duration != 0 {
 				jo["duration"] = "PT" + strings.ToUpper(t.Duration.String())
 			}
+		}
+		if w := h.Wonkles; w != "" {
+			jo["wordlist"] = w
 		}
 		atts := activatedonks(h.Donks)
 		if len(atts) > 0 {

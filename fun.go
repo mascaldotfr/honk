@@ -172,7 +172,12 @@ func reverbolate(userid int64, honks []*Honk) {
 
 		h.HTPrecis = template.HTML(h.Precis)
 		h.HTML = template.HTML(h.Noise)
-		h.What = relingo[h.What]
+		if h.What == "wonked" {
+			h.HTML = "? wonk ?"
+		}
+		if redo := relingo[h.What]; redo != "" {
+			h.What = redo
+		}
 	}
 }
 
@@ -535,10 +540,8 @@ func originate(u string) string {
 }
 
 var allhandles = cache.New(cache.Options{Filler: func(xid string) (string, bool) {
-	var handle string
-	row := stmtGetXonker.QueryRow(xid, "handle")
-	err := row.Scan(&handle)
-	if err != nil {
+	handle := getxonker(xid, "handle")
+	if handle == "" {
 		dlog.Printf("need to get a handle: %s", xid)
 		info, err := investigate(xid)
 		if err != nil {
@@ -622,11 +625,9 @@ func ziggy(userid int64) *KeyInfo {
 }
 
 var zaggies = cache.New(cache.Options{Filler: func(keyname string) (httpsig.PublicKey, bool) {
-	var data string
-	row := stmtGetXonker.QueryRow(keyname, "pubkey")
-	err := row.Scan(&data)
-	var key httpsig.PublicKey
-	if err != nil {
+	data := getxonker(keyname, "pubkey")
+	if data == "" {
+		var key httpsig.PublicKey
 		dlog.Printf("hitting the webs for missing pubkey: %s", keyname)
 		j, err := GetJunk(keyname)
 		if err != nil {
@@ -636,16 +637,15 @@ var zaggies = cache.New(cache.Options{Filler: func(keyname string) (httpsig.Publ
 			return key, true
 		}
 		allinjest(originate(keyname), j)
-		row = stmtGetXonker.QueryRow(keyname, "pubkey")
-		err = row.Scan(&data)
-		if err != nil {
+		data = getxonker(keyname, "pubkey")
+		if data == "" {
 			ilog.Printf("key not found after ingesting")
 			when := time.Now().UTC().Format(dbtimeformat)
 			stmtSaveXonker.Exec(keyname, "failed", "pubkey", when)
 			return key, true
 		}
 	}
-	_, key, err = httpsig.DecodeKey(data)
+	_, key, err := httpsig.DecodeKey(data)
 	if err != nil {
 		ilog.Printf("error decoding %s pubkey: %s", keyname, err)
 		return key, true

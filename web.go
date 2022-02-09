@@ -1300,6 +1300,17 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if wherefore == "wonk" {
+		xonk := getxonk(userinfo.UserID, what)
+		if xonk != nil {
+			_, err := stmtUpdateFlags.Exec(flagIsWonked, xonk.ID)
+			if err != nil {
+				elog.Printf("error saving: %s", err)
+			}
+		}
+		return
+	}
+
 	// my hammer is too big, oh well
 	defer oldjonks.Flush()
 
@@ -1575,6 +1586,10 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 		if rid != "" {
 			what = "tonk"
 		}
+		wonkles := r.FormValue("wonkles")
+		if wonkles != "" {
+			what = "wonk"
+		}
 		honk = &Honk{
 			UserID:   userinfo.UserID,
 			Username: userinfo.Username,
@@ -1583,6 +1598,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 			XID:      xid,
 			Date:     dt,
 			Format:   format,
+			Wonkles:  wonkles,
 		}
 	}
 
@@ -2497,11 +2513,14 @@ func serve() {
 	getters.HandleFunc("/style.css", serveasset)
 	getters.HandleFunc("/local.css", serveasset)
 	getters.HandleFunc("/honkpage.js", serveasset)
+	getters.HandleFunc("/wonk.js", serveasset)
 	getters.HandleFunc("/about", servehtml)
 	getters.HandleFunc("/login", servehtml)
 	posters.HandleFunc("/dologin", login.LoginFunc)
 	getters.HandleFunc("/logout", login.LogoutFunc)
 	getters.HandleFunc("/help/{name:[[:alnum:]_.-]+}", servehelp)
+
+	getters.HandleFunc("/bloat/wonkles", servewonkles)
 
 	loggedin := mux.NewRoute().Subrouter()
 	loggedin.Use(login.Required)

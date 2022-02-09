@@ -2,6 +2,8 @@ changelog
 
 === next
 
++++ Word guessing game. Wonk wonk!
+
 + Flexible logging, to file, syslog, null, etc.
 
 + Low key unread counters.

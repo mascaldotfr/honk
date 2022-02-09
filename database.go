@@ -474,6 +474,8 @@ func donksforhonks(honks []*Honk) {
 				elog.Printf("error parsing badonks: %s", err)
 				continue
 			}
+		case "wonkles":
+			h.Wonkles = j
 		case "oldrev":
 		default:
 			elog.Printf("unknown meta genus: %s", genus)
@@ -883,6 +885,13 @@ func saveextras(tx *sql.Tx, h *Honk) error {
 			return err
 		}
 	}
+	if w := h.Wonkles; w != "" {
+		_, err := tx.Stmt(stmtSaveMeta).Exec(h.ID, "wonkles", w)
+		if err != nil {
+			elog.Printf("error saving wonkles: %s", err)
+			return err
+		}
+	}
 	return nil
 }
 
@@ -937,6 +946,17 @@ func unjsonify(s string, dest interface{}) error {
 	d := json.NewDecoder(strings.NewReader(s))
 	err := d.Decode(dest)
 	return err
+}
+
+func getxonker(what, flav string) string {
+	var res string
+	row := stmtGetXonker.QueryRow(what, flav)
+	row.Scan(&res)
+	return res
+}
+
+func savexonker(what, value, flav, when string) {
+	stmtSaveXonker.Exec(what, value, flav, when)
 }
 
 func cleanupdb(arg string) {

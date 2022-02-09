@@ -99,6 +99,7 @@ type Honk struct {
 	Time     *Time
 	Mentions []Mention
 	Badonks  []Badonk
+	Wonkles  string
 }
 
 type Badonk struct {
@@ -141,6 +142,7 @@ const (
 	flagIsSaved    = 4
 	flagIsUntagged = 8
 	flagIsReacted  = 16
+	flagIsWonked   = 32
 )
 
 func (honk *Honk) IsAcked() bool {
@@ -161,6 +163,10 @@ func (honk *Honk) IsUntagged() bool {
 
 func (honk *Honk) IsReacted() bool {
 	return honk.Flags&flagIsReacted != 0
+}
+
+func (honk *Honk) IsWonked() bool {
+	return honk.Flags&flagIsWonked != 0
 }
 
 type Donk struct {
