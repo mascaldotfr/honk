@@ -2413,7 +2413,7 @@ func bgmonitor() {
 
 func serve() {
 	db := opendatabase()
-	login.Init(db)
+	login.Init(login.InitArgs{Db: db, Logger: ilog})
 
 	listener, err := openListener()
 	if err != nil {

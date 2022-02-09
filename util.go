@@ -267,7 +267,7 @@ func chpass() {
 	}()
 
 	db := opendatabase()
-	login.Init(db)
+	login.Init(login.InitArgs{Db: db, Logger: ilog})
 
 	r := bufio.NewReader(os.Stdin)
 
