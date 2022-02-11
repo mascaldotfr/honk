@@ -243,12 +243,16 @@ func gethonksforme(userid int64, wanted int64) []*Honk {
 }
 func gethonksfromlongago(userid int64, wanted int64) []*Honk {
 	now := time.Now().UTC()
-	now = time.Date(now.Year()-1, now.Month(), now.Day(), now.Hour(), now.Minute(),
-		now.Second(), 0, now.Location())
-	dt1 := now.Add(-36 * time.Hour).Format(dbtimeformat)
-	dt2 := now.Add(12 * time.Hour).Format(dbtimeformat)
-	rows, err := stmtHonksFromLongAgo.Query(wanted, userid, dt1, dt2, userid)
-	return getsomehonks(rows, err)
+	var honks []*Honk
+	for i := 1; i <= 3; i++ {
+		dt := time.Date(now.Year()-i, now.Month(), now.Day(), now.Hour(), now.Minute(),
+			now.Second(), 0, now.Location())
+		dt1 := dt.Add(-36 * time.Hour).Format(dbtimeformat)
+		dt2 := dt.Add(12 * time.Hour).Format(dbtimeformat)
+		rows, err := stmtHonksFromLongAgo.Query(wanted, userid, dt1, dt2, userid)
+		honks = append(honks, getsomehonks(rows, err)...)
+	}
+	return honks
 }
 func getsavedhonks(userid int64, wanted int64) []*Honk {
 	rows, err := stmtHonksISaved.Query(wanted, userid)
