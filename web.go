@@ -1304,6 +1304,10 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 		xonk := getxonk(userinfo.UserID, what)
 		if xonk != nil {
 			_, err := stmtUpdateFlags.Exec(flagIsWonked, xonk.ID)
+			if err == nil {
+				guesses := r.FormValue("guesses")
+				_, err = stmtSaveMeta.Exec(xonk.ID, "guesses", guesses)
+			}
 			if err != nil {
 				elog.Printf("error saving: %s", err)
 			}

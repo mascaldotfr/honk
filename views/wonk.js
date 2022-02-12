@@ -74,7 +74,7 @@ export function makeaguess(btn) {
 		}
 		div.innerHTML = mess
 		if (typeof(csrftoken) != "undefined")
-			post("/zonkit", encode({"CSRF": csrftoken, "wherefore": "wonk", "what": host.xid}))
+			post("/zonkit", encode({"CSRF": csrftoken, "wherefore": "wonk", "guesses": host.guesses.join("<p>"), "what": host.xid}))
 	} else {
 		div.innerHTML = "<p><input> <button onclick='return makeaguess(this)'>guess</button>"
 	}

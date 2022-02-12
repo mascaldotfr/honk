@@ -100,6 +100,7 @@ type Honk struct {
 	Mentions []Mention
 	Badonks  []Badonk
 	Wonkles  string
+	Guesses template.HTML
 }
 
 type Badonk struct {
