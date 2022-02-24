@@ -78,7 +78,7 @@ func orphancheck() {
 	var b [1]byte
 	os.Stdin.Read(b[:])
 	dlog.Printf("backend shutting down")
-	os.Exit(0)
+	//os.Exit(0)
 }
 
 func backendServer() {
