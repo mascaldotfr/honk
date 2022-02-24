@@ -78,7 +78,7 @@ func orphancheck() {
 	var b [1]byte
 	os.Stdin.Read(b[:])
 	dlog.Printf("backend shutting down")
-	//os.Exit(0)
+	os.Exit(0)
 }
 
 func backendServer() {
@@ -112,7 +112,7 @@ func backendServer() {
 }
 
 func runBackendServer() {
-	r, _, err := os.Pipe()
+	r, w, err := os.Pipe()
 	if err != nil {
 		elog.Panicf("can't pipe: %s", err)
 	}
@@ -126,4 +126,5 @@ func runBackendServer() {
 	}
 	err = proc.Wait()
 	elog.Printf("lost the backend: %s", err)
+	w.Close()
 }
