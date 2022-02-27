@@ -19,6 +19,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	golog "log"
 	notrand "math/rand"
 	"os"
 	"strconv"
@@ -26,6 +27,7 @@ import (
 	"time"
 
 	"humungus.tedunangst.com/r/webs/httpsig"
+	"humungus.tedunangst.com/r/webs/log"
 )
 
 var softwareVersion = "develop"
@@ -268,22 +270,22 @@ func unplugserver(hostname string) {
 
 func reexecArgs(cmd string) []string {
 	args := []string{"-datadir", dataDir}
-	args = append(args, loggingArgs()...)
+	args = append(args, log.Args()...)
 	args = append(args, cmd)
 	return args
 }
+
+var elog, ilog, dlog *golog.Logger
 
 func main() {
 	flag.StringVar(&dataDir, "datadir", dataDir, "data directory")
 	flag.StringVar(&viewDir, "viewdir", viewDir, "view directory")
 	flag.Parse()
 
-	if alllogname != "stderr" {
-		elogname = alllogname
-		ilogname = alllogname
-		dlogname = alllogname
-	}
-	initLogging(elogname, ilogname, dlogname)
+	log.Init("honk")
+	elog = log.E
+	ilog = log.I
+	dlog = log.D
 
 	args := flag.Args()
 	cmd := "run"

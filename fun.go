@@ -653,10 +653,10 @@ var zaggies = cache.New(cache.Options{Filler: func(keyname string) (httpsig.Publ
 	return key, true
 }, Limit: 512})
 
-func zaggy(keyname string) httpsig.PublicKey {
+func zaggy(keyname string) (httpsig.PublicKey, error) {
 	var key httpsig.PublicKey
 	zaggies.Get(keyname, &key)
-	return key
+	return key, nil
 }
 
 func savingthrow(keyname string) {
