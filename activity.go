@@ -56,7 +56,7 @@ func friendorfoe(ct string) bool {
 	return false
 }
 
-var debugClient = &http.Client{
+var develClient = &http.Client{
 	Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
@@ -70,8 +70,8 @@ func PostJunk(keyname string, key httpsig.PrivateKey, url string, j junk.Junk) e
 
 func PostMsg(keyname string, key httpsig.PrivateKey, url string, msg []byte) error {
 	client := http.DefaultClient
-	if debugMode {
-		client = debugClient
+	if develMode {
+		client = develClient
 	}
 	req, err := http.NewRequest("POST", url, bytes.NewReader(msg))
 	if err != nil {
@@ -129,8 +129,8 @@ var flightdeck = gate.NewSerializer()
 
 func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
 	client := http.DefaultClient
-	if debugMode {
-		client = debugClient
+	if develMode {
+		client = develClient
 	}
 	fn := func() (interface{}, error) {
 		at := thefakename
@@ -156,8 +156,8 @@ func GetJunkTimeout(url string, timeout time.Duration) (junk.Junk, error) {
 
 func fetchsome(url string) ([]byte, error) {
 	client := http.DefaultClient
-	if debugMode {
-		client = debugClient
+	if develMode {
+		client = develClient
 	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

@@ -174,10 +174,9 @@ Be mindful of what other services may be exposed via localhost or the
 local network.
 .Ss Debug
 Debug mode may be enabled or disabled by running
-.Ic debug Ar on|off .
-In debug mode, secure cookies are disabled and templates are reloaded
-every request.
-Debug mode is really more useful for development, not debugging production.
+.Ic devel Ar on|off .
+In devel mode, secure cookies are disabled, TLS certs are not verified,
+and templates are reloaded every request.
 .Ss Import
 Data may be imported and converted from other services using the
 .Ic import

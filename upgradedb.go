@@ -67,9 +67,9 @@ func upgradedb() {
 			setconfig("loginmsg", "<h2>login</h2>")
 		}
 		d := -1
-		getconfig("debug", &d)
+		getconfig("devel", &d)
 		if d == -1 {
-			setconfig("debug", 0)
+			setconfig("devel", 0)
 		}
 		doordie(db, "update config set value = 27 where key = 'dbversion'")
 		fallthrough

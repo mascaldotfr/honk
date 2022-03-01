@@ -318,7 +318,7 @@ func main() {
 	serverPrefix = fmt.Sprintf("https://%s/", serverName)
 	getconfig("usersep", &userSep)
 	getconfig("honksep", &honkSep)
-	getconfig("debug", &debugMode)
+	getconfig("devel", &develMode)
 	prepareStatements(db)
 	switch cmd {
 	case "admin":
@@ -328,15 +328,15 @@ func main() {
 			elog.Fatal("import username mastodon|twitter srcdir")
 		}
 		importMain(args[1], args[2], args[3])
-	case "debug":
+	case "devel":
 		if len(args) != 2 {
-			elog.Fatal("need an argument: debug (on|off)")
+			elog.Fatal("need an argument: devel (on|off)")
 		}
 		switch args[1] {
 		case "on":
-			setconfig("debug", 1)
+			setconfig("devel", 1)
 		case "off":
-			setconfig("debug", 0)
+			setconfig("devel", 0)
 		default:
 			elog.Fatal("argument must be on or off")
 		}

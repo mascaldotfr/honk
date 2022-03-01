@@ -47,7 +47,7 @@ var readviews *templates.Template
 var userSep = "u"
 var honkSep = "h"
 
-var debugMode = false
+var develMode = false
 
 func getuserstyle(u *login.UserInfo) template.CSS {
 	if u == nil {
@@ -235,7 +235,7 @@ func showrss(w http.ResponseWriter, r *http.Request) {
 			modtime = honk.Date
 		}
 	}
-	if !debugMode {
+	if !develMode {
 		w.Header().Set("Cache-Control", "max-age=300")
 		w.Header().Set("Last-Modified", modtime.Format(http.TimeFormat))
 	}
@@ -862,7 +862,7 @@ func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
 	sort.Slice(onts, func(i, j int) bool {
 		return onts[i].Name < onts[j].Name
 	})
-	if u == nil && !debugMode {
+	if u == nil && !develMode {
 		w.Header().Set("Cache-Control", "max-age=300")
 	}
 	templinfo := getInfo(r)
@@ -1085,7 +1085,7 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 			templinfo["TopHID"] = 0
 		}
 	}
-	if u == nil && !debugMode {
+	if u == nil && !develMode {
 		w.Header().Set("Cache-Control", "max-age=60")
 	}
 	err := readviews.Execute(w, "honkpage.html", templinfo)
@@ -2125,20 +2125,20 @@ func somedays() string {
 }
 
 func avatate(w http.ResponseWriter, r *http.Request) {
-	if debugMode {
+	if develMode {
 		loadAvatarColors()
 	}
 	n := r.FormValue("a")
 	hex := r.FormValue("hex") == "1"
 	a := genAvatar(n, hex)
-	if !debugMode {
+	if !develMode {
 		w.Header().Set("Cache-Control", "max-age="+somedays())
 	}
 	w.Write(a)
 }
 
 func serveasset(w http.ResponseWriter, r *http.Request) {
-	if !debugMode {
+	if !develMode {
 		w.Header().Set("Cache-Control", "max-age=7776000")
 	}
 	dir := viewDir
@@ -2149,7 +2149,7 @@ func serveasset(w http.ResponseWriter, r *http.Request) {
 }
 func servehelp(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
-	if !debugMode {
+	if !develMode {
 		w.Header().Set("Cache-Control", "max-age=3600")
 	}
 	http.ServeFile(w, r, viewDir+"/docs/"+name)
@@ -2163,7 +2163,7 @@ func servehtml(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/about" {
 		templinfo["Sensors"] = getSensors()
 	}
-	if u == nil && !debugMode {
+	if u == nil && !develMode {
 		w.Header().Set("Cache-Control", "max-age=60")
 	}
 	err := readviews.Execute(w, r.URL.Path[1:]+".html", templinfo)
@@ -2433,7 +2433,7 @@ func bgmonitor() {
 
 func serve() {
 	db := opendatabase()
-	login.Init(login.InitArgs{Db: db, Logger: ilog})
+	login.Init(login.InitArgs{Db: db, Logger: ilog, Insecure: develMode})
 
 	listener, err := openListener()
 	if err != nil {
@@ -2447,7 +2447,7 @@ func serve() {
 	loadLingo()
 	w100 := wait100ms()
 
-	readviews = templates.Load(debugMode,
+	readviews = templates.Load(develMode,
 		viewDir+"/views/honkpage.html",
 		viewDir+"/views/honkfrags.html",
 		viewDir+"/views/honkers.html",
@@ -2466,7 +2466,7 @@ func serve() {
 		viewDir+"/views/onts.html",
 		viewDir+"/views/honkpage.js",
 	)
-	if !debugMode {
+	if !develMode {
 		assets := []string{viewDir + "/views/style.css", dataDir + "/views/local.css", viewDir + "/views/honkpage.js"}
 		for _, s := range assets {
 			savedassetparams[s] = getassetparam(s)
