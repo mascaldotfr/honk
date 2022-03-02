@@ -2137,15 +2137,18 @@ func avatate(w http.ResponseWriter, r *http.Request) {
 	w.Write(a)
 }
 
-func serveasset(w http.ResponseWriter, r *http.Request) {
+func serveviewasset(w http.ResponseWriter, r *http.Request) {
+	serveasset(w, r, viewDir)
+}
+func servedataasset(w http.ResponseWriter, r *http.Request) {
+	serveasset(w, r, dataDir)
+}
+
+func serveasset(w http.ResponseWriter, r *http.Request, basedir string) {
 	if !develMode {
 		w.Header().Set("Cache-Control", "max-age=7776000")
 	}
-	dir := viewDir
-	if r.URL.Path == "/local.css" {
-		dir = dataDir
-	}
-	http.ServeFile(w, r, dir+"/views"+r.URL.Path)
+	http.ServeFile(w, r, basedir+"/views"+r.URL.Path)
 }
 func servehelp(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
@@ -2514,10 +2517,13 @@ func serve() {
 	posters.HandleFunc("/server/inbox", serverinbox)
 	posters.HandleFunc("/inbox", serverinbox)
 
-	getters.HandleFunc("/style.css", serveasset)
-	getters.HandleFunc("/local.css", serveasset)
-	getters.HandleFunc("/honkpage.js", serveasset)
-	getters.HandleFunc("/wonk.js", serveasset)
+	getters.HandleFunc("/style.css", serveviewasset)
+	getters.HandleFunc("/honkpage.js", serveviewasset)
+	getters.HandleFunc("/wonk.js", serveviewasset)
+	getters.HandleFunc("/local.css", servedataasset)
+	getters.HandleFunc("/icon.png", servedataasset)
+	getters.HandleFunc("/favicon.ico", servedataasset)
+
 	getters.HandleFunc("/about", servehtml)
 	getters.HandleFunc("/login", servehtml)
 	posters.HandleFunc("/dologin", login.LoginFunc)
