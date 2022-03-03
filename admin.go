@@ -35,7 +35,7 @@ import (
 )
 
 func adminscreen() {
-	log.InitX("honk", "null", "null", "null")
+	log.Init(log.Options{Progname: "honk", Alllogname: "null"})
 	stdout := bufio.NewWriter(os.Stdout)
 	esc := "\x1b"
 	smcup := esc + "[?1049h"

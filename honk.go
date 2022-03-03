@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"html/template"
 	golog "log"
+	"log/syslog"
 	notrand "math/rand"
 	"os"
 	"strconv"
@@ -282,7 +283,7 @@ func main() {
 	flag.StringVar(&viewDir, "viewdir", viewDir, "view directory")
 	flag.Parse()
 
-	log.Init("honk")
+	log.Init(log.Options{Progname: "honk", Facility: syslog.LOG_UUCP})
 	elog = log.E
 	ilog = log.I
 	dlog = log.D
