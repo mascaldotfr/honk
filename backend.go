@@ -124,7 +124,7 @@ func runBackendServer() {
 	if err != nil {
 		elog.Panicf("can't exec backend: %s", err)
 	}
-	err = proc.Wait()
+	proc.Wait()
 	elog.Printf("lost the backend: %s", err)
 	w.Close()
 }
