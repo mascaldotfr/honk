@@ -2420,15 +2420,6 @@ func enditall() {
 
 var preservehooks []func()
 
-func wait100ms() chan struct{} {
-	c := make(chan struct{})
-	go func() {
-		time.Sleep(100 * time.Millisecond)
-		close(c)
-	}()
-	return c
-}
-
 func bgmonitor() {
 	for {
 		time.Sleep(50 * time.Minute)
@@ -2443,13 +2434,12 @@ func serve() {
 	if err != nil {
 		elog.Fatal(err)
 	}
-	go runBackendServer()
+	runBackendServer()
 	go enditall()
 	go redeliverator()
 	go tracker()
 	go bgmonitor()
 	loadLingo()
-	w100 := wait100ms()
 
 	readviews = templates.Load(develMode,
 		viewDir+"/views/honkpage.html",
@@ -2482,7 +2472,6 @@ func serve() {
 		}
 		loadAvatarColors()
 	}
-	<-w100
 
 	for _, h := range preservehooks {
 		h()
