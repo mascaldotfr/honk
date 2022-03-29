@@ -337,9 +337,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	j, err := junk.FromBytes(payload)
 	if err != nil {
 		ilog.Printf("bad payload: %s", err)
-		io.WriteString(os.Stdout, "bad payload\n")
-		os.Stdout.Write(payload)
-		io.WriteString(os.Stdout, "\n")
+		ilog.Writer().Write(payload)
 		return
 	}
 
@@ -365,9 +363,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		ilog.Printf("inbox message failed signature for %s from %s: %s", keyname, r.Header.Get("X-Forwarded-For"), err)
 		if keyname != "" {
 			ilog.Printf("bad signature from %s", keyname)
-			io.WriteString(os.Stdout, "bad payload\n")
-			os.Stdout.Write(payload)
-			io.WriteString(os.Stdout, "\n")
+			ilog.Writer().Write(payload)
 		}
 		http.Error(w, "what did you call me?", http.StatusTeapot)
 		return
@@ -456,9 +452,7 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 	j, err := junk.FromBytes(payload)
 	if err != nil {
 		ilog.Printf("bad payload: %s", err)
-		io.WriteString(os.Stdout, "bad payload\n")
-		os.Stdout.Write(payload)
-		io.WriteString(os.Stdout, "\n")
+		ilog.Writer().Write(payload)
 		return
 	}
 	if crappola(j) {
@@ -473,9 +467,7 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 		ilog.Printf("inbox message failed signature for %s from %s: %s", keyname, r.Header.Get("X-Forwarded-For"), err)
 		if keyname != "" {
 			ilog.Printf("bad signature from %s", keyname)
-			io.WriteString(os.Stdout, "bad payload\n")
-			os.Stdout.Write(payload)
-			io.WriteString(os.Stdout, "\n")
+			ilog.Writer().Write(payload)
 		}
 		http.Error(w, "what did you call me?", http.StatusTeapot)
 		return
