@@ -16,7 +16,7 @@ function post(url, data) {
 function get(url, whendone, whentimedout) {
 	var x = new XMLHttpRequest()
 	x.open("GET", url)
-	x.timeout = 5 * 1000
+	x.timeout = 15 * 1000
 	x.responseType = "json"
 	x.onload = function() { whendone(x) }
 	if (whentimedout) {
