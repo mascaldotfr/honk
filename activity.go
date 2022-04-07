@@ -669,6 +669,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		}
 		xonk.Audience = append(xonk.Audience, xonk.Honker)
 		xonk.Audience = oneofakind(xonk.Audience)
+		xonk.Public = loudandproud(xonk.Audience)
 
 		var mentions []Mention
 		if obj != nil {
@@ -956,7 +957,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			}
 		}
 		if !isUpdate && needxonk(user, &xonk) {
-			if rid != "" {
+			if rid != "" && xonk.Public {
 				if needxonkid(user, rid) {
 					goingup++
 					saveonemore(rid)
