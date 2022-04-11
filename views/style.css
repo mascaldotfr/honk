@@ -21,10 +21,11 @@ pre, code {
 }
 blockquote {
 	margin-left: 0em;
+	margin-bottom: 0em;
 	padding-left: 0.5em;
 	border-left: 1px solid var(--fg-subtle);
 }
-blockquote cite {
+cite {
 	margin-left: 2em;
 }
 table {
