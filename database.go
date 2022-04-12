@@ -180,7 +180,7 @@ func getbonk(userid int64, xid string) *Honk {
 }
 
 func getpublichonks() []*Honk {
-	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
+	dt := time.Now().Add(-7 * 24 * time.Hour).UTC().Format(dbtimeformat)
 	rows, err := stmtPublicHonks.Query(dt, 100)
 	return getsomehonks(rows, err)
 }
@@ -216,7 +216,7 @@ func geteventhonks(userid int64) []*Honk {
 	return honks
 }
 func gethonksbyuser(name string, includeprivate bool, wanted int64) []*Honk {
-	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
+	dt := time.Now().Add(-7 * 24 * time.Hour).UTC().Format(dbtimeformat)
 	limit := 50
 	whofore := 2
 	if includeprivate {
@@ -226,29 +226,29 @@ func gethonksbyuser(name string, includeprivate bool, wanted int64) []*Honk {
 	return getsomehonks(rows, err)
 }
 func gethonksforuser(userid int64, wanted int64) []*Honk {
-	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
+	dt := time.Now().Add(-7 * 24 * time.Hour).UTC().Format(dbtimeformat)
 	rows, err := stmtHonksForUser.Query(wanted, userid, dt, userid, userid)
 	return getsomehonks(rows, err)
 }
 func gethonksforuserfirstclass(userid int64, wanted int64) []*Honk {
-	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
+	dt := time.Now().Add(-7 * 24 * time.Hour).UTC().Format(dbtimeformat)
 	rows, err := stmtHonksForUserFirstClass.Query(wanted, userid, dt, userid, userid)
 	return getsomehonks(rows, err)
 }
 
 func gethonksforme(userid int64, wanted int64) []*Honk {
-	dt := time.Now().UTC().Add(-7 * 24 * time.Hour).Format(dbtimeformat)
+	dt := time.Now().Add(-7 * 24 * time.Hour).UTC().Format(dbtimeformat)
 	rows, err := stmtHonksForMe.Query(wanted, userid, dt, userid)
 	return getsomehonks(rows, err)
 }
 func gethonksfromlongago(userid int64, wanted int64) []*Honk {
-	now := time.Now().UTC()
+	now := time.Now()
 	var honks []*Honk
 	for i := 1; i <= 3; i++ {
 		dt := time.Date(now.Year()-i, now.Month(), now.Day(), now.Hour(), now.Minute(),
 			now.Second(), 0, now.Location())
-		dt1 := dt.Add(-36 * time.Hour).Format(dbtimeformat)
-		dt2 := dt.Add(12 * time.Hour).Format(dbtimeformat)
+		dt1 := dt.Add(-36 * time.Hour).UTC().Format(dbtimeformat)
+		dt2 := dt.Add(12 * time.Hour).UTC().Format(dbtimeformat)
 		rows, err := stmtHonksFromLongAgo.Query(wanted, userid, dt1, dt2, userid)
 		honks = append(honks, getsomehonks(rows, err)...)
 	}
@@ -979,12 +979,12 @@ func cleanupdb(arg string) {
 	var where string
 	if err != nil {
 		honker := arg
-		expdate := time.Now().UTC().Add(-3 * 24 * time.Hour).Format(dbtimeformat)
+		expdate := time.Now().Add(-3 * 24 * time.Hour).UTC().Format(dbtimeformat)
 		where = "dt < ? and honker = ?"
 		sqlargs = append(sqlargs, expdate)
 		sqlargs = append(sqlargs, honker)
 	} else {
-		expdate := time.Now().UTC().Add(-time.Duration(days) * 24 * time.Hour).Format(dbtimeformat)
+		expdate := time.Now().Add(-time.Duration(days) * 24 * time.Hour).UTC().Format(dbtimeformat)
 		where = "dt < ? and convoy not in (select convoy from honks where flags & 4 or whofore = 2 or whofore = 3)"
 		sqlargs = append(sqlargs, expdate)
 	}

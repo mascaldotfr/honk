@@ -660,7 +660,7 @@ func zaggy(keyname string) (httpsig.PublicKey, error) {
 }
 
 func savingthrow(keyname string) {
-	when := time.Now().UTC().Add(-30 * time.Minute).Format(dbtimeformat)
+	when := time.Now().Add(-30 * time.Minute).UTC().Format(dbtimeformat)
 	stmtDeleteXonker.Exec(keyname, "pubkey", when)
 	zaggies.Clear(keyname)
 }
