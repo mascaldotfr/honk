@@ -106,6 +106,9 @@ func importMastodon(username, source string) {
 		if toot.Type != "Create" {
 			continue
 		}
+		if strings.HasSuffix(toot.Id, "/activity") {
+			toot.Id = strings.TrimSuffix(toot.Id, "/activity")
+		}
 		tootid := re_tootid.FindString(toot.Id)
 		xid := fmt.Sprintf("%s/%s/%s", user.URL, honkSep, tootid)
 		if havetoot(xid) {
