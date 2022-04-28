@@ -972,6 +972,52 @@ func savexonker(what, value, flav, when string) {
 	stmtSaveXonker.Exec(what, value, flav, when)
 }
 
+func savehonker(user *WhatAbout, url, name, flavor, combos, mj string) error {
+	var owner string
+	if url[0] == '#' {
+		flavor = "peep"
+		if name == "" {
+			name = url[1:]
+		}
+		owner = url
+	} else {
+		info, err := investigate(url)
+		if err != nil {
+			ilog.Printf("failed to investigate honker: %s", err)
+			return err
+		}
+		url = info.XID
+		if name == "" {
+			name = info.Name
+		}
+		owner = info.Owner
+	}
+
+	var x string
+	db := opendatabase()
+	row := db.QueryRow("select xid from honkers where xid = ? and userid = ? and flavor in ('sub', 'unsub', 'peep')", url, user.ID)
+	err := row.Scan(&x)
+	if err != sql.ErrNoRows {
+		if err != nil {
+			elog.Printf("honker scan err: %s", err)
+		} else {
+			err = fmt.Errorf("it seems you are already subscribed to them")
+		}
+		return err
+	}
+
+	res, err := stmtSaveHonker.Exec(user.ID, name, url, flavor, combos, owner, mj)
+	if err != nil {
+		elog.Print(err)
+		return err
+	}
+	honkerid, _ := res.LastInsertId()
+	if flavor == "presub" {
+		followyou(user, honkerid)
+	}
+	return nil
+}
+
 func cleanupdb(arg string) {
 	db := opendatabase()
 	days, err := strconv.Atoi(arg)
