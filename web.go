@@ -712,6 +712,8 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	honks := gethonksbyuser(name, u != nil && u.Username == name, 0)
 	templinfo := getInfo(r)
+	templinfo["PageName"] = "user"
+	templinfo["PageArg"] = name
 	templinfo["Name"] = user.Name
 	templinfo["WhatAbout"] = user.HTAbout
 	templinfo["ServerMessage"] = ""
@@ -2272,6 +2274,10 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 			</form>`, login.GetCSRF("submithonker", r), xid)
 		msg := templates.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>%s`, xid, xid, miniform)
 		hydra.Srvmsg = msg
+	case "user":
+		uname := r.FormValue("uname")
+		honks = gethonksbyuser(uname, u != nil && u.Username == uname, wanted)
+		hydra.Srvmsg = templates.Sprintf("honks by user: %s", uname)
 	default:
 		http.NotFound(w, r)
 	}

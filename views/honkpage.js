@@ -148,6 +148,8 @@ function hydrargs() {
 		args["c"] = arg
 	} else if (name == "honker") {
 		args["xid"] = arg
+	} else if (name == "user") {
+		args["uname"] = arg
 	}
 	return args
 }
