@@ -2395,8 +2395,7 @@ var workinprogress = 0
 
 func enditall() {
 	sig := make(chan os.Signal)
-	signal.Notify(sig, os.Interrupt)
-	signal.Notify(sig, syscall.SIGTERM)
+	signal.Notify(sig, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 	<-sig
 	ilog.Printf("stopping...")
 	for i := 0; i < workinprogress; i++ {
