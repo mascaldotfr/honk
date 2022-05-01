@@ -73,6 +73,9 @@ func reverbolate(userid int64, honks []*Honk) {
 		if !h.Public {
 			h.Style += " limited"
 		}
+		if h.Whofore == 1 {
+			h.Style += " atme"
+		}
 		translate(h)
 		local := false
 		if h.Whofore == 2 || h.Whofore == 3 {
