@@ -712,6 +712,8 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	honks := gethonksbyuser(name, u != nil && u.Username == name, 0)
 	templinfo := getInfo(r)
+	templinfo["PageName"] = "user"
+	templinfo["PageArg"] = name
 	templinfo["Name"] = user.Name
 	templinfo["WhatAbout"] = user.HTAbout
 	templinfo["ServerMessage"] = ""
@@ -1921,53 +1923,12 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		flavor = "peep"
 	}
 
-	if url[0] == '#' {
-		flavor = "peep"
-		if name == "" {
-			name = url[1:]
-		}
-		_, err := stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos, url, mj)
-		if err != nil {
-			elog.Print(err)
-			return
-		}
-		http.Redirect(w, r, "/honkers", http.StatusSeeOther)
-		return
-	}
-
-	info, err := investigate(url)
+	err := savehonker(user, url, name, flavor, combos, mj)
 	if err != nil {
-		http.Error(w, "error investigating: "+err.Error(), http.StatusInternalServerError)
-		ilog.Printf("failed to investigate honker: %s", err)
-		return
-	}
-	url = info.XID
-
-	if name == "" {
-		name = info.Name
-	}
-
-	var x string
-	db := opendatabase()
-	row := db.QueryRow("select xid from honkers where xid = ? and userid = ? and flavor in ('sub', 'unsub', 'peep')", url, u.UserID)
-	err = row.Scan(&x)
-	if err != sql.ErrNoRows {
-		http.Error(w, "it seems you are already subscribed to them", http.StatusInternalServerError)
-		if err != nil {
-			elog.Printf("honker scan err: %s", err)
-		}
+		http.Error(w, "had some trouble with that: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	res, err := stmtSaveHonker.Exec(u.UserID, name, url, flavor, combos, info.Owner, mj)
-	if err != nil {
-		elog.Print(err)
-		return
-	}
-	honkerid, _ = res.LastInsertId()
-	if flavor == "presub" {
-		followyou(user, honkerid)
-	}
 	http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 }
 
@@ -2272,6 +2233,10 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 			</form>`, login.GetCSRF("submithonker", r), xid)
 		msg := templates.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>%s`, xid, xid, miniform)
 		hydra.Srvmsg = msg
+	case "user":
+		uname := r.FormValue("uname")
+		honks = gethonksbyuser(uname, u != nil && u.Username == uname, wanted)
+		hydra.Srvmsg = templates.Sprintf("honks by user: %s", uname)
 	default:
 		http.NotFound(w, r)
 	}
@@ -2395,8 +2360,7 @@ var workinprogress = 0
 
 func enditall() {
 	sig := make(chan os.Signal)
-	signal.Notify(sig, os.Interrupt)
-	signal.Notify(sig, syscall.SIGTERM)
+	signal.Notify(sig, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 	<-sig
 	ilog.Printf("stopping...")
 	for i := 0; i < workinprogress; i++ {

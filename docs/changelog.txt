@@ -1,5 +1,19 @@
 changelog
 
+=== next
+
++ Add atme class to mentions
+
++ Improvements to the mastodon importer.
+
++ More hydration capable pages.
+
++ Support for local.js.
+
++ Better error messages for timeouts.
+
++ Some improved html and markdown.
+
 === 0.9.7 Witless Weekender
 
 +++ Word guessing game. Wonk wonk!
