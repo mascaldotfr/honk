@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Some UI improvements to web interface.
+
 + Add atme class to mentions
 
 + Improvements to the mastodon importer.
