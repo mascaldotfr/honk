@@ -2378,6 +2378,11 @@ var preservehooks []func()
 
 func bgmonitor() {
 	for {
+		when := time.Now().Add(-3 * 24 * time.Hour).UTC().Format(dbtimeformat)
+		_, err := stmtDeleteOldXonkers.Exec("pubkey", when)
+		if err != nil {
+			elog.Printf("error deleting old xonkers: %s", err)
+		}
 		time.Sleep(50 * time.Minute)
 	}
 }
