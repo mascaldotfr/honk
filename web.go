@@ -1202,7 +1202,7 @@ func bonkit(xid string, user *WhatAbout) {
 		Convoy:   xonk.Convoy,
 		Audience: []string{thewholeworld, oonker},
 		Public:   true,
-		Format:   "html",
+		Format:   xonk.Format,
 		Place:    xonk.Place,
 		Onts:     xonk.Onts,
 		Time:     xonk.Time,
