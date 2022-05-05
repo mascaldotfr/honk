@@ -2383,6 +2383,7 @@ func bgmonitor() {
 		if err != nil {
 			elog.Printf("error deleting old xonkers: %s", err)
 		}
+		zaggies.Flush()
 		time.Sleep(50 * time.Minute)
 	}
 }
