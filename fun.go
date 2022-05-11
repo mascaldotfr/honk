@@ -378,18 +378,23 @@ func bunchofgrapes(m []string) []Mention {
 type Emu struct {
 	ID   string
 	Name string
+	Type string
 }
 
 var re_emus = regexp.MustCompile(`:[[:alnum:]_-]+:`)
 
 var emucache = cache.New(cache.Options{Filler: func(ename string) (Emu, bool) {
 	fname := ename[1 : len(ename)-1]
-	_, err := os.Stat(dataDir + "/emus/" + fname + ".png")
-	if err != nil {
-		return Emu{Name: ename, ID: ""}, true
+	exts := []string{".png", ".gif"}
+	for _, ext := range exts {
+		_, err := os.Stat(dataDir + "/emus/" + fname + ext)
+		if err != nil {
+			continue
+		}
+		url := fmt.Sprintf("https://%s/emu/%s%s", serverName, fname, ext)
+		return Emu{ID: url, Name: ename, Type: "image/" + ext[1:]}, true
 	}
-	url := fmt.Sprintf("https://%s/emu/%s.png", serverName, fname)
-	return Emu{ID: url, Name: ename}, true
+	return Emu{Name: ename, ID: "", Type: "image/png"}, true
 }, Duration: 10 * time.Second})
 
 func herdofemus(noise string) []Emu {

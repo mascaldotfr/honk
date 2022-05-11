@@ -1166,7 +1166,7 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			t["name"] = e.Name
 			i := junk.New()
 			i["type"] = "Image"
-			i["mediaType"] = "image/png"
+			i["mediaType"] = e.Type
 			i["url"] = e.ID
 			t["icon"] = i
 			tags = append(tags, t)
@@ -1339,7 +1339,7 @@ func chonkifymsg(user *WhatAbout, ch *Chonk) []byte {
 		t["name"] = e.Name
 		i := junk.New()
 		i["type"] = "Image"
-		i["mediaType"] = "image/png"
+		i["mediaType"] = e.Type
 		i["url"] = e.ID
 		t["icon"] = i
 		tags = append(tags, t)
