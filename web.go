@@ -148,6 +148,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 
 func showfunzone(w http.ResponseWriter, r *http.Request) {
 	var emunames, memenames []string
+	emuext := make(map[string]string)
 	dir, err := os.Open(dataDir + "/emus")
 	if err == nil {
 		emunames, _ = dir.Readdirnames(0)
@@ -156,6 +157,7 @@ func showfunzone(w http.ResponseWriter, r *http.Request) {
 	for i, e := range emunames {
 		if len(e) > 4 {
 			emunames[i] = e[:len(e)-4]
+			emuext[emunames[i]] = e[len(e)-4:]
 		}
 	}
 	dir, err = os.Open(dataDir + "/memes")
@@ -167,6 +169,7 @@ func showfunzone(w http.ResponseWriter, r *http.Request) {
 	sort.Strings(memenames)
 	templinfo := getInfo(r)
 	templinfo["Emus"] = emunames
+	templinfo["Emuext"] = emuext
 	templinfo["Memes"] = memenames
 	err = readviews.Execute(w, "funzone.html", templinfo)
 	if err != nil {
