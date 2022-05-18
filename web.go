@@ -341,6 +341,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		ilog.Printf("bad payload: %s", err)
 		ilog.Writer().Write(payload)
+		ilog.Writer().Write([]byte{'\n'})
 		return
 	}
 
@@ -367,6 +368,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		if keyname != "" {
 			ilog.Printf("bad signature from %s", keyname)
 			ilog.Writer().Write(payload)
+			ilog.Writer().Write([]byte{'\n'})
 		}
 		http.Error(w, "what did you call me?", http.StatusTeapot)
 		return
@@ -456,6 +458,7 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		ilog.Printf("bad payload: %s", err)
 		ilog.Writer().Write(payload)
+		ilog.Writer().Write([]byte{'\n'})
 		return
 	}
 	if crappola(j) {
@@ -471,6 +474,7 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 		if keyname != "" {
 			ilog.Printf("bad signature from %s", keyname)
 			ilog.Writer().Write(payload)
+			ilog.Writer().Write([]byte{'\n'})
 		}
 		http.Error(w, "what did you call me?", http.StatusTeapot)
 		return
