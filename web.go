@@ -484,7 +484,7 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 	if rejectactor(user.ID, who) {
 		return
 	}
-	re_ont := regexp.MustCompile("https://" + serverName + "/o/([[:alnum:]]+)")
+	re_ont := regexp.MustCompile("https://" + serverName + "/o/([\\pL[:digit:]]+)")
 	what, _ := j.GetString("type")
 	dlog.Printf("server got a %s", what)
 	switch what {
@@ -1882,7 +1882,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	combos = " " + combos + " "
 	honkerid, _ := strconv.ParseInt(r.FormValue("honkerid"), 10, 0)
 
-	re_namecheck := regexp.MustCompile("[[:alnum:]_.-]+")
+	re_namecheck := regexp.MustCompile("[\\pL[:digit:]_.-]+")
 	if name != "" && !re_namecheck.MatchString(name) {
 		http.Error(w, "please use a plainer name", http.StatusInternalServerError)
 		return
@@ -2456,17 +2456,17 @@ func serve() {
 	getters.HandleFunc("/events", homepage)
 	getters.HandleFunc("/robots.txt", nomoroboto)
 	getters.HandleFunc("/rss", showrss)
-	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}", showuser)
-	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/"+honkSep+"/{xid:[[:alnum:]]+}", showonehonk)
-	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/rss", showrss)
-	posters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/inbox", inbox)
-	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/outbox", outbox)
-	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/followers", emptiness)
-	getters.HandleFunc("/"+userSep+"/{name:[[:alnum:]]+}/following", emptiness)
+	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}", showuser)
+	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}/"+honkSep+"/{xid:[\\pL[:digit:]]+}", showonehonk)
+	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}/rss", showrss)
+	posters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}/inbox", inbox)
+	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}/outbox", outbox)
+	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}/followers", emptiness)
+	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}/following", emptiness)
 	getters.HandleFunc("/a", avatate)
 	getters.HandleFunc("/o", thelistingoftheontologies)
 	getters.HandleFunc("/o/{name:.+}", showontology)
-	getters.HandleFunc("/d/{xid:[[:alnum:].]+}", servefile)
+	getters.HandleFunc("/d/{xid:[\\pL[:digit:].]+}", servefile)
 	getters.HandleFunc("/emu/{emu:[^.]*[^/]+}", serveemu)
 	getters.HandleFunc("/meme/{meme:[^.]*[^/]+}", servememe)
 	getters.HandleFunc("/.well-known/webfinger", fingerlicker)
@@ -2489,7 +2489,7 @@ func serve() {
 	getters.HandleFunc("/login", servehtml)
 	posters.HandleFunc("/dologin", login.LoginFunc)
 	getters.HandleFunc("/logout", login.LogoutFunc)
-	getters.HandleFunc("/help/{name:[[:alnum:]_.-]+}", servehelp)
+	getters.HandleFunc("/help/{name:[\\pL[:digit:]_.-]+}", servehelp)
 
 	getters.HandleFunc("/bloat/wonkles", servewonkles)
 
@@ -2515,9 +2515,9 @@ func serve() {
 	loggedin.Handle("/saveuser", login.CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
 	loggedin.Handle("/ximport", login.CSRFWrap("ximport", http.HandlerFunc(ximport)))
 	loggedin.HandleFunc("/honkers", showhonkers)
-	loggedin.HandleFunc("/h/{name:[[:alnum:]_.-]+}", showhonker)
+	loggedin.HandleFunc("/h/{name:[\\pL[:digit:]_.-]+}", showhonker)
 	loggedin.HandleFunc("/h", showhonker)
-	loggedin.HandleFunc("/c/{name:[[:alnum:]_.-]+}", showcombo)
+	loggedin.HandleFunc("/c/{name:[\\pL[:digit:]_.-]+}", showcombo)
 	loggedin.HandleFunc("/c", showcombos)
 	loggedin.HandleFunc("/t", showconvoy)
 	loggedin.HandleFunc("/q", showsearch)
