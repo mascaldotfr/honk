@@ -320,6 +320,8 @@ func main() {
 	getconfig("usersep", &userSep)
 	getconfig("honksep", &honkSep)
 	getconfig("devel", &develMode)
+	getconfig("fasttimeout", &fastTimeout)
+	getconfig("slowtimeout", &slowTimeout)
 	prepareStatements(db)
 	switch cmd {
 	case "admin":

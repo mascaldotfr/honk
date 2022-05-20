@@ -46,6 +46,9 @@ var falsenames = []string{
 var itiswhatitis = "https://www.w3.org/ns/activitystreams"
 var thewholeworld = "https://www.w3.org/ns/activitystreams#Public"
 
+var fastTimeout time.Duration = 5
+var slowTimeout time.Duration = 30
+
 func friendorfoe(ct string) bool {
 	ct = strings.ToLower(ct)
 	for _, at := range falsenames {
@@ -80,7 +83,7 @@ func PostMsg(keyname string, key httpsig.PrivateKey, url string, msg []byte) err
 	req.Header.Set("User-Agent", "honksnonk/5.0; "+serverName)
 	req.Header.Set("Content-Type", theonetruename)
 	httpsig.SignRequest(keyname, key, req, msg)
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*slowTimeout*time.Second)
 	defer cancel()
 	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
@@ -100,11 +103,11 @@ func PostMsg(keyname string, key httpsig.PrivateKey, url string, msg []byte) err
 }
 
 func GetJunk(url string) (junk.Junk, error) {
-	return GetJunkTimeout(url, 30*time.Second)
+	return GetJunkTimeout(url, slowTimeout*time.Second)
 }
 
 func GetJunkFast(url string) (junk.Junk, error) {
-	return GetJunkTimeout(url, 5*time.Second)
+	return GetJunkTimeout(url, fastTimeout*time.Second)
 }
 
 func GetJunkHardMode(url string) (junk.Junk, error) {
