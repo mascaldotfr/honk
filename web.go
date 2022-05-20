@@ -32,6 +32,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"unicode/utf8"
 
 	"github.com/gorilla/mux"
 	"humungus.tedunangst.com/r/webs/cache"
@@ -855,7 +856,7 @@ func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
 			elog.Printf("error scanning ont: %s", err)
 			continue
 		}
-		if len(o.Name) > 24 {
+		if utf8.RuneCountInString(o.Name) > 24 {
 			continue
 		}
 		o.Name = o.Name[1:]
@@ -869,6 +870,7 @@ func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
 	}
 	templinfo := getInfo(r)
 	templinfo["Onts"] = onts
+	templinfo["FirstRune"] = func(s string) rune { r, _ := utf8.DecodeRuneInString(s); return r }
 	err = readviews.Execute(w, "onts.html", templinfo)
 	if err != nil {
 		elog.Print(err)
