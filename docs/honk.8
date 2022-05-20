@@ -197,9 +197,15 @@ After unzipping the data archive, navigate to the tweet_media directory
 and unzip any zip files contained within.
 .Dl ./honk import username twitter source-directory
 .Ss Advanced Options
+Advanced configuration values may be set by running the
+.Ic setconfig Ar key value
+command.
+For example, to increase the fast timeout value from 5 seconds to 10:
+.Dl ./honk setconfig fasttimeout 10
+.Pp
 To support separate mentions without a subdomain,
 e.g. @user@example.com and https://honk.example.com/u/user,
-add a ('masqname', 'example.com') row to the config table of the database.
+set config key 'masqname' to 'example.com'.
 Route
 .Pa /.well-known/webfinger
 from the top domain to honk.

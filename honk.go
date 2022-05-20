@@ -344,6 +344,16 @@ func main() {
 		default:
 			elog.Fatal("argument must be on or off")
 		}
+	case "setconfig":
+		if len(args) != 3 {
+			elog.Fatal("need an argument: setconfig key val")
+		}
+		var val interface{}
+		var err error
+		if val, err = strconv.Atoi(args[2]); err != nil {
+			val = args[2]
+		}
+		setconfig(args[1], val)
 	case "adduser":
 		adduser()
 	case "deluser":
