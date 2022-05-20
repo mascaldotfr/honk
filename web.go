@@ -551,7 +551,7 @@ func ximport(w http.ResponseWriter, r *http.Request) {
 		if p != nil {
 			xid = p.XID
 		}
-		j, err := GetJunk(xid)
+		j, err := GetJunk(u.UserID, xid)
 		if err != nil {
 			http.Error(w, "error getting external object", http.StatusInternalServerError)
 			ilog.Printf("error getting external object: %s", err)

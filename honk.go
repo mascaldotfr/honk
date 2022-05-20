@@ -322,6 +322,7 @@ func main() {
 	getconfig("devel", &develMode)
 	getconfig("fasttimeout", &fastTimeout)
 	getconfig("slowtimeout", &slowTimeout)
+	getconfig("signGets", &signGets)
 	prepareStatements(db)
 	switch cmd {
 	case "admin":

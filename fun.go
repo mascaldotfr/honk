@@ -637,7 +637,7 @@ var zaggies = cache.New(cache.Options{Filler: func(keyname string) (httpsig.Publ
 	if data == "" {
 		var key httpsig.PublicKey
 		dlog.Printf("hitting the webs for missing pubkey: %s", keyname)
-		j, err := GetJunk(keyname)
+		j, err := GetJunk(serverUID, keyname)
 		if err != nil {
 			ilog.Printf("error getting %s pubkey: %s", keyname, err)
 			when := time.Now().UTC().Format(dbtimeformat)

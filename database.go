@@ -56,11 +56,6 @@ func userfromrow(row *sql.Row) (*WhatAbout, error) {
 	if user.Options.Reaction == "" {
 		user.Options.Reaction = "none"
 	}
-	var marker mz.Marker
-	marker.HashLinker = ontoreplacer
-	marker.AtLinker = attoreplacer
-	user.HTAbout = template.HTML(marker.Mark(user.About))
-	user.Onts = marker.HashTags
 
 	return user, nil
 }
@@ -71,6 +66,11 @@ var somenamedusers = cache.New(cache.Options{Filler: func(name string) (*WhatAbo
 	if err != nil {
 		return nil, false
 	}
+	var marker mz.Marker
+	marker.HashLinker = ontoreplacer
+	marker.AtLinker = attoreplacer
+	user.HTAbout = template.HTML(marker.Mark(user.About))
+	user.Onts = marker.HashTags
 	return user, true
 }})
 
@@ -80,6 +80,8 @@ var somenumberedusers = cache.New(cache.Options{Filler: func(userid int64) (*Wha
 	if err != nil {
 		return nil, false
 	}
+	// don't touch attoreplacer, which introduces a loop
+	// finger -> getjunk -> keys -> users
 	return user, true
 }})
 
