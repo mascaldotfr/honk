@@ -1140,10 +1140,6 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		fallthrough
 	case "honk":
 		j["type"] = "Create"
-		if h.What == "update" {
-			j["type"] = "Update"
-		}
-
 		jo = junk.New()
 		jo["id"] = h.XID
 		jo["type"] = "Note"
@@ -1151,6 +1147,10 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			jo["type"] = "Event"
 		} else if h.What == "wonk" {
 			jo["type"] = "GuessWord"
+		}
+		if h.What == "update" {
+			j["type"] = "Update"
+			jo["updated"] = dt
 		}
 		jo["published"] = dt
 		jo["url"] = h.XID
