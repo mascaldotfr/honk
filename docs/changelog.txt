@@ -2,6 +2,14 @@ changelog
 
 === next
 
++ Update activity compatibility with mastodon.
+
+- Signed fetch.
+
++ Better unicode hashtags.
+
++ Some more configuration options.
+
 + Some UI improvements to web interface.
 
 + Add atme class to mentions
