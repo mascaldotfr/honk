@@ -635,14 +635,13 @@ func ziggy(userid int64) *KeyInfo {
 var zaggies = cache.New(cache.Options{Filler: func(keyname string) (httpsig.PublicKey, bool) {
 	data := getxonker(keyname, "pubkey")
 	if data == "" {
-		var key httpsig.PublicKey
 		dlog.Printf("hitting the webs for missing pubkey: %s", keyname)
 		j, err := GetJunk(serverUID, keyname)
 		if err != nil {
 			ilog.Printf("error getting %s pubkey: %s", keyname, err)
 			when := time.Now().UTC().Format(dbtimeformat)
 			stmtSaveXonker.Exec(keyname, "failed", "pubkey", when)
-			return key, true
+			return httpsig.PublicKey{}, true
 		}
 		allinjest(originate(keyname), j)
 		data = getxonker(keyname, "pubkey")
@@ -650,8 +649,12 @@ var zaggies = cache.New(cache.Options{Filler: func(keyname string) (httpsig.Publ
 			ilog.Printf("key not found after ingesting")
 			when := time.Now().UTC().Format(dbtimeformat)
 			stmtSaveXonker.Exec(keyname, "failed", "pubkey", when)
-			return key, true
+			return httpsig.PublicKey{}, true
 		}
+	}
+	if data == "failed" {
+		ilog.Printf("lookup previously failed key %s", keyname)
+		return httpsig.PublicKey{}, true
 	}
 	_, key, err := httpsig.DecodeKey(data)
 	if err != nil {
