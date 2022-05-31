@@ -23,7 +23,6 @@ import (
 	"log/syslog"
 	notrand "math/rand"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -136,13 +135,14 @@ type Mention struct {
 	Where string
 }
 
-var re_firstname = regexp.MustCompile("@[[:alnum:]]+")
-
-func (mention *Mention) Nick() string {
-	if m := re_firstname.FindString(mention.Who); m != "" {
-		return m
+func (mention *Mention) IsPresent(noise string) bool {
+	nick := strings.TrimLeft(mention.Who, "@")
+	idx := strings.IndexByte(nick, '@')
+	if idx != -1 {
+		nick = nick[:idx]
 	}
-	return mention.Who
+	nick += "<"
+	return strings.Contains(noise, ">@"+nick) || strings.Contains(noise, "@<span>"+nick)
 }
 
 type OldRevision struct {
