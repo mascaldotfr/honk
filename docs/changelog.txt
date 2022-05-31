@@ -1,6 +1,6 @@
 changelog
 
-=== next
+=== 0.9.8 Tentative Tentacle
 
 + Switch database to WAL mode.
 
