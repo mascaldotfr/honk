@@ -20,6 +20,7 @@ import (
 	"crypto/sha512"
 	"database/sql"
 	"encoding/json"
+	_ "embed"
 	"fmt"
 	"html/template"
 	"sort"
@@ -33,6 +34,9 @@ import (
 	"humungus.tedunangst.com/r/webs/login"
 	"humungus.tedunangst.com/r/webs/mz"
 )
+
+//go:embed schema.sql
+var sqlSchema string
 
 func userfromrow(row *sql.Row) (*WhatAbout, error) {
 	user := new(WhatAbout)

@@ -2,6 +2,8 @@ changelog
 
 === next
 
+- go version 1.16 required.
+
 + Specify banner: image in profile.
 
 + Update activity compatibility with mastodon.

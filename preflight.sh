@@ -1,12 +1,12 @@
 set -e
 
-go version > /dev/null 2>&1 || (echo go 1.13+ is required && false)
+go version > /dev/null 2>&1 || (echo go 1.16+ is required && false)
 
 v=`go version | egrep -o 'go1[^ ]+'`
 case $v in
-	go1.10*|go1.11*|go1.12*)
+	go1.10*|go1.11*|go1.12*|go1.13*|go1.14*|go1.15*)
 		echo go version is too old: $v
-		echo go 1.13+ is required
+		echo go 1.16+ is required
 		false
 		;;
 	go1.1*)
