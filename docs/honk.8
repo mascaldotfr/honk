@@ -154,6 +154,12 @@ Backups may be performed by running
 .Ic backup dirname .
 Backups only include the minimal necessary information, such as user posts
 and follower information, but not external posts.
+.Pp
+Sometimes servers simply disappear, resulting in many errors trying to deliver
+undeliverable messages.
+Running
+.Ic unplug Ar hostname
+will delete all subscriptions and pending deliveries.
 .Ss Upgrade
 Stop the old honk process.
 Backup the database.
@@ -165,19 +171,13 @@ Restart.
 The current version of the honk binary may be printed with the
 .Ic version
 command.
-.Ss unplug
-Sometimes servers simply disappear, resulting in many errors trying to deliver
-undeliverable messages.
-Running
-.Ic unplug Ar hostname
-will delete all subscriptions and pending deliveries.
 .Ss Security
 .Nm
 is not currently hardened against SSRF, server side request forgery.
 Be mindful of what other services may be exposed via localhost or the
 local network.
-.Ss Debug
-Debug mode may be enabled or disabled by running
+.Ss Development
+Development mode may be enabled or disabled by running
 .Ic devel Ar on|off .
 In devel mode, secure cookies are disabled, TLS certs are not verified,
 and templates are reloaded every request.
@@ -185,9 +185,9 @@ and templates are reloaded every request.
 Data may be imported and converted from other services using the
 .Ic import
 command.
-Posts are imported and backdated to appear as old honks.
-No other information is imported.
 Currently supports Mastodon and Twitter exported data.
+Posts are imported and backdated to appear as old honks.
+The Mastodon following list is imported, but must be refollowed.
 .Pp
 To prepare a Mastodon data archive, extract the archive-longhash.tar.gz file.
 .Dl ./honk import username mastodon source-directory
