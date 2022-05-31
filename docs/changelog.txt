@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Switch database to WAL mode.
+
 - go version 1.16 required.
 
 + Specify banner: image in profile.
