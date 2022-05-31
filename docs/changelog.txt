@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Specify banner: image in profile.
+
 + Update activity compatibility with mastodon.
 
 - Signed fetch.

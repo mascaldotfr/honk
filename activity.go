@@ -1539,6 +1539,13 @@ func junkuser(user *WhatAbout) junk.Junk {
 			a["url"] = u
 		}
 		j["icon"] = a
+		if ban := user.Options.Banner; ban != "" {
+			a := junk.New()
+			a["type"] = "Image"
+			a["mediaType"] = "image/jpg"
+			a["url"] = ban
+			j["image"] = a
+		}
 	} else {
 		j["type"] = "Service"
 	}

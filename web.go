@@ -1147,6 +1147,19 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 		options.Avatar = ava
 		sendupdate = true
 	}
+	ban := re_banner.FindString(whatabout)
+	if ban != "" {
+		whatabout = re_banner.ReplaceAllString(whatabout, "")
+		ban = ban[7:]
+		if ban[0] == ' ' {
+			ban = ban[1:]
+		}
+		ban = fmt.Sprintf("https://%s/meme/%s", serverName, ban)
+	}
+	if ban != options.Banner {
+		options.Banner = ban
+		sendupdate = true
+	}
 	whatabout = strings.TrimSpace(whatabout)
 	if whatabout != user.About {
 		sendupdate = true
@@ -2016,6 +2029,9 @@ func accountpage(w http.ResponseWriter, r *http.Request) {
 	about := user.About
 	if ava := user.Options.Avatar; ava != "" {
 		about += "\n\navatar: " + ava[strings.LastIndexByte(ava, '/')+1:]
+	}
+	if ban := user.Options.Banner; ban != "" {
+		about += "\n\nbanner: " + ban[strings.LastIndexByte(ban, '/')+1:]
 	}
 	templinfo["WhatAbout"] = about
 	err := readviews.Execute(w, "account.html", templinfo)
