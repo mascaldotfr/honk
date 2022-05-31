@@ -23,6 +23,7 @@ import (
 	"log/syslog"
 	notrand "math/rand"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -133,6 +134,15 @@ type Chatter struct {
 type Mention struct {
 	Who   string
 	Where string
+}
+
+var re_firstname = regexp.MustCompile("@[[:alnum:]]+")
+
+func (mention *Mention) Nick() string {
+	if m := re_firstname.FindString(mention.Who); m != "" {
+		return m
+	}
+	return mention.Who
 }
 
 type OldRevision struct {

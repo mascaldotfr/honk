@@ -123,6 +123,11 @@ func reverbolate(userid int64, honks []*Honk) {
 		h.Precis = demoji(h.Precis)
 		h.Noise = demoji(h.Noise)
 		h.Open = "open"
+		for _, m := range h.Mentions {
+			if !strings.Contains(h.Noise, m.Nick()) {
+				h.Noise = "(" + m.Who + ")" + h.Noise
+			}
+		}
 
 		zap := make(map[string]bool)
 		{
