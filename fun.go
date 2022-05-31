@@ -124,7 +124,7 @@ func reverbolate(userid int64, honks []*Honk) {
 		h.Noise = demoji(h.Noise)
 		h.Open = "open"
 		for _, m := range h.Mentions {
-			if !m.IsPresent(h.Noise) {
+			if m.Where != h.Honker && !m.IsPresent(h.Noise) {
 				h.Noise = "(" + m.Who + ")" + h.Noise
 			}
 		}
