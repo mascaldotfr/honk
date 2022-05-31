@@ -141,7 +141,6 @@ func (mention *Mention) IsPresent(noise string) bool {
 	if idx != -1 {
 		nick = nick[:idx]
 	}
-	nick += "<"
 	return strings.Contains(noise, ">@"+nick) || strings.Contains(noise, "@<span>"+nick)
 }
 
