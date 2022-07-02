@@ -2120,6 +2120,9 @@ func serveviewasset(w http.ResponseWriter, r *http.Request) {
 	serveasset(w, r, viewDir)
 }
 func servedataasset(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/favicon.ico" {
+		r.URL.Path = "/icon.png"
+	}
 	serveasset(w, r, dataDir)
 }
 
