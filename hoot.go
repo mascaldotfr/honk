@@ -28,8 +28,8 @@ import (
 	"humungus.tedunangst.com/r/webs/htfilter"
 )
 
-var tweetsel = cascadia.MustCompile("p.tweet-text")
-var linksel = cascadia.MustCompile("a.tweet-timestamp")
+var tweetsel = cascadia.MustCompile("div[itemProp=articleBody]")
+var linksel = cascadia.MustCompile("a time")
 var replyingto = cascadia.MustCompile(".ReplyingToContextBelowAuthor")
 var imgsel = cascadia.MustCompile("div.js-adaptive-photo img")
 var authorregex = regexp.MustCompile("twitter.com/([^/]+)")
@@ -65,6 +65,34 @@ func hootextractor(r io.Reader, url string, seen map[string]bool) string {
 
 	divs := tweetsel.MatchAll(root)
 	for i, div := range divs {
+		{
+			twp := div.Parent.Parent.Parent
+			link := url
+			alink := linksel.MatchFirst(twp)
+			if alink == nil {
+				if i != 0 {
+					dlog.Printf("missing link")
+					continue
+				}
+			} else {
+				alink = alink.Parent
+				link = "https://twitter.com" + htfilter.GetAttr(alink, "href")
+			}
+			authormatch := authorregex.FindStringSubmatch(link)
+			if len(authormatch) < 2 {
+				dlog.Printf("no author?: %s", link)
+				continue
+			}
+			author := authormatch[1]
+			if author != wanted {
+				continue
+			}
+			text := htf.NodeText(div)
+			text = strings.Replace(text, "\n", " ", -1)
+			fmt.Fprintf(&buf, "> @%s: %s\n", author, text)
+			continue
+		}
+
 		twp := div.Parent.Parent.Parent
 		link := url
 		alink := linksel.MatchFirst(twp)
