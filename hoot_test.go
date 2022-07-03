@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"testing"
 )
 
 func TestHooterize(t *testing.T) {
+	dlog = log.Default()
 	fd, err := os.Open("lasthoot.html")
 	if err != nil {
 		return
