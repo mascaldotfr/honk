@@ -31,7 +31,7 @@ import (
 var tweetsel = cascadia.MustCompile("div[itemProp=articleBody]")
 var linksel = cascadia.MustCompile("a time")
 var replyingto = cascadia.MustCompile(".ReplyingToContextBelowAuthor")
-var imgsel = cascadia.MustCompile("div.js-adaptive-photo img")
+var imgsel = cascadia.MustCompile("div[data-testid=tweetPhoto] img")
 var authorregex = regexp.MustCompile("twitter.com/([^/]+)")
 
 var re_hoots = regexp.MustCompile(`hoot: ?https://\S+`)
@@ -84,8 +84,15 @@ func hootextractor(r io.Reader, url string, seen map[string]bool) string {
 				continue
 			}
 			author := authormatch[1]
+			if wanted == "" {
+				wanted = author
+			}
 			if author != wanted {
 				continue
+			}
+			for _, img := range imgsel.MatchAll(twp) {
+				img.Parent.RemoveChild(img)
+				div.AppendChild(img)
 			}
 			text := htf.NodeText(div)
 			text = strings.Replace(text, "\n", " ", -1)
