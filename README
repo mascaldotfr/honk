@@ -34,7 +34,7 @@ First, create the database. This will ask four questions.
 ./honk init
 username: (the username you want)
 password: (the password you want)
-listenaddr: (tcp or unix: localhost:31337, /var/www/honk.sock, etc.)
+listenaddr: (tcp or unix: 127.0.0.1:31337, /var/www/honk.sock, etc.)
 servername: (public DNS name: honk.example.com)
 
 Then run honk.
