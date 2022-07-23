@@ -251,7 +251,7 @@ password: OxychromaticBlowfishSwatDynamite
 listen address: /var/www/honk.sock
 server name: honk.example.com
 honk-v98> ./honk -datadir ../honkdata admin
-honk-v98> date; ./honk -datadir ../honkdata >> log 2>&1
+honk-v98> date; ./honk -log honk.log -datadir ../honkdata
 .Ed
 .Pp
 The views directory includes a sample pleroma.css to change color scheme.
@@ -268,7 +268,7 @@ datadir> cd ../honk-v99
 honk-v99> make
 honk-v99> ./honk -datadir ../honkdata upgrade
 honk-v99> ./honk -datadir ../honkdata cleanup
-honk-v99> date; ./honk -datadir ../honkdata >> log 2>&1
+honk-v99> date; ./honk -log honk.log -datadir ../honkdata
 .Ed
 .Sh ENVIRONMENT
 Image processing and scaling requires considerable memory.
