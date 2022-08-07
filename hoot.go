@@ -28,7 +28,7 @@ import (
 	"humungus.tedunangst.com/r/webs/htfilter"
 )
 
-var tweetsel = cascadia.MustCompile("div[itemProp=articleBody]")
+var tweetsel = cascadia.MustCompile("div[data-testid=tweetText]")
 var linksel = cascadia.MustCompile("a time")
 var replyingto = cascadia.MustCompile(".ReplyingToContextBelowAuthor")
 var imgsel = cascadia.MustCompile("div[data-testid=tweetPhoto] img")
@@ -66,7 +66,7 @@ func hootextractor(r io.Reader, url string, seen map[string]bool) string {
 	divs := tweetsel.MatchAll(root)
 	for i, div := range divs {
 		{
-			twp := div.Parent.Parent.Parent
+			twp := div.Parent.Parent.Parent.Parent.Parent
 			link := url
 			alink := linksel.MatchFirst(twp)
 			if alink == nil {
@@ -100,7 +100,7 @@ func hootextractor(r io.Reader, url string, seen map[string]bool) string {
 			continue
 		}
 
-		twp := div.Parent.Parent.Parent
+		twp := div.Parent.Parent.Parent.Parent.Parent
 		link := url
 		alink := linksel.MatchFirst(twp)
 		if alink == nil {
