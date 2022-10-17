@@ -2350,6 +2350,9 @@ func apihandler(w http.ResponseWriter, r *http.Request) {
 		case "home":
 			honks = gethonksforuser(userid, wanted)
 			honks = osmosis(honks, userid, true)
+		case "myhonks":
+			honks = gethonksbyuser(u.Username, true, wanted)
+			honks = osmosis(honks, userid, true)
 		default:
 			http.Error(w, "unknown page", http.StatusNotFound)
 			return
