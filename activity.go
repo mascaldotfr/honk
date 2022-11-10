@@ -1328,6 +1328,9 @@ var oldjonks = cache.New(cache.Options{Filler: func(xid string) ([]byte, bool) {
 	}
 	donksforhonks([]*Honk{honk})
 	_, j := jonkjonk(user, honk)
+	if j == nil {
+		elog.Fatalf("what just happened? %v", honk)
+	}
 	j["@context"] = itiswhatitis
 
 	return j.ToBytes(), true
