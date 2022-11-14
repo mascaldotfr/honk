@@ -411,7 +411,7 @@ func gimmexonks(user *WhatAbout, outbox string) {
 				if ok {
 					j, err = GetJunk(user.ID, page1)
 					if err != nil {
-						ilog.Printf("error gettings page1: %s", err)
+						ilog.Printf("error getting page1: %s", err)
 						return
 					}
 					items, _ = j.GetArray("orderedItems")
