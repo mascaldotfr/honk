@@ -255,12 +255,8 @@ func deluser(username string) {
 	doordie(db, "delete from users where userid = ?", userid)
 }
 
-func chpass() {
-	if len(os.Args) < 3 {
-		fmt.Printf("need a username\n")
-		os.Exit(1)
-	}
-	user, err := butwhatabout(os.Args[2])
+func chpass(username string) {
+	user, err := butwhatabout(username)
 	if err != nil {
 		elog.Fatal(err)
 	}
