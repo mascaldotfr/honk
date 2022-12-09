@@ -1091,6 +1091,30 @@ func cleanupdb(arg string) {
 	}
 }
 
+func getusercount() int {
+	row := stmtGetUserCount.QueryRow()
+	var count int
+	row.Scan(&count)
+	return count
+}
+
+func getactiveusercount(monthsago int) int {
+	origin := time.Now().AddDate(0, -monthsago, 0).UTC().Format(dbtimeformat)
+	row := stmtGetActiveUserCount.QueryRow(origin)
+
+	var count int
+	row.Scan(&count)
+	return count
+}
+
+func getlocalhonkcount() int {
+	row := stmtGetLocalHonkCount.QueryRow()
+
+	var count int
+	row.Scan(&count)
+	return count
+}
+
 var stmtHonkers, stmtDubbers, stmtNamedDubbers, stmtSaveHonker, stmtUpdateFlavor, stmtUpdateHonker *sql.Stmt
 var stmtDeleteHonker *sql.Stmt
 var stmtAnyXonk, stmtOneXonk, stmtPublicHonks, stmtUserHonks, stmtHonksByCombo, stmtHonksByConvoy *sql.Stmt
@@ -1109,6 +1133,9 @@ var stmtSaveMeta, stmtDeleteAllMeta, stmtDeleteOneMeta, stmtDeleteSomeMeta, stmt
 var stmtHonksISaved, stmtGetFilters, stmtSaveFilter, stmtDeleteFilter *sql.Stmt
 var stmtGetTracks *sql.Stmt
 var stmtSaveChonk, stmtLoadChonks, stmtGetChatters *sql.Stmt
+var stmtGetUserCount *sql.Stmt
+var stmtGetActiveUserCount *sql.Stmt
+var stmtGetLocalHonkCount *sql.Stmt
 
 func preparetodie(db *sql.DB, s string) *sql.Stmt {
 	stmt, err := db.Prepare(s)
@@ -1194,4 +1221,7 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveChonk = preparetodie(db, "insert into chonks (userid, xid, who, target, dt, noise, format) values (?, ?, ?, ?, ?, ?, ?)")
 	stmtLoadChonks = preparetodie(db, "select chonkid, userid, xid, who, target, dt, noise, format from chonks where userid = ? and dt > ? order by chonkid asc")
 	stmtGetChatters = preparetodie(db, "select distinct(target) from chonks where userid = ?")
+	stmtGetUserCount = preparetodie(db, "select count(*) from users where userid > 0")
+	stmtGetActiveUserCount = preparetodie(db, "select count(distinct honker) from honks where whofore = 2 and dt > ?")
+	stmtGetLocalHonkCount = preparetodie(db, "select count(*) from honks where whofore = 2")
 }

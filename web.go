@@ -2098,6 +2098,49 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 	j.Write(w)
 }
 
+func knowninformation(w http.ResponseWriter, r *http.Request) {
+	j := junk.New()
+	l := junk.New()
+
+	l["rel"] = `http://nodeinfo.diaspora.software/ns/schema/2.0`
+	l["href"] = fmt.Sprintf("https://%s/nodeinfo/2.0", serverName)
+	j["links"] = []junk.Junk{l}
+
+	w.Header().Set("Content-Type", "application/json")
+	j.Write(w)
+}
+
+func actualinformation(w http.ResponseWriter, r *http.Request) {
+	j := junk.New()
+
+	soft := junk.New()
+	soft["name"] = "honk"
+	soft["version"] = softwareVersion
+
+	services := junk.New()
+	services["inbound"] = []string{}
+	services["outbound"] = []string{"rss2.0"}
+
+	users := junk.New()
+	users["total"] = getusercount()
+	users["activeHalfyear"] = getactiveusercount(6)
+	users["activeMonth"] = getactiveusercount(1)
+
+	usage := junk.New()
+	usage["users"] = users
+	usage["localPosts"] = getlocalhonkcount()
+
+	j["version"] = "2.0"
+	j["protocols"] = []string{"activitypub"}
+	j["software"] = soft
+	j["services"] = services
+	j["openRegistrations"] = false
+	j["usage"] = usage
+
+	w.Header().Set("Content-Type", "application/json")
+	j.Write(w)
+}
+
 func somedays() string {
 	secs := 432000 + notrand.Int63n(432000)
 	return fmt.Sprintf("%d", secs)
@@ -2498,6 +2541,8 @@ func serve() {
 	getters.HandleFunc("/emu/{emu:[^.]*[^/]+}", serveemu)
 	getters.HandleFunc("/meme/{meme:[^.]*[^/]+}", servememe)
 	getters.HandleFunc("/.well-known/webfinger", fingerlicker)
+	getters.HandleFunc("/.well-known/nodeinfo", knowninformation)
+	getters.HandleFunc("/nodeinfo/2.0", actualinformation)
 
 	getters.HandleFunc("/flag/{code:.+}", showflag)
 
