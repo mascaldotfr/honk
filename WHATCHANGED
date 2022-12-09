@@ -1,0 +1,8 @@
+# SUMMARY OF CHANGES FOR THEBUS.TOP
+
+Please see the "assets" directory for local.css as well, as i prefer to keep the original css unchanged.
+
+- shrink images way way more, all images are < 100k and 600x600 max:  16b4745b952e09a8d84832ae6942d851eb5df0d8
+- nodeinfo support (not from me):  722a5b8f2cc88af6b75f8382e25f9f67b94997a2
+- dirty hack for consistent links in headers: 12280bd9f13b61c9031ccac599e8cf49ca4d1218
+
