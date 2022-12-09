@@ -8,7 +8,7 @@
 {{ if $bonkcsrf }}
 <a class="honkerlink" href="/h?xid={{ .Honker }}" data-xid="{{ .Honker }}">
 {{ else }}
-<a href="{{ .Honker }}" rel=noreferrer>
+<a class="honkerlink" href="{{ .Honker }}" rel=noreferrer>
 {{ end }}
 <img alt="" src="/a?a={{ .Honker}}">
 </a>
@@ -16,7 +16,7 @@
 {{ if $bonkcsrf }}
 <a class="honkerlink" href="/h?xid={{ .Oonker }}" data-xid="{{ .Oonker }}">
 {{ else }}
-<a href="{{ .Oonker }}" rel=noreferrer>
+<a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>
 {{ end }}
 <img alt="" src="/a?a={{ .Oonker}}">
 </a>
@@ -25,29 +25,25 @@
 {{ if $bonkcsrf }}
 <a class="honkerlink" href="/h?xid={{ .Honker }}" data-xid="{{ .Honker }}">{{ .Username }}</a>
 {{ else }}
-<a href="{{ .Honker }}" rel=noreferrer>{{ .Username }}</a>
+<a class="honkerlink" href="{{ .Honker }}" rel=noreferrer>{{ .Username }}</a>
 {{ end }}
-<span class="clip"><a href="{{ .URL }}" rel=noreferrer>{{ .What }}</a> {{ .Date.Local.Format "02 Jan 2006 15:04 -0700" }}</span>
+<span class="clip"><a href="{{ .URL }}" rel=noreferrer>{{ .What }}</a> <span class="date">{{ .Date.Local.Format "02 Jan 2006 15:04 -0700" }}</span></span>
 {{ if .Oonker }}
 <br>
 <span style="margin-left: 1em;" class="clip">
 {{ if $bonkcsrf }}
 original: <a class="honkerlink" href="/h?xid={{ .Oonker }}" data-xid="{{ .Oonker }}">{{ .Oondle }}</a>
 {{ else }}
-original: <a href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }}</a>
+original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }}</a>
 {{ end }}
 </span>
 {{ else }}
 {{ if .RID }}
 <br>
 <span style="margin-left: 1em;" class="clip">
-in reply to: <a href="{{ .RID }}" rel=noreferrer>{{ .RID }}</a>
+<a href="{{ .RID }}" rel=noreferrer>dame</a> - <a class="convoylink" href="/t?c={{ .Convoy }}">skein</a></span>
 </span>
 {{ end }}
-{{ end }}
-<br>
-{{ if $bonkcsrf }}
-<span style="margin-left: 1em;" class="clip">convoy: <a class="convoylink" href="/t?c={{ .Convoy }}">{{ .Convoy }}</a></span>
 {{ end }}
 </header>
 <p>
