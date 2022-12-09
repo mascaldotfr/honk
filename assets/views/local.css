@@ -1,0 +1,86 @@
+html {
+	--bg-page: #020a18;
+	--bg-dark: #071c2f;
+	--fg: #fdf6e3;
+	--hl: #93a1a1;
+	--fg-subtle: #eee8d5;
+	--fg-limited: #eee8d5;
+	--header: #b1e2ff;
+	--headerlink: #b1b6ff;
+	--width: 800px;
+}
+body {
+	font-size: 100% !important;
+	line-height: unset !important;
+}
+main {	
+	max-width: var(--width);
+	font-size: 100% ;
+}
+body > header {
+	font-size: 100%;
+	max-width: var(--width);
+	margin-left: auto;
+}
+body > header p {
+	display: none;
+}
+div.contact {
+	margin-left: 2em;
+}
+header > details {
+	background: var(--bg-page);
+	padding: .25em;
+	display: inline;
+	position: relative;
+	overflow: auto;
+	opacity: 0.7;
+	overscroll-behavior: contain;
+	max-width: 800px;
+}
+a > img { 
+	display: none;
+}
+.info {
+	border: unset;
+	padding: 1em;
+}
+.honk {
+	border-radius: 0;
+	border: unset;
+	margin-bottom: 1em;
+}
+.honk header {
+	font-size: 100%;
+	height: unset;
+	white-space: normal;
+	border-bottom: 1px solid var(--hl);
+	padding: 0px;
+	margin-bottom: 0px;
+}
+.honk header .clip {
+	height: auto;
+	color: var(--header);
+	margin: .2em;
+}
+.honk header .clip a, .contact a{
+	color: var(--header);
+}
+details.noise > a, .subtle .noise a, .honk a {
+	color: var(--header);
+}
+.honkerlink, header > p > a[class=""], span > a[class=""] /* honkerlink removed by javascript ...*/ {
+	font-weight: bold !important;
+	color: var(--fg) !important;
+	text-decoration: none !important;
+}
+.date {
+	color: var(--fg);
+}
+.subtle .noise {
+	font-size: 100%;
+}
+.honk details.actions summary {
+	color: var(--headerlink);
+}
+
