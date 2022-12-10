@@ -5,19 +5,12 @@
 {{ $omitimages := .OmitImages }}
 {{ with .Honk }}
 <header>
-{{ if $bonkcsrf }}
-<a class="honkerlink" href="/h?xid={{ .Honker }}" data-xid="{{ .Honker }}">
-{{ else }}
-<a class="honkerlink" href="{{ .Honker }}" rel=noreferrer>
-{{ end }}
-</a>
 {{ if .Oonker }}
 {{ if $bonkcsrf }}
 <a class="honkerlink" href="/h?xid={{ .Oonker }}" data-xid="{{ .Oonker }}">
 {{ else }}
 <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>
 {{ end }}
-<!-- <img alt="" src="/a?a={{ .Oonker}}"> -->
 </a>
 {{ end }}
 <p>
@@ -50,13 +43,6 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 <summary>{{ .HTPrecis }}</summary>
 {{ .HTPrecis }}
 <p class="content">{{ .HTML }}
-{{ with .Time }}
-<p>Time: {{ .StartTime.Local.Format "03:04PM EDT Mon Jan 02"}}
-{{ if .Duration }}<br>Duration: {{ .Duration }}{{ end }}
-{{ end }}
-{{ with .Place }}
-<p>Location: {{ with .Url }}<a href="{{ . }}" rel=noreferrer>{{ end }}{{ .Name }}{{ if .Url }}</a>{{ end }}{{ if or .Latitude .Longitude }} <a href="{{ if eq $maplink "apple" }}https://maps.apple.com/?q={{ or .Name "here" }}&z=16&ll={{ .Latitude }},{{ .Longitude }}{{ else }}https://www.openstreetmap.org/?mlat={{ .Latitude }}&mlon={{ .Longitude}}#map=16/{{ .Latitude }}/{{ .Longitude }}{{ end }}" rel=noreferrer>{{ .Latitude }} {{ .Longitude }}</a>{{ end }}
-{{ end }}
 {{ range .Donks }}
 {{ if .Local }}
 {{ if eq .Media "text/plain" }}
