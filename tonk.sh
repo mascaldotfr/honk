@@ -7,7 +7,7 @@ make clean
 make
 make test || exit 1
 trap "cd ${testdir} && rm -rf assets honk views honk.db* blob.db*" 2 3
-cp -a honk views assets/views	"${testdir}"
+cp -a honk views data/views "${testdir}"
 cd "${testdir}"
 printf "mascal\nmascal\n${server}\n${server}\n" | ./honk init
 ./honk
