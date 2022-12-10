@@ -366,6 +366,13 @@ function fillcheckin() {
 //
 // End of vanilla honk
 //
+function insertAtCursor (input, textToInsert) {
+  const value = input.value;
+  const start = input.selectionStart;
+  const end = input.selectionEnd;
+  input.value = value.slice(0, start) + textToInsert + value.slice(end);
+  input.selectionStart = input.selectionEnd = start + textToInsert.length;
+}
 emojo = [",(｡•́︿•̀｡)", "(>‿◠)", "(/^▽^)/", "ʕ •ᴥ•ʔ", "(≖_≖ )", "(˚ ˃̣̣̥⌓˂̣̣̥ )", "୧(๑•̀ᗝ•́)૭", "(ᵔ◡ᵔ)",
 	"(⌒_⌒;)", "(⁄ ⁄•⁄ω⁄•⁄ ⁄)", "((╬◣﹏◢))", "┐('～`;)┌", "(^_-)", "( ~*-*)~", "ε=ε=┌( >_<)┘",
 	"(ˇ▽ˇ)ノ♪♬♫"];
@@ -384,5 +391,5 @@ document.getElementById("emojiselect").addEventListener("change", function() {
 	if (!honknoise) {
 		return;
 	}
-	honknoise.value += this.value;
+	insertAtCursor(honknoise, this.value);
 });
