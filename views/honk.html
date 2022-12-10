@@ -45,10 +45,10 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 {{ end }}
 {{ end }}
 </header>
-<p>
+<hr />
 <details class="noise" {{ .Open }} >
 <summary>{{ .HTPrecis }}</summary>
-<p>{{ .HTPrecis }}
+{{ .HTPrecis }}
 <p class="content">{{ .HTML }}
 {{ with .Time }}
 <p>Time: {{ .StartTime.Local.Format "03:04PM EDT Mon Jan 02"}}

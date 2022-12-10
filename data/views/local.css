@@ -86,6 +86,12 @@ header > details {
 details.noise > a, .subtle .noise a, .honk a {
 	color: var(--header);
 }
+.honk hr {
+	margin-top: 0px;
+	height: 0px;
+	border: 1px;
+	background-color: var(--hl);
+}
 .honkerlink, header > p > a[class=""], span > a[class=""] /* honkerlink removed by javascript ...*/ {
 	font-weight: bold !important;
 	color: var(--fg) !important;
