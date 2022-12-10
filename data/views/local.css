@@ -92,7 +92,7 @@ details.noise > a, .subtle .noise a, .honk a {
 	border: 1px;
 	background-color: var(--hl);
 }
-.honkerlink, header > p > a[class=""] /* honkerlink removed by javascript ...*/ {
+header > p > a.honkerlink, header > p > a[class=""] /* honkerlink removed by javascript ...*/ {
 	font-weight: bold !important;
 	color: var(--fg) !important;
 	text-decoration: none !important;
