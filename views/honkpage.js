@@ -363,3 +363,26 @@ function fillcheckin() {
 		}, gpsoptions)
 	}
 }
+//
+// End of vanilla honk
+//
+emojo = [",(｡•́︿•̀｡)", "(>‿◠)", "(/^▽^)/", "ʕ •ᴥ•ʔ", "(≖_≖ )", "(˚ ˃̣̣̥⌓˂̣̣̥ )", "୧(๑•̀ᗝ•́)૭", "(ᵔ◡ᵔ)",
+	"(⌒_⌒;)", "(⁄ ⁄•⁄ω⁄•⁄ ⁄)", "((╬◣﹏◢))", "┐('～`;)┌", "(^_-)", "( ~*-*)~", "ε=ε=┌( >_<)┘",
+	"(ˇ▽ˇ)ノ♪♬♫"];
+window.addEventListener("load", function() {
+	const emojiselect = document.querySelector("#emojiselect");
+	if (!emojiselect) {
+		return;
+	}
+	for (const emoji of emojo) {
+		emojiselect.insertAdjacentHTML("beforeend", 
+			`<option value="${emoji}">${emoji}</option>`);
+	}
+});
+document.getElementById("emojiselect").addEventListener("change", function() {
+	const honknoise = document.querySelector("#honknoise");
+	if (!honknoise) {
+		return;
+	}
+	honknoise.value += this.value;
+});
