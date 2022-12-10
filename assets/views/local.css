@@ -28,6 +28,13 @@ body > header p {
 div.contact {
 	margin-left: 2em;
 }
+#honkformhost {
+	display: flex;
+	justify-content: space-around;
+	align-content: stretch;
+	flex-wrap: wrap;
+	flex-direction: column;
+}
 header > details {
 	background: var(--bg-page);
 	padding: .25em;

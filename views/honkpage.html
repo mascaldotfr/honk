@@ -34,10 +34,6 @@ function playit(elem, word, wordlist, xid) {
 {{ end }}
 </div>
 {{ if and .HonkCSRF (not .IsPreview) }}
-<div class="info" id="refreshbox">
-<p><button onclick="refreshhonks(this)">refresh</button><span></span>
-<button onclick="oldestnewest(this)">scroll down</button>
-</div>
 {{ if eq .ServerMessage "one honk maybe more" }} <script> hideelement("refreshbox")</script> {{ end }}
 {{ end }}
 <div id="honksonpage">

@@ -1,5 +1,8 @@
-<p id="honkformhost">
+<div id="honkformhost">
 <button id="honkingtime" onclick="return showhonkform();" {{ if .IsPreview }}style="display:none"{{ end }}><a href="/newhonk">it's honking time</a></button>
+<button onclick="refreshhonks(this)">refresh</button>
+<button onclick="oldestnewest(this)">scroll down</button>
+</div>
 <form id="honkform" action="/honk" method="POST" enctype="multipart/form-data" {{ if not .IsPreview }}style="display: none"{{ end }}>
 <input type="hidden" name="CSRF" value="{{ .HonkCSRF }}">
 <input type="hidden" name="updatexid" id="updatexidinput" value = "{{ .UpdateXID }}">
