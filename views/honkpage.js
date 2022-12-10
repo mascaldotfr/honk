@@ -257,12 +257,8 @@ function relinklinks() {
 	el.onclick = pageswitcher("home", "")
 	el = document.getElementById("atmelink")
 	el.onclick = pageswitcher("atme", "")
-	el = document.getElementById("firstlink")
-	el.onclick = pageswitcher("first", "")
 	el = document.getElementById("savedlink")
 	el.onclick = pageswitcher("saved", "")
-	el = document.getElementById("longagolink")
-	el.onclick = pageswitcher("longago", "")
 	relinklinks()
 	window.onpopstate = statechanger
 	history.replaceState(curpagestate, "some title", "")
