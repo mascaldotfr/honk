@@ -346,9 +346,11 @@ function fillcheckin() {
 		}, gpsoptions)
 	}
 }
-//
-// End of vanilla honk
-//
+
+/*
+ * Bonus
+ */
+
 function insertAtCursor (input, textToInsert) {
   const value = input.value;
   const start = input.selectionStart;

@@ -109,7 +109,7 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 {{ end }}
 <button onclick="return showhonkform(this, '{{ .Honk.XID }}', '{{ .Honk.Handles }}');"><a href="/newhonk?rid={{ .Honk.XID }}">honk back</a></button>
 <button onclick="return muteit(this, '{{ .Honk.Convoy }}');">mute</button>
-<button onclick="return showelement('evenmore{{ .Honk.ID }}')">even more</button>
+<button onclick="this.style.display='none';return showelement('evenmore{{ .Honk.ID }}')">even more</button>
 </div>
 <div id="evenmore{{ .Honk.ID }}" style="display:none">
 <button onclick="return zonkit(this, '{{ .Honk.XID }}');">zonk</button>
