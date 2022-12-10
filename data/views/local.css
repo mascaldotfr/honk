@@ -62,6 +62,25 @@ header > details {
 	border: unset;
 	padding: 1em;
 }
+details#topmenu ul li {
+	flex-basis: calc(25%);
+	text-align: left;
+	padding: 0px;
+	margin: .5em;
+}
+details#topmenu ul {
+	list-style-type: none;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	padding: 0;
+	align-items: initial;
+}
+details#topmenu form input {
+	width: 100%;
+	margin-bottom: 1em;
+	padding: 0;
+}
 .honk {
 	border-radius: 0;
 	border: unset;
