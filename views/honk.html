@@ -64,11 +64,7 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 {{ else if eq .Media "application/pdf" }}
 <p><a href="/d/{{ .XID }}">Attachment: {{ .Name }}</a>{{ if not (eq .Desc .Name) }} {{ .Desc }}{{ end }}
 {{ else }}
-{{ if $omitimages }}
 <p><a href="/d/{{ .XID }}">Image: {{ .Name }}</a>{{ if not (eq .Desc .Name) }} {{ .Desc }}{{ end }}
-{{ else }}
-<p><img src="/d/{{ .XID }}" title="{{ .Desc }}" alt="{{ .Desc }}" loading="lazy">
-{{ end }}
 {{ end }}
 {{ else }}
 {{ if .External }}
