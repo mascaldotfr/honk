@@ -54,9 +54,6 @@ header > details {
 	overscroll-behavior: contain;
 	max-width: 800px;
 }
-a > img { 
-	display: none;
-}
 .info div {
 	margin-top: unset;
 	margin-bottom: unset;
