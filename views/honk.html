@@ -10,7 +10,6 @@
 {{ else }}
 <a class="honkerlink" href="{{ .Honker }}" rel=noreferrer>
 {{ end }}
-<img alt="" src="/a?a={{ .Honker}}">
 </a>
 {{ if .Oonker }}
 {{ if $bonkcsrf }}
@@ -18,7 +17,7 @@
 {{ else }}
 <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>
 {{ end }}
-<img alt="" src="/a?a={{ .Oonker}}">
+<!-- <img alt="" src="/a?a={{ .Oonker}}"> -->
 </a>
 {{ end }}
 <p>
@@ -68,7 +67,7 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 {{ if $omitimages }}
 <p><a href="/d/{{ .XID }}">Image: {{ .Name }}</a>{{ if not (eq .Desc .Name) }} {{ .Desc }}{{ end }}
 {{ else }}
-<p><img src="/d/{{ .XID }}" title="{{ .Desc }}" alt="{{ .Desc }}">
+<p><img src="/d/{{ .XID }}" title="{{ .Desc }}" alt="{{ .Desc }}" loading="lazy">
 {{ end }}
 {{ end }}
 {{ else }}
@@ -78,7 +77,7 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 {{ if eq .Media "video/mp4" }}
 <p><video controls src="{{ .URL }}">{{ .Name }}</video>
 {{ else }}
-<p><img src="{{ .URL }}" title="{{ .Desc }}" alt="{{ .Desc }}">
+<p><img src="{{ .URL }}" title="{{ .Desc }}" alt="{{ .Desc }}" loading="lazy">
 {{ end }}
 {{ end }}
 {{ end }}
