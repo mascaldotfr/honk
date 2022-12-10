@@ -21,6 +21,10 @@ h1, h2 {
 	font-size: x-large;
 	margin-top: unset;
 }
+#topmenu {
+	max-width: 800px;
+	display: block;
+}
 body > header {
 	font-size: 100%;
 	max-width: var(--width);
