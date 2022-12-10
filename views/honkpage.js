@@ -318,30 +318,6 @@ function updatedonker() {
 	var el = document.getElementById("saveddonkxid")
 	el.value = ""
 }
-var checkinprec = 100.0
-var gpsoptions = {
-	enableHighAccuracy: false,
-	timeout: 1000,
-	maximumAge: 0
-};
-function fillcheckin() {
-	if (navigator.geolocation) {
-		navigator.geolocation.getCurrentPosition(function(pos) {
-			showelement("placedescriptor")
-			var el = document.getElementById("placelatinput")
-			el.value = Math.round(pos.coords.latitude * checkinprec) / checkinprec
-			el = document.getElementById("placelonginput")
-			el.value = Math.round(pos.coords.longitude * checkinprec) / checkinprec
-			checkinprec = 10000.0
-			gpsoptions.enableHighAccuracy = true
-			gpsoptions.timeout = 2000
-		}, function(err) {
-			showelement("placedescriptor")
-			el = document.getElementById("placenameinput")
-			el.value = err.message
-		}, gpsoptions)
-	}
-}
 
 /*
  * Bonus
