@@ -106,4 +106,17 @@ header > p > a.honkerlink, header > p > a[class=""] /* honkerlink removed by jav
 .honk details.actions summary {
 	color: var(--headerlink);
 }
-
+.honk .baseactions, div[id^="evenmore"] {
+	display: flex;
+	justify-content: center;
+	flex-flow: row wrap;
+}
+.actions button > a {
+	color: var(--fg);
+}
+.honk .actions button {
+	margin-left: 5px;
+	margin-top: 1em;
+	display: inline;
+	flex: auto;
+}

@@ -323,7 +323,7 @@ function showelement(el) {
 	if (typeof(el) == "string")
 		el = document.getElementById(el)
 	if (!el) return
-	el.style.display = "block"
+	el.style.display = "flex"
 }
 function hideelement(el) {
 	if (typeof(el) == "string")

@@ -97,8 +97,7 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 <p>
 <details class="actions">
 <summary>Actions</summary>
-<div>
-<p>
+<div class="baseactions">
 {{ if .Honk.Public }}
 {{ if .Honk.IsBonked }}
 <button onclick="return unbonk(this, '{{ .Honk.XID }}');">unbonk</button>
@@ -113,7 +112,6 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 <button onclick="return showelement('evenmore{{ .Honk.ID }}')">even more</button>
 </div>
 <div id="evenmore{{ .Honk.ID }}" style="display:none">
-<p>
 <button onclick="return zonkit(this, '{{ .Honk.XID }}');">zonk</button>
 {{ if .Honk.IsAcked }}
 <button onclick="return flogit(this, 'deack', '{{ .Honk.XID }}');">deack</button>
