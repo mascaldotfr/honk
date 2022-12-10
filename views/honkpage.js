@@ -153,12 +153,6 @@ function hydrargs() {
 	}
 	return args
 }
-function refreshupdate(msg) {
-	var el = document.querySelector("#refreshbox p span")
-	if (el) {
-		el.innerHTML = msg
-	}
-}
 function refreshhonks(btn) {
 	removeglow()
 	btn.innerHTML = "refreshing"
@@ -169,16 +163,9 @@ function refreshhonks(btn) {
 	get("/hydra?" + encode(args), function(xhr) {
 		btn.innerHTML = "refresh"
 		btn.disabled = false
-		if (xhr.status == 200) {
-			var lenhonks = fillinhonks(xhr, true)
-			refreshupdate(" " + lenhonks + " new")
-		} else {
-			refreshupdate(" status: " + xhr.status)
-		}
 	}, function(xhr, e) {
 		btn.innerHTML = "refresh"
 		btn.disabled = false
-		refreshupdate(" timed out")
 	})
 }
 function statechanger(evt) {
@@ -199,7 +186,6 @@ function switchtopage(name, arg) {
 		msg.remove()
 		servermsgs[stash] = msg
 	}
-	showelement("refreshbox")
 
 	honksforpage[stash] = holder
 
@@ -221,14 +207,11 @@ function switchtopage(name, arg) {
 		get("/hydra?" + encode(args), function(xhr) {
 			if (xhr.status == 200) {
 				var lenhonks = fillinhonks(xhr, false)
-			} else {
-				refreshupdate(" status: " + xhr.status)
 			}
 		}, function(xhr, e) {
-			refreshupdate(" timed out")
+			return	
 		})
 	}
-	refreshupdate("")
 }
 function newpagestate(name, arg) {
 	return { "name": name, "arg": arg }
