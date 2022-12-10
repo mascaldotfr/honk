@@ -17,6 +17,10 @@ main {
 	max-width: var(--width);
 	font-size: 100% ;
 }
+h1, h2 {
+	font-size: x-large;
+	margin-top: unset;
+}
 body > header {
 	font-size: 100%;
 	max-width: var(--width);
@@ -26,7 +30,8 @@ body > header p {
 	display: none;
 }
 div.contact {
-	margin-left: 2em;
+	text-align: center;
+	font-style: italic;
 }
 #honkformhost button {
 	display: inline;
