@@ -238,12 +238,14 @@ function pageswitcher(name, arg) {
 function relinklinks() {
 	var els = document.getElementsByClassName("convoylink")
 	while (els.length) {
-		els[0].onclick = pageswitcher("convoy", els[0].text)
+		els[0].onclick = pageswitcher("convoy", 
+			decodeURIComponent(els[0].search.replace(/\?c=/, "")));
 		els[0].classList.remove("convoylink")
 	}
 	els = document.getElementsByClassName("combolink")
 	while (els.length) {
-		els[0].onclick = pageswitcher("combo", els[0].text)
+		els[0].onclick = pageswitcher("combo", 
+			decodeURIComponent(els[0].search.replace(/\?c=/, "")));
 		els[0].classList.remove("combolink")
 	}
 	els = document.getElementsByClassName("honkerlink")
