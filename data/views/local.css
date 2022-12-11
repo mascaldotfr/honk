@@ -43,6 +43,11 @@ div.contact {
 	text-align: center;
 	margin: 5px;
 }
+button#honkingtime a {
+	text-align: center;
+	display: block;
+	margin: 0 auto;
+}
 #honkformhost {
 	display: flex;
 	justify-content: center;
