@@ -163,6 +163,9 @@ function refreshhonks(btn) {
 	get("/hydra?" + encode(args), function(xhr) {
 		btn.innerHTML = "refresh"
 		btn.disabled = false
+		if (xhr.status == 200) {
+			fillinhonks(xhr, true)
+		}
 	}, function(xhr, e) {
 		btn.innerHTML = "refresh"
 		btn.disabled = false
@@ -206,10 +209,9 @@ function switchtopage(name, arg) {
 		var args = hydrargs()
 		get("/hydra?" + encode(args), function(xhr) {
 			if (xhr.status == 200) {
-				var lenhonks = fillinhonks(xhr, false)
+				fillinhonks(xhr, false)
 			}
 		}, function(xhr, e) {
-			return	
 		})
 	}
 }
