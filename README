@@ -1,3 +1,31 @@
+Local changes:
+
+(if you want just the front end change, pick up the data/ and views/ directory, it
+should be enough)
+
+Backend:
+
+- Nodeinfo support so the rest of fediverse knows that honk exists :)
+- Progressive web app support so it looks like a native app on smartphones
+- Reduce images to 600x600 max, and less than 100KB.
+
+Fontend:
+(look at my instance anyway)
+
+- Drop avatar display
+- Don't display images for everyone, just put links
+- Add *text* emoji picker
+- Peaceful dark blue theme with decent contrast, normal font size and color for
+  all the honks.
+- "Semi material" UI, with CSS flex where needed. As the result it's skinnier
+  than vanilla honk and tidier.
+- Menu has been simplified, with some links to stuff i don't use removed and is
+  inline with the rest of the page. Notably the "places" and "events" feature
+  have been totally zapped from the frontend.
+  The "combos" and "zones" are just hidden.
+
+=======================================================================
+
 honk
 
 -- features
