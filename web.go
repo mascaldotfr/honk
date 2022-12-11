@@ -2502,6 +2502,8 @@ func serve() {
 			dataDir + "/views/local.css",
 			viewDir + "/views/honkpage.js",
 			dataDir + "/views/local.js",
+			viewDir + "/views/manifest.webmanifest",
+			viewDir + "/views/sw.js",
 		}
 		for _, s := range assets {
 			savedassetparams[s] = getassetparam(s)
@@ -2551,12 +2553,14 @@ func serve() {
 	posters.HandleFunc("/inbox", serverinbox)
 
 	getters.HandleFunc("/style.css", serveviewasset)
+	getters.HandleFunc("/sw.js", serveviewasset)
 	getters.HandleFunc("/honkpage.js", serveviewasset)
 	getters.HandleFunc("/wonk.js", serveviewasset)
 	getters.HandleFunc("/local.css", servedataasset)
 	getters.HandleFunc("/local.js", servedataasset)
 	getters.HandleFunc("/icon.png", servedataasset)
 	getters.HandleFunc("/favicon.ico", servedataasset)
+	getters.HandleFunc("/manifest.webmanifest", serveviewasset)
 
 	getters.HandleFunc("/about", servehtml)
 	getters.HandleFunc("/login", servehtml)

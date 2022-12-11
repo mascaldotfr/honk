@@ -1,0 +1,15 @@
+{
+  "background_color": "#020a18",
+  "description": "honk.thebus.top",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "128x118",
+      "type": "image/png"
+    }
+  ],
+  "name": "honk",
+  "short_name": "honk",
+  "start_url": "/"
+}
