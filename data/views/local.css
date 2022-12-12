@@ -41,7 +41,6 @@ div.contact {
 	display: inline;
 	flex: auto;
 	text-align: center;
-	margin: 5px;
 }
 button#honkingtime a {
 	text-align: center;
@@ -52,6 +51,18 @@ button#honkingtime a {
 	display: flex;
 	justify-content: center;
 	flex-flow: row wrap;
+	gap: 10px;
+}
+#honkform p.buttonarray {
+    display: flex;
+    max-width: 600px; /* same as text area */
+    justify-content: space-evenly;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.buttonarray button, .buttonarray > span {
+    flex-grow: 1;
+    margin-top: 1em;
 }
 header > details {
 	background: var(--bg-page);
