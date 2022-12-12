@@ -326,35 +326,3 @@ function updatedonker() {
 	var el = document.getElementById("saveddonkxid")
 	el.value = ""
 }
-
-/*
- * Bonus
- */
-
-function insertAtCursor (input, textToInsert) {
-  const value = input.value;
-  const start = input.selectionStart;
-  const end = input.selectionEnd;
-  input.value = value.slice(0, start) + textToInsert + value.slice(end);
-  input.selectionStart = input.selectionEnd = start + textToInsert.length;
-}
-emojo = [",(｡•́︿•̀｡)", "(>‿◠)", "(/^▽^)/", "ʕ •ᴥ•ʔ", "(≖_≖ )", "(˚ ˃̣̣̥⌓˂̣̣̥ )", "୧(๑•̀ᗝ•́)૭", "(ᵔ◡ᵔ)",
-	"(⌒_⌒;)", "(⁄ ⁄•⁄ω⁄•⁄ ⁄)", "((╬◣﹏◢))", "┐('～`;)┌", "(^_-)", "( ~*-*)~", "ε=ε=┌( >_<)┘",
-	"(ˇ▽ˇ)ノ♪♬♫"];
-window.addEventListener("load", function() {
-	const emojiselect = document.querySelector("#emojiselect");
-	if (!emojiselect) {
-		return;
-	}
-	for (const emoji of emojo) {
-		emojiselect.insertAdjacentHTML("beforeend", 
-			`<option value="${emoji}">${emoji}</option>`);
-	}
-});
-document.getElementById("emojiselect").addEventListener("change", function() {
-	const honknoise = document.querySelector("#honknoise");
-	if (!honknoise) {
-		return;
-	}
-	insertAtCursor(honknoise, this.value);
-});

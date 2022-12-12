@@ -14,7 +14,6 @@ Fontend:
 
 - Drop avatar display
 - Don't display images for everyone, just put links
-- Add *text* emoji picker
 - Peaceful dark blue theme with decent contrast, normal font size and color for
   all the honks.
 - "Semi material" UI, with CSS flex where needed. As the result it's skinnier
