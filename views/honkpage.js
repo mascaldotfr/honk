@@ -133,7 +133,11 @@ function fillinhonks(xhr, glowit) {
 		} else {
 			holder.append(h)
 		}
-			
+	}
+	var newhonks = document.getElementsByClassName("glow")
+	if (newhonks.length > 0) {
+		let oldesthonk = newhonks[newhonks.length - 1]
+		oldesthonk.scrollIntoView({ behavior: "auto", block: "end" })
 	}
 	relinklinks()
 	return lenhonks
