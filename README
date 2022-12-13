@@ -7,7 +7,7 @@ Backend:
 
 - Nodeinfo support so the rest of fediverse knows that honk exists :)
 - Progressive web app support so it looks like a native app on smartphones
-- Reduce images to 600x600 max, and less than 100KB.
+- Reduce images to 1200x1200 max, and less than 300KB.
 
 Fontend:
 (look at my instance anyway)
