@@ -1,5 +1,6 @@
 {
   "background_color": "#020a18",
+  "theme_color": "#020a18",
   "description": "honk.thebus.top",
   "display": "standalone",
   "icons": [
