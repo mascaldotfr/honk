@@ -22,7 +22,6 @@ Fontend:
   inline with the rest of the page. Notably the "places" and "events" feature
   have been totally zapped from the frontend.
   The "combos" and "zones" are just hidden.
-- auto refresh when the tab or PWA is visible again
 - scroll down automatically to the "oldest newest" honk after a refresh
 
 =======================================================================

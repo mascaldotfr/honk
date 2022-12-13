@@ -326,6 +326,3 @@ function updatedonker() {
 	var el = document.getElementById("saveddonkxid")
 	el.value = ""
 }
-document.addEventListener("visibilitychange", () => {
-	if (! document.hidden) refreshhonks(document.getElementById("refreshhonks"))
-})
