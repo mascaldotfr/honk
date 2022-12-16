@@ -1320,7 +1320,7 @@ var oldjonks = cache.New(cache.Options{Filler: func(xid string) ([]byte, bool) {
 	}
 	user, _ := butwhatabout(honk.Username)
 	rawhonks := gethonksbyconvoy(honk.UserID, honk.Convoy, 0)
-	//reversehonks(rawhonks)
+	reversehonks(rawhonks)
 	for _, h := range rawhonks {
 		if h.RID == honk.XID && h.Public && (h.Whofore == 2 || h.IsAcked()) {
 			honk.Replies = append(honk.Replies, h)
