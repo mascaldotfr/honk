@@ -774,7 +774,7 @@ func showconvoy(w http.ResponseWriter, r *http.Request) {
 		templinfo["TopHID"] = honks[0].ID
 	}
 	honks = osmosis(honks, u.UserID, false)
-	reversehonks(honks)
+	//reversehonks(honks)
 	templinfo["PageName"] = "convoy"
 	templinfo["PageArg"] = c
 	templinfo["ServerMessage"] = "honks in convoy: " + c
@@ -1056,7 +1056,7 @@ func showonehonk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rawhonks := gethonksbyconvoy(honk.UserID, honk.Convoy, 0)
-	reversehonks(rawhonks)
+	//reversehonks(rawhonks)
 	var honks []*Honk
 	for _, h := range rawhonks {
 		if h.XID == xid && len(honks) != 0 {
