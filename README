@@ -1,3 +1,5 @@
+A stripped down, text centric fork of honk.
+
 Local changes:
 
 (if you want just the front end change, pick up the data/ and views/ directory, it
@@ -7,9 +9,13 @@ Backend:
 
 - Nodeinfo support so the rest of fediverse knows that honk exists :)
 - Progressive web app support so it looks like a native app on smartphones
-- Reduce images to 1200x1200 max, and less than 300KB.
+- Single worker in the backend pool. honk is very
+  lightweight itself, but images conversions are memory expensive.
+  This reduces memory usage when converting several big images in a single honk,
+  at the cost of longer treatment time. This avoids swaping on instances with
+  512MB of RAM or less
 
-Fontend:
+Frontend:
 (look at my instance anyway)
 
 - Drop avatar display
@@ -21,7 +27,6 @@ Fontend:
 - Menu has been simplified, with some links to stuff i don't use removed and is
   inline with the rest of the page. Notably the "places" and "events" feature
   have been totally zapped from the frontend.
-  The "combos" and "zones" are just hidden.
 - scroll down automatically to the "oldest newest" honk after a refresh
 
 =======================================================================

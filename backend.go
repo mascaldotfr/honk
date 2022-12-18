@@ -38,7 +38,7 @@ type ShrinkerResult struct {
 	Image *image.Image
 }
 
-var shrinkgate = gate.NewLimiter(4)
+var shrinkgate = gate.NewLimiter(1)
 
 func (s *Shrinker) Shrink(args *ShrinkerArgs, res *ShrinkerResult) error {
 	shrinkgate.Start()
@@ -64,7 +64,7 @@ func shrinkit(data []byte) (*image.Image, error) {
 	var res ShrinkerResult
 	err = cl.Call("Shrinker.Shrink", &ShrinkerArgs{
 		Buf:    data,
-		Params: image.Params{LimitSize: 4200 * 4200, MaxWidth: 1200, MaxHeight: 1200, MaxSize: 300 * 1024},
+		Params: image.Params{LimitSize: 4200 * 4200,  MaxWidth: 2048, MaxHeight: 2048},
 	}, &res)
 	if err != nil {
 		return nil, err
