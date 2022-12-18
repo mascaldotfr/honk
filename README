@@ -2,19 +2,8 @@ A stripped down, text centric fork of honk.
 
 Local changes:
 
-(if you want just the front end change, pick up the data/ and views/ directory, it
-should be enough)
-
-Backend:
-
-- Nodeinfo support so the rest of fediverse knows that honk exists :)
-- Progressive web app support so it looks like a native app on smartphones
-- Single worker in the backend pool. honk is very
-  lightweight itself, but images conversions are memory expensive.
-  This reduces memory usage when converting several big images in a single honk,
-  at the cost of longer treatment time. This avoids swaping on instances with
-  512MB of RAM or less
-- drop hoot feature (twitter integration)
+You just want the front end change, pick up the data/ and views/ directory.
+Backend changes are mostly cursed :) I don't advise to pick them up.
 
 Frontend:
 (look at my instance anyway)
@@ -29,6 +18,19 @@ Frontend:
   inline with the rest of the page. Notably the "places" and "events" feature
   have been totally zapped from the frontend.
 - scroll down automatically to the "oldest newest" honk after a refresh
+
+Backend:
+
+- Nodeinfo support so the rest of fediverse knows that honk exists :)
+- Progressive web app support so it looks like a native app on smartphones
+- Don't save external content, link it with description instead (yeah that's mean)
+- Single worker in the backend pool. honk is very
+  lightweight itself, but images conversions are memory expensive.
+  This reduces memory usage when converting several big images in a single honk,
+  at the cost of longer treatment time. This avoids swaping on instances with
+  512MB of RAM or less
+- drop hoot feature (twitter integration)
+
 
 =======================================================================
 

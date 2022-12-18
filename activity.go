@@ -825,7 +825,6 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if desc == "" {
 					desc = name
 				}
-				localize := false
 				if numatts > 4 {
 					ilog.Printf("excessive attachment: %s", at)
 				} else if at == "Document" || at == "Image" {
@@ -833,18 +832,12 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					dlog.Printf("attachment: %s %s", mt, u)
 					if mt == "text/plain" || mt == "application/pdf" ||
 						strings.HasPrefix(mt, "image") {
-						localize = true
 					}
 				} else {
 					ilog.Printf("unknown attachment: %s", at)
 				}
-				if skipMedia(&xonk) {
-					localize = false
-				}
-				donk := savedonk(u, name, desc, mt, localize)
-				if donk != nil {
-					xonk.Donks = append(xonk.Donks, donk)
-				}
+				xonk.Noise += fmt.Sprintf("<p><a href=\"%s\" rel=\"noreferer\">Image: %s</a></p>", u, desc)
+				ilog.Printf("created attachment link")
 				numatts++
 			}
 			atts, _ := obj.GetArray("attachment")
