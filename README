@@ -14,6 +14,7 @@ Backend:
   This reduces memory usage when converting several big images in a single honk,
   at the cost of longer treatment time. This avoids swaping on instances with
   512MB of RAM or less
+- drop hoot feature (twitter integration)
 
 Frontend:
 (look at my instance anyway)
