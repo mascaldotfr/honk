@@ -147,37 +147,6 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	honkpage(w, u, honks, templinfo)
 }
 
-func showfunzone(w http.ResponseWriter, r *http.Request) {
-	var emunames, memenames []string
-	emuext := make(map[string]string)
-	dir, err := os.Open(dataDir + "/emus")
-	if err == nil {
-		emunames, _ = dir.Readdirnames(0)
-		dir.Close()
-	}
-	for i, e := range emunames {
-		if len(e) > 4 {
-			emunames[i] = e[:len(e)-4]
-			emuext[emunames[i]] = e[len(e)-4:]
-		}
-	}
-	dir, err = os.Open(dataDir + "/memes")
-	if err == nil {
-		memenames, _ = dir.Readdirnames(0)
-		dir.Close()
-	}
-	sort.Strings(emunames)
-	sort.Strings(memenames)
-	templinfo := getInfo(r)
-	templinfo["Emus"] = emunames
-	templinfo["Emuext"] = emuext
-	templinfo["Memes"] = memenames
-	err = readviews.Execute(w, "funzone.html", templinfo)
-	if err != nil {
-		elog.Print(err)
-	}
-}
-
 func showrss(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 
@@ -1134,32 +1103,6 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	options.Reaction = r.FormValue("reaction")
 
 	sendupdate := false
-	ava := re_avatar.FindString(whatabout)
-	if ava != "" {
-		whatabout = re_avatar.ReplaceAllString(whatabout, "")
-		ava = ava[7:]
-		if ava[0] == ' ' {
-			ava = ava[1:]
-		}
-		ava = fmt.Sprintf("https://%s/meme/%s", serverName, ava)
-	}
-	if ava != options.Avatar {
-		options.Avatar = ava
-		sendupdate = true
-	}
-	ban := re_banner.FindString(whatabout)
-	if ban != "" {
-		whatabout = re_banner.ReplaceAllString(whatabout, "")
-		ban = ban[7:]
-		if ban[0] == ' ' {
-			ban = ban[1:]
-		}
-		ban = fmt.Sprintf("https://%s/meme/%s", serverName, ban)
-	}
-	if ban != options.Banner {
-		options.Banner = ban
-		sendupdate = true
-	}
 	whatabout = strings.TrimSpace(whatabout)
 	if whatabout != user.About {
 		sendupdate = true
@@ -1483,88 +1426,6 @@ func canedithonk(user *WhatAbout, honk *Honk) bool {
 	return true
 }
 
-func submitdonk(w http.ResponseWriter, r *http.Request) (*Donk, error) {
-	if !strings.HasPrefix(strings.ToLower(r.Header.Get("Content-Type")), "multipart/form-data") {
-		return nil, nil
-	}
-	file, filehdr, err := r.FormFile("donk")
-	if err != nil {
-		if err == http.ErrMissingFile {
-			return nil, nil
-		}
-		elog.Printf("error reading donk: %s", err)
-		http.Error(w, "error reading donk", http.StatusUnsupportedMediaType)
-		return nil, err
-	}
-	var buf bytes.Buffer
-	io.Copy(&buf, file)
-	file.Close()
-	data := buf.Bytes()
-	var media, name string
-	img, err := shrinkit(data)
-	if err == nil {
-		data = img.Data
-		format := img.Format
-		media = "image/" + format
-		if format == "jpeg" {
-			format = "jpg"
-		}
-		name = xfiltrate() + "." + format
-	} else {
-		ct := http.DetectContentType(data)
-		switch ct {
-		case "application/pdf":
-			maxsize := 10000000
-			if len(data) > maxsize {
-				ilog.Printf("bad image: %s too much pdf: %d", err, len(data))
-				http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
-				return nil, err
-			}
-			media = ct
-			name = filehdr.Filename
-			if name == "" {
-				name = xfiltrate() + ".pdf"
-			}
-		default:
-			maxsize := 100000
-			if len(data) > maxsize {
-				ilog.Printf("bad image: %s too much text: %d", err, len(data))
-				http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
-				return nil, err
-			}
-			for i := 0; i < len(data); i++ {
-				if data[i] < 32 && data[i] != '\t' && data[i] != '\r' && data[i] != '\n' {
-					ilog.Printf("bad image: %s not text: %d", err, data[i])
-					http.Error(w, "didn't like your attachment", http.StatusUnsupportedMediaType)
-					return nil, err
-				}
-			}
-			media = "text/plain"
-			name = filehdr.Filename
-			if name == "" {
-				name = xfiltrate() + ".txt"
-			}
-		}
-	}
-	desc := strings.TrimSpace(r.FormValue("donkdesc"))
-	if desc == "" {
-		desc = name
-	}
-	fileid, xid, err := savefileandxid(name, desc, "", media, true, data)
-	if err != nil {
-		elog.Printf("unable to save image: %s", err)
-		http.Error(w, "failed to save attachment", http.StatusUnsupportedMediaType)
-		return nil, err
-	}
-	d := &Donk{
-		FileID: fileid,
-		XID:    xid,
-		Desc:   desc,
-		Local:  true,
-	}
-	return d, nil
-}
-
 func submitwebhonk(w http.ResponseWriter, r *http.Request) {
 	h := submithonk(w, r)
 	if h == nil {
@@ -1675,16 +1536,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 	honk.Convoy = convoy
 
 	donkxid := r.FormValue("donkxid")
-	if donkxid == "" {
-		d, err := submitdonk(w, r)
-		if err != nil && err != http.ErrMissingFile {
-			return nil
-		}
-		if d != nil {
-			honk.Donks = append(honk.Donks, d)
-			donkxid = d.XID
-		}
-	} else {
+	if donkxid != "" {
 		xid := donkxid
 		url := fmt.Sprintf("https://%s/d/%s", serverName, xid)
 		donk := finddonk(url)
@@ -1694,8 +1546,6 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 			ilog.Printf("can't find file: %s", xid)
 		}
 	}
-	memetize(honk)
-	imaginate(honk)
 
 	placename := strings.TrimSpace(r.FormValue("placename"))
 	placelat := strings.TrimSpace(r.FormValue("placelat"))
@@ -1844,13 +1694,6 @@ func submitchonk(w http.ResponseWriter, r *http.Request) {
 		Date:   dt,
 		Noise:  noise,
 		Format: format,
-	}
-	d, err := submitdonk(w, r)
-	if err != nil && err != http.ErrMissingFile {
-		return
-	}
-	if d != nil {
-		ch.Donks = append(ch.Donks, d)
 	}
 
 	translatechonk(&ch)
@@ -2026,12 +1869,6 @@ func accountpage(w http.ResponseWriter, r *http.Request) {
 	templinfo["LogoutCSRF"] = login.GetCSRF("logout", r)
 	templinfo["User"] = user
 	about := user.About
-	if ava := user.Options.Avatar; ava != "" {
-		about += "\n\navatar: " + ava[strings.LastIndexByte(ava, '/')+1:]
-	}
-	if ban := user.Options.Banner; ban != "" {
-		about += "\n\nbanner: " + ban[strings.LastIndexByte(ban, '/')+1:]
-	}
 	templinfo["WhatAbout"] = about
 	err := readviews.Execute(w, "account.html", templinfo)
 	if err != nil {
@@ -2198,18 +2035,6 @@ func servehtml(w http.ResponseWriter, r *http.Request) {
 		elog.Print(err)
 	}
 }
-func serveemu(w http.ResponseWriter, r *http.Request) {
-	emu := mux.Vars(r)["emu"]
-
-	w.Header().Set("Cache-Control", "max-age="+somedays())
-	http.ServeFile(w, r, dataDir+"/emus/"+emu)
-}
-func servememe(w http.ResponseWriter, r *http.Request) {
-	meme := mux.Vars(r)["meme"]
-
-	w.Header().Set("Cache-Control", "max-age="+somedays())
-	http.ServeFile(w, r, dataDir+"/memes/"+meme)
-}
 
 func servefile(w http.ResponseWriter, r *http.Request) {
 	xid := mux.Vars(r)["xid"]
@@ -2349,83 +2174,6 @@ func honkhonkline() {
 	}
 }
 
-func apihandler(w http.ResponseWriter, r *http.Request) {
-	u := login.GetUserInfo(r)
-	userid := u.UserID
-	action := r.FormValue("action")
-	wait, _ := strconv.ParseInt(r.FormValue("wait"), 10, 0)
-	dlog.Printf("api request '%s' on behalf of %s", action, u.Username)
-	switch action {
-	case "honk":
-		h := submithonk(w, r)
-		if h == nil {
-			return
-		}
-		w.Write([]byte(h.XID))
-	case "donk":
-		d, err := submitdonk(w, r)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		if d == nil {
-			http.Error(w, "missing donk", http.StatusBadRequest)
-			return
-		}
-		w.Write([]byte(d.XID))
-	case "zonkit":
-		zonkit(w, r)
-	case "gethonks":
-		var honks []*Honk
-		wanted, _ := strconv.ParseInt(r.FormValue("after"), 10, 0)
-		page := r.FormValue("page")
-		var waitchan <-chan time.Time
-	requery:
-		switch page {
-		case "atme":
-			honks = gethonksforme(userid, wanted)
-			honks = osmosis(honks, userid, false)
-			menewnone(userid)
-		case "longago":
-			honks = gethonksfromlongago(userid, wanted)
-			honks = osmosis(honks, userid, false)
-		case "home":
-			honks = gethonksforuser(userid, wanted)
-			honks = osmosis(honks, userid, true)
-		case "myhonks":
-			honks = gethonksbyuser(u.Username, true, wanted)
-			honks = osmosis(honks, userid, true)
-		default:
-			http.Error(w, "unknown page", http.StatusNotFound)
-			return
-		}
-		if len(honks) == 0 && wait > 0 {
-			if waitchan == nil {
-				waitchan = time.After(time.Duration(wait) * time.Second)
-			}
-			select {
-			case <-honkline:
-				goto requery
-			case <-waitchan:
-			}
-		}
-		reverbolate(userid, honks)
-		j := junk.New()
-		j["honks"] = honks
-		j.Write(w)
-	case "sendactivity":
-		user, _ := butwhatabout(u.Username)
-		public := r.FormValue("public") == "1"
-		rcpts := boxuprcpts(user, r.Form["rcpt"], public)
-		msg := []byte(r.FormValue("msg"))
-		for rcpt := range rcpts {
-			go deliverate(0, userid, rcpt, msg, true)
-		}
-	default:
-		http.Error(w, "unknown action", http.StatusNotFound)
-		return
-	}
-}
 
 var endoftheworld = make(chan bool)
 var readyalready = make(chan bool)
@@ -2469,7 +2217,6 @@ func serve() {
 	if err != nil {
 		elog.Fatal(err)
 	}
-	runBackendServer()
 	go enditall()
 	go redeliverator()
 	go tracker()
@@ -2487,7 +2234,6 @@ func serve() {
 		viewDir+"/views/honk.html",
 		viewDir+"/views/account.html",
 		viewDir+"/views/about.html",
-		viewDir+"/views/funzone.html",
 		viewDir+"/views/login.html",
 		viewDir+"/views/xzone.html",
 		viewDir+"/views/msg.html",
@@ -2517,8 +2263,6 @@ func serve() {
 	mux := mux.NewRouter()
 	mux.Use(login.Checker)
 
-	mux.Handle("/api", login.TokenRequired(http.HandlerFunc(apihandler)))
-
 	posters := mux.Methods("POST").Subrouter()
 	getters := mux.Methods("GET").Subrouter()
 
@@ -2539,8 +2283,6 @@ func serve() {
 	getters.HandleFunc("/o", thelistingoftheontologies)
 	getters.HandleFunc("/o/{name:.+}", showontology)
 	getters.HandleFunc("/d/{xid:[\\pL[:digit:].]+}", servefile)
-	getters.HandleFunc("/emu/{emu:[^.]*[^/]+}", serveemu)
-	getters.HandleFunc("/meme/{meme:[^.]*[^/]+}", servememe)
 	getters.HandleFunc("/.well-known/webfinger", fingerlicker)
 	getters.HandleFunc("/.well-known/nodeinfo", knowninformation)
 	getters.HandleFunc("/nodeinfo/2.0", actualinformation)
@@ -2567,8 +2309,6 @@ func serve() {
 	getters.HandleFunc("/logout", login.LogoutFunc)
 	getters.HandleFunc("/help/{name:[\\pL[:digit:]_.-]+}", servehelp)
 
-	getters.HandleFunc("/bloat/wonkles", servewonkles)
-
 	loggedin := mux.NewRoute().Subrouter()
 	loggedin.Use(login.Required)
 	loggedin.HandleFunc("/first", homepage)
@@ -2576,7 +2316,6 @@ func serve() {
 	loggedin.Handle("/sendchonk", login.CSRFWrap("sendchonk", http.HandlerFunc(submitchonk)))
 	loggedin.HandleFunc("/saved", homepage)
 	loggedin.HandleFunc("/account", accountpage)
-	loggedin.HandleFunc("/funzone", showfunzone)
 	loggedin.HandleFunc("/chpass", dochpass)
 	loggedin.HandleFunc("/atme", homepage)
 	loggedin.HandleFunc("/longago", homepage)

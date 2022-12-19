@@ -231,63 +231,6 @@ func fetchsome(url string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func savedonk(url string, name, desc, media string, localize bool) *Donk {
-	if url == "" {
-		return nil
-	}
-	if donk := finddonk(url); donk != nil {
-		return donk
-	}
-	ilog.Printf("saving donk: %s", url)
-	data := []byte{}
-	if localize {
-		fn := func() (interface{}, error) {
-			return fetchsome(url)
-		}
-		ii, err := flightdeck.Call(url, fn)
-		if err != nil {
-			ilog.Printf("error fetching donk: %s", err)
-			localize = false
-			goto saveit
-		}
-		data = ii.([]byte)
-
-		if len(data) == 10*1024*1024 {
-			ilog.Printf("truncation likely")
-		}
-		if strings.HasPrefix(media, "image") {
-			img, err := shrinkit(data)
-			if err != nil {
-				ilog.Printf("unable to decode image: %s", err)
-				localize = false
-				data = []byte{}
-				goto saveit
-			}
-			data = img.Data
-			media = "image/" + img.Format
-		} else if media == "application/pdf" {
-			if len(data) > 1000000 {
-				ilog.Printf("not saving large pdf")
-				localize = false
-				data = []byte{}
-			}
-		} else if len(data) > 100000 {
-			ilog.Printf("not saving large attachment")
-			localize = false
-			data = []byte{}
-		}
-	}
-saveit:
-	fileid, err := savefile(name, desc, url, media, localize, data)
-	if err != nil {
-		elog.Printf("error saving file %s: %s", url, err)
-		return nil
-	}
-	donk := new(Donk)
-	donk.FileID = fileid
-	return donk
-}
-
 func iszonked(userid int64, xid string) bool {
 	var id int64
 	row := stmtFindZonk.QueryRow(userid, xid)
@@ -775,12 +718,6 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				targ, _ := obj.GetString("target")
 				content += string(templates.Sprintf(`<p>Moved to <a href="%s">%s</a>`, targ, targ))
 			}
-			if ot == "GuessWord" {
-				what = "wonk"
-				content, _ = obj.GetString("content")
-				xonk.Wonkles, _ = obj.GetString("wordlist")
-				go savewonkles(xonk.Wonkles)
-			}
 			if what == "honk" && rid != "" {
 				what = "tonk"
 			}
@@ -836,7 +773,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				} else {
 					ilog.Printf("unknown attachment: %s", at)
 				}
-				xonk.Noise += fmt.Sprintf("<p><a href=\"%s\" rel=\"noreferer\">Image: %s</a></p>", u, desc)
+				xonk.Noise += fmt.Sprintf("<p><a href=\"%s\" rel=\"noreferrer\">Image: %s</a></p>", u, desc)
 				ilog.Printf("created attachment link")
 				numatts++
 			}
@@ -866,16 +803,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					desc = name
 				}
 				if tt == "Emoji" {
-					icon, _ := tag.GetMap("icon")
-					mt, _ := icon.GetString("mediaType")
-					if mt == "" {
-						mt = "image/png"
-					}
-					u, _ := icon.GetString("url")
-					donk := savedonk(u, name, desc, mt, true)
-					if donk != nil {
-						xonk.Donks = append(xonk.Donks, donk)
-					}
+					continue	
 				}
 				if tt == "Hashtag" {
 					if name == "" || name == "#" {
@@ -965,7 +893,6 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				xonk.Whofore = 1
 			}
 		}
-		imaginate(&xonk)
 
 		if what == "chonk" {
 			ch := Chonk{
@@ -1095,9 +1022,6 @@ func subsub(user *WhatAbout, xid string, owner string, folxid string) {
 func activatedonks(donks []*Donk) []junk.Junk {
 	var atts []junk.Junk
 	for _, d := range donks {
-		if re_emus.MatchString(d.Name) {
-			continue
-		}
 		jd := junk.New()
 		jd["mediaType"] = d.Media
 		jd["name"] = d.Name
@@ -1194,30 +1118,6 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			o = strings.ToLower(o)
 			t["href"] = fmt.Sprintf("https://%s/o/%s", serverName, o[1:])
 			t["name"] = o
-			tags = append(tags, t)
-		}
-		for _, e := range herdofemus(h.Noise) {
-			t := junk.New()
-			t["id"] = e.ID
-			t["type"] = "Emoji"
-			t["name"] = e.Name
-			i := junk.New()
-			i["type"] = "Image"
-			i["mediaType"] = e.Type
-			i["url"] = e.ID
-			t["icon"] = i
-			tags = append(tags, t)
-		}
-		for _, e := range fixupflags(h) {
-			t := junk.New()
-			t["id"] = e.ID
-			t["type"] = "Emoji"
-			t["name"] = e.Name
-			i := junk.New()
-			i["type"] = "Image"
-			i["mediaType"] = "image/png"
-			i["url"] = e.ID
-			t["icon"] = i
 			tags = append(tags, t)
 		}
 		if len(tags) > 0 {
@@ -1372,18 +1272,6 @@ func chonkifymsg(user *WhatAbout, ch *Chonk) []byte {
 		jo["attachment"] = atts
 	}
 	var tags []junk.Junk
-	for _, e := range herdofemus(ch.Noise) {
-		t := junk.New()
-		t["id"] = e.ID
-		t["type"] = "Emoji"
-		t["name"] = e.Name
-		i := junk.New()
-		i["type"] = "Image"
-		i["mediaType"] = e.Type
-		i["url"] = e.ID
-		t["icon"] = i
-		tags = append(tags, t)
-	}
 	if len(tags) > 0 {
 		jo["tag"] = tags
 	}

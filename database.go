@@ -1049,46 +1049,6 @@ func cleanupdb(arg string) {
 	for _, u := range allusers() {
 		doordie(db, "delete from zonkers where userid = ? and wherefore = 'zonvoy' and zonkerid < (select zonkerid from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 1 offset 200)", u.UserID, u.UserID)
 	}
-
-	filexids := make(map[string]bool)
-	blobdb := openblobdb()
-	rows, err := blobdb.Query("select xid from filedata")
-	if err != nil {
-		elog.Fatal(err)
-	}
-	for rows.Next() {
-		var xid string
-		err = rows.Scan(&xid)
-		if err != nil {
-			elog.Fatal(err)
-		}
-		filexids[xid] = true
-	}
-	rows.Close()
-	rows, err = db.Query("select xid from filemeta")
-	for rows.Next() {
-		var xid string
-		err = rows.Scan(&xid)
-		if err != nil {
-			elog.Fatal(err)
-		}
-		delete(filexids, xid)
-	}
-	rows.Close()
-	tx, err := blobdb.Begin()
-	if err != nil {
-		elog.Fatal(err)
-	}
-	for xid, _ := range filexids {
-		_, err = tx.Exec("delete from filedata where xid = ?", xid)
-		if err != nil {
-			elog.Fatal(err)
-		}
-	}
-	err = tx.Commit()
-	if err != nil {
-		elog.Fatal(err)
-	}
 }
 
 func getusercount() int {
@@ -1189,10 +1149,6 @@ func prepareStatements(db *sql.DB) {
 	stmtSaveDonk = preparetodie(db, "insert into donks (honkid, chonkid, fileid) values (?, ?, ?)")
 	stmtDeleteDonks = preparetodie(db, "delete from donks where honkid = ?")
 	stmtSaveFile = preparetodie(db, "insert into filemeta (xid, name, description, url, media, local) values (?, ?, ?, ?, ?, ?)")
-	blobdb := openblobdb()
-	stmtSaveFileData = preparetodie(blobdb, "insert into filedata (xid, media, hash, content) values (?, ?, ?, ?)")
-	stmtCheckFileData = preparetodie(blobdb, "select xid from filedata where hash = ?")
-	stmtGetFileData = preparetodie(blobdb, "select media, content from filedata where xid = ?")
 	stmtFindXonk = preparetodie(db, "select honkid from honks where userid = ? and xid = ?")
 	stmtFindFile = preparetodie(db, "select fileid, xid from filemeta where url = ? and local = 1")
 	stmtUserByName = preparetodie(db, "select userid, username, displayname, about, pubkey, seckey, options from users where username = ? and userid > 0")

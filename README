@@ -1,12 +1,10 @@
-A stripped down, text centric fork of honk.
+Text centric fork of honk, beware many things have been nuked. While it uses
+even way less resources than honk proper (no backend needed for starters), i
+don't recommend you to use it. If you have any doubt:
 
-Local changes:
-
-You just want the front end change, pick up the data/ and views/ directory.
-Backend changes are mostly cursed :) I don't advise to pick them up.
+DO NOT USE THIS FORK, THIS IS A VERY VERY STUPIDLY STRIPPED DOWN HONK.
 
 Frontend:
-(look at my instance anyway)
 
 - Drop avatar display
 - Don't display images for everyone, just put links
@@ -23,14 +21,16 @@ Backend:
 
 - Nodeinfo support so the rest of fediverse knows that honk exists :)
 - Progressive web app support so it looks like a native app on smartphones
-- Don't save external content, link it with description instead (yeah that's mean)
-- Single worker in the backend pool. honk is very
-  lightweight itself, but images conversions are memory expensive.
-  This reduces memory usage when converting several big images in a single honk,
-  at the cost of longer treatment time. This avoids swaping on instances with
-  512MB of RAM or less
-- drop hoot feature (twitter integration)
-
+- Nuke hoot feature (twitter integration)
+- Don't save external content, link it with description instead. It's actually
+  not a bad idea on a single user instance; you only download attachments that
+  you want to see from other instances
+- honk's backend has been totally removed, you can't upload attachments, use
+  emus, banners, custom avatars etc. As such, funzone has been nuked as well,
+  and data/blob.db is non existent.
+- API support removed due to previous change, so you can't use bots, and toys
+  are gone as well. Could be brought back with a new database schema and 
+  some code rewrite, but i won't bother.
 
 =======================================================================
 

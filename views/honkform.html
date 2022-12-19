@@ -9,15 +9,6 @@
 <input type="hidden" name="rid" id="ridinput" value="{{ .InReplyTo }}">
 <h3>let's make some noise</h3>
 <p>
-<details>
-<summary>more options</summary>
-<p>
-<label class=button id="donker">attach: <input onchange="updatedonker();" type="file" name="donk"><span>{{ .SavedFile }}</span></label>
-<input type="hidden" id="saveddonkxid" name="donkxid" value="{{ .SavedFile }}">
-<p id="donkdescriptor">
-<textarea name="donkdesc" value="{{ .DonkDesc }}" placeholder="media description..."></textarea>
-</details>
-<p>
 <textarea name="noise" id="honknoise" placeholder="Honk Noise!">{{ .Noise }}</textarea>
 <p class="buttonarray">
 <button>it's gonna be honked</button>

@@ -23,7 +23,6 @@ import (
 	"image"
 	"image/png"
 	"net/http"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -180,26 +179,3 @@ func showflag(writer http.ResponseWriter, req *http.Request) {
 	png.Encode(writer, img)
 }
 
-var re_flags = regexp.MustCompile("flag:[[:alnum:],]+")
-
-func fixupflags(h *Honk) []Emu {
-	var emus []Emu
-	count := 0
-	h.Noise = re_flags.ReplaceAllStringFunc(h.Noise, func(m string) string {
-		count++
-		var e Emu
-		e.Name = fmt.Sprintf(":flag%d:", count)
-		e.ID = fmt.Sprintf("https://%s/flag/%s", serverName, m[5:])
-		emus = append(emus, e)
-		return e.Name
-	})
-	return emus
-}
-
-func renderflags(h *Honk) {
-	h.Noise = re_flags.ReplaceAllStringFunc(h.Noise, func(m string) string {
-		code := m[5:]
-		src := fmt.Sprintf("https://%s/flag/%s", serverName, code)
-		return fmt.Sprintf(`<img class="emu" title="%s" src="%s">`, "flag", src)
-	})
-}

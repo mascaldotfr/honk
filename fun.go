@@ -21,9 +21,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"net/http"
 	"net/url"
-	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -81,9 +79,6 @@ func reverbolate(userid int64, honks []*Honk) {
 		if h.Whofore == 2 || h.Whofore == 3 {
 			local = true
 		}
-		if local && h.What != "bonked" {
-			h.Noise = re_memes.ReplaceAllString(h.Noise, "")
-		}
 		h.Username, h.Handle = handles(h.Honker)
 		if !local {
 			short := shortname(userid, h.Honker)
@@ -121,8 +116,6 @@ func reverbolate(userid int64, honks []*Honk) {
 		if h.Oonker != "" {
 			_, h.Oondle = handles(h.Oonker)
 		}
-		h.Precis = demoji(h.Precis)
-		h.Noise = demoji(h.Noise)
 		h.Open = "open"
 		for _, m := range h.Mentions {
 			if m.Where != h.Honker && !m.IsPresent(h.Noise) {
@@ -136,27 +129,8 @@ func reverbolate(userid int64, honks []*Honk) {
 			htf.Imager = replaceimgsand(zap, false)
 			htf.SpanClasses = allowedclasses
 			htf.BaseURL, _ = url.Parse(h.XID)
-			emuxifier := func(e string) string {
-				for _, d := range h.Donks {
-					if d.Name == e {
-						zap[d.XID] = true
-						if d.Local {
-							return fmt.Sprintf(`<img class="emu" title="%s" src="/d/%s">`, d.Name, d.XID)
-						}
-					}
-				}
-				if local && h.What != "bonked" {
-					var emu Emu
-					emucache.Get(e, &emu)
-					if emu.ID != "" {
-						return fmt.Sprintf(`<img class="emu" title="%s" src="%s">`, emu.Name, emu.ID)
-					}
-				}
-				return e
-			}
 			htf.FilterText = func(w io.Writer, data string) {
 				data = htfilter.EscapeText(data)
-				data = re_emus.ReplaceAllStringFunc(data, emuxifier)
 				io.WriteString(w, data)
 			}
 			p, _ := htf.String(h.Precis)
@@ -177,7 +151,6 @@ func reverbolate(userid int64, honks []*Honk) {
 	unsee(honks, userid)
 
 	for _, h := range honks {
-		renderflags(h)
 
 		h.HTPrecis = template.HTML(h.Precis)
 		h.HTML = template.HTML(h.Noise)
@@ -227,37 +200,6 @@ func filterchonk(ch *Chonk) {
 
 	noise := string(ch.HTML)
 
-	local := originate(ch.XID) == serverName
-
-	zap := make(map[string]bool)
-	emuxifier := func(e string) string {
-		for _, d := range ch.Donks {
-			if d.Name == e {
-				zap[d.XID] = true
-				if d.Local {
-					return fmt.Sprintf(`<img class="emu" title="%s" src="/d/%s">`, d.Name, d.XID)
-				}
-			}
-		}
-		if local {
-			var emu Emu
-			emucache.Get(e, &emu)
-			if emu.ID != "" {
-				return fmt.Sprintf(`<img class="emu" title="%s" src="%s">`, emu.Name, emu.ID)
-			}
-		}
-		return e
-	}
-	noise = re_emus.ReplaceAllStringFunc(noise, emuxifier)
-	j := 0
-	for i := 0; i < len(ch.Donks); i++ {
-		if !zap[ch.Donks[i].XID] {
-			ch.Donks[j] = ch.Donks[i]
-			j++
-		}
-	}
-	ch.Donks = ch.Donks[:j]
-
 	if strings.HasPrefix(noise, "<p>") {
 		noise = noise[3:]
 	}
@@ -268,26 +210,6 @@ func filterchonk(ch *Chonk) {
 		ch.Handle, _ = handles(ch.Who)
 	}
 
-}
-
-func inlineimgsfor(honk *Honk) func(node *html.Node) string {
-	return func(node *html.Node) string {
-		src := htfilter.GetAttr(node, "src")
-		alt := htfilter.GetAttr(node, "alt")
-		d := savedonk(src, "image", alt, "image", true)
-		if d != nil {
-			honk.Donks = append(honk.Donks, d)
-		}
-		dlog.Printf("inline img with src: %s", src)
-		return ""
-	}
-}
-
-func imaginate(honk *Honk) {
-	var htf htfilter.Filter
-	htf.Imager = inlineimgsfor(honk)
-	htf.BaseURL, _ = url.Parse(honk.XID)
-	htf.String(honk.Noise)
 }
 
 func translate(honk *Honk) {
@@ -337,7 +259,6 @@ func redoimages(honk *Honk) {
 	}
 	honk.Donks = honk.Donks[:j]
 
-	honk.Noise = re_memes.ReplaceAllString(honk.Noise, "")
 	honk.Noise = strings.Replace(honk.Noise, "<a href=", "<a class=\"mention u-url\" href=", -1)
 }
 
@@ -379,82 +300,6 @@ func bunchofgrapes(m []string) []Mention {
 		}
 	}
 	return mentions
-}
-
-type Emu struct {
-	ID   string
-	Name string
-	Type string
-}
-
-var re_emus = regexp.MustCompile(`:[[:alnum:]_-]+:`)
-
-var emucache = cache.New(cache.Options{Filler: func(ename string) (Emu, bool) {
-	fname := ename[1 : len(ename)-1]
-	exts := []string{".png", ".gif"}
-	for _, ext := range exts {
-		_, err := os.Stat(dataDir + "/emus/" + fname + ext)
-		if err != nil {
-			continue
-		}
-		url := fmt.Sprintf("https://%s/emu/%s%s", serverName, fname, ext)
-		return Emu{ID: url, Name: ename, Type: "image/" + ext[1:]}, true
-	}
-	return Emu{Name: ename, ID: "", Type: "image/png"}, true
-}, Duration: 10 * time.Second})
-
-func herdofemus(noise string) []Emu {
-	m := re_emus.FindAllString(noise, -1)
-	m = oneofakind(m)
-	var emus []Emu
-	for _, e := range m {
-		var emu Emu
-		emucache.Get(e, &emu)
-		if emu.ID == "" {
-			continue
-		}
-		emus = append(emus, emu)
-	}
-	return emus
-}
-
-var re_memes = regexp.MustCompile("meme: ?([^\n]+)")
-var re_avatar = regexp.MustCompile("avatar: ?([^\n]+)")
-var re_banner = regexp.MustCompile("banner: ?([^\n]+)")
-
-func memetize(honk *Honk) {
-	repl := func(x string) string {
-		name := x[5:]
-		if name[0] == ' ' {
-			name = name[1:]
-		}
-		fd, err := os.Open(dataDir + "/memes/" + name)
-		if err != nil {
-			ilog.Printf("no meme for %s", name)
-			return x
-		}
-		var peek [512]byte
-		n, _ := fd.Read(peek[:])
-		ct := http.DetectContentType(peek[:n])
-		fd.Close()
-
-		url := fmt.Sprintf("https://%s/meme/%s", serverName, name)
-		fileid, err := savefile(name, name, url, ct, false, nil)
-		if err != nil {
-			elog.Printf("error saving meme: %s", err)
-			return x
-		}
-		d := &Donk{
-			FileID: fileid,
-			Name:   name,
-			Media:  ct,
-			URL:    url,
-			Local:  false,
-		}
-		honk.Donks = append(honk.Donks, d)
-		return ""
-	}
-	honk.Noise = re_memes.ReplaceAllStringFunc(honk.Noise, repl)
 }
 
 var re_quickmention = regexp.MustCompile("(^|[ \n])@[[:alnum:]]+([ \n.]|$)")

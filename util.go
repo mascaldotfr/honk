@@ -114,8 +114,6 @@ func initdb() {
 	}
 	r := bufio.NewReader(os.Stdin)
 
-	initblobdb()
-
 	prepareStatements(db)
 
 	err = createuser(db, r)
@@ -168,40 +166,6 @@ func initdb() {
 	db.Close()
 	fmt.Printf("done.\n")
 	os.Exit(0)
-}
-
-func initblobdb() {
-	blobdbname := dataDir + "/blob.db"
-	_, err := os.Stat(blobdbname)
-	if err == nil {
-		elog.Fatalf("%s already exists", blobdbname)
-	}
-	blobdb, err := sql.Open("sqlite3", blobdbname)
-	if err != nil {
-		elog.Print(err)
-		return
-	}
-	_, err = blobdb.Exec("PRAGMA journal_mode=WAL")
-	if err != nil {
-		elog.Print(err)
-		return
-	}
-	_, err = blobdb.Exec("create table filedata (xid text, media text, hash text, content blob)")
-	if err != nil {
-		elog.Print(err)
-		return
-	}
-	_, err = blobdb.Exec("create index idx_filexid on filedata(xid)")
-	if err != nil {
-		elog.Print(err)
-		return
-	}
-	_, err = blobdb.Exec("create index idx_filehash on filedata(hash)")
-	if err != nil {
-		elog.Print(err)
-		return
-	}
-	blobdb.Close()
 }
 
 func adduser() {
@@ -392,19 +356,6 @@ func opendatabase() *sql.DB {
 		elog.Fatal(err)
 	}
 	alreadyopendb = db
-	return db
-}
-
-func openblobdb() *sql.DB {
-	blobdbname := dataDir + "/blob.db"
-	_, err := os.Stat(blobdbname)
-	if err != nil {
-		elog.Fatalf("unable to open database: %s", err)
-	}
-	db, err := sql.Open("sqlite3", blobdbname)
-	if err != nil {
-		elog.Fatalf("unable to open database: %s", err)
-	}
 	return db
 }
 
