@@ -31,7 +31,7 @@ import (
 	"humungus.tedunangst.com/r/webs/log"
 )
 
-var softwareVersion = "develop"
+var softwareVersion = "develop-muffled"
 
 func init() {
 	notrand.Seed(time.Now().Unix())
