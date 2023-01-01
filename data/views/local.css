@@ -11,8 +11,8 @@ html {
 }
 @media (prefers-color-scheme: light) {
 	html {
-		--bg-page: #866072;
-		--bg-dark: #ffe1bb;
+		--bg-page: #244982;
+		--bg-dark: #fffbf9;
 		--fg: #292d08;
 		--hl: #2c2649;
 		--fg-subtle: #000000;
