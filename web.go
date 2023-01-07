@@ -118,6 +118,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 			honks = gethonksforme(userid, 0)
 			honks = osmosis(honks, userid, false)
 			menewnone(userid)
+			templinfo["UserInfo"], _ = butwhatabout(u.Username)
 		case "/longago":
 			templinfo["ServerMessage"] = "long ago and far away!"
 			templinfo["PageName"] = "longago"
