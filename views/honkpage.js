@@ -103,12 +103,6 @@ function fillinhonks(xhr, glowit) {
 	} else {
 		mecount.innerHTML = ""
 	}
-	var chatcount = document.getElementById("chatcount")
-	if (resp.ChatCount) {
-		chatcount.innerHTML = "(" + resp.ChatCount + ")"
-	} else {
-		chatcount.innerHTML = ""
-	}
 
 	var srvel = document.getElementById("srvmsg")
 	while (srvel.children[0]) {
@@ -265,8 +259,6 @@ function relinklinks() {
 	el.onclick = pageswitcher("home", "")
 	el = document.getElementById("atmelink")
 	el.onclick = pageswitcher("atme", "")
-	el = document.getElementById("savedlink")
-	el.onclick = pageswitcher("saved", "")
 	relinklinks()
 	window.onpopstate = statechanger
 	history.replaceState(curpagestate, "some title", "")
