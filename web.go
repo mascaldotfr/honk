@@ -94,7 +94,10 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	var userid int64 = -1
 
 	templinfo["ServerMessage"] = serverMsg
-	if u != nil || r.URL.Path != "/front" {
+
+	if u == nil || r.URL.Path == "/front" {
+		honks = getpublichonks()
+	} else {
 		userid = u.UserID
 		switch r.URL.Path {
 		case "/atme":
