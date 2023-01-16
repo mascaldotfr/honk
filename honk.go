@@ -126,11 +126,6 @@ type Chonk struct {
 	HTML   template.HTML
 }
 
-type Chatter struct {
-	Target string
-	Chonks []*Chonk
-}
-
 type Mention struct {
 	Who   string
 	Where string

@@ -25,7 +25,6 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js') }
 <ul>
 <li><a id="homelink" href="/">home</a>
 <li><a id="atmelink" href="/atme">@me<span id=mecount>{{ if .UserInfo.Options.MeCount }}({{ .UserInfo.Options.MeCount }}){{ end }}</span></a>
-<li><a href="/chatter">chatter<span id=chatcount>{{ if .UserInfo.Options.ChatCount }}({{ .UserInfo.Options.ChatCount }}){{ end }}</span></a>
 <li><a href="/o">tags</a>
 <li><a id="savedlink" href="/saved">saved</a>
 <li><a href="/honkers">honkers</a>

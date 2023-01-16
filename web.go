@@ -515,10 +515,6 @@ func ximport(w http.ResponseWriter, r *http.Request) {
 			gimmexonks(user, outbox)
 			http.Redirect(w, r, "/h?xid="+url.QueryEscape(xid), http.StatusSeeOther)
 			return
-		} else if info.What == SomeCollection {
-			gimmexonks(user, xid)
-			http.Redirect(w, r, "/xzone", http.StatusSeeOther)
-			return
 		}
 	}
 	convoy := ""
@@ -526,33 +522,6 @@ func ximport(w http.ResponseWriter, r *http.Request) {
 		convoy = xonk.Convoy
 	}
 	http.Redirect(w, r, "/t?c="+url.QueryEscape(convoy), http.StatusSeeOther)
-}
-
-func xzone(w http.ResponseWriter, r *http.Request) {
-	u := login.GetUserInfo(r)
-	rows, err := stmtRecentHonkers.Query(u.UserID, u.UserID)
-	if err != nil {
-		elog.Printf("query err: %s", err)
-		return
-	}
-	defer rows.Close()
-	var honkers []Honker
-	for rows.Next() {
-		var xid string
-		rows.Scan(&xid)
-		honkers = append(honkers, Honker{XID: xid})
-	}
-	rows.Close()
-	for i, _ := range honkers {
-		_, honkers[i].Handle = handles(honkers[i].XID)
-	}
-	templinfo := getInfo(r)
-	templinfo["XCSRF"] = login.GetCSRF("ximport", r)
-	templinfo["Honkers"] = honkers
-	err = readviews.Execute(w, "xzone.html", templinfo)
-	if err != nil {
-		elog.Print(err)
-	}
 }
 
 var oldoutbox = cache.New(cache.Options{Filler: func(name string) ([]byte, bool) {
@@ -1592,61 +1561,6 @@ func showhonkers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func showchatter(w http.ResponseWriter, r *http.Request) {
-	u := login.GetUserInfo(r)
-	chatnewnone(u.UserID)
-	chatter := loadchatter(u.UserID)
-	for _, chat := range chatter {
-		for _, ch := range chat.Chonks {
-			filterchonk(ch)
-		}
-	}
-
-	templinfo := getInfo(r)
-	templinfo["Chatter"] = chatter
-	templinfo["ChonkCSRF"] = login.GetCSRF("sendchonk", r)
-	err := readviews.Execute(w, "chatter.html", templinfo)
-	if err != nil {
-		elog.Print(err)
-	}
-}
-
-func submitchonk(w http.ResponseWriter, r *http.Request) {
-	u := login.GetUserInfo(r)
-	user, _ := butwhatabout(u.Username)
-	noise := r.FormValue("noise")
-	target := r.FormValue("target")
-	format := "markdown"
-	dt := time.Now().UTC()
-	xid := fmt.Sprintf("%s/%s/%s", user.URL, "chonk", xfiltrate())
-
-	if !strings.HasPrefix(target, "https://") {
-		target = fullname(target, u.UserID)
-	}
-	if target == "" {
-		http.Error(w, "who is that?", http.StatusInternalServerError)
-		return
-	}
-	ch := Chonk{
-		UserID: u.UserID,
-		XID:    xid,
-		Who:    user.URL,
-		Target: target,
-		Date:   dt,
-		Noise:  noise,
-		Format: format,
-	}
-
-	translatechonk(&ch)
-	savechonk(&ch)
-	// reload for consistency
-	ch.Donks = nil
-	donksforchonks([]*Chonk{&ch})
-	go sendchonk(user, &ch)
-
-	http.Redirect(w, r, "/chatter", http.StatusSeeOther)
-}
-
 var combocache = cache.New(cache.Options{Filler: func(userid int64) ([]string, bool) {
 	honkers := gethonkers(userid)
 	var combos []string
@@ -2093,15 +2007,12 @@ func serve() {
 		viewDir+"/views/honkpage.html",
 		viewDir+"/views/honkfrags.html",
 		viewDir+"/views/honkers.html",
-		viewDir+"/views/chatter.html",
-		viewDir+"/views/hfcs.html",
 		viewDir+"/views/combos.html",
 		viewDir+"/views/honkform.html",
 		viewDir+"/views/honk.html",
 		viewDir+"/views/account.html",
 		viewDir+"/views/about.html",
 		viewDir+"/views/login.html",
-		viewDir+"/views/xzone.html",
 		viewDir+"/views/msg.html",
 		viewDir+"/views/header.html",
 		viewDir+"/views/onts.html",
@@ -2178,14 +2089,11 @@ func serve() {
 	loggedin := mux.NewRoute().Subrouter()
 	loggedin.Use(login.Required)
 	loggedin.HandleFunc("/first", homepage)
-	loggedin.HandleFunc("/chatter", showchatter)
-	loggedin.Handle("/sendchonk", login.CSRFWrap("sendchonk", http.HandlerFunc(submitchonk)))
 	loggedin.HandleFunc("/saved", homepage)
 	loggedin.HandleFunc("/account", accountpage)
 	loggedin.HandleFunc("/chpass", dochpass)
 	loggedin.HandleFunc("/atme", homepage)
 	loggedin.HandleFunc("/longago", homepage)
-	loggedin.HandleFunc("/xzone", xzone)
 	loggedin.HandleFunc("/newhonk", newhonkpage)
 	loggedin.HandleFunc("/edit", edithonkpage)
 	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(submitwebhonk)))

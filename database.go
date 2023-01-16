@@ -694,68 +694,6 @@ func menewnone(userid int64) {
 	somenumberedusers.Clear(user.ID)
 }
 
-func loadchatter(userid int64) []*Chatter {
-	duedt := time.Now().Add(-3 * 24 * time.Hour).UTC().Format(dbtimeformat)
-	rows, err := stmtLoadChonks.Query(userid, duedt)
-	if err != nil {
-		elog.Printf("error loading chonks: %s", err)
-		return nil
-	}
-	defer rows.Close()
-	chonks := make(map[string][]*Chonk)
-	var allchonks []*Chonk
-	for rows.Next() {
-		ch := new(Chonk)
-		var dt string
-		err = rows.Scan(&ch.ID, &ch.UserID, &ch.XID, &ch.Who, &ch.Target, &dt, &ch.Noise, &ch.Format)
-		if err != nil {
-			elog.Printf("error scanning chonk: %s", err)
-			continue
-		}
-		ch.Date, _ = time.Parse(dbtimeformat, dt)
-		chonks[ch.Target] = append(chonks[ch.Target], ch)
-		allchonks = append(allchonks, ch)
-	}
-	donksforchonks(allchonks)
-	rows.Close()
-	rows, err = stmtGetChatters.Query(userid)
-	if err != nil {
-		elog.Printf("error getting chatters: %s", err)
-		return nil
-	}
-	for rows.Next() {
-		var target string
-		err = rows.Scan(&target)
-		if err != nil {
-			elog.Printf("error scanning chatter: %s", target)
-			continue
-		}
-		if _, ok := chonks[target]; !ok {
-			chonks[target] = []*Chonk{}
-
-		}
-	}
-	var chatter []*Chatter
-	for target, chonks := range chonks {
-		chatter = append(chatter, &Chatter{
-			Target: target,
-			Chonks: chonks,
-		})
-	}
-	sort.Slice(chatter, func(i, j int) bool {
-		a, b := chatter[i], chatter[j]
-		if len(a.Chonks) == 0 || len(b.Chonks) == 0 {
-			if len(a.Chonks) == len(b.Chonks) {
-				return a.Target < b.Target
-			}
-			return len(a.Chonks) > len(b.Chonks)
-		}
-		return a.Chonks[len(a.Chonks)-1].Date.After(b.Chonks[len(b.Chonks)-1].Date)
-	})
-
-	return chatter
-}
-
 func savehonk(h *Honk) error {
 	dt := h.Date.UTC().Format(dbtimeformat)
 	aud := strings.Join(h.Audience, " ")

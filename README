@@ -33,6 +33,7 @@ Backend:
   some code rewrite, but i won't bother.
 - Drop filtering, let's live a dangerous life
 - Drop import
+- Drop chatter
 
 =======================================================================
 
