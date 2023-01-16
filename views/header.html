@@ -25,13 +25,10 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js') }
 <ul>
 <li><a id="homelink" href="/">home</a>
 <li><a id="atmelink" href="/atme">@me<span id=mecount>{{ if .UserInfo.Options.MeCount }}({{ .UserInfo.Options.MeCount }}){{ end }}</span></a>
-<li><a href="/o">tags</a>
-<li><a id="savedlink" href="/saved">saved</a>
 <li><a href="/honkers">honkers</a>
 <li><a href="/account">account</a>
 <li><a href="/{{ .UserSep }}/{{ .UserInfo.Name }}">my honks</a>
 <li><a href="/about">about</a>
-<li><a href="/c">combos</a>
 <li><a href="/front">front</a>
 </ul>
 <form action="/q" method="GET">
@@ -45,11 +42,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js') }
 {{ else }}
 <div id="topmenu">
 <span><a id="homelink" href="/">home</a></span>
-<span><a href="/o">tags</a></span>
 <span><a href="/about">about</a></span>
-{{ if .ShowRSS }}
-<span><a href="/rss">rss</a></span>
-{{ end }}
 <span><a href="/login">login</a></span>
 </div>
 {{ end }}

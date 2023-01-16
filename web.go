@@ -27,19 +27,16 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 	"syscall"
 	"time"
-	"unicode/utf8"
 
 	"github.com/gorilla/mux"
 	"humungus.tedunangst.com/r/webs/cache"
 	"humungus.tedunangst.com/r/webs/httpsig"
 	"humungus.tedunangst.com/r/webs/junk"
 	"humungus.tedunangst.com/r/webs/login"
-	"humungus.tedunangst.com/r/webs/rss"
 	"humungus.tedunangst.com/r/webs/templates"
 )
 
@@ -86,9 +83,6 @@ func getInfo(r *http.Request) map[string]interface{} {
 	if u := login.GetUserInfo(r); u != nil {
 		templinfo["UserInfo"], _ = butwhatabout(u.Username)
 		templinfo["UserStyle"] = getuserstyle(u)
-		var combos []string
-		combocache.Get(u.UserID, &combos)
-		templinfo["Combos"] = combos
 	}
 	return templinfo
 }
@@ -100,16 +94,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	var userid int64 = -1
 
 	templinfo["ServerMessage"] = serverMsg
-	if u == nil || r.URL.Path == "/front" {
-		switch r.URL.Path {
-		case "/events":
-			honks = geteventhonks(userid)
-			templinfo["ServerMessage"] = "some recent and upcoming events"
-		default:
-			templinfo["ShowRSS"] = true
-			honks = getpublichonks()
-		}
-	} else {
+	if u != nil || r.URL.Path != "/front" {
 		userid = u.UserID
 		switch r.URL.Path {
 		case "/atme":
@@ -118,20 +103,6 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 			honks = gethonksforme(userid, 0)
 			menewnone(userid)
 			templinfo["UserInfo"], _ = butwhatabout(u.Username)
-		case "/longago":
-			templinfo["ServerMessage"] = "long ago and far away!"
-			templinfo["PageName"] = "longago"
-			honks = gethonksfromlongago(userid, 0)
-		case "/events":
-			templinfo["ServerMessage"] = "some recent and upcoming events"
-			templinfo["PageName"] = "events"
-			honks = geteventhonks(userid)
-		case "/first":
-			templinfo["PageName"] = "first"
-			honks = gethonksforuserfirstclass(userid, 0)
-		case "/saved":
-			templinfo["ServerMessage"] = "saved honks"
-			templinfo["PageName"] = "saved"
 		default:
 			templinfo["PageName"] = "home"
 			honks = gethonksforuser(userid, 0)
@@ -140,79 +111,6 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	honkpage(w, u, honks, templinfo)
-}
-
-func showrss(w http.ResponseWriter, r *http.Request) {
-	name := mux.Vars(r)["name"]
-
-	var honks []*Honk
-	if name != "" {
-		honks = gethonksbyuser(name, false, 0)
-	} else {
-		honks = getpublichonks()
-	}
-	reverbolate(-1, honks)
-
-	home := fmt.Sprintf("https://%s/", serverName)
-	base := home
-	if name != "" {
-		home += "u/" + name
-		name += " "
-	}
-	feed := rss.Feed{
-		Title:       name + "honk",
-		Link:        home,
-		Description: name + "honk rss",
-		Image: &rss.Image{
-			URL:   base + "icon.png",
-			Title: name + "honk rss",
-			Link:  home,
-		},
-	}
-	var modtime time.Time
-	for _, honk := range honks {
-		if !firstclass(honk) {
-			continue
-		}
-		desc := string(honk.HTML)
-		if t := honk.Time; t != nil {
-			desc += fmt.Sprintf(`<p>Time: %s`, t.StartTime.Local().Format("03:04PM EDT Mon Jan 02"))
-			if t.Duration != 0 {
-				desc += fmt.Sprintf(`<br>Duration: %s`, t.Duration)
-			}
-		}
-		if p := honk.Place; p != nil {
-			desc += string(templates.Sprintf(`<p>Location: <a href="%s">%s</a> %f %f`,
-				p.Url, p.Name, p.Latitude, p.Longitude))
-		}
-		for _, d := range honk.Donks {
-			desc += string(templates.Sprintf(`<p><a href="%s">Attachment: %s</a>`,
-				d.URL, d.Desc))
-			if strings.HasPrefix(d.Media, "image") {
-				desc += string(templates.Sprintf(`<img src="%s">`, d.URL))
-			}
-		}
-
-		feed.Items = append(feed.Items, &rss.Item{
-			Title:       fmt.Sprintf("%s %s %s", honk.Username, honk.What, honk.XID),
-			Description: rss.CData{Data: desc},
-			Link:        honk.URL,
-			PubDate:     honk.Date.Format(time.RFC1123),
-			Guid:        &rss.Guid{IsPermaLink: true, Value: honk.URL},
-		})
-		if honk.Date.After(modtime) {
-			modtime = honk.Date
-		}
-	}
-	if !develMode {
-		w.Header().Set("Cache-Control", "max-age=300")
-		w.Header().Set("Last-Modified", modtime.Format(http.TimeFormat))
-	}
-
-	err := feed.Write(w)
-	if err != nil {
-		elog.Printf("error writing rss: %s", err)
-	}
 }
 
 func crappola(j junk.Junk) bool {
@@ -645,17 +543,6 @@ func showhonker(w http.ResponseWriter, r *http.Request) {
 	honkpage(w, u, honks, templinfo)
 }
 
-func showcombo(w http.ResponseWriter, r *http.Request) {
-	name := mux.Vars(r)["name"]
-	u := login.GetUserInfo(r)
-	honks := gethonksbycombo(u.UserID, name, 0)
-	templinfo := getInfo(r)
-	templinfo["PageName"] = "combo"
-	templinfo["PageArg"] = name
-	templinfo["ServerMessage"] = "honks by combo: " + name
-	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
-	honkpage(w, u, honks, templinfo)
-}
 func showconvoy(w http.ResponseWriter, r *http.Request) {
 	c := r.FormValue("c")
 	u := login.GetUserInfo(r)
@@ -681,90 +568,6 @@ func showsearch(w http.ResponseWriter, r *http.Request) {
 	templinfo["ServerMessage"] = "honks for search: " + q
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	honkpage(w, u, honks, templinfo)
-}
-func showontology(w http.ResponseWriter, r *http.Request) {
-	name := mux.Vars(r)["name"]
-	u := login.GetUserInfo(r)
-	var userid int64 = -1
-	if u != nil {
-		userid = u.UserID
-	}
-	honks := gethonksbyontology(userid, "#"+name, 0)
-	if friendorfoe(r.Header.Get("Accept")) {
-		if len(honks) > 40 {
-			honks = honks[0:40]
-		}
-
-		var xids []string
-		for _, h := range honks {
-			xids = append(xids, h.XID)
-		}
-
-		user := getserveruser()
-
-		j := junk.New()
-		j["@context"] = itiswhatitis
-		j["id"] = fmt.Sprintf("https://%s/o/%s", serverName, name)
-		j["name"] = "#" + name
-		j["attributedTo"] = user.URL
-		j["type"] = "OrderedCollection"
-		j["totalItems"] = len(xids)
-		j["orderedItems"] = xids
-
-		j.Write(w)
-		return
-	}
-
-	templinfo := getInfo(r)
-	templinfo["ServerMessage"] = "honks by ontology: " + name
-	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
-	honkpage(w, u, honks, templinfo)
-}
-
-type Ont struct {
-	Name  string
-	Count int64
-}
-
-func thelistingoftheontologies(w http.ResponseWriter, r *http.Request) {
-	u := login.GetUserInfo(r)
-	var userid int64 = -1
-	if u != nil {
-		userid = u.UserID
-	}
-	rows, err := stmtAllOnts.Query(userid)
-	if err != nil {
-		elog.Printf("selection error: %s", err)
-		return
-	}
-	defer rows.Close()
-	var onts []Ont
-	for rows.Next() {
-		var o Ont
-		err := rows.Scan(&o.Name, &o.Count)
-		if err != nil {
-			elog.Printf("error scanning ont: %s", err)
-			continue
-		}
-		if utf8.RuneCountInString(o.Name) > 24 {
-			continue
-		}
-		o.Name = o.Name[1:]
-		onts = append(onts, o)
-	}
-	sort.Slice(onts, func(i, j int) bool {
-		return onts[i].Name < onts[j].Name
-	})
-	if u == nil && !develMode {
-		w.Header().Set("Cache-Control", "max-age=300")
-	}
-	templinfo := getInfo(r)
-	templinfo["Onts"] = onts
-	templinfo["FirstRune"] = func(s string) rune { r, _ := utf8.DecodeRuneInString(s); return r }
-	err = readviews.Execute(w, "onts.html", templinfo)
-	if err != nil {
-		elog.Print(err)
-	}
 }
 
 type Track struct {
@@ -1561,33 +1364,6 @@ func showhonkers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-var combocache = cache.New(cache.Options{Filler: func(userid int64) ([]string, bool) {
-	honkers := gethonkers(userid)
-	var combos []string
-	for _, h := range honkers {
-		combos = append(combos, h.Combos...)
-	}
-	for i, c := range combos {
-		if c == "-" {
-			combos[i] = ""
-		}
-	}
-	combos = oneofakind(combos)
-	sort.Strings(combos)
-	return combos, true
-}, Invalidator: &honkerinvalidator})
-
-func showcombos(w http.ResponseWriter, r *http.Request) {
-	userinfo := login.GetUserInfo(r)
-	var combos []string
-	combocache.Get(userinfo.UserID, &combos)
-	templinfo := getInfo(r)
-	err := readviews.Execute(w, "combos.html", templinfo)
-	if err != nil {
-		elog.Print(err)
-	}
-}
-
 func submithonker(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	user, _ := butwhatabout(u.Username)
@@ -1742,7 +1518,7 @@ func actualinformation(w http.ResponseWriter, r *http.Request) {
 
 	services := junk.New()
 	services["inbound"] = []string{}
-	services["outbound"] = []string{"rss2.0"}
+	services["outbound"] = []string{}
 
 	users := junk.New()
 	users["total"] = getusercount()
@@ -1877,23 +1653,9 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 		honks = gethonksforme(userid, wanted)
 		menewnone(userid)
 		hydra.Srvmsg = "at me!"
-	case "longago":
-		honks = gethonksfromlongago(userid, wanted)
-		hydra.Srvmsg = "from long ago"
 	case "home":
 		honks = gethonksforuser(userid, wanted)
 		hydra.Srvmsg = serverMsg
-	case "first":
-		honks = gethonksforuserfirstclass(userid, wanted)
-		hydra.Srvmsg = "first class only"
-	case "saved":
-		honks = getsavedhonks(userid, wanted)
-		templinfo["PageName"] = "saved"
-		hydra.Srvmsg = "saved honks"
-	case "combo":
-		c := r.FormValue("c")
-		honks = gethonksbycombo(userid, c, wanted)
-		hydra.Srvmsg = templates.Sprintf("honks by combo: %s", c)
 	case "convoy":
 		c := r.FormValue("c")
 		honks = gethonksbyconvoy(userid, c, wanted)
@@ -2007,7 +1769,6 @@ func serve() {
 		viewDir+"/views/honkpage.html",
 		viewDir+"/views/honkfrags.html",
 		viewDir+"/views/honkers.html",
-		viewDir+"/views/combos.html",
 		viewDir+"/views/honkform.html",
 		viewDir+"/views/honk.html",
 		viewDir+"/views/account.html",
@@ -2015,7 +1776,6 @@ func serve() {
 		viewDir+"/views/login.html",
 		viewDir+"/views/msg.html",
 		viewDir+"/views/header.html",
-		viewDir+"/views/onts.html",
 		viewDir+"/views/honkpage.js",
 	)
 	if !develMode {
@@ -2048,17 +1808,13 @@ func serve() {
 	getters.HandleFunc("/front", homepage)
 	getters.HandleFunc("/events", homepage)
 	getters.HandleFunc("/robots.txt", nomoroboto)
-	getters.HandleFunc("/rss", showrss)
 	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}", showuser)
 	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}/"+honkSep+"/{xid:[\\pL[:digit:]]+}", showonehonk)
-	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}/rss", showrss)
 	posters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}/inbox", inbox)
 	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}/outbox", outbox)
 	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}/followers", emptiness)
 	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}/following", emptiness)
 	getters.HandleFunc("/a", avatate)
-	getters.HandleFunc("/o", thelistingoftheontologies)
-	getters.HandleFunc("/o/{name:.+}", showontology)
 	getters.HandleFunc("/d/{xid:[\\pL[:digit:].]+}", servefile)
 	getters.HandleFunc("/.well-known/webfinger", fingerlicker)
 	getters.HandleFunc("/.well-known/nodeinfo", knowninformation)
@@ -2089,7 +1845,6 @@ func serve() {
 	loggedin := mux.NewRoute().Subrouter()
 	loggedin.Use(login.Required)
 	loggedin.HandleFunc("/first", homepage)
-	loggedin.HandleFunc("/saved", homepage)
 	loggedin.HandleFunc("/account", accountpage)
 	loggedin.HandleFunc("/chpass", dochpass)
 	loggedin.HandleFunc("/atme", homepage)
@@ -2104,8 +1859,6 @@ func serve() {
 	loggedin.HandleFunc("/honkers", showhonkers)
 	loggedin.HandleFunc("/h/{name:[\\pL[:digit:]_.-]+}", showhonker)
 	loggedin.HandleFunc("/h", showhonker)
-	loggedin.HandleFunc("/c/{name:[\\pL[:digit:]_.-]+}", showcombo)
-	loggedin.HandleFunc("/c", showcombos)
 	loggedin.HandleFunc("/t", showconvoy)
 	loggedin.HandleFunc("/q", showsearch)
 	loggedin.HandleFunc("/hydra", webhydra)
