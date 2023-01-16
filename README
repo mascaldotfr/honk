@@ -29,8 +29,10 @@ Backend:
   emus, banners, custom avatars etc. As such, funzone has been nuked as well,
   and data/blob.db is non existent.
 - API support removed due to previous change, so you can't use bots, and toys
-  are gone as well. Could be brought back with a new database schema and 
+  are gone as well. Could be brought back with a new database schema and
   some code rewrite, but i won't bother.
+- Drop filtering, let's live a dangerous life
+- Drop import
 
 =======================================================================
 

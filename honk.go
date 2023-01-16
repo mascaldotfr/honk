@@ -337,11 +337,6 @@ func main() {
 	switch cmd {
 	case "admin":
 		adminscreen()
-	case "import":
-		if len(args) != 4 {
-			elog.Fatal("import username mastodon|twitter srcdir")
-		}
-		importMain(args[1], args[2], args[3])
 	case "devel":
 		if len(args) != 2 {
 			elog.Fatal("need an argument: devel (on|off)")
