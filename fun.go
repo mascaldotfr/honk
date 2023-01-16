@@ -148,8 +148,6 @@ func reverbolate(userid int64, honks []*Honk) {
 		h.Donks = h.Donks[:j]
 	}
 
-	unsee(honks, userid)
-
 	for _, h := range honks {
 
 		h.HTPrecis = template.HTML(h.Precis)

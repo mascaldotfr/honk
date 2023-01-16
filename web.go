@@ -116,31 +116,25 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 			templinfo["ServerMessage"] = "at me!"
 			templinfo["PageName"] = "atme"
 			honks = gethonksforme(userid, 0)
-			honks = osmosis(honks, userid, false)
 			menewnone(userid)
 			templinfo["UserInfo"], _ = butwhatabout(u.Username)
 		case "/longago":
 			templinfo["ServerMessage"] = "long ago and far away!"
 			templinfo["PageName"] = "longago"
 			honks = gethonksfromlongago(userid, 0)
-			honks = osmosis(honks, userid, false)
 		case "/events":
 			templinfo["ServerMessage"] = "some recent and upcoming events"
 			templinfo["PageName"] = "events"
 			honks = geteventhonks(userid)
-			honks = osmosis(honks, userid, true)
 		case "/first":
 			templinfo["PageName"] = "first"
 			honks = gethonksforuserfirstclass(userid, 0)
-			honks = osmosis(honks, userid, true)
 		case "/saved":
 			templinfo["ServerMessage"] = "saved honks"
 			templinfo["PageName"] = "saved"
-			honks = getsavedhonks(userid, 0)
 		default:
 			templinfo["PageName"] = "home"
 			honks = gethonksforuser(userid, 0)
-			honks = osmosis(honks, userid, true)
 		}
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	}
@@ -300,10 +294,6 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	if stealthmode(user.ID, r) {
-		http.NotFound(w, r)
-		return
-	}
 	var buf bytes.Buffer
 	limiter := io.LimitReader(r.Body, 1*1024*1024)
 	io.Copy(&buf, limiter)
@@ -325,9 +315,6 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	who, _ := j.GetString("actor")
-	if rejectactor(user.ID, who) {
-		return
-	}
 
 	keyname, err := httpsig.VerifyRequest(r, payload, zaggy)
 	if err != nil && keyname != "" {
@@ -418,10 +405,6 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 
 func serverinbox(w http.ResponseWriter, r *http.Request) {
 	user := getserveruser()
-	if stealthmode(user.ID, r) {
-		http.NotFound(w, r)
-		return
-	}
 	var buf bytes.Buffer
 	io.Copy(&buf, r.Body)
 	payload := buf.Bytes()
@@ -454,9 +437,6 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 	origin := keymatch(keyname, who)
 	if origin == "" {
 		ilog.Printf("keyname actor mismatch: %s <> %s", keyname, who)
-		return
-	}
-	if rejectactor(user.ID, who) {
 		return
 	}
 	re_ont := regexp.MustCompile("https://" + serverName + "/o/([\\pL[:digit:]]+)")
@@ -504,10 +484,6 @@ func serverinbox(w http.ResponseWriter, r *http.Request) {
 
 func serveractor(w http.ResponseWriter, r *http.Request) {
 	user := getserveruser()
-	if stealthmode(user.ID, r) {
-		http.NotFound(w, r)
-		return
-	}
 	j := junkuser(user)
 	j.Write(w)
 }
@@ -608,15 +584,6 @@ var oldoutbox = cache.New(cache.Options{Filler: func(name string) ([]byte, bool)
 
 func outbox(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
-	user, err := butwhatabout(name)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-	if stealthmode(user.ID, r) {
-		http.NotFound(w, r)
-		return
-	}
 	var j []byte
 	ok := oldoutbox.Get(name, &j)
 	if ok {
@@ -645,16 +612,6 @@ var oldempties = cache.New(cache.Options{Filler: func(url string) ([]byte, bool)
 }})
 
 func emptiness(w http.ResponseWriter, r *http.Request) {
-	name := mux.Vars(r)["name"]
-	user, err := butwhatabout(name)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-	if stealthmode(user.ID, r) {
-		http.NotFound(w, r)
-		return
-	}
 	var j []byte
 	ok := oldempties.Get(r.URL.Path, &j)
 	if ok {
@@ -670,10 +627,6 @@ func showuser(w http.ResponseWriter, r *http.Request) {
 	user, err := butwhatabout(name)
 	if err != nil {
 		ilog.Printf("user not found %s: %s", name, err)
-		http.NotFound(w, r)
-		return
-	}
-	if stealthmode(user.ID, r) {
 		http.NotFound(w, r)
 		return
 	}
@@ -727,7 +680,6 @@ func showcombo(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	u := login.GetUserInfo(r)
 	honks := gethonksbycombo(u.UserID, name, 0)
-	honks = osmosis(honks, u.UserID, true)
 	templinfo := getInfo(r)
 	templinfo["PageName"] = "combo"
 	templinfo["PageArg"] = name
@@ -743,7 +695,6 @@ func showconvoy(w http.ResponseWriter, r *http.Request) {
 	if len(honks) > 0 {
 		templinfo["TopHID"] = honks[0].ID
 	}
-	honks = osmosis(honks, u.UserID, false)
 	reversehonks(honks)
 	templinfo["PageName"] = "convoy"
 	templinfo["PageArg"] = c
@@ -982,10 +933,6 @@ func showonehonk(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	user, err := butwhatabout(name)
 	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-	if stealthmode(user.ID, r) {
 		http.NotFound(w, r)
 		return
 	}
@@ -1327,9 +1274,7 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		var badparents map[string]bool
-		untagged.GetAndLock(userinfo.UserID, &badparents)
 		badparents[what] = true
-		untagged.Unlock()
 		return
 	}
 
@@ -1792,70 +1737,6 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 }
 
-func hfcspage(w http.ResponseWriter, r *http.Request) {
-	userinfo := login.GetUserInfo(r)
-
-	filters := getfilters(userinfo.UserID, filtAny)
-
-	templinfo := getInfo(r)
-	templinfo["Filters"] = filters
-	templinfo["FilterCSRF"] = login.GetCSRF("filter", r)
-	err := readviews.Execute(w, "hfcs.html", templinfo)
-	if err != nil {
-		elog.Print(err)
-	}
-}
-
-func savehfcs(w http.ResponseWriter, r *http.Request) {
-	userinfo := login.GetUserInfo(r)
-	itsok := r.FormValue("itsok")
-	if itsok == "iforgiveyou" {
-		hfcsid, _ := strconv.ParseInt(r.FormValue("hfcsid"), 10, 0)
-		_, err := stmtDeleteFilter.Exec(userinfo.UserID, hfcsid)
-		if err != nil {
-			elog.Printf("error deleting filter: %s", err)
-		}
-		filtInvalidator.Clear(userinfo.UserID)
-		http.Redirect(w, r, "/hfcs", http.StatusSeeOther)
-		return
-	}
-
-	filt := new(Filter)
-	filt.Name = strings.TrimSpace(r.FormValue("name"))
-	filt.Date = time.Now().UTC()
-	filt.Actor = strings.TrimSpace(r.FormValue("actor"))
-	filt.IncludeAudience = r.FormValue("incaud") == "yes"
-	filt.Text = strings.TrimSpace(r.FormValue("filttext"))
-	filt.IsAnnounce = r.FormValue("isannounce") == "yes"
-	filt.AnnounceOf = strings.TrimSpace(r.FormValue("announceof"))
-	filt.Reject = r.FormValue("doreject") == "yes"
-	filt.SkipMedia = r.FormValue("doskipmedia") == "yes"
-	filt.Hide = r.FormValue("dohide") == "yes"
-	filt.Collapse = r.FormValue("docollapse") == "yes"
-	filt.Rewrite = strings.TrimSpace(r.FormValue("filtrewrite"))
-	filt.Replace = strings.TrimSpace(r.FormValue("filtreplace"))
-	if dur := parseDuration(r.FormValue("filtduration")); dur > 0 {
-		filt.Expiration = time.Now().UTC().Add(dur)
-	}
-	filt.Notes = strings.TrimSpace(r.FormValue("filtnotes"))
-
-	if filt.Actor == "" && filt.Text == "" && !filt.IsAnnounce {
-		ilog.Printf("blank filter")
-		http.Error(w, "can't save a blank filter", http.StatusInternalServerError)
-		return
-	}
-
-	j, err := jsonify(filt)
-	if err == nil {
-		_, err = stmtSaveFilter.Exec(userinfo.UserID, j)
-	}
-	if err != nil {
-		elog.Printf("error saving filter: %s", err)
-	}
-
-	filtInvalidator.Clear(userinfo.UserID)
-	http.Redirect(w, r, "/hfcs", http.StatusSeeOther)
-}
 
 func accountpage(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
@@ -1909,10 +1790,6 @@ func fingerlicker(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := butwhatabout(name)
 	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-	if stealthmode(user.ID, r) {
 		http.NotFound(w, r)
 		return
 	}
@@ -2084,20 +1961,16 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	switch page {
 	case "atme":
 		honks = gethonksforme(userid, wanted)
-		honks = osmosis(honks, userid, false)
 		menewnone(userid)
 		hydra.Srvmsg = "at me!"
 	case "longago":
 		honks = gethonksfromlongago(userid, wanted)
-		honks = osmosis(honks, userid, false)
 		hydra.Srvmsg = "from long ago"
 	case "home":
 		honks = gethonksforuser(userid, wanted)
-		honks = osmosis(honks, userid, true)
 		hydra.Srvmsg = serverMsg
 	case "first":
 		honks = gethonksforuserfirstclass(userid, wanted)
-		honks = osmosis(honks, userid, true)
 		hydra.Srvmsg = "first class only"
 	case "saved":
 		honks = getsavedhonks(userid, wanted)
@@ -2106,12 +1979,10 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	case "combo":
 		c := r.FormValue("c")
 		honks = gethonksbycombo(userid, c, wanted)
-		honks = osmosis(honks, userid, false)
 		hydra.Srvmsg = templates.Sprintf("honks by combo: %s", c)
 	case "convoy":
 		c := r.FormValue("c")
 		honks = gethonksbyconvoy(userid, c, wanted)
-		honks = osmosis(honks, userid, false)
 		hydra.Srvmsg = templates.Sprintf("honks in convoy: %s", c)
 	case "honker":
 		xid := r.FormValue("xid")
@@ -2314,14 +2185,12 @@ func serve() {
 	loggedin.HandleFunc("/chpass", dochpass)
 	loggedin.HandleFunc("/atme", homepage)
 	loggedin.HandleFunc("/longago", homepage)
-	loggedin.HandleFunc("/hfcs", hfcspage)
 	loggedin.HandleFunc("/xzone", xzone)
 	loggedin.HandleFunc("/newhonk", newhonkpage)
 	loggedin.HandleFunc("/edit", edithonkpage)
 	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(submitwebhonk)))
 	loggedin.Handle("/bonk", login.CSRFWrap("honkhonk", http.HandlerFunc(submitbonk)))
 	loggedin.Handle("/zonkit", login.CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
-	loggedin.Handle("/savehfcs", login.CSRFWrap("filter", http.HandlerFunc(savehfcs)))
 	loggedin.Handle("/saveuser", login.CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
 	loggedin.Handle("/ximport", login.CSRFWrap("ximport", http.HandlerFunc(ximport)))
 	loggedin.HandleFunc("/honkers", showhonkers)
