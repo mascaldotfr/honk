@@ -373,8 +373,7 @@ func attoreplacer(m string) string {
 }
 
 func ontoreplacer(h string) string {
-	return fmt.Sprintf(`<a href="https://%s/o/%s">%s</a>`, serverName,
-		strings.ToLower(h[1:]), h)
+	return fmt.Sprintf(`<a href="#">%s</a>`, h)
 }
 
 var re_unurl = regexp.MustCompile("https://([^/]+).*/([^/]+)")
