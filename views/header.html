@@ -20,29 +20,26 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js') }
 <body>
 <header>
 {{ if .UserInfo }}
-<details id="topmenu">
-<summary>menu<span> <b>{{ .UserInfo.Name }}</b></span></summary>
-<ul>
-<li><a id="homelink" href="/">home</a>
-<li><a id="atmelink" href="/atme">@me<span id=mecount>{{ if .UserInfo.Options.MeCount }}({{ .UserInfo.Options.MeCount }}){{ end }}</span></a>
-<li><a href="/honkers">honkers</a>
-<li><a href="/account">account</a>
-<li><a href="/{{ .UserSep }}/{{ .UserInfo.Name }}">my honks</a>
-<li><a href="/about">about</a>
-<li><a href="/front">front</a>
-</ul>
+<div id="topmenu">
+<a id="homelink" href="/">🛖</a>
+&nbsp;&nbsp;
+<a href="/honkers">🪿</a>
+&nbsp;&nbsp;
+<a href="/account">⚙️</a>
+&nbsp;&nbsp;
+<a href="/{{ .UserSep }}/{{ .UserInfo.Name }}">🪞</a>
+&nbsp;&nbsp;
+<a href="/about">🖥️</a>
+&nbsp;&nbsp;
+<a id="atmelink" href="/atme">📨<span id=mecount>{{ if .UserInfo.Options.MeCount }}({{ .UserInfo.Options.MeCount }}){{ end }}</span></a>
+&nbsp;&nbsp;
 <form action="/q" method="GET">
-<input type="text" name="q" autocomplete=off size=10 placeholder="search">
+<input type="text" name="q" autocomplete=off size=15 placeholder="🔍">
 </form>
-</details>
-<div id="topspacer">
-<p>
-<p class="nophone" onclick="window.scrollTo(0,0)">top
-</div>
 {{ else }}
 <div id="topmenu">
-<span><a id="homelink" href="/">home</a></span>
-<span><a href="/about">about</a></span>
+<span><a id="homelink" href="/">home</a></span>&nbsp;|&nbsp;
+<span><a href="/about">about</a></span>&nbsp;|&nbsp;
 <span><a href="/login">login</a></span>
 </div>
 {{ end }}
