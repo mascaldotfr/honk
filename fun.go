@@ -169,16 +169,7 @@ func replaceimgsand(zap map[string]bool, absolute bool) func(node *html.Node) st
 		if htfilter.HasClass(node, "Emoji") && alt != "" {
 			return alt
 		}
-		d := finddonk(src)
-		if d != nil {
-			zap[d.XID] = true
-			base := ""
-			if absolute {
-				base = "https://" + serverName
-			}
-			return string(templates.Sprintf(`<img alt="%s" title="%s" src="%s/d/%s">`, alt, alt, base, d.XID))
-		}
-		return string(templates.Sprintf(`&lt;img alt="%s" src="<a href="%s">%s</a>"&gt;`, alt, src, src))
+		return string(templates.Sprintf(`<a href="%s">Image: %s</a>`, src, alt))
 	}
 }
 
