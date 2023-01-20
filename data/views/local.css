@@ -24,14 +24,6 @@ html {
 	button, input, textarea {
 		background-color: #faebd7;
 	}
-	#topmenu span > a {
-		color: #ffffff;
-	}
-	#topmenu summary {
-		background-color: var(--bg-dark);
-		display: inline flow-root list-item;
-		padding: .2em;
-	}
 	.glow {
 		box-shadow: 0px 0px 16px var(--bg-dark);
 	}
