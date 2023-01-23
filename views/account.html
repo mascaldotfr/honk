@@ -12,9 +12,6 @@
 <input tabindex=1 type="checkbox" id="omitimages" name="omitimages" value="omitimages" {{ if .User.Options.OmitImages }}checked{{ end }}><span></span>
 <p><label class="button" for="mentionall">mention all:</label>
 <input tabindex=1 type="checkbox" id="mentionall" name="mentionall" value="mentionall" {{ if .User.Options.MentionAll }}checked{{ end }}><span></span>
-
-<p><label class="button" for="maps">apple map links:</label>
-<input tabindex=1 type="checkbox" id="maps" name="maps" value="apple" {{ if eq "apple" .User.Options.MapLink }}checked{{ end }}><span></span>
 <p><label class="button" for="reaction">reaction:</label>
 <select tabindex=1 name="reaction">
 <option {{ and (eq .User.Options.Reaction "none") "selected" }}>none</option>

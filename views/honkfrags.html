@@ -1,7 +1,6 @@
 {{ $BonkCSRF := .HonkCSRF }}
-{{ $MapLink := .MapLink }}
 {{ $Badonk := .User.Options.Reaction }}
 {{ $OmitImages := .User.Options.OmitImages }}
 {{ range .Honks }}
-{{ template "honk.html" map "Honk" . "MapLink" $MapLink "BonkCSRF" $BonkCSRF "Badonk" $Badonk "OmitImages" $OmitImages }}
+{{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF "Badonk" $Badonk "OmitImages" $OmitImages }}
 {{ end }}

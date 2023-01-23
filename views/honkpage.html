@@ -41,11 +41,10 @@ function playit(elem, word, wordlist, xid) {
 <div>
 {{ $BonkCSRF := .HonkCSRF }}
 {{ $IsPreview := .IsPreview }}
-{{ $MapLink := .MapLink }}
 {{ $Badonk := .User.Options.Reaction }}
 {{ $OmitImages := .User.Options.OmitImages }}
 {{ range .Honks }}
-{{ template "honk.html" map "Honk" . "MapLink" $MapLink "BonkCSRF" $BonkCSRF "IsPreview" $IsPreview "Badonk" $Badonk "OmitImages" $OmitImages }}
+{{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF "IsPreview" $IsPreview "Badonk" $Badonk "OmitImages" $OmitImages }}
 {{ end }}
 </div>
 </div>

@@ -47,18 +47,6 @@ var honkSep = "h"
 
 var develMode = false
 
-func getmaplink(u *login.UserInfo) string {
-	if u == nil {
-		return "osm"
-	}
-	user, _ := butwhatabout(u.Username)
-	ml := user.Options.MapLink
-	if ml == "" {
-		ml = "osm"
-	}
-	return ml
-}
-
 func getInfo(r *http.Request) map[string]interface{} {
 	templinfo := make(map[string]interface{})
 	templinfo["StyleParam"] = getassetparam(viewDir + "/views/style.css")
@@ -760,7 +748,6 @@ func honkpage(w http.ResponseWriter, u *login.UserInfo, honks []*Honk, templinfo
 	}
 	reverbolate(userid, honks)
 	templinfo["Honks"] = honks
-	templinfo["MapLink"] = getmaplink(u)
 	if templinfo["TopHID"] == nil {
 		if len(honks) > 0 {
 			templinfo["TopHID"] = honks[0].ID
@@ -785,11 +772,6 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	db := opendatabase()
 
 	options := user.Options
-	if r.FormValue("skinny") == "skinny" {
-		options.SkinnyCSS = true
-	} else {
-		options.SkinnyCSS = false
-	}
 	if r.FormValue("omitimages") == "omitimages" {
 		options.OmitImages = true
 	} else {
@@ -799,11 +781,6 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 		options.MentionAll = true
 	} else {
 		options.MentionAll = false
-	}
-	if r.FormValue("maps") == "apple" {
-		options.MapLink = "apple"
-	} else {
-		options.MapLink = ""
 	}
 	options.Reaction = r.FormValue("reaction")
 
@@ -1075,7 +1052,6 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	templinfo := getInfo(r)
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	templinfo["Honks"] = honks
-	templinfo["MapLink"] = getmaplink(u)
 	templinfo["Noise"] = noise
 	templinfo["SavedPlace"] = honk.Place
 	if tm := honk.Time; tm != nil {
@@ -1302,7 +1278,6 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 		templinfo := getInfo(r)
 		templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 		templinfo["Honks"] = honks
-		templinfo["MapLink"] = getmaplink(userinfo)
 		templinfo["InReplyTo"] = r.FormValue("rid")
 		templinfo["Noise"] = r.FormValue("noise")
 		templinfo["SavedFile"] = donkxid
@@ -1679,7 +1654,6 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 
 	var buf strings.Builder
 	templinfo["Honks"] = honks
-	templinfo["MapLink"] = getmaplink(u)
 	templinfo["User"], _ = butwhatabout(u.Username)
 	err := readviews.Execute(&buf, "honkfrags.html", templinfo)
 	if err != nil {

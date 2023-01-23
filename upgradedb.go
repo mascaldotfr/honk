@@ -18,7 +18,6 @@ package main
 import (
 	"database/sql"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -105,7 +104,6 @@ func upgradedb() {
 				elog.Fatal(err)
 			}
 			var uo UserOptions
-			uo.SkinnyCSS = strings.Contains(options, " skinny ")
 			m[userid], err = jsonify(uo)
 			if err != nil {
 				elog.Fatal(err)
