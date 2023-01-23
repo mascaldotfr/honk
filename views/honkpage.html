@@ -42,9 +42,8 @@ function playit(elem, word, wordlist, xid) {
 {{ $BonkCSRF := .HonkCSRF }}
 {{ $IsPreview := .IsPreview }}
 {{ $Badonk := .User.Options.Reaction }}
-{{ $OmitImages := .User.Options.OmitImages }}
 {{ range .Honks }}
-{{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF "IsPreview" $IsPreview "Badonk" $Badonk "OmitImages" $OmitImages }}
+{{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF "IsPreview" $IsPreview "Badonk" $Badonk }}
 {{ end }}
 </div>
 </div>

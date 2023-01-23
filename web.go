@@ -772,11 +772,6 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	db := opendatabase()
 
 	options := user.Options
-	if r.FormValue("omitimages") == "omitimages" {
-		options.OmitImages = true
-	} else {
-		options.OmitImages = false
-	}
 	if r.FormValue("mentionall") == "mentionall" {
 		options.MentionAll = true
 	} else {
