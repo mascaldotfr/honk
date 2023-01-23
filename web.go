@@ -70,7 +70,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 
 	templinfo["ServerMessage"] = serverMsg
 
-	if u == nil || r.URL.Path == "/front" {
+	if u == nil {
 		honks = getpublichonks()
 	} else {
 		userid = u.UserID
@@ -1737,7 +1737,6 @@ func serve() {
 
 	getters.HandleFunc("/", homepage)
 	getters.HandleFunc("/home", homepage)
-	getters.HandleFunc("/front", homepage)
 	getters.HandleFunc("/events", homepage)
 	getters.HandleFunc("/robots.txt", nomoroboto)
 	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}", showuser)
@@ -1770,7 +1769,6 @@ func serve() {
 	getters.HandleFunc("/login", servehtml)
 	posters.HandleFunc("/dologin", login.LoginFunc)
 	getters.HandleFunc("/logout", login.LogoutFunc)
-	getters.HandleFunc("/help/{name:[\\pL[:digit:]_.-]+}", servehelp)
 
 	loggedin := mux.NewRoute().Subrouter()
 	loggedin.Use(login.Required)
@@ -1778,7 +1776,6 @@ func serve() {
 	loggedin.HandleFunc("/account", accountpage)
 	loggedin.HandleFunc("/chpass", dochpass)
 	loggedin.HandleFunc("/atme", homepage)
-	loggedin.HandleFunc("/longago", homepage)
 	loggedin.HandleFunc("/newhonk", newhonkpage)
 	loggedin.HandleFunc("/edit", edithonkpage)
 	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(submitwebhonk)))
