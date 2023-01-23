@@ -47,18 +47,6 @@ var honkSep = "h"
 
 var develMode = false
 
-func getuserstyle(u *login.UserInfo) template.CSS {
-	if u == nil {
-		return ""
-	}
-	user, _ := butwhatabout(u.Username)
-	css := template.CSS("")
-	if user.Options.SkinnyCSS {
-		css += "main { max-width: 700px; }\n"
-	}
-	return css
-}
-
 func getmaplink(u *login.UserInfo) string {
 	if u == nil {
 		return "osm"
@@ -82,7 +70,6 @@ func getInfo(r *http.Request) map[string]interface{} {
 	templinfo["UserSep"] = userSep
 	if u := login.GetUserInfo(r); u != nil {
 		templinfo["UserInfo"], _ = butwhatabout(u.Username)
-		templinfo["UserStyle"] = getuserstyle(u)
 	}
 	return templinfo
 }
