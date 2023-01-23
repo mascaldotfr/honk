@@ -53,8 +53,6 @@ type WhatAbout struct {
 type UserOptions struct {
 	OmitImages bool   `json:",omitempty"`
 	MentionAll bool   `json:",omitempty"`
-	Avatar     string `json:",omitempty"`
-	Banner     string `json:",omitempty"`
 	Reaction   string `json:",omitempty"`
 	MeCount    int64
 	ChatCount  int64
