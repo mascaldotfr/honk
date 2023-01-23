@@ -52,7 +52,6 @@ type WhatAbout struct {
 
 type UserOptions struct {
 	MentionAll bool   `json:",omitempty"`
-	Reaction   string `json:",omitempty"`
 	MeCount    int64
 }
 

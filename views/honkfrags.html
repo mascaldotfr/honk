@@ -1,5 +1,4 @@
 {{ $BonkCSRF := .HonkCSRF }}
-{{ $Badonk := .User.Options.Reaction }}
 {{ range .Honks }}
-{{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF "Badonk" $Badonk }}
+{{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF }}
 {{ end }}

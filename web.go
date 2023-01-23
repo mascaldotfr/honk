@@ -268,12 +268,6 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 		default:
 			ilog.Printf("unknown undo: %s", what)
 		}
-	case "EmojiReact":
-		obj, ok := j.GetString("object")
-		if ok {
-			content, _ := j.GetString("content")
-			addreaction(user, obj, who, content)
-		}
 	default:
 		go xonksaver(user, j, origin)
 	}
@@ -777,7 +771,6 @@ func saveuser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		options.MentionAll = false
 	}
-	options.Reaction = r.FormValue("reaction")
 
 	sendupdate := false
 	whatabout = strings.TrimSpace(whatabout)
@@ -914,25 +907,6 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				elog.Printf("error unsaving: %s", err)
 			}
-		}
-		return
-	}
-
-	if wherefore == "react" {
-		reaction := user.Options.Reaction
-		if r2 := r.FormValue("reaction"); r2 != "" {
-			reaction = r2
-		}
-		if reaction == "none" {
-			return
-		}
-		xonk := getxonk(userinfo.UserID, what)
-		if xonk != nil {
-			_, err := stmtUpdateFlags.Exec(flagIsReacted, xonk.ID)
-			if err != nil {
-				elog.Printf("error saving: %s", err)
-			}
-			sendzonkofsorts(xonk, user, "react", reaction)
 		}
 		return
 	}
