@@ -411,7 +411,7 @@ function updatedonker() {
 		}
 	}
 
-	var refreshbox = document.getElementById("refreshbox")
+	var refreshbox = document.getElementById("honkformhost")
 	if (refreshbox) {
 		refreshbox.querySelectorAll("button").forEach(function(el) {
 			if (el.classList.contains("refresh")) {
