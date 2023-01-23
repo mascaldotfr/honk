@@ -407,6 +407,11 @@ func donksforhonks(honks []*Honk) {
 				elog.Printf("error parsing mentions: %s", err)
 				continue
 			}
+		// silence place being unknown in logs, it should be removed
+		// from the database, but is needed due to compatibility with
+		// upstream honk at database level
+		case "place":
+			continue
 		case "oldrev":
 		default:
 			elog.Printf("unknown meta genus: %s", genus)
