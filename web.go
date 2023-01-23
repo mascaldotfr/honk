@@ -1612,7 +1612,7 @@ func bgmonitor() {
 
 func addcspheaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'self'; connect-src 'self'; style-src 'self'; img-src 'self'; report-uri /csp-violation")
+		w.Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'self'; connect-src 'self'; style-src 'self'; img-src 'self'; manifest-src 'self'; report-uri /csp-violation")
 		next.ServeHTTP(w, r)
 	})
 }
