@@ -1,3 +1,9 @@
+var csrftoken = ""
+var honksforpage = { }
+var curpagestate = { name: "", arg : "" }
+var tophid = { }
+var servermsgs = { }
+
 function encode(hash) {
         var s = []
         for (var key in hash) {
@@ -253,6 +259,76 @@ function relinklinks() {
 		el.onclick = pageswitcher("honker", xid)
 		el.classList.remove("honkerlink")
 	}
+	els = document.querySelectorAll("#honksonpage article button")
+	els.forEach(function(el) {
+		var honk = el.closest("article")
+		var convoy = honk.dataset.convoy
+		var hname = honk.dataset.hname
+		var xid = honk.dataset.xid
+		var id = Number(honk.dataset.id)
+
+		if (!(id > 0)) {
+			console.error("could not determine honk id")
+			return
+		}
+
+		if (el.classList.contains("unbonk")) {
+			el.onclick = function() {
+				unbonk(el, xid);
+			}
+		} else if (el.classList.contains("bonk")) {
+			el.onclick = function() {
+				bonk(el, xid)
+			}
+		} else if (el.classList.contains("honkback")) {
+			el.onclick = function() {
+				return showhonkform(el, xid, hname)
+			}
+		} else if (el.classList.contains("mute")) {
+			el.onclick = function() {
+				muteit(el, convoy);
+			}
+		} else if (el.classList.contains("evenmore")) {
+			var more = document.querySelector("#evenmore"+id);
+			el.onclick = function() {
+				more.classList.toggle("hide");
+			}
+		} else if (el.classList.contains("zonk")) {
+			el.onclick = function() {
+				zonkit(el, xid);
+			}
+		} else if (el.classList.contains("flogit-deack")) {
+			el.onclick = function() {
+				flogit(el, "deack", xid);
+			}
+		} else if (el.classList.contains("flogit-ack")) {
+			el.onclick = function() {
+				flogit(el, "ack", xid);
+			}
+		} else if (el.classList.contains("flogit-unsave")) {
+			el.onclick = function() {
+				flogit(el, "unsave", xid);
+			}
+		} else if (el.classList.contains("flogit-save")) {
+			el.onclick = function() {
+				flogit(el, "save", xid);
+			}
+		} else if (el.classList.contains("flogit-untag")) {
+			el.onclick = function() {
+				flogit(el, "untag", xid);
+			}
+		} else if (el.classList.contains("flogit-react")) {
+			el.onclick = function() {
+				flogit(el, "react", xid);
+			}
+		} else if (el.classList.contains("playit")) {
+			var noise = el.dataset.noise
+			var wonk = el.dataset.wonk
+			el.onclick = function() {
+				playit(el, noise, wonk, xid)
+			}
+		}
+	})
 }
 (function() {
 	var el = document.getElementById("homelink")
@@ -318,3 +394,45 @@ function updatedonker() {
 	var el = document.getElementById("saveddonkxid")
 	el.value = ""
 }
+
+// init
+(function() {
+	var me = document.currentScript;
+	csrftoken = me.dataset.csrf
+	curpagestate.name = me.dataset.pagename
+	curpagestate.arg = me.dataset.pagearg
+	tophid[curpagestate.name + ":" + curpagestate.arg] = me.dataset.tophid
+	servermsgs[curpagestate.name + ":" + curpagestate.arg] = me.dataset.srvmsg
+
+	var totop = document.querySelector(".nophone")
+	if (totop) {
+		totop.onclick = function() {
+			window.scrollTo(0,0)
+		}
+	}
+
+	var refreshbox = document.getElementById("refreshbox")
+	if (refreshbox) {
+		refreshbox.querySelectorAll("button").forEach(function(el) {
+			if (el.classList.contains("refresh")) {
+				el.onclick = function() {
+					refreshhonks(el)
+				}
+			} else if (el.classList.contains("scrolldown")) {
+				el.onclick = function() {
+					oldestnewest(el)
+				}
+			}
+		})
+
+		if (me.dataset.srvmsg == "one honk maybe more") {
+			hideelement(refreshbox)
+		}
+	}
+
+	var td = document.getElementById("timedescriptor")
+	document.getElementById("honkingtime").onclick = function() {
+		return showhonkform()
+	}
+	document.querySelector("button[name=cancel]").onclick = cancelhonking
+})();

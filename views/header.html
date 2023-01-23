@@ -6,16 +6,10 @@
 {{ if .LocalStyleParam }}
 <link href="/local.css{{ .LocalStyleParam }}" rel="stylesheet">
 {{ end }}
-<style>
-{{ .UserStyle }}
-</style>
 <link rel="manifest" href="/manifest.webmanifest">
 <link href="/icon.png" rel="icon">
 <meta name="theme-color" content="#305">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>
-if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js') }
-</script>
 </head>
 <body>
 <header>

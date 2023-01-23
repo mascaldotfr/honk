@@ -36,6 +36,7 @@ Backend:
 - Drop chatter
 - Drop RSS
 - Drop flag feature
+- Add Content Security Policy
 
 =======================================================================
 
