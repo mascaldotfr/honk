@@ -355,6 +355,14 @@ li.details {
 	margin-left: 1em;
 }
 
+div[id^="evenmore"].hide {
+	display:none;
+}
+
+div[id^="evenmore"] {
+	display:flex;
+}
+
 .hide {
 	display: none;
 }
