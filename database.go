@@ -23,7 +23,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -187,37 +186,7 @@ func getpublichonks() []*Honk {
 	rows, err := stmtPublicHonks.Query(dt, 100)
 	return getsomehonks(rows, err)
 }
-func geteventhonks(userid int64) []*Honk {
-	rows, err := stmtEventHonks.Query(userid, 25)
-	honks := getsomehonks(rows, err)
-	sort.Slice(honks, func(i, j int) bool {
-		var t1, t2 time.Time
-		if honks[i].Time == nil {
-			t1 = honks[i].Date
-		} else {
-			t1 = honks[i].Time.StartTime
-		}
-		if honks[j].Time == nil {
-			t2 = honks[j].Date
-		} else {
-			t2 = honks[j].Time.StartTime
-		}
-		return t1.After(t2)
-	})
-	now := time.Now().Add(-24 * time.Hour)
-	for i, h := range honks {
-		t := h.Date
-		if tm := h.Time; tm != nil {
-			t = tm.StartTime
-		}
-		if t.Before(now) {
-			honks = honks[:i]
-			break
-		}
-	}
-	reversehonks(honks)
-	return honks
-}
+
 func gethonksbyuser(name string, includeprivate bool, wanted int64) []*Honk {
 	dt := time.Now().Add(-7 * 24 * time.Hour).UTC().Format(dbtimeformat)
 	limit := 50
@@ -414,27 +383,6 @@ func donksforhonks(honks []*Honk) {
 	}
 	rows.Close()
 
-	// grab onts
-	q = fmt.Sprintf("select honkid, ontology from onts where honkid in (%s)", idset)
-	rows, err = db.Query(q)
-	if err != nil {
-		elog.Printf("error querying onts: %s", err)
-		return
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var hid int64
-		var o string
-		err = rows.Scan(&hid, &o)
-		if err != nil {
-			elog.Printf("error scanning donk: %s", err)
-			continue
-		}
-		h := hmap[hid]
-		h.Onts = append(h.Onts, o)
-	}
-	rows.Close()
-
 	// grab meta
 	q = fmt.Sprintf("select honkid, genus, json from honkmeta where honkid in (%s)", idset)
 	rows, err = db.Query(q)
@@ -453,38 +401,12 @@ func donksforhonks(honks []*Honk) {
 		}
 		h := hmap[hid]
 		switch genus {
-		case "place":
-			p := new(Place)
-			err = unjsonify(j, p)
-			if err != nil {
-				elog.Printf("error parsing place: %s", err)
-				continue
-			}
-			h.Place = p
-		case "time":
-			t := new(Time)
-			err = unjsonify(j, t)
-			if err != nil {
-				elog.Printf("error parsing time: %s", err)
-				continue
-			}
-			h.Time = t
 		case "mentions":
 			err = unjsonify(j, &h.Mentions)
 			if err != nil {
 				elog.Printf("error parsing mentions: %s", err)
 				continue
 			}
-		case "badonks":
-			err = unjsonify(j, &h.Badonks)
-			if err != nil {
-				elog.Printf("error parsing badonks: %s", err)
-				continue
-			}
-		case "wonkles":
-			h.Wonkles = j
-		case "guesses":
-			h.Guesses = template.HTML(j)
 		case "oldrev":
 		default:
 			elog.Printf("unknown meta genus: %s", genus)
@@ -699,33 +621,6 @@ func saveextras(tx *sql.Tx, h *Honk) error {
 			return err
 		}
 	}
-	for _, o := range h.Onts {
-		_, err := tx.Stmt(stmtSaveOnt).Exec(strings.ToLower(o), h.ID)
-		if err != nil {
-			elog.Printf("error saving ont: %s", err)
-			return err
-		}
-	}
-	if p := h.Place; p != nil {
-		j, err := jsonify(p)
-		if err == nil {
-			_, err = tx.Stmt(stmtSaveMeta).Exec(h.ID, "place", j)
-		}
-		if err != nil {
-			elog.Printf("error saving place: %s", err)
-			return err
-		}
-	}
-	if t := h.Time; t != nil {
-		j, err := jsonify(t)
-		if err == nil {
-			_, err = tx.Stmt(stmtSaveMeta).Exec(h.ID, "time", j)
-		}
-		if err != nil {
-			elog.Printf("error saving time: %s", err)
-			return err
-		}
-	}
 	if m := h.Mentions; len(m) > 0 {
 		j, err := jsonify(m)
 		if err == nil {
@@ -733,20 +628,6 @@ func saveextras(tx *sql.Tx, h *Honk) error {
 		}
 		if err != nil {
 			elog.Printf("error saving mentions: %s", err)
-			return err
-		}
-	}
-	if w := h.Wonkles; w != "" {
-		_, err := tx.Stmt(stmtSaveMeta).Exec(h.ID, "wonkles", w)
-		if err != nil {
-			elog.Printf("error saving wonkles: %s", err)
-			return err
-		}
-	}
-	if g := h.Guesses; g != "" {
-		_, err := tx.Stmt(stmtSaveMeta).Exec(h.ID, "guesses", g)
-		if err != nil {
-			elog.Printf("error saving guesses: %s", err)
 			return err
 		}
 	}

@@ -91,18 +91,7 @@ type Honk struct {
 	Style    string
 	Open     string
 	Donks    []*Donk
-	Onts     []string
-	Place    *Place
-	Time     *Time
 	Mentions []Mention
-	Badonks  []Badonk
-	Wonkles  string
-	Guesses  template.HTML
-}
-
-type Badonk struct {
-	Who  string
-	What string
 }
 
 type Mention struct {
@@ -130,7 +119,6 @@ const (
 	flagIsSaved    = 4
 	flagIsUntagged = 8
 	flagIsReacted  = 16
-	flagIsWonked   = 32
 )
 
 func (honk *Honk) IsAcked() bool {
@@ -153,10 +141,6 @@ func (honk *Honk) IsReacted() bool {
 	return honk.Flags&flagIsReacted != 0
 }
 
-func (honk *Honk) IsWonked() bool {
-	return honk.Flags&flagIsWonked != 0
-}
-
 type Donk struct {
 	FileID   int64
 	XID      string
@@ -166,13 +150,6 @@ type Donk struct {
 	Media    string
 	Local    bool
 	External bool
-}
-
-type Place struct {
-	Name      string
-	Latitude  float64
-	Longitude float64
-	Url       string
 }
 
 type Duration int64
@@ -197,12 +174,6 @@ func parseDuration(s string) time.Duration {
 	}
 	dur, _ := time.ParseDuration(s)
 	return dur
-}
-
-type Time struct {
-	StartTime time.Time
-	EndTime   time.Time
-	Duration  Duration
 }
 
 type Honker struct {

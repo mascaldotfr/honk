@@ -838,9 +838,6 @@ func bonkit(xid string, user *WhatAbout) {
 		Audience: []string{thewholeworld, oonker},
 		Public:   true,
 		Format:   xonk.Format,
-		Place:    xonk.Place,
-		Onts:     xonk.Onts,
-		Time:     xonk.Time,
 	}
 
 	err = savehonk(bonk)
@@ -906,21 +903,6 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 			_, err := stmtClearFlags.Exec(flagIsSaved, xonk.ID)
 			if err != nil {
 				elog.Printf("error unsaving: %s", err)
-			}
-		}
-		return
-	}
-
-	if wherefore == "wonk" {
-		xonk := getxonk(userinfo.UserID, what)
-		if xonk != nil {
-			_, err := stmtUpdateFlags.Exec(flagIsWonked, xonk.ID)
-			if err == nil {
-				guesses := r.FormValue("guesses")
-				_, err = stmtSaveMeta.Exec(xonk.ID, "guesses", guesses)
-			}
-			if err != nil {
-				elog.Printf("error saving: %s", err)
 			}
 		}
 		return
@@ -1022,14 +1004,6 @@ func edithonkpage(w http.ResponseWriter, r *http.Request) {
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	templinfo["Honks"] = honks
 	templinfo["Noise"] = noise
-	templinfo["SavedPlace"] = honk.Place
-	if tm := honk.Time; tm != nil {
-		templinfo["ShowTime"] = ";"
-		templinfo["StartTime"] = tm.StartTime.Format("2006-01-02 15:04")
-		if tm.Duration != 0 {
-			templinfo["Duration"] = tm.Duration
-		}
-	}
 	templinfo["ServerMessage"] = "honk edit 2"
 	templinfo["IsPreview"] = true
 	templinfo["UpdateXID"] = honk.XID
@@ -1116,10 +1090,6 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 		if rid != "" {
 			what = "tonk"
 		}
-		wonkles := r.FormValue("wonkles")
-		if wonkles != "" {
-			what = "wonk"
-		}
 		honk = &Honk{
 			UserID:   userinfo.UserID,
 			Username: userinfo.Username,
@@ -1128,7 +1098,6 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 			XID:      xid,
 			Date:     dt,
 			Format:   format,
-			Wonkles:  wonkles,
 		}
 	}
 
@@ -1195,43 +1164,6 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 		}
 	}
 
-	placename := strings.TrimSpace(r.FormValue("placename"))
-	placelat := strings.TrimSpace(r.FormValue("placelat"))
-	placelong := strings.TrimSpace(r.FormValue("placelong"))
-	placeurl := strings.TrimSpace(r.FormValue("placeurl"))
-	if placename != "" || placelat != "" || placelong != "" || placeurl != "" {
-		p := new(Place)
-		p.Name = placename
-		p.Latitude, _ = strconv.ParseFloat(placelat, 64)
-		p.Longitude, _ = strconv.ParseFloat(placelong, 64)
-		p.Url = placeurl
-		honk.Place = p
-	}
-	timestart := strings.TrimSpace(r.FormValue("timestart"))
-	if timestart != "" {
-		t := new(Time)
-		now := time.Now().Local()
-		for _, layout := range []string{"2006-01-02 3:04pm", "2006-01-02 15:04", "3:04pm", "15:04"} {
-			start, err := time.ParseInLocation(layout, timestart, now.Location())
-			if err == nil {
-				if start.Year() == 0 {
-					start = time.Date(now.Year(), now.Month(), now.Day(), start.Hour(), start.Minute(), 0, 0, now.Location())
-				}
-				t.StartTime = start
-				break
-			}
-		}
-		timeend := r.FormValue("timeend")
-		dur := parseDuration(timeend)
-		if dur != 0 {
-			t.Duration = Duration(dur)
-		}
-		if !t.StartTime.IsZero() {
-			honk.What = "event"
-			honk.Time = t
-		}
-	}
-
 	if honk.Public {
 		honk.Whofore = 2
 	} else {
@@ -1250,13 +1182,6 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 		templinfo["InReplyTo"] = r.FormValue("rid")
 		templinfo["Noise"] = r.FormValue("noise")
 		templinfo["SavedFile"] = donkxid
-		if tm := honk.Time; tm != nil {
-			templinfo["ShowTime"] = ";"
-			templinfo["StartTime"] = tm.StartTime.Format("2006-01-02 15:04")
-			if tm.Duration != 0 {
-				templinfo["Duration"] = tm.Duration
-			}
-		}
 		templinfo["IsPreview"] = true
 		templinfo["UpdateXID"] = updatexid
 		templinfo["ServerMessage"] = "honk preview"
@@ -1758,7 +1683,6 @@ func serve() {
 	getters.HandleFunc("/style.css", serveviewasset)
 	getters.HandleFunc("/sw.js", serveviewasset)
 	getters.HandleFunc("/honkpage.js", serveviewasset)
-	getters.HandleFunc("/wonk.js", serveviewasset)
 	getters.HandleFunc("/local.css", servedataasset)
 	getters.HandleFunc("/local.js", servedataasset)
 	getters.HandleFunc("/icon.png", servedataasset)

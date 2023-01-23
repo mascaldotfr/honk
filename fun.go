@@ -152,9 +152,6 @@ func reverbolate(userid int64, honks []*Honk) {
 
 		h.HTPrecis = template.HTML(h.Precis)
 		h.HTML = template.HTML(h.Noise)
-		if h.What == "wonked" {
-			h.HTML = "? wonk ?"
-		}
 		if redo := relingo[h.What]; redo != "" {
 			h.What = redo
 		}
@@ -196,7 +193,6 @@ func translate(honk *Honk) {
 	noise = strings.TrimSpace(noise)
 	noise = marker.Mark(noise)
 	honk.Noise = noise
-	honk.Onts = oneofakind(marker.HashTags)
 	honk.Mentions = bunchofgrapes(marker.Mentions)
 }
 

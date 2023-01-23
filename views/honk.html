@@ -64,15 +64,6 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 {{ end }}
 </details>
 {{ end }}
-{{ if eq .Honk.What "wonked" }}
-<p>
-{{ if and $bonkcsrf .Honk.IsWonked }}
-{{ .Honk.Guesses }}
-<p>{{ .Honk.Noise }}
-{{ else }}
-<button onclick="return playit(this, '{{ .Honk.Noise }}', '{{ .Honk.Wonkles }}', '{{ .Honk.XID }}')">it's play time!</button>
-{{ end }}
-{{ end }}
 {{ if and $bonkcsrf (not $IsPreview) }}
 <p>
 <details class="actions">

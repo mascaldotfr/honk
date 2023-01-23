@@ -796,24 +796,6 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 				if tt == "Emoji" {
 					continue	
 				}
-				if tt == "Hashtag" {
-					if name == "" || name == "#" {
-						// skip it
-					} else {
-						if name[0] != '#' {
-							name = "#" + name
-						}
-						xonk.Onts = append(xonk.Onts, name)
-					}
-				}
-				if tt == "Place" {
-					p := new(Place)
-					p.Name = name
-					p.Latitude, _ = tag.GetNumber("latitude")
-					p.Longitude, _ = tag.GetNumber("longitude")
-					p.Url, _ = tag.GetString("url")
-					xonk.Place = p
-				}
 				if tt == "Mention" {
 					var m Mention
 					m.Who, _ = tag.GetString("name")
@@ -821,33 +803,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					mentions = append(mentions, m)
 				}
 			}
-			if starttime, ok := obj.GetString("startTime"); ok {
-				if start, err := time.Parse(time.RFC3339, starttime); err == nil {
-					t := new(Time)
-					t.StartTime = start
-					endtime, _ := obj.GetString("endTime")
-					t.EndTime, _ = time.Parse(time.RFC3339, endtime)
-					dura, _ := obj.GetString("duration")
-					if strings.HasPrefix(dura, "PT") {
-						dura = strings.ToLower(dura[2:])
-						d, _ := time.ParseDuration(dura)
-						t.Duration = Duration(d)
-					}
-					xonk.Time = t
-				}
-			}
-			if loca, ok := obj.GetMap("location"); ok {
-				if tt, _ := loca.GetString("type"); tt == "Place" {
-					p := new(Place)
-					p.Name, _ = loca.GetString("name")
-					p.Latitude, _ = loca.GetNumber("latitude")
-					p.Longitude, _ = loca.GetNumber("longitude")
-					p.Url, _ = loca.GetString("url")
-					xonk.Place = p
-				}
-			}
 
-			xonk.Onts = oneofakind(xonk.Onts)
 			replyobj, ok := obj.GetMap("replies")
 			if ok {
 				items, ok := replyobj.GetArray("items")
@@ -1029,18 +985,11 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 		fallthrough
 	case "event":
 		fallthrough
-	case "wonk":
-		fallthrough
 	case "honk":
 		j["type"] = "Create"
 		jo = junk.New()
 		jo["id"] = h.XID
 		jo["type"] = "Note"
-		if h.What == "event" {
-			jo["type"] = "Event"
-		} else if h.What == "wonk" {
-			jo["type"] = "GuessWord"
-		}
 		if h.What == "update" {
 			j["type"] = "Update"
 			jo["updated"] = dt
@@ -1088,42 +1037,8 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			t["href"] = m.Where
 			tags = append(tags, t)
 		}
-		for _, o := range h.Onts {
-			t := junk.New()
-			t["type"] = "Hashtag"
-			o = strings.ToLower(o)
-			t["href"] = fmt.Sprintf("https://%s/o/%s", serverName, o[1:])
-			t["name"] = o
-			tags = append(tags, t)
-		}
 		if len(tags) > 0 {
 			jo["tag"] = tags
-		}
-		if p := h.Place; p != nil {
-			t := junk.New()
-			t["type"] = "Place"
-			if p.Name != "" {
-				t["name"] = p.Name
-			}
-			if p.Latitude != 0 {
-				t["latitude"] = p.Latitude
-			}
-			if p.Longitude != 0 {
-				t["longitude"] = p.Longitude
-			}
-			if p.Url != "" {
-				t["url"] = p.Url
-			}
-			jo["location"] = t
-		}
-		if t := h.Time; t != nil {
-			jo["startTime"] = t.StartTime.Format(time.RFC3339)
-			if t.Duration != 0 {
-				jo["duration"] = "PT" + strings.ToUpper(t.Duration.String())
-			}
-		}
-		if w := h.Wonkles; w != "" {
-			jo["wordlist"] = w
 		}
 		atts := activatedonks(h.Donks)
 		if len(atts) > 0 {
@@ -1269,9 +1184,6 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 	for a := range rcpts {
 		go deliverate(0, user.ID, a, msg, doesitmatter(honk.What))
 	}
-	if honk.Public && len(honk.Onts) > 0 {
-		collectiveaction(honk)
-	}
 }
 
 func doesitmatter(what string) bool {
@@ -1284,37 +1196,6 @@ func doesitmatter(what string) bool {
 		return false
 	}
 	return true
-}
-
-func collectiveaction(honk *Honk) {
-	user := getserveruser()
-	for _, ont := range honk.Onts {
-		dubs := getnameddubs(readyLuserOne, ont)
-		if len(dubs) == 0 {
-			continue
-		}
-		j := junk.New()
-		j["@context"] = itiswhatitis
-		j["type"] = "Add"
-		j["id"] = user.URL + "/add/" + shortxid(ont+honk.XID)
-		j["actor"] = user.URL
-		j["object"] = honk.XID
-		j["target"] = fmt.Sprintf("https://%s/o/%s", serverName, ont[1:])
-		rcpts := make(map[string]bool)
-		for _, dub := range dubs {
-			var box *Box
-			ok := boxofboxes.Get(dub.XID, &box)
-			if ok && box.Shared != "" {
-				rcpts["%"+box.Shared] = true
-			} else {
-				rcpts[dub.XID] = true
-			}
-		}
-		msg := j.ToBytes()
-		for a := range rcpts {
-			go deliverate(0, user.ID, a, msg, false)
-		}
-	}
 }
 
 func junkuser(user *WhatAbout) junk.Junk {
