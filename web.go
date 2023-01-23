@@ -1662,7 +1662,6 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	}
 	hydra.Honks = buf.String()
 	hydra.MeCount = user.Options.MeCount
-	hydra.ChatCount = user.Options.ChatCount
 	w.Header().Set("Content-Type", "application/json")
 	j, _ := jsonify(&hydra)
 	io.WriteString(w, j)

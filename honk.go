@@ -55,7 +55,6 @@ type UserOptions struct {
 	MentionAll bool   `json:",omitempty"`
 	Reaction   string `json:",omitempty"`
 	MeCount    int64
-	ChatCount  int64
 }
 
 type KeyInfo struct {
@@ -106,20 +105,6 @@ type Honk struct {
 type Badonk struct {
 	Who  string
 	What string
-}
-
-type Chonk struct {
-	ID     int64
-	UserID int64
-	XID    string
-	Who    string
-	Target string
-	Date   time.Time
-	Noise  string
-	Format string
-	Donks  []*Donk
-	Handle string
-	HTML   template.HTML
 }
 
 type Mention struct {

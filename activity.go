@@ -606,9 +606,6 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 		case "Event":
 			obj = item
 			what = "event"
-		case "ChatMessage":
-			obj = item
-			what = "chonk"
 		default:
 			ilog.Printf("unknown activity: %s", what)
 			dumpactivity(item)
@@ -886,21 +883,6 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 			if m.Where == user.URL {
 				xonk.Whofore = 1
 			}
-		}
-
-		if what == "chonk" {
-			ch := Chonk{
-				UserID: xonk.UserID,
-				XID:    xid,
-				Who:    xonk.Honker,
-				Target: xonk.Honker,
-				Date:   xonk.Date,
-				Noise:  xonk.Noise,
-				Format: xonk.Format,
-				Donks:  xonk.Donks,
-			}
-			savechonk(&ch)
-			return nil
 		}
 
 		if isUpdate {
@@ -1248,48 +1230,6 @@ func boxuprcpts(user *WhatAbout, addresses []string, useshared bool) map[string]
 		}
 	}
 	return rcpts
-}
-
-func chonkifymsg(user *WhatAbout, ch *Chonk) []byte {
-	dt := ch.Date.Format(time.RFC3339)
-	aud := []string{ch.Target}
-
-	jo := junk.New()
-	jo["id"] = ch.XID
-	jo["type"] = "ChatMessage"
-	jo["published"] = dt
-	jo["attributedTo"] = user.URL
-	jo["to"] = aud
-	jo["content"] = ch.HTML
-	atts := activatedonks(ch.Donks)
-	if len(atts) > 0 {
-		jo["attachment"] = atts
-	}
-	var tags []junk.Junk
-	if len(tags) > 0 {
-		jo["tag"] = tags
-	}
-
-	j := junk.New()
-	j["@context"] = itiswhatitis
-	j["id"] = user.URL + "/" + "honk" + "/" + shortxid(ch.XID)
-	j["type"] = "Create"
-	j["actor"] = user.URL
-	j["published"] = dt
-	j["to"] = aud
-	j["object"] = jo
-
-	return j.ToBytes()
-}
-
-func sendchonk(user *WhatAbout, ch *Chonk) {
-	msg := chonkifymsg(user, ch)
-
-	rcpts := make(map[string]bool)
-	rcpts[ch.Target] = true
-	for a := range rcpts {
-		go deliverate(0, user.ID, a, msg, true)
-	}
 }
 
 func honkworldwide(user *WhatAbout, honk *Honk) {

@@ -496,36 +496,6 @@ func donksforhonks(honks []*Honk) {
 	rows.Close()
 }
 
-func donksforchonks(chonks []*Chonk) {
-	db := opendatabase()
-	var ids []string
-	chmap := make(map[int64]*Chonk)
-	for _, ch := range chonks {
-		ids = append(ids, fmt.Sprintf("%d", ch.ID))
-		chmap[ch.ID] = ch
-	}
-	idset := strings.Join(ids, ",")
-	// grab donks
-	q := fmt.Sprintf("select chonkid, donks.fileid, xid, name, description, url, media, local from donks join filemeta on donks.fileid = filemeta.fileid where chonkid in (%s)", idset)
-	rows, err := db.Query(q)
-	if err != nil {
-		elog.Printf("error querying donks: %s", err)
-		return
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var chid int64
-		d := new(Donk)
-		err = rows.Scan(&chid, &d.FileID, &d.XID, &d.Name, &d.Desc, &d.URL, &d.Media, &d.Local)
-		if err != nil {
-			elog.Printf("error scanning donk: %s", err)
-			continue
-		}
-		ch := chmap[chid]
-		ch.Donks = append(ch.Donks, d)
-	}
-}
-
 func savefile(name string, desc string, url string, media string, local bool, data []byte) (int64, error) {
 	fileid, _, err := savefileandxid(name, desc, url, media, local, data)
 	return fileid, err
@@ -587,72 +557,6 @@ func finddonk(url string) *Donk {
 		elog.Printf("error finding file: %s", err)
 	}
 	return nil
-}
-
-func savechonk(ch *Chonk) error {
-	dt := ch.Date.UTC().Format(dbtimeformat)
-	db := opendatabase()
-	tx, err := db.Begin()
-	if err != nil {
-		elog.Printf("can't begin tx: %s", err)
-		return err
-	}
-
-	res, err := tx.Stmt(stmtSaveChonk).Exec(ch.UserID, ch.XID, ch.Who, ch.Target, dt, ch.Noise, ch.Format)
-	if err == nil {
-		ch.ID, _ = res.LastInsertId()
-		for _, d := range ch.Donks {
-			_, err := tx.Stmt(stmtSaveDonk).Exec(-1, ch.ID, d.FileID)
-			if err != nil {
-				elog.Printf("error saving donk: %s", err)
-				break
-			}
-		}
-		chatplusone(tx, ch.UserID)
-		err = tx.Commit()
-	} else {
-		tx.Rollback()
-	}
-	return err
-}
-
-func chatplusone(tx *sql.Tx, userid int64) {
-	var user *WhatAbout
-	ok := somenumberedusers.Get(userid, &user)
-	if !ok {
-		return
-	}
-	options := user.Options
-	options.ChatCount += 1
-	j, err := jsonify(options)
-	if err == nil {
-		_, err = tx.Exec("update users set options = ? where username = ?", j, user.Name)
-	}
-	if err != nil {
-		elog.Printf("error plussing chat: %s", err)
-	}
-	somenamedusers.Clear(user.Name)
-	somenumberedusers.Clear(user.ID)
-}
-
-func chatnewnone(userid int64) {
-	var user *WhatAbout
-	ok := somenumberedusers.Get(userid, &user)
-	if !ok || user.Options.ChatCount == 0 {
-		return
-	}
-	options := user.Options
-	options.ChatCount = 0
-	j, err := jsonify(options)
-	if err == nil {
-		db := opendatabase()
-		_, err = db.Exec("update users set options = ? where username = ?", j, user.Name)
-	}
-	if err != nil {
-		elog.Printf("error noneing chat: %s", err)
-	}
-	somenamedusers.Clear(user.Name)
-	somenumberedusers.Clear(user.ID)
 }
 
 func meplusone(tx *sql.Tx, userid int64) {

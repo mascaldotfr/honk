@@ -173,34 +173,6 @@ func replaceimgsand(zap map[string]bool, absolute bool) func(node *html.Node) st
 	}
 }
 
-func translatechonk(ch *Chonk) {
-	noise := ch.Noise
-	if ch.Format == "markdown" {
-		noise = markitzero(noise)
-	}
-	var htf htfilter.Filter
-	htf.SpanClasses = allowedclasses
-	htf.BaseURL, _ = url.Parse(ch.XID)
-	ch.HTML, _ = htf.String(noise)
-}
-
-func filterchonk(ch *Chonk) {
-	translatechonk(ch)
-
-	noise := string(ch.HTML)
-
-	if strings.HasPrefix(noise, "<p>") {
-		noise = noise[3:]
-	}
-	ch.HTML = template.HTML(noise)
-	if short := shortname(ch.UserID, ch.Who); short != "" {
-		ch.Handle = short
-	} else {
-		ch.Handle, _ = handles(ch.Who)
-	}
-
-}
-
 func translate(honk *Honk) {
 	if honk.Format == "html" {
 		return
