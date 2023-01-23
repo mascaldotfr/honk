@@ -1752,8 +1752,6 @@ func serve() {
 	getters.HandleFunc("/.well-known/nodeinfo", knowninformation)
 	getters.HandleFunc("/nodeinfo/2.0", actualinformation)
 
-	getters.HandleFunc("/flag/{code:.+}", showflag)
-
 	getters.HandleFunc("/server", serveractor)
 	posters.HandleFunc("/server/inbox", serverinbox)
 	posters.HandleFunc("/inbox", serverinbox)

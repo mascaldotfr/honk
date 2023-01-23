@@ -19,14 +19,10 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/sha512"
-	"fmt"
 	"image"
 	"image/png"
-	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/gorilla/mux"
 )
 
 var avatarcolors = [4][4]byte{
@@ -100,61 +96,5 @@ func genAvatar(name string) []byte {
 	var buf bytes.Buffer
 	png.Encode(&buf, img)
 	return buf.Bytes()
-}
-
-func showflag(writer http.ResponseWriter, req *http.Request) {
-	code := mux.Vars(req)["code"]
-	colors := strings.Split(code, ",")
-	numcolors := len(colors)
-	vert := false
-	if colors[0] == "vert" {
-		vert = true
-		colors = colors[1:]
-		numcolors--
-		if numcolors == 0 {
-			http.Error(writer, "bad flag", 400)
-			return
-		}
-	}
-	pixels := make([][4]byte, numcolors)
-	for i := 0; i < numcolors; i++ {
-		hex := colors[i]
-		if len(hex) == 3 {
-			hex = fmt.Sprintf("%c%c%c%c%c%c",
-				hex[0], hex[0], hex[1], hex[1], hex[2], hex[2])
-		}
-		c, _ := strconv.ParseUint(hex, 16, 32)
-		r := byte(c >> 16 & 0xff)
-		g := byte(c >> 8 & 0xff)
-		b := byte(c >> 0 & 0xff)
-		pixels[i][0] = r
-		pixels[i][1] = g
-		pixels[i][2] = b
-		pixels[i][3] = 255
-	}
-
-	h := 128
-	w := h * 3 / 2
-	img := image.NewRGBA(image.Rect(0, 0, w, h))
-	if vert {
-		for j := 0; j < w; j++ {
-			pix := pixels[j*numcolors/w][:]
-			for i := 0; i < h; i++ {
-				p := i*img.Stride + j*4
-				copy(img.Pix[p:], pix)
-			}
-		}
-	} else {
-		for i := 0; i < h; i++ {
-			pix := pixels[i*numcolors/h][:]
-			for j := 0; j < w; j++ {
-				p := i*img.Stride + j*4
-				copy(img.Pix[p:], pix)
-			}
-		}
-	}
-
-	writer.Header().Set("Cache-Control", "max-age="+somedays())
-	png.Encode(writer, img)
 }
 
