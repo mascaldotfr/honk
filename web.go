@@ -127,7 +127,7 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	}
 	what, _ := j.GetString("type")
 	obj, _ := j.GetString("object")
-	if what == "Like" || (what == "EmojiReact" && originate(obj) != serverName) {
+	if what == "Like" || what == "EmojiReact" {
 		return
 	}
 	who, _ := j.GetString("actor")
