@@ -527,7 +527,7 @@ func showconvoy(w http.ResponseWriter, r *http.Request) {
 	reversehonks(honks)
 	templinfo["PageName"] = "convoy"
 	templinfo["PageArg"] = c
-	templinfo["ServerMessage"] = "honks in convoy: " + c
+	templinfo["ServerMessage"] = "honks in skein: " + c
 	templinfo["HonkCSRF"] = login.GetCSRF("honkhonk", r)
 	honkpage(w, u, honks, templinfo)
 }
@@ -1519,7 +1519,7 @@ func webhydra(w http.ResponseWriter, r *http.Request) {
 	case "convoy":
 		c := r.FormValue("c")
 		honks = gethonksbyconvoy(userid, c, wanted)
-		hydra.Srvmsg = templates.Sprintf("honks in convoy: %s", c)
+		hydra.Srvmsg = templates.Sprintf("honks in skein: %s", c)
 	case "honker":
 		xid := r.FormValue("xid")
 		honks = gethonksbyxonker(userid, xid, wanted)
