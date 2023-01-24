@@ -37,7 +37,7 @@ Backend:
 - Drop RSS
 - Drop flag feature
 - Add Content Security Policy
-- Remote quoting is disabled (see 80939c06c134d56935778cc7f78e54342f441810 for reason)
+- Remote quoting is disabled (see 5de338e for reason)
 
 =======================================================================
 
