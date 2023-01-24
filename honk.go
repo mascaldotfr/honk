@@ -338,19 +338,6 @@ func main() {
 		}
 		name := args[1]
 		svalbard(name)
-	case "ping":
-		if len(args) < 3 {
-			fmt.Printf("usage: honk ping (from username) (to username or url)\n")
-			return
-		}
-		name := args[1]
-		targ := args[2]
-		user, err := butwhatabout(name)
-		if err != nil {
-			elog.Printf("unknown user")
-			return
-		}
-		ping(user, targ)
 	case "run":
 		serve()
 	case "test":

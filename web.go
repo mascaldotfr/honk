@@ -103,67 +103,6 @@ func crappola(j junk.Junk) bool {
 	return false
 }
 
-func ping(user *WhatAbout, who string) {
-	if targ := fullname(who, user.ID); targ != "" {
-		who = targ
-	}
-	if !strings.HasPrefix(who, "https:") {
-		who = gofish(who)
-	}
-	if who == "" {
-		ilog.Printf("nobody to ping!")
-		return
-	}
-	var box *Box
-	ok := boxofboxes.Get(who, &box)
-	if !ok {
-		ilog.Printf("no inbox to ping %s", who)
-		return
-	}
-	ilog.Printf("sending ping to %s", box.In)
-	j := junk.New()
-	j["@context"] = itiswhatitis
-	j["type"] = "Ping"
-	j["id"] = user.URL + "/ping/" + xfiltrate()
-	j["actor"] = user.URL
-	j["to"] = who
-	ki := ziggy(user.ID)
-	if ki == nil {
-		return
-	}
-	err := PostJunk(ki.keyname, ki.seckey, box.In, j)
-	if err != nil {
-		elog.Printf("can't send ping: %s", err)
-		return
-	}
-	ilog.Printf("sent ping to %s: %s", who, j["id"])
-}
-
-func pong(user *WhatAbout, who string, obj string) {
-	var box *Box
-	ok := boxofboxes.Get(who, &box)
-	if !ok {
-		ilog.Printf("no inbox to pong %s", who)
-		return
-	}
-	j := junk.New()
-	j["@context"] = itiswhatitis
-	j["type"] = "Pong"
-	j["id"] = user.URL + "/pong/" + xfiltrate()
-	j["actor"] = user.URL
-	j["to"] = who
-	j["object"] = obj
-	ki := ziggy(user.ID)
-	if ki == nil {
-		return
-	}
-	err := PostJunk(ki.keyname, ki.seckey, box.In, j)
-	if err != nil {
-		elog.Printf("can't send pong: %s", err)
-		return
-	}
-}
-
 func inbox(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	user, err := butwhatabout(name)
@@ -215,12 +154,6 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch what {
-	case "Ping":
-		id, _ := j.GetString("id")
-		ilog.Printf("ping from %s: %s", who, id)
-		pong(user, who, obj)
-	case "Pong":
-		ilog.Printf("pong from %s: %s", who, obj)
 	case "Follow":
 		if obj != user.URL {
 			ilog.Printf("can't follow %s", obj)
