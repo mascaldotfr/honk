@@ -228,6 +228,9 @@ header > p > a.honkerlink, header > p > a[class=""] /* honkerlink removed by jav
 	display: inline;
 	flex: auto;
 }
+.glow {
+	box-shadow: 0px 0px 16px var(--hl);
+}
 
 
 /*
@@ -281,11 +284,9 @@ html {
 	--header: #b1e2ff;
 	--headerlink: #b1b6ff;
 	--width: 800px;
-	.glow {
-		box-shadow: 0px 0px 16px var(--hl);
-	}
 
 }
+
 @media (prefers-color-scheme: light) {
 	html {
 		--bg-page: #244982;
