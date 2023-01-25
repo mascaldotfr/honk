@@ -118,6 +118,7 @@ details.noise[open] summary {
 	max-width: var(--width);
 	background-color: var(--bg-dark);
 	text-align:center;
+	padding: .25em;
 }
 #topmenu form {
 	display: inline;
@@ -125,8 +126,6 @@ details.noise[open] summary {
 	padding: 0;
 }
 #topmenu form > input {
-	padding: 0;
-	margin: 0;
 	border: 0;
 	filter: grayscale(10%);
 }
