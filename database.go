@@ -38,6 +38,7 @@ import (
 var sqlSchema string
 
 var backintime = 24 * time.Hour
+var notifymelonger = 7 * backintime
 
 func userfromrow(row *sql.Row) (*WhatAbout, error) {
 	user := new(WhatAbout)
@@ -211,7 +212,7 @@ func gethonksforuserfirstclass(userid int64, wanted int64) []*Honk {
 }
 
 func gethonksforme(userid int64, wanted int64) []*Honk {
-	dt := time.Now().Add(-backintime).UTC().Format(dbtimeformat)
+	dt := time.Now().Add(-notifymelonger).UTC().Format(dbtimeformat)
 	rows, err := stmtHonksForMe.Query(wanted, userid, dt, userid)
 	return getsomehonks(rows, err)
 }
