@@ -15,6 +15,7 @@
 {{ if .LocalJSParam }}
 <script src="/local.js{{ .LocalJSParam }}" defer></script>
 {{ end }}
+{{ end }}
 </div>
 <div id="honksonpage">
 <div>
@@ -22,7 +23,6 @@
 {{ $IsPreview := .IsPreview }}
 {{ range .Honks }}
 {{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF "IsPreview" $IsPreview }}
-{{ end }}
 {{ end }}
 </div>
 </div>
