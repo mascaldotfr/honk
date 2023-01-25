@@ -37,6 +37,8 @@ import (
 //go:embed schema.sql
 var sqlSchema string
 
+var backintime = 24 * time.Hour
+
 func userfromrow(row *sql.Row) (*WhatAbout, error) {
 	user := new(WhatAbout)
 	var seckey, options string
@@ -182,14 +184,14 @@ func getbonk(userid int64, xid string) *Honk {
 }
 
 func getpublichonks() []*Honk {
-	dt := time.Now().Add(-7 * 24 * time.Hour).UTC().Format(dbtimeformat)
-	rows, err := stmtPublicHonks.Query(dt, 100)
+	dt := time.Now().Add(-backintime).UTC().Format(dbtimeformat)
+	rows, err := stmtPublicHonks.Query(dt, 20)
 	return getsomehonks(rows, err)
 }
 
 func gethonksbyuser(name string, includeprivate bool, wanted int64) []*Honk {
-	dt := time.Now().Add(-7 * 24 * time.Hour).UTC().Format(dbtimeformat)
-	limit := 50
+	dt := time.Now().Add(-backintime).UTC().Format(dbtimeformat)
+	limit := 20
 	whofore := 2
 	if includeprivate {
 		whofore = 3
@@ -198,18 +200,18 @@ func gethonksbyuser(name string, includeprivate bool, wanted int64) []*Honk {
 	return getsomehonks(rows, err)
 }
 func gethonksforuser(userid int64, wanted int64) []*Honk {
-	dt := time.Now().Add(-7 * 24 * time.Hour).UTC().Format(dbtimeformat)
+	dt := time.Now().Add(-backintime).UTC().Format(dbtimeformat)
 	rows, err := stmtHonksForUser.Query(wanted, userid, dt, userid, userid)
 	return getsomehonks(rows, err)
 }
 func gethonksforuserfirstclass(userid int64, wanted int64) []*Honk {
-	dt := time.Now().Add(-7 * 24 * time.Hour).UTC().Format(dbtimeformat)
+	dt := time.Now().Add(-backintime).UTC().Format(dbtimeformat)
 	rows, err := stmtHonksForUserFirstClass.Query(wanted, userid, dt, userid, userid)
 	return getsomehonks(rows, err)
 }
 
 func gethonksforme(userid int64, wanted int64) []*Honk {
-	dt := time.Now().Add(-7 * 24 * time.Hour).UTC().Format(dbtimeformat)
+	dt := time.Now().Add(-backintime).UTC().Format(dbtimeformat)
 	rows, err := stmtHonksForMe.Query(wanted, userid, dt, userid)
 	return getsomehonks(rows, err)
 }
