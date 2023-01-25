@@ -1580,7 +1580,7 @@ func followyou2(user *WhatAbout, j junk.Junk) {
 
 	ilog.Printf("updating honker accept: %s", who)
 	db := opendatabase()
-	row := db.QueryRow("select name, folxid from honkers where userid = ? and xid = ? and flavor in ('presub')",
+	row := db.QueryRow("select name, folxid from honkers where userid = ? and xid = ? and flavor in ('presub', 'sub')",
 		user.ID, who)
 	var name, folxid string
 	err := row.Scan(&name, &folxid)
