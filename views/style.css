@@ -1,20 +1,17 @@
-html {
-	--bg-page: #306;
-	--bg-dark: #002;
-	--fg: #dcf;
-	--hl: #dcf;
-	--fg-subtle: #a9c;
-	--fg-limited: #a79;
-}
-
 body {
 	background: var(--bg-page);
 	color: var(--fg);
-	font-size: 1em;
 	word-wrap: break-word;
 	font-family: sans-serif, "Noto Color Emoji";
-	line-height: 1.2;
 	overscroll-behavior-y: contain;
+}
+h1, h2 {
+	margin-top: unset;
+	text-align: center;
+}
+a {
+	color: var(--header);
+	text-decoration: none;
 }
 pre, code {
 	white-space: pre-wrap;
@@ -29,12 +26,7 @@ cite {
 	margin-left: 2em;
 }
 table {
-	display: block;
-	max-width: 100%;
 	overflow-x: auto;
-}
-a {
-	color: var(--fg);
 }
 form, input, textarea {
 	font-family: monospace, "Noto Color Emoji";
@@ -46,78 +38,24 @@ p {
 input {
 	background: var(--bg-page);
 	color: var(--fg);
-	font-size: 1.0em;
-	line-height: 1.2em;
 	padding: 0.4em;
-}
-#honkform input {
-	font-size: 0.8em;
 }
 body > header {
 	margin: 1em auto;
-	font-size: 1.5em;
-}
-body > header span {
-	margin-left: 2em;
-}
-body > header p {
-	padding: 1em;
-}
-header > details {
-	background: var(--bg-page);
-	padding: 1em 1em 1em 1em;
-	position: fixed;
-	top: 0;
-	left: 0;
-	display: inline;
-	max-height: calc(100% - 1em);
-	overflow: auto;
-	opacity: 0.7;
-	overscroll-behavior: contain;
-	z-index: 2;
-}
-header > details[open] {
-	padding: 1em 1em 0em 1em;
-	background: var(--bg-dark);
-	border: 1px solid var(--hl);
-	margin-bottom: 1em;
-	opacity: 1.0;
-}
-header > details summary span {
-	display: none;
-}
-header > details[open] summary span {
-	display: inline;
-}
-header > details li {
-	margin: 1em 0em 1em 0em;
-}
-details summary {
-	cursor: pointer;
 }
 main {
-	max-width: 1200px;
+	max-width: var(--width);
 	margin: auto;
-	font-size: 1.5em;
 }
 hr {
 	border-color: var(--hl);
 }
 .info {
 	background: var(--bg-dark);
-	border: 1px solid var(--hl);
 	margin-bottom: 1em;
-	padding: 0em 1em 0em 1em;
-}
-.info div {
-	margin-top: 1em;
-	margin-bottom: 1em;
-}
-label {
-	font-size: 0.8em;
+	padding: 1em;
 }
 label.button, button, select {
-	font-size: 16px;
 	font-family: monospace;
 	color: var(--fg);
 	background: var(--bg-page);
@@ -125,62 +63,23 @@ label.button, button, select {
 	padding: 0.5em;
 	white-space: nowrap;
 }
-.buttonarray {
-	margin-top: -2.0em;
-}
-.buttonarray button, .buttonarray > span {
-	margin-top: 2.0em;
-	display: inline-block;
-}
-button a {
-	text-decoration: none;
-}
 button {
 	cursor: pointer;
 }
-form {
-	margin-top: 1em;
-}
 textarea {
 	padding: 0.5em;
-	font-size: 1em;
 	background: var(--bg-page);
 	color: var(--fg);
-	width: 600px;
-	height: 4em;
+	width: 100%;
+	height: 10em;
 	margin-bottom: 0.5em;
 	box-sizing: border-box;
 	max-width: 100%;
-}
-textarea#honknoise {
-	height: 10em;
-}
-input[type="checkbox"] {
-	position: fixed;
-	top: -9999px;
-}
-input[type="checkbox"] + span:after {
-	content: "no";
-}
-input[type="checkbox"]:checked + span:after {
-	content: "yes";
-}
-input[type="checkbox"]:focus + span:after {
-	outline: 1px solid var(--fg);
-}
-input[type=file] {
-	display: none;
-}
-
-.glow {
-	box-shadow: 0px 0px 16px var(--hl);
 }
 
 .honk {
 	margin: auto;
 	background: var(--bg-dark);
-	border: 1px solid var(--hl);
-	border-radius: 1em;
 	margin-bottom: 1em;
 	padding-left: 1em;
 	padding-right: 1em;
@@ -188,57 +87,7 @@ input[type=file] {
 	overflow: hidden;
 }
 
-.chat {
-	border-bottom: 0.5px solid var(--fg-subtle);
-	padding-left: 1em;
-}
-.chat p {
-	margin-top: 0.2em;
-	margin-bottom: 0.2em;
-}
-.chattarget {
-	border-bottom: 1px solid var(--fg-subtle);
-}
-.chatstamp {
-	margin-left: -1em;
-}
 
-.honk	#honkform {
-		padding: 1em;
-		border: 1px solid var(--fg);
-	}
-.honk	a {
-		color: var(--fg);
-	}
-.honk	header {
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		font-size: 0.8em;
-		line-height: 1.1;
-		margin-top: 1em;
-		height: 64px;
-	}
-
-.honk	header	.clip a {
-			color: var(--fg-subtle);
-		}
-.honk	header	img {
-			float: left;
-			margin-right: 1em;
-			width: 64px;
-			height: 64px;
-		}
-.honk	header	p {
-			margin-top: 0px;
-		}
-.honk	.actions button {
-		margin-left: 4em;
-		margin-top: 2em;
-	}
-.honk	.noise {
-		line-height: 1.4;
-	}
 
 .honk	.noise	code .kw { font-weight: bold; }
 .honk	.noise	code .bi { font-weight: bold; }
@@ -250,95 +99,136 @@ input[type=file] {
 .honk	.noise	code .al { color: #aaffbb; }
 .honk	.noise	code .dl { color: #ffaabb; }
 
-.honk	details.actions summary {
-		color: var(--fg-subtle);
-}
-.subtle .noise {
-		color: var(--fg-subtle);
-		font-size: 0.8em;
-}
-.subtle .noise a {
-		color: var(--fg-subtle);
-}
-.limited {
-	border: 1px solid var(--fg-limited);
-	color: var(--fg-limited);
-}
-.limited	.glow {
-		box-shadow: 0px 0px 16px var(--fg-limited);
-}
-.limited	.noise {
-		color: var(--fg-limited);
-	}
-.limited	.noise a {
-		color: var(--fg-limited);
-	}
-.limited	details.actions summary {
-		color: var(--fg-limited);
-	}
 details.noise[open] summary {
 	display: none;
-}
-h1, h2 {
-	font-size: 1.2em;
-}
-h3, h4 {
-	font-size: 1.1em;
-}
-
-img:not(.emu) {
-	background: var(--bg-page);
-}
-img, video {
-	max-width: 100%;
-	max-height: 600px;
-}
-.noise img:not(.emu) {
-	display: block;
-}
-img.emu {
-	width: 2em;
-	height: 2em;
-	vertical-align: middle;
-	margin: -2px;
-	object-fit: contain;
-}
-.nophone {
-	position: fixed;
-	opacity: 0.7;
-	cursor: pointer;
 }
 @media screen and (max-width: 1360px) {
 	.nophone {
 		display: none;
 	}
 }
-@media screen and (max-width: 740px) {
-	body {
-		font-size: 12px;
-	}
-	.honk header {
-		height: 52px;
-	}
-	.honk header img {
-		width: 48px;
-		height: 48px;
-	}
-	details summary {
-		outline: none;
-	}
+
+
+/*
+ * Import from local.css that did not exist in base honk
+ */
+
+#topmenu {
+	margin: auto;
+	max-width: var(--width);
+	background-color: var(--bg-dark);
+	text-align:center;
 }
-@media print {
-	#topmenu, #topspacer, #infobox, #refreshbox, .actions {
-		display: none;
-	}
-	html {
-		--bg-page: white;
-		--bg-dark: white;
-		--fg: black;
-		--fg-subtle: black;
-		--fg-limited: #a79;
-	}
+#topmenu form {
+	display: inline;
+	margin: 0;
+	padding: 0;
+}
+#topmenu form > input {
+	padding: 0;
+	margin: 0;
+	border: 0;
+	filter: grayscale(10%);
+}
+div.contact {
+	text-align: center;
+	font-style: italic;
+}
+#honkformhost button {
+	display: inline;
+	flex: auto;
+	text-align: center;
+}
+button#honkingtime a {
+	text-align: center;
+	display: block;
+	margin: 0 auto;
+	color: var(--fg);
+}
+#honkformhost {
+	display: flex;
+	justify-content: center;
+	flex-flow: row wrap;
+	gap: 1em;
+}
+#honkform p.buttonarray {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 1em;
+    flex-wrap: wrap;
+}
+.buttonarray button, .buttonarray > span {
+    flex-grow: 1;
+    margin-top: 1em;
+}
+details#topmenu ul li {
+	flex-basis: calc(25%);
+	text-align: left;
+	padding: 0px;
+	margin: .5em;
+}
+details#topmenu ul {
+	list-style-type: none;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	padding: 0;
+	align-items: initial;
+}
+details#topmenu form input {
+	width: 100%;
+	margin-bottom: 1em;
+	padding: 0;
+}
+
+.honk header {
+	font-size: 100%;
+	white-space: normal;
+	border-bottom: 1px solid var(--hl);
+	padding: 0px;
+	margin-bottom: 0px;
+}
+.honk header .clip {
+	height: auto;
+	color: var(--header);
+	margin: .2em;
+}
+.honk header .clip a, .contact a, details.noise > a, .subtle .noise a, .honk a {
+	color: var(--header);
+}
+.honk hr {
+	margin-top: 0px;
+	height: 0px;
+	border: 1px;
+	background-color: var(--hl);
+}
+header > p > a.honkerlink, header > p > a[class=""] /* honkerlink removed by javascript ...*/ {
+	font-weight: bold !important;
+	color: var(--fg) !important;
+	text-decoration: none !important;
+}
+.date {
+	color: var(--fg);
+}
+.subtle .noise {
+	font-size: 100%;
+}
+.honk details.actions summary {
+	color: var(--headerlink);
+}
+.honk .baseactions, div[id^="evenmore"] {
+	display: flex;
+	justify-content: center;
+	flex-flow: row wrap;
+}
+.actions button > a {
+	color: var(--fg);
+}
+.honk .actions button {
+	margin-left: 5px;
+	margin-top: 1em;
+	display: inline;
+	flex: auto;
 }
 
 
@@ -371,22 +261,50 @@ div[id^="evenmore"] {
 	text-align: right;
 }
 
-.font08em {
-	font-size: 0.8em;
-}
-
-.font18em {
-	font-size: 1.8em;
-}
-
 .wsnowrap {
 	white-space: nowrap;
-}
-
-.skinny main {
-	max-width: 700px;
 }
 
 .fontmonospace {
 	font-family: monospace;
 }
+
+/*
+ * SUPER override
+ */
+
+html {
+	--bg-page: #020a18;
+	--bg-dark: #071c2f;
+	--fg: #fdf6e3;
+	--hl: #93a1a1;
+	--fg-subtle: #eee8d5;
+	--fg-limited: #eee8d5;
+	--header: #b1e2ff;
+	--headerlink: #b1b6ff;
+	--width: 800px;
+	.glow {
+		box-shadow: 0px 0px 16px var(--hl);
+	}
+
+}
+@media (prefers-color-scheme: light) {
+	html {
+		--bg-page: #244982;
+		--bg-dark: #fffbf9;
+		--fg: #292d08;
+		--hl: #2c2649;
+		--fg-subtle: #000000;
+		--fg-limited: #000000;
+		--header: #720000;
+		--headerlink: #720000;
+		--width: 800px;
+	}
+	button, input, textarea {
+		background-color: #faebd7;
+	}
+	.glow {
+		box-shadow: 0px 0px 16px var(--bg-dark);
+	}
+}
+
