@@ -213,6 +213,7 @@ header > p > a.honkerlink, header > p > a[class=""] /* honkerlink removed by jav
 	justify-content: center;
 	flex-flow: row wrap;
 	gap: 15%;
+	opacity: 0.7;
 }
 .actions button > a {
 	color: var(--fg);
