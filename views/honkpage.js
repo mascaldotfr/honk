@@ -41,18 +41,6 @@ function unbonk(el, xid) {
 	el.disabled = true
 	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": "unbonk", "what": xid}))
 }
-function muteit(el, convoy) {
-	el.innerHTML = "muted"
-	el.disabled = true
-	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": "zonvoy", "what": convoy}))
-	var els = document.querySelectorAll('article.honk')
-	for (var i = 0; i < els.length; i++) {
-		var e = els[i]
-		if (e.getAttribute("data-convoy") == convoy) {
-			e.remove()
-		}
-	}
-}
 function zonkit(el, xid) {
 	el.innerHTML = "zonked"
 	el.disabled = true
@@ -64,16 +52,6 @@ function zonkit(el, xid) {
 	if (p) {
 		p.remove()
 	}
-}
-function flogit(el, how, xid) {
-	var s = how
-	if (s[s.length-1] != "e") { s += "e" }
-	s += "d"
-	if (s == "untaged") s = "untagged"
-	if (s == "reacted") s = "badonked"
-	el.innerHTML = s
-	el.disabled = true
-	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": how, "what": xid}))
 }
 
 var lehonkform = document.getElementById("honkform")
@@ -246,12 +224,6 @@ function relinklinks() {
 			decodeURIComponent(els[0].search.replace(/\?c=/, "")));
 		els[0].classList.remove("convoylink")
 	}
-	els = document.getElementsByClassName("combolink")
-	while (els.length) {
-		els[0].onclick = pageswitcher("combo", 
-			decodeURIComponent(els[0].search.replace(/\?c=/, "")));
-		els[0].classList.remove("combolink")
-	}
 	els = document.getElementsByClassName("honkerlink")
 	while (els.length) {
 		var el = els[0]
@@ -284,48 +256,9 @@ function relinklinks() {
 			el.onclick = function() {
 				return showhonkform(el, xid, hname)
 			}
-		} else if (el.classList.contains("mute")) {
-			el.onclick = function() {
-				muteit(el, convoy);
-			}
-		} else if (el.classList.contains("evenmore")) {
-			var more = document.querySelector("#evenmore"+id);
-			el.onclick = function() {
-				more.classList.toggle("hide");
-			}
 		} else if (el.classList.contains("zonk")) {
 			el.onclick = function() {
 				zonkit(el, xid);
-			}
-		} else if (el.classList.contains("flogit-deack")) {
-			el.onclick = function() {
-				flogit(el, "deack", xid);
-			}
-		} else if (el.classList.contains("flogit-ack")) {
-			el.onclick = function() {
-				flogit(el, "ack", xid);
-			}
-		} else if (el.classList.contains("flogit-unsave")) {
-			el.onclick = function() {
-				flogit(el, "unsave", xid);
-			}
-		} else if (el.classList.contains("flogit-save")) {
-			el.onclick = function() {
-				flogit(el, "save", xid);
-			}
-		} else if (el.classList.contains("flogit-untag")) {
-			el.onclick = function() {
-				flogit(el, "untag", xid);
-			}
-		} else if (el.classList.contains("flogit-react")) {
-			el.onclick = function() {
-				flogit(el, "react", xid);
-			}
-		} else if (el.classList.contains("playit")) {
-			var noise = el.dataset.noise
-			var wonk = el.dataset.wonk
-			el.onclick = function() {
-				playit(el, noise, wonk, xid)
 			}
 		}
 	})
@@ -338,9 +271,6 @@ function relinklinks() {
 	relinklinks()
 	window.onpopstate = statechanger
 	history.replaceState(curpagestate, "some title", "")
-})();
-(function() {
-	hideelement("donkdescriptor")
 })();
 function showhonkform(elem, rid, hname) {
 	var form = lehonkform
@@ -385,14 +315,6 @@ function hideelement(el) {
 		el = document.getElementById(el)
 	if (!el) return
 	el.style.display = "none"
-}
-function updatedonker() {
-	var el = document.getElementById("donker")
-	el.children[1].textContent = el.children[0].value.slice(-20)
-	var el = document.getElementById("donkdescriptor")
-	el.style.display = ""
-	var el = document.getElementById("saveddonkxid")
-	el.value = ""
 }
 
 // init
