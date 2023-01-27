@@ -263,15 +263,6 @@ function relinklinks() {
 		}
 	})
 }
-(function() {
-	var el = document.getElementById("homelink")
-	el.onclick = pageswitcher("home", "")
-	el = document.getElementById("atmelink")
-	el.onclick = pageswitcher("atme", "")
-	relinklinks()
-	window.onpopstate = statechanger
-	history.replaceState(curpagestate, "some title", "")
-})();
 function showhonkform(elem, rid, hname) {
 	var form = lehonkform
 	form.style = "display: block"
@@ -326,6 +317,11 @@ function hideelement(el) {
 	tophid[curpagestate.name + ":" + curpagestate.arg] = me.dataset.tophid
 	servermsgs[curpagestate.name + ":" + curpagestate.arg] = me.dataset.srvmsg
 
+	var el = document.getElementById("homelink")
+	el.onclick = pageswitcher("home", "")
+	el = document.getElementById("atmelink")
+	el.onclick = pageswitcher("atme", "")
+
 	var totop = document.querySelector(".nophone")
 	if (totop) {
 		totop.onclick = function() {
@@ -357,4 +353,8 @@ function hideelement(el) {
 		return showhonkform()
 	}
 	document.querySelector("button[name=cancel]").onclick = cancelhonking
+
+	relinklinks()
+	window.onpopstate = statechanger
+	history.replaceState(curpagestate, "some title", "")
 })();
