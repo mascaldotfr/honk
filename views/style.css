@@ -47,9 +47,6 @@ main {
 	max-width: var(--width);
 	margin: auto;
 }
-hr {
-	border-color: var(--hl);
-}
 .info {
 	background: var(--bg-dark);
 	margin-bottom: 1em;
@@ -118,7 +115,7 @@ details.noise[open] summary {
 	max-width: var(--width);
 	background-color: var(--bg-dark);
 	text-align:center;
-	padding: .25em;
+	padding: .25em 0;
 }
 #topmenu form {
 	display: inline;
@@ -214,7 +211,7 @@ header > p > a.honkerlink, header > p > a[class=""] /* honkerlink removed by jav
 .honk details.actions summary {
 	color: var(--headerlink);
 }
-.honk .baseactions, div[id^="evenmore"] {
+.honk .baseactions {
 	display: flex;
 	justify-content: center;
 	flex-flow: row wrap;
@@ -244,14 +241,6 @@ li.details {
 
 .left1em {
 	margin-left: 1em;
-}
-
-div[id^="evenmore"].hide {
-	display:none;
-}
-
-div[id^="evenmore"] {
-	display:flex;
 }
 
 .hide {
