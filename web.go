@@ -23,7 +23,6 @@ import (
 	"io"
 	notrand "math/rand"
 	"net/http"
-	"net/url"
 	"os"
 	"os/signal"
 	"regexp"
@@ -290,42 +289,6 @@ func serveractor(w http.ResponseWriter, r *http.Request) {
 	user := getserveruser()
 	j := junkuser(user)
 	j.Write(w)
-}
-
-func ximport(w http.ResponseWriter, r *http.Request) {
-	u := login.GetUserInfo(r)
-	xid := strings.TrimSpace(r.FormValue("xid"))
-	xonk := getxonk(u.UserID, xid)
-	if xonk == nil {
-		p, _ := investigate(xid)
-		if p != nil {
-			xid = p.XID
-		}
-		j, err := GetJunk(u.UserID, xid)
-		if err != nil {
-			http.Error(w, "error getting external object", http.StatusInternalServerError)
-			ilog.Printf("error getting external object: %s", err)
-			return
-		}
-		allinjest(originate(xid), j)
-		dlog.Printf("importing %s", xid)
-		user, _ := butwhatabout(u.Username)
-
-		info, _ := somethingabout(j)
-		if info == nil {
-			xonk = xonksaver(user, j, originate(xid))
-		} else if info.What == SomeActor {
-			outbox, _ := j.GetString("outbox")
-			gimmexonks(user, outbox)
-			http.Redirect(w, r, "/h?xid="+url.QueryEscape(xid), http.StatusSeeOther)
-			return
-		}
-	}
-	convoy := ""
-	if xonk != nil {
-		convoy = xonk.Convoy
-	}
-	http.Redirect(w, r, "/t?c="+url.QueryEscape(convoy), http.StatusSeeOther)
 }
 
 var oldoutbox = cache.New(cache.Options{Filler: func(name string) ([]byte, bool) {
@@ -820,54 +783,8 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 	userinfo := login.GetUserInfo(r)
 	user, _ := butwhatabout(userinfo.Username)
 
-	if wherefore == "save" {
-		xonk := getxonk(userinfo.UserID, what)
-		if xonk != nil {
-			_, err := stmtUpdateFlags.Exec(flagIsSaved, xonk.ID)
-			if err != nil {
-				elog.Printf("error saving: %s", err)
-			}
-		}
-		return
-	}
-
-	if wherefore == "unsave" {
-		xonk := getxonk(userinfo.UserID, what)
-		if xonk != nil {
-			_, err := stmtClearFlags.Exec(flagIsSaved, xonk.ID)
-			if err != nil {
-				elog.Printf("error unsaving: %s", err)
-			}
-		}
-		return
-	}
-
 	// my hammer is too big, oh well
 	defer oldjonks.Flush()
-
-	if wherefore == "ack" {
-		xonk := getxonk(userinfo.UserID, what)
-		if xonk != nil && !xonk.IsAcked() {
-			_, err := stmtUpdateFlags.Exec(flagIsAcked, xonk.ID)
-			if err != nil {
-				elog.Printf("error acking: %s", err)
-			}
-			sendzonkofsorts(xonk, user, "ack", "")
-		}
-		return
-	}
-
-	if wherefore == "deack" {
-		xonk := getxonk(userinfo.UserID, what)
-		if xonk != nil && xonk.IsAcked() {
-			_, err := stmtClearFlags.Exec(flagIsAcked, xonk.ID)
-			if err != nil {
-				elog.Printf("error deacking: %s", err)
-			}
-			sendzonkofsorts(xonk, user, "deack", "")
-		}
-		return
-	}
 
 	if wherefore == "bonk" {
 		user, _ := butwhatabout(userinfo.Username)
@@ -886,19 +803,6 @@ func zonkit(w http.ResponseWriter, r *http.Request) {
 			}
 			sendzonkofsorts(xonk, user, "unbonk", "")
 		}
-		return
-	}
-
-	if wherefore == "untag" {
-		xonk := getxonk(userinfo.UserID, what)
-		if xonk != nil {
-			_, err := stmtUpdateFlags.Exec(flagIsUntagged, xonk.ID)
-			if err != nil {
-				elog.Printf("error untagging: %s", err)
-			}
-		}
-		var badparents map[string]bool
-		badparents[what] = true
 		return
 	}
 
@@ -1605,7 +1509,6 @@ func serve() {
 
 	getters.HandleFunc("/", homepage)
 	getters.HandleFunc("/home", homepage)
-	getters.HandleFunc("/events", homepage)
 	getters.HandleFunc("/robots.txt", nomoroboto)
 	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}", showuser)
 	getters.HandleFunc("/"+userSep+"/{name:[\\pL[:digit:]]+}/"+honkSep+"/{xid:[\\pL[:digit:]]+}", showonehonk)
@@ -1640,7 +1543,6 @@ func serve() {
 
 	loggedin := mux.NewRoute().Subrouter()
 	loggedin.Use(login.Required)
-	loggedin.HandleFunc("/first", homepage)
 	loggedin.HandleFunc("/account", accountpage)
 	loggedin.HandleFunc("/chpass", dochpass)
 	loggedin.HandleFunc("/atme", homepage)
@@ -1650,7 +1552,6 @@ func serve() {
 	loggedin.Handle("/bonk", login.CSRFWrap("honkhonk", http.HandlerFunc(submitbonk)))
 	loggedin.Handle("/zonkit", login.CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
 	loggedin.Handle("/saveuser", login.CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
-	loggedin.Handle("/ximport", login.CSRFWrap("ximport", http.HandlerFunc(ximport)))
 	loggedin.HandleFunc("/honkers", showhonkers)
 	loggedin.HandleFunc("/h/{name:[\\pL[:digit:]_.-]+}", showhonker)
 	loggedin.HandleFunc("/h", showhonker)

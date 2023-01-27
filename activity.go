@@ -794,7 +794,7 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 					desc = name
 				}
 				if tt == "Emoji" {
-					continue	
+					continue
 				}
 				if tt == "Mention" {
 					var m Mention
@@ -1067,12 +1067,6 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 	case "zonk":
 		j["type"] = "Delete"
 		j["object"] = h.XID
-	case "ack":
-		j["type"] = "Read"
-		j["object"] = h.XID
-		if h.Convoy != "" {
-			j["context"] = h.Convoy
-		}
 	case "react":
 		j["type"] = "EmojiReact"
 		j["object"] = h.XID
@@ -1080,17 +1074,6 @@ func jonkjonk(user *WhatAbout, h *Honk) (junk.Junk, junk.Junk) {
 			j["context"] = h.Convoy
 		}
 		j["content"] = h.Noise
-	case "deack":
-		b := junk.New()
-		b["id"] = user.URL + "/" + "ack" + "/" + shortxid(h.XID)
-		b["type"] = "Read"
-		b["actor"] = user.URL
-		b["object"] = h.XID
-		if h.Convoy != "" {
-			b["context"] = h.Convoy
-		}
-		j["type"] = "Undo"
-		j["object"] = b
 	}
 
 	return j, jo
