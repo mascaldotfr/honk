@@ -116,6 +116,9 @@ details.noise[open] summary {
 	background-color: var(--bg-dark);
 	text-align:center;
 	padding: .25em 0;
+}
+#topmenu a {
+	filter: invert(20%);
 	font-size: large;
 }
 #topmenu form {
