@@ -31,18 +31,18 @@ function get(url, whendone, whentimedout) {
 	x.send()
 }
 function bonk(el, xid) {
-	el.innerHTML = "bonked"
+	el.innerHTML = "💥"
 	el.disabled = true
 	post("/bonk", encode({"js": "2", "CSRF": csrftoken, "xid": xid}))
 	return false
 }
 function unbonk(el, xid) {
-	el.innerHTML = "unbonked"
+	el.innerHTML = "🚀"
 	el.disabled = true
 	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": "unbonk", "what": xid}))
 }
 function zonkit(el, xid) {
-	el.innerHTML = "zonked"
+	el.innerHTML = "☠"
 	el.disabled = true
 	post("/zonkit", encode({"CSRF": csrftoken, "wherefore": "zonk", "what": xid}))
 	var p = el

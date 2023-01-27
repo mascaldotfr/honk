@@ -66,23 +66,20 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 {{ end }}
 {{ if and $bonkcsrf (not $IsPreview) }}
 <p>
-<details class="actions">
-<summary>Actions</summary>
-<div class="baseactions">
+<div class="actions">
 {{ if .Honk.Public }}
 {{ if .Honk.IsBonked }}
-<button class="unbonk">unbonk</button>
+<button class="unbonk">💥</button>
 {{ else }}
-<button class="bonk">bonk</button>
+<button class="bonk">🚀</button>
 {{ end }}
 {{ else }}
-<button disabled>nope</button>
+<button disabled>🛑</button>
 {{ end }}
-<button class="honkback"><a href="/newhonk?rid={{ .Honk.XID }}">honk back</a></button>
-<button class="zonk">zonk</button>
-<button><a href="/edit?xid={{ .Honk.XID }}">edit</a></button>
+<button class="honkback"><a href="/newhonk?rid={{ .Honk.XID }}">✉</a></button>
+<button class="zonk">🗑</button>
+<button><a href="/edit?xid={{ .Honk.XID }}">✏ </a></button>
 </div>
-</details>
 <p>
 {{ end }}
 </article>

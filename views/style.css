@@ -208,22 +208,20 @@ header > p > a.honkerlink, header > p > a[class=""] /* honkerlink removed by jav
 .subtle .noise {
 	font-size: 100%;
 }
-.honk details.actions summary {
-	color: var(--headerlink);
-}
-.honk .baseactions {
+.honk .actions {
 	display: flex;
 	justify-content: center;
 	flex-flow: row wrap;
+	gap: 15%;
 }
 .actions button > a {
 	color: var(--fg);
 }
 .honk .actions button {
-	margin-left: 5px;
-	margin-top: 1em;
-	display: inline;
 	flex: auto;
+	font-family: inherit;
+	border: unset;
+	background-color: var(--bg-dark);
 }
 .glow {
 	box-shadow: 0px 0px 16px var(--hl);
