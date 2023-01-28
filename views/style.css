@@ -118,7 +118,6 @@ details.noise[open] summary {
 	padding: .25em 0;
 }
 #topmenu a {
-	filter: invert(20%);
 	font-size: large;
 }
 #topmenu form {
