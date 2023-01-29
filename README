@@ -31,9 +31,6 @@ Backend:
 - honk's backend has been totally removed, you can't upload attachments, use
   emus, banners, custom avatars etc. As such, funzone has been nuked as well,
   and data/blob.db is non existent.
-- API support removed due to previous change, so you can't use bots, and toys
-  are gone as well. Could be brought back with a new database schema and
-  some code rewrite, but i won't bother.
 - Drop filtering, let's live a dangerous life
 - Drop import
 - Drop chatter
@@ -41,6 +38,8 @@ Backend:
 - Drop flag feature
 - Add Content Security Policy
 - Remote quoting is disabled (see 5de338e for reason)
+- API support is present, but the following actions are not available:
+  donks, most zonkit (save/unsave, ack/deack, react, zonvoy)
 
 =======================================================================
 
