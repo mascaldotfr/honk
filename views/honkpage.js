@@ -200,37 +200,7 @@ function switchtopage(name, arg) {
 function newpagestate(name, arg) {
 	return { "name": name, "arg": arg }
 }
-function pageswitcher(name, arg) {
-	return function(evt) {
-		var topmenu = document.getElementById("topmenu")
-		topmenu.open = false
-		if (name == curpagestate.name && arg == curpagestate.arg) {
-			return false
-		}
-		switchtopage(name, arg)
-		var url = evt.srcElement.href
-		if (!url) {
-			url = evt.srcElement.parentElement.href
-		}
-		history.pushState(newpagestate(name, arg), "some title", url)
-		window.scrollTo(0, 0)
-		return false
-	}
-}
 function relinklinks() {
-	var els = document.getElementsByClassName("convoylink")
-	while (els.length) {
-		els[0].onclick = pageswitcher("convoy", 
-			decodeURIComponent(els[0].search.replace(/\?c=/, "")));
-		els[0].classList.remove("convoylink")
-	}
-	els = document.getElementsByClassName("honkerlink")
-	while (els.length) {
-		var el = els[0]
-		var xid = el.getAttribute("data-xid")
-		el.onclick = pageswitcher("honker", xid)
-		el.classList.remove("honkerlink")
-	}
 	els = document.querySelectorAll("#honksonpage article button")
 	els.forEach(function(el) {
 		var honk = el.closest("article")
@@ -317,38 +287,13 @@ function hideelement(el) {
 	tophid[curpagestate.name + ":" + curpagestate.arg] = me.dataset.tophid
 	servermsgs[curpagestate.name + ":" + curpagestate.arg] = me.dataset.srvmsg
 
-	var el = document.getElementById("homelink")
-	el.onclick = pageswitcher("home", "")
-	el = document.getElementById("atmelink")
-	el.onclick = pageswitcher("atme", "")
-
-	var totop = document.querySelector(".nophone")
-	if (totop) {
-		totop.onclick = function() {
-			window.scrollTo(0,0)
+	var refreshbtn = document.getElementById("refreshhonks")
+	if (refreshbtn) {
+		refreshbtn.onclick = function() {
+			refreshhonks(refreshbtn)
 		}
 	}
 
-	var refreshbox = document.getElementById("honkformhost")
-	if (refreshbox) {
-		refreshbox.querySelectorAll("button").forEach(function(el) {
-			if (el.classList.contains("refresh")) {
-				el.onclick = function() {
-					refreshhonks(el)
-				}
-			} else if (el.classList.contains("scrolldown")) {
-				el.onclick = function() {
-					oldestnewest(el)
-				}
-			}
-		})
-
-		if (me.dataset.srvmsg == "one honk maybe more") {
-			hideelement(refreshbox)
-		}
-	}
-
-	var td = document.getElementById("timedescriptor")
 	document.getElementById("honkingtime").onclick = function() {
 		return showhonkform()
 	}

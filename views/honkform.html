@@ -1,7 +1,6 @@
 <div id="honkformhost">
 <button id="honkingtime" {{ if .IsPreview }}class="hide"{{ end }}><a href="/newhonk">it's honking time</a></button>
 <button id="refreshhonks" class="refresh">refresh</button>
-<button class="scrolldown">scroll down</button>
 </div>
 <form id="honkform" action="/honk" method="POST" enctype="multipart/form-data" {{ if not .IsPreview }}class="hide"{{ end }}>
 <input type="hidden" name="CSRF" value="{{ .HonkCSRF }}">
