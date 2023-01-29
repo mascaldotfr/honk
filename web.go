@@ -1454,6 +1454,71 @@ func honkhonkline() {
 	}
 }
 
+func apihandler(w http.ResponseWriter, r *http.Request) {
+	u := login.GetUserInfo(r)
+	userid := u.UserID
+	action := r.FormValue("action")
+	wait, _ := strconv.ParseInt(r.FormValue("wait"), 10, 0)
+	dlog.Printf("api request '%s' on behalf of %s", action, u.Username)
+	switch action {
+	case "honk":
+		h := submithonk(w, r)
+		if h == nil {
+			return
+		}
+		w.Write([]byte(h.XID))
+	case "donk":
+		http.Error(w, "donks are not implemented on this server", http.StatusBadRequest)
+	case "zonkit":
+		zonkit(w, r)
+	case "gethonks":
+		var honks []*Honk
+		wanted, _ := strconv.ParseInt(r.FormValue("after"), 10, 0)
+		page := r.FormValue("page")
+		var waitchan <-chan time.Time
+	requery:
+		switch page {
+		case "atme":
+			honks = gethonksforme(userid, wanted)
+			menewnone(userid)
+		case "longago":
+			honks = gethonksfromlongago(userid, wanted)
+		case "home":
+			honks = gethonksforuser(userid, wanted)
+		case "myhonks":
+			honks = gethonksbyuser(u.Username, true, wanted)
+		default:
+			http.Error(w, "unknown page", http.StatusNotFound)
+			return
+		}
+		if len(honks) == 0 && wait > 0 {
+			if waitchan == nil {
+				waitchan = time.After(time.Duration(wait) * time.Second)
+			}
+			select {
+			case <-honkline:
+				goto requery
+			case <-waitchan:
+			}
+		}
+		reverbolate(userid, honks)
+		j := junk.New()
+		j["honks"] = honks
+		j.Write(w)
+	case "sendactivity":
+		user, _ := butwhatabout(u.Username)
+		public := r.FormValue("public") == "1"
+		rcpts := boxuprcpts(user, r.Form["rcpt"], public)
+		msg := []byte(r.FormValue("msg"))
+		for rcpt := range rcpts {
+			go deliverate(0, userid, rcpt, msg, true)
+		}
+	default:
+		http.Error(w, "unknown action", http.StatusNotFound)
+		return
+	}
+}
+
 
 var endoftheworld = make(chan bool)
 var readyalready = make(chan bool)
@@ -1546,6 +1611,8 @@ func serve() {
 	mux := mux.NewRouter()
 	mux.Use(addcspheaders)
 	mux.Use(login.Checker)
+
+	mux.Handle("/api", login.TokenRequired(http.HandlerFunc(apihandler)))
 
 	posters := mux.Methods("POST").Subrouter()
 	getters := mux.Methods("GET").Subrouter()
