@@ -16,6 +16,9 @@ Frontend:
   inline with the rest of the page. Notably the "places" and "events" feature
   have been totally zapped from the frontend.
 - scroll down automatically to the "oldest newest" honk after a refresh
+- xzone has been removed, instead you can insert "https://" links to honk or
+  honkers in the search field if you want to import them (like you would do in
+  mastodon)
 
 Backend:
 

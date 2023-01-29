@@ -23,6 +23,7 @@ import (
 	"io"
 	notrand "math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"regexp"
@@ -293,6 +294,42 @@ func serveractor(w http.ResponseWriter, r *http.Request) {
 	j.Write(w)
 }
 
+func ximport(w http.ResponseWriter, r *http.Request) {
+	u := login.GetUserInfo(r)
+	xid := strings.TrimSpace(r.FormValue("q"))
+	xonk := getxonk(u.UserID, xid)
+	if xonk == nil {
+		p, _ := investigate(xid)
+		if p != nil {
+			xid = p.XID
+		}
+		j, err := GetJunk(u.UserID, xid)
+		if err != nil {
+			http.Error(w, "error getting external object", http.StatusInternalServerError)
+			ilog.Printf("error getting external object: %s", err)
+			return
+		}
+		allinjest(originate(xid), j)
+		dlog.Printf("importing %s", xid)
+		user, _ := butwhatabout(u.Username)
+
+		info, _ := somethingabout(j)
+		if info == nil {
+			xonk = xonksaver(user, j, originate(xid))
+		} else if info.What == SomeActor {
+			outbox, _ := j.GetString("outbox")
+			gimmexonks(user, outbox)
+			http.Redirect(w, r, "/h?xid="+url.QueryEscape(xid), http.StatusSeeOther)
+			return
+		}
+	}
+	convoy := ""
+	if xonk != nil {
+		convoy = xonk.Convoy
+	}
+	http.Redirect(w, r, "/t?c="+url.QueryEscape(convoy), http.StatusSeeOther)
+}
+
 var oldoutbox = cache.New(cache.Options{Filler: func(name string) ([]byte, bool) {
 	user, err := butwhatabout(name)
 	if err != nil {
@@ -430,7 +467,11 @@ func showconvoy(w http.ResponseWriter, r *http.Request) {
 	honkpage(w, u, honks, templinfo)
 }
 func showsearch(w http.ResponseWriter, r *http.Request) {
-	q := r.FormValue("q")
+	q := strings.TrimSpace(r.FormValue("q"))
+	if strings.HasPrefix(q, "https://") {
+		ximport(w, r)
+		return
+	}
 	u := login.GetUserInfo(r)
 	honks := gethonksbysearch(u.UserID, q, 0)
 	templinfo := getInfo(r)
