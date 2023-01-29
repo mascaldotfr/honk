@@ -1,6 +1,8 @@
 <article class="honk {{ .Honk.Style }}" data-convoy="{{ .Honk.Convoy }}" data-hname="{{ .Honk.Handles }}" data-xid="{{ .Honk.XID }}" data-id="{{ .Honk.ID }}">
 {{ $bonkcsrf := .BonkCSRF }}
 {{ $IsPreview := .IsPreview }}
+{{ $UserURL := .UserURL }}
+{{ $HasPrefix := .HasPrefix }}
 {{ with .Honk }}
 <header>
 {{ if .Oonker }}
@@ -78,7 +80,11 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 {{ end }}
 <button class="honkback"><a href="/newhonk?rid={{ .Honk.XID }}">✍</a></button>
 <button class="zonk">🗑</button>
+{{ if and .Honk.XID $UserURL }}
+{{ if (call $HasPrefix .Honk.XID $UserURL) }}
 <button><a href="/edit?xid={{ .Honk.XID }}">✏ </a></button>
+{{ end }}
+{{ end }}
 </div>
 <p>
 {{ end }}

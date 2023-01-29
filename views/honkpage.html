@@ -21,8 +21,10 @@
 <div>
 {{ $BonkCSRF := .HonkCSRF }}
 {{ $IsPreview := .IsPreview }}
+{{ $UserURL := .UserInfo.URL }}
+{{ $HasPrefix := .HasPrefix }}
 {{ range .Honks }}
-{{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF "IsPreview" $IsPreview }}
+{{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF "IsPreview" $IsPreview "UserURL" $UserURL "HasPrefix" $HasPrefix }}
 {{ end }}
 </div>
 </div>

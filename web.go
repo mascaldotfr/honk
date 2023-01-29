@@ -59,6 +59,8 @@ func getInfo(r *http.Request) map[string]interface{} {
 	if u := login.GetUserInfo(r); u != nil {
 		templinfo["UserInfo"], _ = butwhatabout(u.Username)
 	}
+	tmpl_hasprefix := strings.HasPrefix
+	templinfo["HasPrefix"] = tmpl_hasprefix
 	return templinfo
 }
 
