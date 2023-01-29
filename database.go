@@ -297,8 +297,8 @@ func gethonksbysearch(userid int64, q string, wanted int64) []*Honk {
 
 	selecthonks := "select honks.honkid, honks.userid, username, what, honker, oonker, honks.xid, rid, dt, url, audience, noise, precis, format, convoy, whofore, flags from honks join users on honks.userid = users.userid "
 	where := "where " + strings.Join(queries, " and ")
-	butnotthose := " and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"
-	limit := " order by honks.honkid desc limit 250"
+	butnotthose := " and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc)"
+	limit := " order by honks.honkid desc"
 	params = append(params, userid)
 	rows, err := opendatabase().Query(selecthonks+where+butnotthose+limit, params...)
 	honks := getsomehonks(rows, err)
