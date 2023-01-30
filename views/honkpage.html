@@ -6,7 +6,7 @@
 <p><h3><a href="https://{{.ServerName}}/u/{{ .Name }}">@{{ .Name }}@{{ .ServerName }}</a></h3>
 <p>{{ .WhatAbout }}
 {{ end }}
-<p>{{ .ServerMessage }}
+{{ .ServerMessage }}
 </div>
 {{ if .HonkCSRF }}
 {{ template "honkform.html" . }}
