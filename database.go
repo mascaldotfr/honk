@@ -37,8 +37,7 @@ import (
 //go:embed schema.sql
 var sqlSchema string
 
-var backintime = 24 * time.Hour
-var notifymelonger = 7 * backintime
+var backintime = 7 * 24 * time.Hour
 
 func userfromrow(row *sql.Row) (*WhatAbout, error) {
 	user := new(WhatAbout)
@@ -191,7 +190,7 @@ func getpublichonks() []*Honk {
 }
 
 func gethonksbyuser(name string, includeprivate bool, wanted int64) []*Honk {
-	dt := time.Now().Add(-notifymelonger).UTC().Format(dbtimeformat)
+	dt := time.Now().Add(-backintime).UTC().Format(dbtimeformat)
 	limit := 20
 	whofore := 2
 	if includeprivate {
@@ -212,7 +211,7 @@ func gethonksforuserfirstclass(userid int64, wanted int64) []*Honk {
 }
 
 func gethonksforme(userid int64, wanted int64) []*Honk {
-	dt := time.Now().Add(-notifymelonger).UTC().Format(dbtimeformat)
+	dt := time.Now().Add(-backintime).UTC().Format(dbtimeformat)
 	rows, err := stmtHonksForMe.Query(wanted, userid, dt, userid)
 	return getsomehonks(rows, err)
 }
