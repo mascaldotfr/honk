@@ -191,7 +191,7 @@ func getpublichonks() []*Honk {
 }
 
 func gethonksbyuser(name string, includeprivate bool, wanted int64) []*Honk {
-	dt := time.Now().Add(-backintime).UTC().Format(dbtimeformat)
+	dt := time.Now().Add(-notifymelonger).UTC().Format(dbtimeformat)
 	limit := 20
 	whofore := 2
 	if includeprivate {
