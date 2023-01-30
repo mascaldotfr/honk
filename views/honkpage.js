@@ -88,12 +88,6 @@ function fillinhonks(xhr, glowit) {
 		mecount.innerHTML = ""
 	}
 
-	var srvel = document.getElementById("srvmsg")
-	while (srvel.children[0]) {
-		srvel.children[0].remove()
-	}
-	srvel.prepend(srvmsg)
-
 	var frontload = true
 	if (curpagestate.name == "convoy") {
 		frontload = false
