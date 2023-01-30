@@ -1643,6 +1643,8 @@ func serve() {
 	getters.HandleFunc("/local.css", servedataasset)
 	getters.HandleFunc("/local.js", servedataasset)
 	getters.HandleFunc("/icon.png", servedataasset)
+	getters.HandleFunc("/background.jpg", servedataasset)
+	getters.HandleFunc("/guest.css", servedataasset)
 	getters.HandleFunc("/favicon.ico", servedataasset)
 	getters.HandleFunc("/manifest.webmanifest", serveviewasset)
 

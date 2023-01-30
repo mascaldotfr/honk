@@ -19,6 +19,8 @@ Frontend:
 - xzone has been removed, instead you can insert "https://" links to honk or
   honkers in the search field if you want to import them (like you would do in
   mastodon)
+- Has background image for guests sessions if you put an image named
+  `background.jpg` in `data\views`.
 
 Backend:
 
