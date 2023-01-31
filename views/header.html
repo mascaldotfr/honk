@@ -16,26 +16,20 @@
 {{ if .UserInfo }}
 <div id="topmenu">
 <a id="homelink" href="/">🏠</a>
-&nbsp;&nbsp;
 <a href="/honkers">🧑🏿‍🤝‍🧑🏻</a>
-&nbsp;&nbsp;
 <a href="/account">⚙️</a>
-&nbsp;&nbsp;
 <a href="/{{ .UserSep }}/{{ .UserInfo.Name }}">🪞</a>
-&nbsp;&nbsp;
 <a href="/about">🖥️</a>
-&nbsp;&nbsp;
 <a id="atmelink" href="/atme">📨<span id=mecount>{{ if .UserInfo.Options.MeCount }}({{ .UserInfo.Options.MeCount }}){{ end }}</span></a>
-&nbsp;&nbsp;
 <form action="/q" method="GET">
-<input type="text" name="q" autocomplete=off size=15 placeholder="🔍">
+<input type="text" name="q" autocomplete=off size=30 placeholder="🔍">
 </form>
 {{ else }}
 <link rel="stylesheet" type="text/css" href="/guest.css"/>
 <div id="topmenu">
-<span><a id="homelink" href="/">home</a></span>&nbsp;|
-<span><a href="/about">about</a></span>&nbsp;|
-<span><a href="/login">login</a></span>
+<a id="homelink" href="/">home</a>
+<a href="/about">about</a>
+<a href="/login">login</a>
 </div>
 {{ end }}
 </header>

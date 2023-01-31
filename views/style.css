@@ -13,9 +13,6 @@ a {
 	color: var(--header);
 	text-decoration: none;
 }
-pre, code {
-	white-space: pre-wrap;
-}
 blockquote {
 	margin-left: 0em;
 	margin-bottom: 0em;
@@ -30,10 +27,6 @@ table {
 }
 form, input, textarea {
 	font-family: monospace, "Noto Color Emoji";
-}
-p {
-	margin-top: 1em;
-	margin-bottom: 1em;
 }
 input {
 	background: var(--bg-page);
@@ -86,24 +79,15 @@ textarea {
 
 
 
-.honk	.noise	code .kw { font-weight: bold; }
-.honk	.noise	code .bi { font-weight: bold; }
-.honk	.noise	code .st { color: var(--fg-subtle); }
-.honk	.noise	code .nm { color: #ba88ff; }
-.honk	.noise	code .op { color: #ba88ff; }
-.honk	.noise	code .tp { font-weight: bold; }
-.honk	.noise	code .cm { color: var(--fg-subtle); font-style: italic; }
-.honk	.noise	code .al { color: #aaffbb; }
-.honk	.noise	code .dl { color: #ffaabb; }
-
-details.noise[open] summary {
-	display: none;
-}
-@media screen and (max-width: 1360px) {
-	.nophone {
-		display: none;
-	}
-}
+.honk	code .kw { font-weight: bold; }
+.honk	code .bi { font-weight: bold; }
+.honk	code .st { color: var(--fg-subtle); }
+.honk	code .nm { color: #ba88ff; }
+.honk	code .op { color: #ba88ff; }
+.honk	code .tp { font-weight: bold; }
+.honk	code .cm { color: var(--fg-subtle); font-style: italic; }
+.honk	code .al { color: #aaffbb; }
+.honk	code .dl { color: #ffaabb; }
 
 
 /*
@@ -114,11 +98,15 @@ details.noise[open] summary {
 	margin: auto;
 	max-width: var(--width);
 	background-color: var(--bg-dark);
-	text-align:center;
+	text-align: center;
 	padding: .25em 0;
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 1em;
 }
 #topmenu a {
-	font-size: large;
+	font-size: x-large;
 }
 #topmenu form {
 	display: inline;
@@ -129,15 +117,14 @@ details.noise[open] summary {
 	border: 0;
 	filter: grayscale(10%);
 }
+#srvmsg, #srvmsg button {
+	margin-top: 1em;
+	margin-bottom: inherit;
+}
 div.contact {
 	text-align: center;
 	font-style: italic;
 	margin-bottom: 1em;
-}
-#honkformhost button {
-	display: inline;
-	flex: auto;
-	text-align: center;
 }
 button#honkingtime a {
 	text-align: center;
@@ -151,30 +138,25 @@ button#honkingtime a {
 	flex-flow: row wrap;
 	gap: 1em;
 }
-#honkform p.buttonarray {
+#honkformhost button {
+	display: inline;
+	flex: auto;
+	text-align: center;
+}
+#honkform .buttonarray {
     display: flex;
     justify-content: space-evenly;
     gap: 1em;
     flex-wrap: wrap;
 }
-.buttonarray button, .buttonarray > span {
+.buttonarray button {
     flex-grow: 1;
     margin-top: 1em;
 }
-details#topmenu form input {
-	width: 100%;
-	margin-bottom: 1em;
-	padding: 0;
-}
 .honk header {
-	font-size: 100%;
-	white-space: normal;
 	border-bottom: 1px solid var(--hl);
 	padding-top: 1em;
 	padding-bottom: 1em;
-}
-.honk header .clip a, .contact a, details.noise > a, .subtle .noise a, .honk a {
-	color: var(--header);
 }
 .honk hr {
 	margin-top: 0px;
@@ -182,7 +164,7 @@ details#topmenu form input {
 	border: 1px;
 	background-color: var(--hl);
 }
-header > a.honkerlink, header >  a[class=""] /* honkerlink removed by javascript ...*/ {
+header > a.honkerlink {
 	font-weight: bold !important;
 	text-decoration: none !important;
 	color: var(--fg);
@@ -194,9 +176,6 @@ header > a.honkerlink, header >  a[class=""] /* honkerlink removed by javascript
 	gap: 15%;
 	mix-blend-mode: luminosity;
 	margin-top: 1em;
-}
-.actions button > a {
-	color: var(--fg);
 }
 .honk .actions button {
 	flex: auto;
@@ -220,14 +199,6 @@ header > a.honkerlink, header >  a[class=""] /* honkerlink removed by javascript
 
 .textright {
 	text-align: right;
-}
-
-.wsnowrap {
-	white-space: nowrap;
-}
-
-.fontmonospace {
-	font-family: monospace;
 }
 
 /*
