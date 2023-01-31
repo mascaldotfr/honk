@@ -43,11 +43,11 @@ desirable (new features).
 - Drop filtering, let's live a dangerous life or block instance at firewall
   level from orbit
 - Drop import from twitter and mastodon (but it is easy to bring it back, see
-  8c58bf25)
+  https://github.com/mascaldotfr/honk/commit/8c58bf254e556482d7e2930f45308044958387fd)
 - Drop chatter, RSS, places, events and flag features. Combos, xzone and
   ontologies have been removed but you have still the search feature as cheap
   replacements.
-- Remote quoting is not implemented (see 5de338e for reason)
+- Remote quoting is not implemented (see https://github.com/mascaldotfr/honk/commit/5de338e8fcd7732e3a5d13ee0d968d43d346f1b2 for reason)
 - API support is present, but the following actions are not available:
   donks, most zonkit (save/unsave, ack/deack, react, zonvoy)
 - Drop the 250 honks limit in the "home" timeline, display all honks received
