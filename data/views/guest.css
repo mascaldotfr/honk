@@ -1,5 +1,5 @@
 body {
-	background: var(--bg-page) url("/background.jpg") no-repeat center center fixed;
+	background: var(--bg-page) url("/background.webp") no-repeat center center fixed;
 	background-size: cover;
 	opacity: 0.95;
 }

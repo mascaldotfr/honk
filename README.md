@@ -27,7 +27,7 @@ desirable (new features).
   honkers in the search field if you want to import them (like you would do in
   mastodon)
 - Has background image for guests sessions if you put an image named
-  `background.jpg` in `data\views`.
+  `background.webp` in `data\views`.
 
 ## Backend
 
