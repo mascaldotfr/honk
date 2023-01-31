@@ -1,47 +1,61 @@
-Text centric fork of honk, beware many things have been nuked. While it uses
-even way less resources than honk proper (no backend needed for starters), i
-don't recommend you to use it. If you have any doubt:
+# Text centric fork of honk
 
-DO NOT USE THIS FORK, THIS IS A VERY VERY STUPIDLY STRIPPED DOWN HONK.
+While it uses even way less resources and is faster than vanilla honk (no
+backend needed for starters), I recommend to read the following changes before.
+It reports as being "muffled" for a reason ;)
 
-Frontend:
+Despite being a firm fork, the database code and layout are and will be
+interoperable with vanilla honk. Upstream honk fixes/improvements are
+backported when it must (bug fixes, security, activitypub compliance), or is
+desirable (new features).
+
+## Frontend
 
 - Drop avatar display
-- Don't display images for everyone, just put links
-- Peaceful dark blue theme with decent contrast, normal font size and color for
-  all the honks.
-- "Semi material" UI, with CSS flex where needed. As the result it's skinnier
-  than vanilla honk and tidier.
-- Menu has been simplified, with some links to stuff i don't use removed and is
-  inline with the rest of the page. Notably the "places" and "events" feature
-  have been totally zapped from the frontend.
+- Don't display images for everyone, just put links to them
+- Peaceful dark/light blue theme with decent contrast, normal font size and
+  color for all the honks. Supports light and dark modes.
+- "Semi material" UI, with CSS flex where needed for mobile and reduced DOM
+  maximum depth (only 7!). As a result it's skinnier, tidier and draws faster
+  than vanilla honk.
+- Menu has been simplified, with many links to stuff i don't use removed and is
+  inline with the rest of the page, and their backend functions removed (see
+  there has well)
 - scroll down automatically to the "oldest newest" honk after a refresh
-- xzone has been removed, instead you can insert "https://" links to honk or
+- xzone has been removed, instead you can insert "https://..." links to honk or
   honkers in the search field if you want to import them (like you would do in
   mastodon)
 - Has background image for guests sessions if you put an image named
   `background.jpg` in `data\views`.
 
-Backend:
+## Backend
 
 - Nodeinfo support so the rest of fediverse knows that honk exists :)
 - Progressive web app support so it looks like a native app on smartphones
 - Nuke hoot feature (twitter integration)
 - Don't save external content, link it with description instead. It's actually
-  not a bad idea on a single user instance; you only download attachments that
-  you want to see from other instances
+  not a totally bad idea on a single user instance; you only download
+  attachments that you want to see from other instances.
 - honk's backend has been totally removed, you can't upload attachments, use
   emus, banners, custom avatars etc. As such, funzone has been nuked as well,
-  and data/blob.db is non existent.
-- Drop filtering, let's live a dangerous life
-- Drop import
-- Drop chatter
-- Drop RSS
-- Drop flag feature
-- Add Content Security Policy
-- Remote quoting is disabled (see 5de338e for reason)
+  and data/blob.db is non existent. The only way to add medias in this fork is
+  to upload them somewhere in your webserver and do a link to them.
+- Drop filtering, let's live a dangerous life or block instance at firewall
+  level from orbit
+- Drop import from twitter and mastodon (but it is easy to bring it back, see
+  8c58bf25)
+- Drop chatter, RSS, places, events and flag features. Combos, xzone and
+  ontologies have been removed but you have still the search feature as cheap
+  replacements.
+- Remote quoting is not implemented (see 5de338e for reason)
 - API support is present, but the following actions are not available:
   donks, most zonkit (save/unsave, ack/deack, react, zonvoy)
+- Drop the 250 honks limit in the "home" timeline, display all honks received
+  in the last 24 hours instead. It may sound dangerous, but due to not having
+  to deal with attachments and simplified DOM tree, it is not.
+
+
+## Honk's original README
 
 =======================================================================
 
