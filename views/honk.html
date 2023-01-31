@@ -13,34 +13,27 @@
 {{ end }}
 </a>
 {{ end }}
-<p>
 {{ if $bonkcsrf }}
 <a class="honkerlink" href="/h?xid={{ .Honker }}" data-xid="{{ .Honker }}">{{ .Username }}</a>
 {{ else }}
 <a class="honkerlink" href="{{ .Honker }}" rel=noreferrer>{{ .Username }}</a>
 {{ end }}
-<span class="clip"><a href="{{ .URL }}" rel=noreferrer>{{ .What }}</a> <span class="date">{{ .Date.Local.Format "02 Jan 2006 15:04" }}</span></span>
+<a href="{{ .URL }}" rel=noreferrer>{{ .What }}</a>&nbsp;{{ .Date.Local.Format "02 Jan 2006 15:04" }}
 {{ if .Oonker }}
 <br>
-<span class="left1em clip">
 {{ if $bonkcsrf }}
 original: <a class="honkerlink" href="/h?xid={{ .Oonker }}" data-xid="{{ .Oonker }}">{{ .Oondle }}</a>
 {{ else }}
 original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }}</a>
 {{ end }}
-</span>
 {{ else }}
 {{ if .RID }}
 <br>
-<span class="left1em clip">
-<a href="{{ .RID }}" rel=noreferrer>dame</a> - <a class="convoylink" href="/t?c={{ .Convoy }}">skein</a></span>
-</span>
+<a href="{{ .RID }}" rel=noreferrer>dame</a> - <a class="convoylink" href="/t?c={{ .Convoy }}">skein</a>
 {{ end }}
 {{ end }}
 </header>
 <hr />
-<details class="noise" {{ .Open }} >
-<summary>{{ .HTPrecis }}</summary>
 {{ .HTPrecis }}
 <p class="content">{{ .HTML }}
 {{ range .Donks }}
@@ -64,10 +57,8 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 {{ end }}
 {{ end }}
 {{ end }}
-</details>
 {{ end }}
 {{ if and $bonkcsrf (not $IsPreview) }}
-<p>
 <div class="actions">
 {{ if .Honk.Public }}
 {{ if .Honk.IsBonked }}
@@ -86,6 +77,5 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 {{ end }}
 {{ end }}
 </div>
-<p>
 {{ end }}
 </article>

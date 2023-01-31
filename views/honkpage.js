@@ -93,8 +93,7 @@ function fillinhonks(xhr, glowit) {
 		frontload = false
 	}
 
-	var honksonpage = document.getElementById("honksonpage")
-	var holder = honksonpage.children[0]
+	var holder = document.getElementById("honksonpage")
 	var lenhonks = honks.length
 	for (var i = honks.length; i > 0; i--) {
 		var h = honks[i-1]

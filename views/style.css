@@ -132,6 +132,7 @@ details.noise[open] summary {
 div.contact {
 	text-align: center;
 	font-style: italic;
+	margin-bottom: 1em;
 }
 #honkformhost button {
 	display: inline;
@@ -160,20 +161,6 @@ button#honkingtime a {
     flex-grow: 1;
     margin-top: 1em;
 }
-details#topmenu ul li {
-	flex-basis: calc(25%);
-	text-align: left;
-	padding: 0px;
-	margin: .5em;
-}
-details#topmenu ul {
-	list-style-type: none;
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
-	padding: 0;
-	align-items: initial;
-}
 details#topmenu form input {
 	width: 100%;
 	margin-bottom: 1em;
@@ -183,13 +170,8 @@ details#topmenu form input {
 	font-size: 100%;
 	white-space: normal;
 	border-bottom: 1px solid var(--hl);
-	padding: 0px;
-	margin-bottom: 0px;
-}
-.honk header .clip {
-	height: auto;
-	color: var(--header);
-	margin: .2em;
+	padding-top: 1em;
+	padding-bottom: 1em;
 }
 .honk header .clip a, .contact a, details.noise > a, .subtle .noise a, .honk a {
 	color: var(--header);
@@ -200,16 +182,10 @@ details#topmenu form input {
 	border: 1px;
 	background-color: var(--hl);
 }
-header > p > a.honkerlink, header > p > a[class=""] /* honkerlink removed by javascript ...*/ {
+header > a.honkerlink, header >  a[class=""] /* honkerlink removed by javascript ...*/ {
 	font-weight: bold !important;
-	color: var(--fg) !important;
 	text-decoration: none !important;
-}
-.date {
 	color: var(--fg);
-}
-.subtle .noise {
-	font-size: 100%;
 }
 .honk .actions {
 	display: flex;
@@ -217,6 +193,7 @@ header > p > a.honkerlink, header > p > a[class=""] /* honkerlink removed by jav
 	flex-flow: row wrap;
 	gap: 15%;
 	mix-blend-mode: luminosity;
+	margin-top: 1em;
 }
 .actions button > a {
 	color: var(--fg);
@@ -236,15 +213,6 @@ header > p > a.honkerlink, header > p > a[class=""] /* honkerlink removed by jav
 /*
  * CSP: style-src: self
  */
-
-li.details {
-	list-style-type: none;
-	margin-left: -1em;
-}
-
-.left1em {
-	margin-left: 1em;
-}
 
 .hide {
 	display: none;

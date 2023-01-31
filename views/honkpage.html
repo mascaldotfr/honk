@@ -4,7 +4,7 @@
 <div id="srvmsg">
 {{ if .Name }}
 <h3><a href="https://{{.ServerName}}/u/{{ .Name }}">@{{ .Name }}@{{ .ServerName }}</a></h3>
-<p>{{ .WhatAbout }}
+{{ .WhatAbout }}
 {{ end }}
 {{ .ServerMessage }}
 </div>
@@ -17,7 +17,6 @@
 {{ end }}
 </div>
 <div id="honksonpage">
-<div>
 {{ $BonkCSRF := .HonkCSRF }}
 {{ $IsPreview := .IsPreview }}
 {{ $UserURL := .UserInfo.URL }}
@@ -25,6 +24,5 @@
 {{ range .Honks }}
 {{ template "honk.html" map "Honk" . "BonkCSRF" $BonkCSRF "IsPreview" $IsPreview "UserURL" $UserURL "HasPrefix" $HasPrefix }}
 {{ end }}
-</div>
 </div>
 </main>
