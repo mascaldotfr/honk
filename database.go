@@ -38,6 +38,8 @@ import (
 var sqlSchema string
 
 var backintime = 7 * 24 * time.Hour
+// home timeline limit
+var homelimit = 24 * time.Hour
 
 func userfromrow(row *sql.Row) (*WhatAbout, error) {
 	user := new(WhatAbout)
@@ -200,7 +202,7 @@ func gethonksbyuser(name string, includeprivate bool, wanted int64) []*Honk {
 	return getsomehonks(rows, err)
 }
 func gethonksforuser(userid int64, wanted int64) []*Honk {
-	dt := time.Now().Add(-backintime).UTC().Format(dbtimeformat)
+	dt := time.Now().Add(-homelimit).UTC().Format(dbtimeformat)
 	rows, err := stmtHonksForUser.Query(wanted, userid, dt, userid, userid)
 	return getsomehonks(rows, err)
 }
@@ -827,7 +829,7 @@ func prepareStatements(db *sql.DB) {
 	stmtNamedDubbers = preparetodie(db, "select honkerid, userid, name, xid, flavor from honkers where userid = ? and name = ? and flavor = 'dub'")
 
 	selecthonks := "select honks.honkid, honks.userid, username, what, honker, oonker, honks.xid, rid, dt, url, audience, noise, precis, format, convoy, whofore, flags from honks join users on honks.userid = users.userid "
-	limit := " order by honks.honkid desc limit 250"
+	limit := " order by honks.honkid desc"
 	smalllimit := " order by honks.honkid desc limit ?"
 	butnotthose := " and convoy not in (select name from zonkers where userid = ? and wherefore = 'zonvoy' order by zonkerid desc limit 100)"
 	stmtOneXonk = preparetodie(db, selecthonks+"where honks.userid = ? and xid = ?")
