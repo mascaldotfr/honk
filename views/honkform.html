@@ -7,6 +7,13 @@
 <input type="hidden" name="updatexid" id="updatexidinput" value = "{{ .UpdateXID }}">
 <input type="hidden" name="rid" id="ridinput" value="{{ .InReplyTo }}">
 <h3>let's make some noise</h3>
+<div id="mentionarray">
+<label for="mentionpeople">Mention handle:<noscript> (requires javascript that is not active right now)</noscript></label>
+<input type="search" autocomplete="off" list="allthepeople" size=40 id="mentionpeople" name="mentionpeople" placeholder="at least 3 characters, without the '@'">
+<datalist id="allthepeople">
+</datalist>
+<button id="mentionthem">Add mention</button>
+</div>
 <textarea name="noise" id="honknoise" placeholder="Honk Noise!">{{ .Noise }}</textarea>
 <div class="buttonarray">
 <button>it's gonna be honked</button>

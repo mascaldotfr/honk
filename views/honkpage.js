@@ -271,6 +271,69 @@ function hideelement(el) {
 	el.style.display = "none"
 }
 
+
+const debounce = (func, wait) => {
+  let timeout;
+
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
+function cleanmentionssuggestions() {
+	datalist = document.getElementById("allthepeople")
+	if (!datalist) {
+		return
+	}
+	// should use replaceChildren but keep old code for compat
+	while (datalist.firstChild) {
+		datalist.firstChild.remove()
+	}
+	return datalist
+}
+
+var refreshmentions = debounce ( function () {
+	search = document.getElementById("mentionpeople")
+	if (!search) {
+		return
+	}
+	datalist = cleanmentionssuggestions();
+
+	if (search.value.length < 3 || !datalist) {
+		return
+	}
+
+	get("/searchxonkers?q=" + encodeURIComponent(search.value), function(xhr) {
+			if (xhr.status == 200) {
+				xhr.response.sort().forEach(x => {
+					var option = document.createElement('option');
+					option.value = x
+					datalist.appendChild(option)
+				} )
+			} },
+			function(xhr, e) { } )
+}, 300)
+
+function addmention() {
+	honknoise = document.getElementById("honknoise")
+	mention = document.getElementById("mentionpeople")
+	search = document.getElementById("mentionpeople")
+	if (!honknoise || !mention || !search) {
+		return
+	}
+	[start, end] = [honknoise.selectionStart, honknoise.selectionEnd]
+	honknoise.setRangeText("@" + mention.value + " ", start, end, "end")
+
+	cleanmentionssuggestions()
+	search.value = ""
+}
+
 // init
 (function() {
 	var me = document.currentScript;
@@ -284,6 +347,18 @@ function hideelement(el) {
 	if (refreshbtn) {
 		refreshbtn.onclick = function() {
 			refreshhonks(refreshbtn)
+		}
+	}
+
+	var mentionpeople = document.getElementById("mentionpeople")
+	if (mentionpeople) {
+		mentionpeople.addEventListener("keyup", refreshmentions)
+	}
+	var mentionbtn = document.getElementById("mentionthem")
+	if (mentionbtn) {
+		mentionbtn.onclick = function(e) {
+			e.preventDefault()
+			addmention()
 		}
 	}
 

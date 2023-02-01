@@ -28,6 +28,7 @@ desirable (new features).
   mastodon)
 - Has background image for guests sessions if you put an image named
   `background.webp` in `data\views`.
+- Add completions for mentions, no need to browse your honkers list for that
 
 ## Backend
 
