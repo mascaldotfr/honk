@@ -134,6 +134,42 @@ func gethonkers(userid int64) []*Honker {
 	return honkers
 }
 
+func getmanyxonkers(candidates string) string {
+	var selected []string
+	candidates = "https://%/%/%" + candidates + "%"
+
+	rows, err := stmtGetManyXonkers.Query(candidates, "boxes")
+	defer rows.Close()
+	if err != nil {
+		elog.Printf("error finding xonkers: %s", err)
+		return ""
+	}
+
+	for rows.Next() {
+		var xid string
+		var mentionable string
+		err = rows.Scan(&xid)
+		if err != nil {
+			elog.Printf("failed to scan xonker, but will continue: %s", err)
+			continue
+		}
+		_, mentionable = handles(xid)
+		selected = append(selected, mentionable)
+	}
+	if len(selected) == 0 {
+		dlog.Printf("getmanyxonkers(): no results")
+		return ""
+	}
+
+	selectedjson, err := jsonify(selected)
+	if err != nil {
+		elog.Printf("cannot jsonify(): %s", err)
+		return ""
+	}
+
+	return selectedjson
+}
+
 func getdubs(userid int64) []*Honker {
 	rows, err := stmtDubbers.Query(userid)
 	return dubsfromrows(rows, err)
@@ -799,7 +835,7 @@ var stmtFindFile, stmtGetFileData, stmtSaveFileData, stmtSaveFile *sql.Stmt
 var stmtCheckFileData *sql.Stmt
 var stmtAddDoover, stmtGetDoovers, stmtLoadDoover, stmtZapDoover, stmtOneHonker *sql.Stmt
 var stmtUntagged, stmtDeleteHonk, stmtDeleteDonks, stmtDeleteOnts, stmtSaveZonker *sql.Stmt
-var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtSaveXonker, stmtDeleteXonker, stmtDeleteOldXonkers *sql.Stmt
+var stmtGetZonkers, stmtRecentHonkers, stmtGetXonker, stmtGetManyXonkers, stmtSaveXonker, stmtDeleteXonker, stmtDeleteOldXonkers *sql.Stmt
 var stmtAllOnts, stmtSaveOnt, stmtUpdateFlags, stmtClearFlags *sql.Stmt
 var stmtHonksForUserFirstClass *sql.Stmt
 var stmtSaveMeta, stmtDeleteAllMeta, stmtDeleteOneMeta, stmtDeleteSomeMeta, stmtUpdateHonk *sql.Stmt
@@ -876,6 +912,7 @@ func prepareStatements(db *sql.DB) {
 	stmtGetZonkers = preparetodie(db, "select zonkerid, name, wherefore from zonkers where userid = ? and wherefore <> 'zonk'")
 	stmtSaveZonker = preparetodie(db, "insert into zonkers (userid, name, wherefore) values (?, ?, ?)")
 	stmtGetXonker = preparetodie(db, "select info from xonkers where name = ? and flavor = ?")
+	stmtGetManyXonkers = preparetodie(db, "select distinct(name) from xonkers where name like ? and flavor = ?")
 	stmtSaveXonker = preparetodie(db, "insert into xonkers (name, info, flavor, dt) values (?, ?, ?, ?)")
 	stmtDeleteXonker = preparetodie(db, "delete from xonkers where name = ? and flavor = ? and dt < ?")
 	stmtDeleteOldXonkers = preparetodie(db, "delete from xonkers where flavor = ? and dt < ?")

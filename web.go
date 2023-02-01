@@ -1167,6 +1167,15 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/honkers", http.StatusSeeOther)
 }
 
+func searchxonkers(w http.ResponseWriter, r *http.Request) {
+	query := r.FormValue("q")
+	results:= getmanyxonkers(query)
+	if len(results) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+	} else {
+		w.Write([]byte(results))
+	}
+}
 
 func accountpage(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
@@ -1665,6 +1674,7 @@ func serve() {
 	loggedin.Handle("/zonkit", login.CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
 	loggedin.Handle("/saveuser", login.CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
 	loggedin.HandleFunc("/honkers", showhonkers)
+	loggedin.HandleFunc("/searchxonkers", searchxonkers)
 	loggedin.HandleFunc("/h/{name:[\\pL[:digit:]_.-]+}", showhonker)
 	loggedin.HandleFunc("/h", showhonker)
 	loggedin.HandleFunc("/t", showconvoy)
