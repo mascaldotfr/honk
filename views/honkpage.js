@@ -84,6 +84,7 @@ function fillinhonks(xhr, glowit) {
 	var mecount = document.getElementById("mecount")
 	if (resp.MeCount) {
 		mecount.innerHTML = "(" + resp.MeCount + ")"
+		window.alert("You have new notifications!")
 	} else {
 		mecount.innerHTML = ""
 	}
