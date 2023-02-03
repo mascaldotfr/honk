@@ -143,6 +143,16 @@ button#honkingtime a {
 	flex: auto;
 	text-align: center;
 }
+#honkform {
+	background-color: var(--honkformbg);
+	margin-bottom: 1em;
+	margin-top: 1em;
+	padding: 1em;
+	padding-top: 1px; /* funny rendering issue */
+}
+#honkformhost + #honkform {
+	margin-bottom: 0;
+}
 #honkform .buttonarray {
 	display: flex;
 	justify-content: space-evenly;
@@ -225,6 +235,7 @@ html {
 	--fg-limited: #eee8d5;
 	--header: #b1e2ff;
 	--headerlink: #b1b6ff;
+	--honkformbg: #1b2f53;
 	--width: 800px;
 
 }
@@ -239,6 +250,7 @@ html {
 		--fg-limited: #000000;
 		--header: #720000;
 		--headerlink: #720000;
+		--honkformbg: #fbece5;
 		--width: 800px;
 	}
 	button, input, textarea {
