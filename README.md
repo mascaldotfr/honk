@@ -29,6 +29,9 @@ desirable (new features).
 - Has background image for guests sessions if you put an image named
   `background.webp` in `data\views`.
 - Add completions for mentions, no need to browse your honkers list for that
+- DZ (danger zone, aka content warnings) are open by default and [need a very
+  simple change](https://github.com/mascaldotfr/honk/commit/ca45379) to be
+  closed by default.
 
 ## Backend
 
