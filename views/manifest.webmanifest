@@ -12,5 +12,6 @@
   ],
   "name": "honk",
   "short_name": "honk",
+  "id": "/",
   "start_url": "/"
 }

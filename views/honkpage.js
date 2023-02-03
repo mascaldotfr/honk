@@ -371,4 +371,6 @@ function addmention() {
 	relinklinks()
 	window.onpopstate = statechanger
 	history.replaceState(curpagestate, "some title", "")
+
+	if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js') }
 })();

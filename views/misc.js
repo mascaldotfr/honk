@@ -1,4 +1,3 @@
-if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js') }
 
 function expandstuff() {
 	var els = document.querySelectorAll(".honk details")
