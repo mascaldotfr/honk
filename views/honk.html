@@ -34,8 +34,14 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 {{ end }}
 </header>
 <hr />
-{{ .HTPrecis }}
+{{ if .HTPrecis }}
+<details open>
+<summary>{{ .HTPrecis }}</summary>
+{{ end }}
 <p class="content">{{ .HTML }}
+{{ if .HTPrecis }}
+</details>
+{{ end }}
 {{ range .Donks }}
 {{ if .Local }}
 {{ if eq .Media "text/plain" }}
