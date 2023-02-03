@@ -38,7 +38,7 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 <details open>
 <summary>{{ .HTPrecis }}</summary>
 {{ end }}
-<p class="content">{{ .HTML }}
+{{ .HTML }}
 {{ if .HTPrecis }}
 </details>
 {{ end }}
@@ -54,12 +54,6 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 {{ else }}
 {{ if .External }}
 <p><a href="{{ .URL }}" rel=noreferrer>External Attachment: {{ .Name }}</a>{{ if not (eq .Desc .Name) }} {{ .Desc }}{{ end }}
-{{ else }}
-{{ if eq .Media "video/mp4" }}
-<p><video controls src="{{ .URL }}">{{ .Name }}</video>
-{{ else }}
-<p><img src="{{ .URL }}" title="{{ .Desc }}" alt="{{ .Desc }}" loading="lazy">
-{{ end }}
 {{ end }}
 {{ end }}
 {{ end }}
