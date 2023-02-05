@@ -25,6 +25,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"unicode"
 
 	"golang.org/x/net/html"
 	"humungus.tedunangst.com/r/webs/cache"
@@ -259,7 +260,8 @@ func bunchofgrapes(m []string) []Mention {
 	return mentions
 }
 
-var re_quickmention = regexp.MustCompile("(^|[ \n])@[[:alnum:]]+([ \n.]|$)")
+// be mindful not to match trailing @
+var re_quickmention = regexp.MustCompile("(^|[ \n])@[[:alnum:]]+([ \n.,']|$)")
 
 func quickrename(s string, userid int64) string {
 	nonstop := true
@@ -274,7 +276,7 @@ func quickrename(s string, userid int64) string {
 			prefix += "@"
 			m = m[1:]
 			tail := ""
-			if last := m[len(m)-1]; last == ' ' || last == '\n' || last == '.' {
+			if last := m[len(m)-1]; last == ' ' || last == '\n' || unicode.IsPunct(rune(last)) {
 				tail = m[len(m)-1:]
 				m = m[:len(m)-1]
 			}
