@@ -1007,7 +1007,7 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 		honk.RID = rid
 		if xonk.Precis != "" && honk.Precis == "" {
 			honk.Precis = xonk.Precis
-			if !(strings.HasPrefix(honk.Precis, "DZ:") || strings.HasPrefix(honk.Precis, "re: re: re: ")) {
+			if !re_dangerous.MatchString(honk.Precis) {
 				honk.Precis = "re: " + honk.Precis
 			}
 		}
