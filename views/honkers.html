@@ -27,10 +27,14 @@
 <form class="honkersform" action="/submithonker" method="POST">
 <input type="hidden" name="CSRF" value="{{ $honkercsrf }}">
 <input type="hidden" name="honkerid" value="{{ .ID }}">
+<!-- required because .Name will be empty if we unsub -->
 <input type="hidden" name="name" value="{{ .Name }}">
+<!-- pretty useless now, but may be expected by callbacks later -->
 <input type="hidden" name="combos" value="">
 <button name="sub" value="sub">(re)sub</button>
+{{ if ne .Flavor "unsub" }}
 <button name="unsub" value="unsub">unsub</button>
+{{ end }}
 <button name="delete" value="delete">delete</button>
 </form>
 </div>
