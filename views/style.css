@@ -40,20 +40,20 @@ main {
 	max-width: var(--width);
 	margin: auto;
 }
-label.button, button, select {
+button, select {
 	font-family: monospace;
 	color: var(--fg);
 	background: var(--bg-page);
 	border: 1px solid var(--hl);
 	padding: 0.5em;
 	white-space: nowrap;
-	font-size: initial;
 }
 button {
 	cursor: pointer;
 }
 label {
 	font-size: large;
+	white-space: nowrap;
 }
 textarea {
 	padding: 0.5em;
@@ -78,8 +78,9 @@ summary {
 	padding-top: 0;
 	overflow: hidden;
 }
-
-
+.normalfont {
+	font-size: initial;
+}
 
 .honk	code .kw { font-weight: bold; }
 .honk	code .bi { font-weight: bold; }
@@ -226,10 +227,11 @@ header > a.honkerlink {
 .hfcsadd {
 	margin-top: 2em;
 }
-.hfcsadd input, .hfcsadd button, .hfcsadd label {
+.hfcsadd input, .hfcsadd button, .hfcsadd label, .hfcsadd textarea {
 	display: inline-block;
 	width: 100%;
 	box-sizing: border-box;
+	margin-top: auto;
 }
 .hfcssaved {
 	margin-top: .5em;
@@ -244,6 +246,7 @@ header > a.honkerlink {
 .honkersform * {
 	flex: auto;
 }
+
 
 
 /*
@@ -262,7 +265,7 @@ header > a.honkerlink {
  * SUPER override
  */
 
-html {
+:root {
 	--bg-page: #020a18;
 	--bg-dark: #071c2f;
 	--fg: #fdf6e3;
@@ -271,13 +274,17 @@ html {
 	--fg-limited: #eee8d5;
 	--header: #b1e2ff;
 	--headerlink: #b1b6ff;
-	--honkformbg: #1b2f53;
+	--honkformbg: #1e345e;
 	--width: 800px;
 
 }
 
+label.button, button, input, textarea {
+	background-color: #000;
+}
+
 @media (prefers-color-scheme: light) {
-	html {
+	:root {
 		--bg-page: #244982;
 		--bg-dark: #fffbf9;
 		--fg: #292d08;
@@ -286,7 +293,7 @@ html {
 		--fg-limited: #000000;
 		--header: #720000;
 		--headerlink: #720000;
-		--honkformbg: #fbece5;
+		--honkformbg: #f2e5de;
 		--width: 800px;
 	}
 	label.button, button, input, textarea {
