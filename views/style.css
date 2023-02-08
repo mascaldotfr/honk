@@ -66,6 +66,9 @@ textarea {
 	box-sizing: border-box;
 	max-width: 100%;
 }
+summary {
+	margin-bottom: 1em;
+}
 
 .honk {
 	margin: auto;
