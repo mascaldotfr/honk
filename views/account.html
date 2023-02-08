@@ -1,25 +1,28 @@
 {{ template "header.html" . }}
 <main>
-<div class="info">
-<p>account - <a href="/logout?CSRF={{ .LogoutCSRF }}">logout</a>
-<p>username: {{ .User.Name }}
-<div>
+<div class="hfcsheader">
+<h1>{{ .User.Name }}@{{ .ServerName }}<span class="normalfont">&nbsp;<a href="/logout?CSRF={{ .LogoutCSRF }}">(logout)</a></span></h1>
+</div>
+<div class="hfcsadd">
+<h2>settings</h2>
 <form id="aboutform" action="/saveuser" method="POST">
 <input type="hidden" name="CSRF" value="{{ .UserCSRF }}">
-<p>about me:
-<p><textarea name="whatabout">{{ .WhatAbout }}</textarea>
-<p><label class="button" for="mentionall">mention all:</label>
-<input tabindex=1 type="checkbox" id="mentionall" name="mentionall" value="mentionall" {{ if .User.Options.MentionAll }}checked{{ end }}><span></span>
+<h3>about me</h3>
+<textarea name="whatabout">{{ .WhatAbout }}</textarea>
+<h3>misc.</h3>
+<p><label class="button" for="mentionall">mention all:
+<input tabindex=1 type="checkbox" id="mentionall" name="mentionall" value="mentionall" {{ if .User.Options.MentionAll }}checked{{ end }}></label>
 <p><button>update settings</button>
 </form>
 </div>
-<hr>
-<div>
+<div class="hfcsadd">
+<h2>change password</h2>
 <form action="/chpass" method="POST">
 <input type="hidden" name="CSRF" value="{{ .LogoutCSRF }}">
-<p>change password
-<p><input tabindex=1 type="password" name="oldpass"> - oldpass
-<p><input tabindex=1 type="password" name="newpass"> - newpass
+<h3>oldpass</h3>
+<p><input tabindex=1 type="password" name="oldpass">
+<h3>newpass</h3>
+<p><input tabindex=1 type="password" name="newpass">
 <p><button>change</button>
 </form>
 </div>
