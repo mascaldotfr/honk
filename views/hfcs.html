@@ -1,0 +1,32 @@
+{{ template "header.html" . }}
+<main>
+<div class="hfcsheader">
+<h1>Honk Filtering and Censorship System</h1>
+</div>
+<div class="hfcsadd">
+<h2>Add a rule</h2>
+<p>Every matching rule will forcefully <b>REJECT</b> honks!
+<form action="/savehfcs" method="POST">
+<input type="hidden" name="CSRF" value="{{ .FilterCSRF }}">
+<p><label for="actor">who or where:</label><br>
+<input tabindex=1 type="text" name="actor" value="" autocomplete=off>
+<p><label for="filttext">text matches:</label><br>
+<input tabindex=1 type="text" name="filttext" value="" autocomplete=off>
+<p><button>reject this!</button>
+</form>
+</div>
+{{ $csrf := .FilterCSRF }}
+{{ with .Filters }}<div class="hfcsheader"><h2>Saved rules</h2></div>{{ end }}
+{{ range .Filters }}
+<div class="hfcssaved">
+{{ with .Actor }}<p><b>Who</b>: {{ . }}{{ end }}
+{{ with .Text }}<p><b>Text</b>: {{ . }}{{ end }}
+<form class="hfcsforgive" action="/savehfcs" method="POST">
+<input type="hidden" name="CSRF" value="{{ $csrf }}">
+<input type="hidden" name="hfcsid" value="{{ .ID }}">
+<input type="hidden" name="itsok" value="iforgiveyou">
+<button name="pardon" value="pardon">forgive them!</button>
+</form>
+</div>
+{{ end }}
+</main>

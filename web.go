@@ -1177,6 +1177,57 @@ func searchxonkers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func hfcspage(w http.ResponseWriter, r *http.Request) {
+	userinfo := login.GetUserInfo(r)
+
+	filters := getfilters(userinfo.UserID, filtAny)
+
+	templinfo := getInfo(r)
+	templinfo["Filters"] = filters
+	templinfo["FilterCSRF"] = login.GetCSRF("filter", r)
+	err := readviews.Execute(w, "hfcs.html", templinfo)
+	if err != nil {
+		elog.Print(err)
+	}
+}
+
+func savehfcs(w http.ResponseWriter, r *http.Request) {
+	userinfo := login.GetUserInfo(r)
+	itsok := r.FormValue("itsok")
+	if itsok == "iforgiveyou" {
+		hfcsid, _ := strconv.ParseInt(r.FormValue("hfcsid"), 10, 0)
+		_, err := stmtDeleteFilter.Exec(userinfo.UserID, hfcsid)
+		if err != nil {
+			elog.Printf("error deleting filter: %s", err)
+		}
+		filtInvalidator.Clear(userinfo.UserID)
+		http.Redirect(w, r, "/hfcs", http.StatusSeeOther)
+		return
+	}
+
+	filt := new(Filter)
+	filt.Actor = strings.TrimSpace(r.FormValue("actor"))
+	filt.Text = strings.TrimSpace(r.FormValue("filttext"))
+	filt.Reject = true
+
+	if filt.Actor == "" && filt.Text == "" {
+		ilog.Printf("blank filter")
+		http.Error(w, "can't save a blank filter", http.StatusInternalServerError)
+		return
+	}
+
+	j, err := jsonify(filt)
+	if err == nil {
+		_, err = stmtSaveFilter.Exec(userinfo.UserID, j)
+	}
+	if err != nil {
+		elog.Printf("error saving filter: %s", err)
+	}
+
+	filtInvalidator.Clear(userinfo.UserID)
+	http.Redirect(w, r, "/hfcs", http.StatusSeeOther)
+}
+
 func accountpage(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	user, _ := butwhatabout(u.Username)
@@ -1586,6 +1637,7 @@ func serve() {
 	loadLingo()
 
 	readviews = templates.Load(develMode,
+		viewDir+"/views/hfcs.html",
 		viewDir+"/views/honkpage.html",
 		viewDir+"/views/honkfrags.html",
 		viewDir+"/views/honkers.html",
@@ -1667,12 +1719,14 @@ func serve() {
 	loggedin.HandleFunc("/account", accountpage)
 	loggedin.HandleFunc("/chpass", dochpass)
 	loggedin.HandleFunc("/atme", homepage)
+	loggedin.HandleFunc("/hfcs", hfcspage)
 	loggedin.HandleFunc("/newhonk", newhonkpage)
 	loggedin.HandleFunc("/edit", edithonkpage)
 	loggedin.Handle("/honk", login.CSRFWrap("honkhonk", http.HandlerFunc(submitwebhonk)))
 	loggedin.Handle("/bonk", login.CSRFWrap("honkhonk", http.HandlerFunc(submitbonk)))
 	loggedin.Handle("/zonkit", login.CSRFWrap("honkhonk", http.HandlerFunc(zonkit)))
 	loggedin.Handle("/saveuser", login.CSRFWrap("saveuser", http.HandlerFunc(saveuser)))
+	loggedin.Handle("/savehfcs", login.CSRFWrap("filter", http.HandlerFunc(savehfcs)))
 	loggedin.HandleFunc("/honkers", showhonkers)
 	loggedin.HandleFunc("/searchxonkers", searchxonkers)
 	loggedin.HandleFunc("/h/{name:[\\pL[:digit:]_.-]+}", showhonker)

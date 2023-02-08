@@ -40,11 +40,6 @@ main {
 	max-width: var(--width);
 	margin: auto;
 }
-.info {
-	background: var(--bg-dark);
-	margin-bottom: 1em;
-	padding: 1em;
-}
 label.button, button, select {
 	font-family: monospace;
 	color: var(--fg);
@@ -210,6 +205,27 @@ header > a.honkerlink {
 }
 .glow {
 	box-shadow: 0px 0px 16px var(--hl);
+}
+.info {
+	background: var(--bg-dark);
+	margin-bottom: 1em;
+	padding: 1em;
+}
+.hfcsheader, .hfcsadd, .hfcssaved {
+	background: var(--bg-dark);
+	padding: 1em;
+}
+.hfcsheader {
+	margin-top: 2em;
+	padding-bottom: .15em;
+}
+.hfcsadd {
+	margin-top: 2em;
+}
+.hfcssaved {
+	margin-top: .5em;
+	padding-top: .5em;
+	padding-bottom: 1em;
 }
 
 

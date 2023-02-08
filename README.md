@@ -45,8 +45,10 @@ desirable (new features).
   emus, banners, custom avatars etc. As such, funzone has been nuked as well,
   and data/blob.db is non existent. The only way to add medias in this fork is
   to upload them somewhere in your webserver and do a link to them.
-- Drop filtering, let's live a dangerous life or block instance at firewall
-  level from orbit
+- hfcs has been tweaked to just reject abusers and spammers, not filter content.
+  Rules conditions have been reduced to the minimum and **reject** honks if
+  they are matching. This only applies to rules created by this fork, rules
+  created by vanilla honk will apply as usual.
 - Drop import from twitter and mastodon ([but it is easy to bring it back](https://github.com/mascaldotfr/honk/commit/8c58bf254e556482d7e2930f45308044958387fd))
 - Drop chatter, RSS, places, events and flag features. Combos, xzone and
   ontologies have been removed but you have still the search feature as cheap

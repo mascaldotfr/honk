@@ -244,6 +244,9 @@ func iszonked(userid int64, xid string) bool {
 }
 
 func needxonk(user *WhatAbout, x *Honk) bool {
+	if rejectxonk(x) {
+		return false
+	}
 	return needxonkid(user, x.XID)
 }
 func needbonkid(user *WhatAbout, xid string) bool {
@@ -257,6 +260,10 @@ func needxonkidX(user *WhatAbout, xid string, isannounce bool) bool {
 		return false
 	}
 	if strings.HasPrefix(xid, user.URL+"/") {
+		return false
+	}
+	if rejectorigin(user.ID, xid, isannounce) {
+		ilog.Printf("rejecting origin: %s", xid)
 		return false
 	}
 	if iszonked(user.ID, xid) {
@@ -723,6 +730,10 @@ func xonksaver(user *WhatAbout, item junk.Junk, origin string) *Honk {
 
 			xonk.Noise = content
 			xonk.Precis = precis
+			if rejectxonk(&xonk) {
+				dlog.Printf("fast reject: %s", xid)
+				return nil
+			}
 
 			numatts := 0
 			procatt := func(att junk.Junk) {
