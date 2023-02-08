@@ -217,10 +217,14 @@ header > a.honkerlink {
 }
 .hfcsheader {
 	margin-top: 2em;
-	padding-bottom: .15em;
+	padding-bottom: .01em; /* weird rendering issue */
 }
 .hfcsadd {
 	margin-top: 2em;
+}
+.hfcsadd input, .hfcsadd button {
+	width:100%;
+	box-sizing: border-box;
 }
 .hfcssaved {
 	margin-top: .5em;
@@ -272,7 +276,7 @@ html {
 		--honkformbg: #fbece5;
 		--width: 800px;
 	}
-	button, input, textarea {
+	label.button, button, input, textarea {
 		background-color: #faebd7;
 	}
 	.glow {
