@@ -2,6 +2,8 @@ changelog
 
 === next
 
++ Remove the wonk support. Fun's over, back to work.
+
 + All inclusive danger zone spoiler alerts.
 
 + Emu peeker
