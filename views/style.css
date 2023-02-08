@@ -47,9 +47,13 @@ label.button, button, select {
 	border: 1px solid var(--hl);
 	padding: 0.5em;
 	white-space: nowrap;
+	font-size: initial;
 }
 button {
 	cursor: pointer;
+}
+label {
+	font-size: large;
 }
 textarea {
 	padding: 0.5em;
@@ -211,7 +215,7 @@ header > a.honkerlink {
 	margin-bottom: 1em;
 	padding: 1em;
 }
-.hfcsheader, .hfcsadd, .hfcssaved {
+.hfcsheader, .hfcsadd, .hfcssaved { /* hfcs applies to honkers.html as well */
 	background: var(--bg-dark);
 	padding: 1em;
 }
@@ -222,14 +226,23 @@ header > a.honkerlink {
 .hfcsadd {
 	margin-top: 2em;
 }
-.hfcsadd input, .hfcsadd button {
-	width:100%;
+.hfcsadd input, .hfcsadd button, .hfcsadd label {
+	display: inline-block;
+	width: 100%;
 	box-sizing: border-box;
 }
 .hfcssaved {
 	margin-top: .5em;
 	padding-top: .5em;
 	padding-bottom: 1em;
+}
+.honkersform {
+	display: flex;
+	justify-content: space-between;
+	gap: 1em;
+}
+.honkersform * {
+	flex: auto;
 }
 
 

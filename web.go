@@ -53,7 +53,6 @@ func getInfo(r *http.Request) map[string]interface{} {
 	templinfo["LocalStyleParam"] = getassetparam(dataDir + "/views/local.css")
 	templinfo["JSParam"] = getassetparam(viewDir + "/views/honkpage.js")
 	templinfo["LocalJSParam"] = getassetparam(dataDir + "/views/local.js")
-	templinfo["MiscJSParam"] = getassetparam(dataDir + "/views/misc.js")
 	templinfo["ServerName"] = serverName
 	templinfo["IconName"] = iconName
 	templinfo["UserSep"] = userSep
@@ -1700,7 +1699,6 @@ func serve() {
 	getters.HandleFunc("/style.css", serveviewasset)
 	getters.HandleFunc("/sw.js", serveviewasset)
 	getters.HandleFunc("/honkpage.js", serveviewasset)
-	getters.HandleFunc("/misc.js", serveviewasset)
 	getters.HandleFunc("/local.css", servedataasset)
 	getters.HandleFunc("/local.js", servedataasset)
 	getters.HandleFunc("/icon.png", servedataasset)
