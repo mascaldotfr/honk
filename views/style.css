@@ -2,7 +2,7 @@ body {
 	background: var(--bg-page);
 	color: var(--fg);
 	word-wrap: break-word;
-	font-family: sans-serif, "Noto Color Emoji";
+	font-family: sans-serif;
 	overscroll-behavior-y: contain;
 }
 h1, h2 {
@@ -26,7 +26,7 @@ table {
 	overflow-x: auto;
 }
 form, input, textarea {
-	font-family: monospace, "Noto Color Emoji";
+	font-family: monospace;
 }
 input {
 	background: var(--bg-page);
