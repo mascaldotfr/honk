@@ -68,6 +68,9 @@ textarea {
 summary {
 	margin-bottom: 1em;
 }
+pre {
+	white-space: pre-wrap;
+}
 
 .honk {
 	margin: auto;
