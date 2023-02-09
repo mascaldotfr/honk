@@ -430,17 +430,22 @@ func showhonker(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	name := mux.Vars(r)["name"]
 	var honks []*Honk
+	var miniform template.HTML
 	if name == "" {
 		name = r.FormValue("xid")
 		honks = gethonksbyxonker(u.UserID, name, 0)
 	} else {
 		honks = gethonksbyhonker(u.UserID, name, 0)
 	}
-	miniform := templates.Sprintf(`<form action="/submithonker" method="POST">
-<input type="hidden" name="CSRF" value="%s">
-<input type="hidden" name="url" value="%s">
-<button tabindex=1 name="add honker" value="add honker">add honker</button>
-</form>`, login.GetCSRF("submithonker", r), name)
+	// Not known as a honker
+	if shortname(u.UserID, name) == "" && fullname(name, u.UserID)  == "" {
+		miniform = templates.Sprintf(`<form action="/submithonker" method="POST">
+			<input type="hidden" name="CSRF" value="%s">
+			<input type="hidden" name="url" value="%s">
+			<button tabindex=1 name="add honker" value="add honker">add honker</button>
+			</form>`, login.GetCSRF("submithonker", r), name)
+	}
+
 	msg := templates.Sprintf(`honks by honker: <a href="%s" ref="noreferrer">%s</a>%s`, name, name, miniform)
 	templinfo := getInfo(r)
 	templinfo["PageName"] = "honker"
