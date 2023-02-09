@@ -24,14 +24,7 @@ cite {
 }
 table {
 	overflow-x: auto;
-}
-form, input, textarea {
-	font-family: monospace;
-}
-input {
-	background: var(--bg-page);
-	color: var(--fg);
-	padding: 0.4em;
+	overflow-wrap: anywhere;
 }
 body > header {
 	margin: 1em auto;
@@ -48,12 +41,26 @@ button, select {
 	padding: 0.5em;
 	white-space: nowrap;
 }
+form, input, textarea {
+	font-family: monospace;
+}
+label.button, button, input {
+	white-space: normal;
+}
+input {
+	background: var(--bg-page);
+	color: var(--fg);
+	padding: 0.4em;
+}
 button {
 	cursor: pointer;
 }
 label {
 	font-size: large;
-	white-space: nowrap;
+	white-space: normal;
+}
+input[type=checkbox] {
+	width: 1em !important;
 }
 textarea {
 	padding: 0.5em;
@@ -121,7 +128,6 @@ pre {
 }
 #topmenu form > input {
 	border: 0;
-	filter: grayscale(10%);
 }
 #srvmsg, #srvmsg button {
 	margin-top: 1em;
@@ -219,7 +225,7 @@ header > a.honkerlink {
 	margin-bottom: 1em;
 	padding: 1em;
 }
-.hfcsheader, .hfcsadd, .hfcssaved { /* hfcs applies to honkers.html as well */
+.hfcsheader, .hfcsadd, .hfcssaved { /* hfcs applies to all !honkpage.html as well */
 	background: var(--bg-dark);
 	padding: 1em;
 }
@@ -248,11 +254,11 @@ main .hfcsheader:first-child {
 	display: flex;
 	justify-content: space-between;
 	gap: 1em;
+	flex-wrap: wrap;
 }
 .honkersform * {
 	flex: auto;
 }
-
 
 
 /*
@@ -268,7 +274,7 @@ main .hfcsheader:first-child {
 }
 
 /*
- * SUPER override
+ * SUPER override for colors
  */
 
 :root {
@@ -282,7 +288,6 @@ main .hfcsheader:first-child {
 	--headerlink: #b1b6ff;
 	--honkformbg: #1e345e;
 	--width: 800px;
-
 }
 
 label.button, button, input, textarea {
