@@ -1,6 +1,10 @@
 <div id="honkformhost">
-<button id="honkingtime" {{ if .IsPreview }}class="hide"{{ end }}><a href="/newhonk">it's honking time</a></button>
+{{ if not .IsPreview }}
+<button id="honkingtime"><a href="/newhonk">it's honking time</a></button>
+{{ end }}
+{{ if and (not .IsPreview) (ne .PageName "search") }}
 <button id="refreshhonks" class="refresh">refresh</button>
+{{ end }}
 </div>
 <form id="honkform" action="/honk" method="POST" enctype="multipart/form-data" {{ if not .IsPreview }}class="hide"{{ end }}>
 <input type="hidden" name="CSRF" value="{{ .HonkCSRF }}">
