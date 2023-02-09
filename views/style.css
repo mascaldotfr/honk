@@ -227,6 +227,9 @@ header > a.honkerlink {
 	margin-top: 2em;
 	padding-bottom: .01em; /* weird rendering issue */
 }
+main .hfcsheader:first-child {
+	margin-top: 1em;
+}
 .hfcsadd {
 	margin-top: 2em;
 }
