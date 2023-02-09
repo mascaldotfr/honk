@@ -10,10 +10,6 @@
 </div>
 {{ if .HonkCSRF }}
 {{ template "honkform.html" . }}
-<script src="/honkpage.js{{ .JSParam }}" defer data-csrf="{{ .HonkCSRF }}" data-pagename="{{ .PageName }}" data-pagearg="{{ .PageArg }}" data-tophid="{{ .TopHID }}" data-srvmsg="{{ .ServerMessage }}"></script>
-{{ if .LocalJSParam }}
-<script src="/local.js{{ .LocalJSParam }}" defer></script>
-{{ end }}
 {{ end }}
 </div>
 <div id="honksonpage">

@@ -2,14 +2,26 @@
 <html>
 <head>
 <title>honk.thebus.top</title>
+<link rel="preload" href="/style.css{{ .StyleParam }}" as="style" />
 <link href="/style.css{{ .StyleParam }}" rel="stylesheet">
 {{ if .LocalStyleParam }}
 <link href="/local.css{{ .LocalStyleParam }}" rel="stylesheet">
 {{ end }}
-<link href="/icon.png" rel="icon">
+{{ if .LocalJSParam }}
+<script src="/local.js{{ .LocalJSParam }}" defer></script>
+{{ end }}
+<!-- assume only old browser without js have no embedded automatic favicon loading -->
+<noscript><link href="/icon.png" rel="icon"></noscript>
 {{ if .UserInfo }}
+<link rel="preload" href="/honkpage.js{{ .JSParam }}" as="script" />
+<script src="/honkpage.js{{ .JSParam }}" defer data-csrf="{{ .HonkCSRF }}" data-pagename="{{ .PageName }}" data-pagearg="{{ .PageArg }}" data-tophid="{{ .TopHID }}" data-srvmsg="{{ .ServerMessage }}"></script>
+<link rel="preload" href="/manifest.webmanifest" as="manifest">
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#305">
+{{ else }}
+<link rel="preload" as="image" href="/background.webp"/>
+<link rel="preload" href="/guest.css" as="style" />
+<link rel="stylesheet" type="text/css" href="/guest.css"/>
 {{ end }}
 <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -28,8 +40,6 @@
 <input type="text" name="q" autocomplete=off size=30 placeholder="🔍">
 </form>
 {{ else }}
-<link rel="preload" as="image" href="/background.webp"/>
-<link rel="stylesheet" type="text/css" href="/guest.css"/>
 <div id="topmenu">
 <a id="homelink" href="/">home</a>
 <a href="/about">about</a>
