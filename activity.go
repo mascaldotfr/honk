@@ -25,6 +25,7 @@ import (
 	"io"
 	notrand "math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -1222,6 +1223,9 @@ func junkuser(user *WhatAbout) junk.Junk {
 		a := junk.New()
 		a["type"] = "Image"
 		a["mediaType"] = "image/png"
+		u := fmt.Sprintf("https://%s/a?a=%s", serverName, url.QueryEscape(user.URL))
+		a["url"] = u
+		j["icon"] = a
 	} else {
 		j["type"] = "Service"
 	}
