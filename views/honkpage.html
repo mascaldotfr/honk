@@ -3,6 +3,7 @@
 <div class="info" id="infobox">
 <div id="srvmsg">
 {{ if .Name }}
+<p><img src="/a?a={{ .Name }}" width="64" height="64" loading="lazy">
 <h3><a href="https://{{.ServerName}}/u/{{ .Name }}">@{{ .Name }}@{{ .ServerName }}</a></h3>
 {{ .WhatAbout }}
 {{ end }}
