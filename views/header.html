@@ -13,9 +13,10 @@
 <!-- assume only old browser without js have no embedded automatic favicon loading -->
 <noscript><link href="/icon.png" rel="icon"></noscript>
 {{ if .UserInfo }}
+{{ if .Honks }}
 <link rel="preload" href="/honkpage.js{{ .JSParam }}" as="script" />
 <script src="/honkpage.js{{ .JSParam }}" defer data-csrf="{{ .HonkCSRF }}" data-pagename="{{ .PageName }}" data-pagearg="{{ .PageArg }}" data-tophid="{{ .TopHID }}" data-srvmsg="{{ .ServerMessage }}"></script>
-<link rel="preload" href="/manifest.webmanifest" as="manifest">
+{{ end }}
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#305">
 {{ else }}
