@@ -49,8 +49,10 @@ var develMode = false
 
 func getInfo(r *http.Request) map[string]interface{} {
 	templinfo := make(map[string]interface{})
+	templinfo["ManifestParam"] = getassetparam(viewDir + "/views/manifest.webmanifest")
 	templinfo["StyleParam"] = getassetparam(viewDir + "/views/style.css")
 	templinfo["LocalStyleParam"] = getassetparam(dataDir + "/views/local.css")
+	templinfo["GuestStyleParam"] = getassetparam(dataDir + "/views/guest.css")
 	templinfo["JSParam"] = getassetparam(viewDir + "/views/honkpage.js")
 	templinfo["LocalJSParam"] = getassetparam(dataDir + "/views/local.js")
 	templinfo["ServerName"] = serverName
@@ -1658,10 +1660,10 @@ func serve() {
 		assets := []string{
 			viewDir + "/views/style.css",
 			dataDir + "/views/local.css",
+			dataDir + "/views/guest.css",
 			viewDir + "/views/honkpage.js",
 			dataDir + "/views/local.js",
 			viewDir + "/views/manifest.webmanifest",
-			viewDir + "/views/sw.js",
 		}
 		for _, s := range assets {
 			savedassetparams[s] = getassetparam(s)

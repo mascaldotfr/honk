@@ -17,12 +17,12 @@
 <link rel="preload" href="/honkpage.js{{ .JSParam }}" as="script" />
 <script src="/honkpage.js{{ .JSParam }}" defer data-csrf="{{ .HonkCSRF }}" data-pagename="{{ .PageName }}" data-pagearg="{{ .PageArg }}" data-tophid="{{ .TopHID }}" data-srvmsg="{{ .ServerMessage }}"></script>
 {{ end }}
-<link rel="manifest" href="/manifest.webmanifest">
+<link rel="manifest" href="/manifest.webmanifest{{ .ManifestParam }}">
 <meta name="theme-color" content="#305">
 {{ else }}
 <link rel="preload" as="image" href="/background.webp"/>
-<link rel="preload" href="/guest.css" as="style" />
-<link rel="stylesheet" type="text/css" href="/guest.css"/>
+<link rel="preload" href="/guest.css{{ .GuestStyleParam }}" as="style" />
+<link rel="stylesheet" type="text/css" href="/guest.css{{ .GuestStyleParam }}"/>
 {{ end }}
 <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
