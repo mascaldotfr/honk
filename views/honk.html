@@ -30,7 +30,8 @@ original: <a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>{{ .Oondle }
 <details {{ if $bonkcsrf }}open{{ end }}>
 <summary>{{ .HTPrecis }}</summary>
 {{ end }}
-<p>{{ .HTML }}
+{{ if not $bonkcsrf }}<p>{{ end }}
+{{ .HTML }}
 {{ if .HTPrecis }}
 </details>
 {{ end }}
