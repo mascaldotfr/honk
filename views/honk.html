@@ -5,14 +5,6 @@
 {{ $HasPrefix := .HasPrefix }}
 {{ with .Honk }}
 <header>
-{{ if .Oonker }}
-{{ if $bonkcsrf }}
-<a class="honkerlink" href="/h?xid={{ .Oonker }}" data-xid="{{ .Oonker }}">
-{{ else }}
-<a class="honkerlink" href="{{ .Oonker }}" rel=noreferrer>
-{{ end }}
-</a>
-{{ end }}
 {{ if $bonkcsrf }}
 <a class="honkerlink" href="/h?xid={{ .Honker }}" data-xid="{{ .Honker }}">{{ .Username }}</a>
 {{ else }}
