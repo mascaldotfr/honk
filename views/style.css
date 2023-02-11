@@ -277,6 +277,10 @@ main .hfcsheader:first-child {
  * SUPER override for colors
  */
 
+:root {
+	--width: 900px;
+}
+
 @media (prefers-color-scheme: dark) {
 	:root {
 		--bg-page: #020a18;
@@ -288,7 +292,6 @@ main .hfcsheader:first-child {
 		--header: #b1e2ff;
 		--headerlink: #b1b6ff;
 		--honkformbg: #1e345e;
-		--width: 800px;
 	}
 
 	label.button, button, input, textarea {
@@ -307,7 +310,6 @@ main .hfcsheader:first-child {
 		--header: #720000;
 		--headerlink: #720000;
 		--honkformbg: #f2e5de;
-		--width: 800px;
 	}
 	label.button, button, input, textarea {
 		background-color: #faebd7;
