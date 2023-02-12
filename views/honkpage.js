@@ -121,8 +121,6 @@ function hydrargs() {
 	var args = { "page" : name }
 	if (name == "convoy") {
 		args["c"] = arg
-	} else if (name == "combo") {
-		args["c"] = arg
 	} else if (name == "honker") {
 		args["xid"] = arg
 	} else if (name == "user") {
