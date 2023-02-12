@@ -1126,10 +1126,6 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var meta HonkerMeta
-	meta.Notes = strings.TrimSpace(r.FormValue("notes"))
-	mj, _ := jsonify(&meta)
-
 	defer honkerinvalidator.Clear(u.UserID)
 
 	if honkerid > 0 {
@@ -1145,7 +1141,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		if r.FormValue("sub") == "sub" {
 			followyou(user, honkerid)
 		}
-		_, err := stmtUpdateHonker.Exec(name, combos, mj, honkerid, u.UserID)
+		_, err := stmtUpdateHonker.Exec(name, combos, "{}", honkerid, u.UserID)
 		if err != nil {
 			elog.Printf("update honker err: %s", err)
 			return
@@ -1164,7 +1160,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		flavor = "peep"
 	}
 
-	err := savehonker(user, url, name, flavor, combos, mj)
+	err := savehonker(user, url, name, flavor, combos, "{}")
 	if err != nil {
 		http.Error(w, "had some trouble with that: "+err.Error(), http.StatusInternalServerError)
 		return

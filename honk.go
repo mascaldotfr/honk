@@ -160,11 +160,6 @@ type Honker struct {
 	Handle string
 	Flavor string
 	Combos []string
-	Meta   HonkerMeta
-}
-
-type HonkerMeta struct {
-	Notes string
 }
 
 type SomeThing struct {
