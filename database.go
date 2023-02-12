@@ -74,7 +74,6 @@ var somenamedusers = cache.New(cache.Options{Filler: func(name string) (*WhatAbo
 	marker.HashLinker = ontoreplacer
 	marker.AtLinker = attoreplacer
 	user.HTAbout = template.HTML(marker.Mark(user.About))
-	user.Onts = marker.HashTags
 	return user, true
 }})
 

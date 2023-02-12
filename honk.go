@@ -43,7 +43,6 @@ type WhatAbout struct {
 	Display string
 	About   string
 	HTAbout template.HTML
-	Onts    []string
 	Key     string
 	URL     string
 	Options UserOptions
