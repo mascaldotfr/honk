@@ -117,9 +117,10 @@ func gethonkers(userid int64) []*Honker {
 	}
 	defer rows.Close()
 	var honkers []*Honker
+	var combos, meta string
 	for rows.Next() {
 		h := new(Honker)
-		err = rows.Scan(&h.ID, &h.UserID, &h.Name, &h.XID, &h.Flavor, nil, nil)
+		err = rows.Scan(&h.ID, &h.UserID, &h.Name, &h.XID, &h.Flavor, &combos, &meta)
 		if err != nil {
 			elog.Printf("error scanning honker: %s", err)
 			continue
