@@ -159,7 +159,6 @@ type Honker struct {
 	XID    string
 	Handle string
 	Flavor string
-	Combos []string
 }
 
 type SomeThing struct {

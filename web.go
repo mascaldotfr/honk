@@ -1116,8 +1116,8 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 	name := strings.TrimSpace(r.FormValue("name"))
 	url := strings.TrimSpace(r.FormValue("url"))
 	peep := r.FormValue("peep")
-	combos := strings.TrimSpace(r.FormValue("combos"))
-	combos = " " + combos + " "
+	combos := ""
+	meta := ""
 	honkerid, _ := strconv.ParseInt(r.FormValue("honkerid"), 10, 0)
 
 	re_namecheck := regexp.MustCompile("[\\pL[:digit:]_.-]+")
@@ -1141,7 +1141,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		if r.FormValue("sub") == "sub" {
 			followyou(user, honkerid)
 		}
-		_, err := stmtUpdateHonker.Exec(name, combos, "{}", honkerid, u.UserID)
+		_, err := stmtUpdateHonker.Exec(name, combos, meta, honkerid, u.UserID)
 		if err != nil {
 			elog.Printf("update honker err: %s", err)
 			return
@@ -1160,7 +1160,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) {
 		flavor = "peep"
 	}
 
-	err := savehonker(user, url, name, flavor, combos, "{}")
+	err := savehonker(user, url, name, flavor, combos, meta)
 	if err != nil {
 		http.Error(w, "had some trouble with that: "+err.Error(), http.StatusInternalServerError)
 		return
