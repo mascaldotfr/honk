@@ -152,30 +152,6 @@ type Donk struct {
 	External bool
 }
 
-type Duration int64
-
-func (d Duration) String() string {
-	s := time.Duration(d).String()
-	if strings.HasSuffix(s, "m0s") {
-		s = s[:len(s)-2]
-	}
-	if strings.HasSuffix(s, "h0m") {
-		s = s[:len(s)-2]
-	}
-	return s
-}
-
-func parseDuration(s string) time.Duration {
-	didx := strings.IndexByte(s, 'd')
-	if didx != -1 {
-		days, _ := strconv.ParseInt(s[:didx], 10, 0)
-		dur, _ := time.ParseDuration(s[didx:])
-		return dur + 24*time.Hour*time.Duration(days)
-	}
-	dur, _ := time.ParseDuration(s)
-	return dur
-}
-
 type Honker struct {
 	ID     int64
 	UserID int64
