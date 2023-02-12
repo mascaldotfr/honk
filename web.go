@@ -1375,13 +1375,6 @@ func serveasset(w http.ResponseWriter, r *http.Request, basedir string) {
 	}
 	http.ServeFile(w, r, basedir+"/views"+r.URL.Path)
 }
-func servehelp(w http.ResponseWriter, r *http.Request) {
-	name := mux.Vars(r)["name"]
-	if !develMode {
-		w.Header().Set("Cache-Control", "max-age=3600")
-	}
-	http.ServeFile(w, r, viewDir+"/docs/"+name)
-}
 func servehtml(w http.ResponseWriter, r *http.Request) {
 	u := login.GetUserInfo(r)
 	templinfo := getInfo(r)
