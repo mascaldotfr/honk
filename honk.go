@@ -112,32 +112,10 @@ type OldRevision struct {
 	Noise  string
 }
 
-const (
-	flagIsAcked    = 1
-	flagIsBonked   = 2
-	flagIsSaved    = 4
-	flagIsUntagged = 8
-	flagIsReacted  = 16
-)
-
-func (honk *Honk) IsAcked() bool {
-	return honk.Flags&flagIsAcked != 0
-}
+const flagIsBonked   = 2
 
 func (honk *Honk) IsBonked() bool {
 	return honk.Flags&flagIsBonked != 0
-}
-
-func (honk *Honk) IsSaved() bool {
-	return honk.Flags&flagIsSaved != 0
-}
-
-func (honk *Honk) IsUntagged() bool {
-	return honk.Flags&flagIsUntagged != 0
-}
-
-func (honk *Honk) IsReacted() bool {
-	return honk.Flags&flagIsReacted != 0
 }
 
 type Donk struct {

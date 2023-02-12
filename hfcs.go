@@ -420,9 +420,6 @@ var untagged = cache.New(cache.Options{Filler: func(userid int64) (map[string]bo
 			elog.Printf("error scanning untag: %s", err)
 			continue
 		}
-		if flags&flagIsUntagged != 0 {
-			bad[xid] = true
-		}
 		if bad[rid] {
 			bad[xid] = true
 		}

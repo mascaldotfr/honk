@@ -669,7 +669,7 @@ func showonehonk(w http.ResponseWriter, r *http.Request) {
 		if h.XID == xid && len(honks) != 0 {
 			h.Style += " glow"
 		}
-		if h.Public && (h.Whofore == 2 || h.IsAcked()) {
+		if h.Public && h.Whofore == 2 {
 			honks = append(honks, h)
 		}
 	}

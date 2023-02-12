@@ -49,7 +49,7 @@ desirable (new features).
   meanies and spammers, not filter content. Rules conditions have been reduced
   to the minimum (actor and text only) and **reject** honks if they are
   matching. This only applies to rules created by this fork, rules created by
-  vanilla honk will apply as usual.
+  vanilla honk will apply with some limitations but should not be buggy.
 - Drop import from twitter and mastodon ([but it is easy to bring it back](https://github.com/mascaldotfr/honk/commit/8c58bf254e556482d7e2930f45308044958387fd))
 - Drop chatter, RSS, places, events and flag features. Combos, xzone and
   ontologies have been removed but you have still the search feature as cheap
