@@ -1177,20 +1177,8 @@ func honkworldwide(user *WhatAbout, honk *Honk) {
 		}
 	}
 	for a := range rcpts {
-		go deliverate(0, user.ID, a, msg, doesitmatter(honk.What))
+		go deliverate(0, user.ID, a, msg, true)
 	}
-}
-
-func doesitmatter(what string) bool {
-	switch what {
-	case "ack":
-		return false
-	case "react":
-		return false
-	case "deack":
-		return false
-	}
-	return true
 }
 
 func junkuser(user *WhatAbout) junk.Junk {
