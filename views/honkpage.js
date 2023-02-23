@@ -170,7 +170,7 @@ function switchtopage(name, arg) {
 	curpagestate.name = name
 	curpagestate.arg = arg
 	// get the holder for the target page
-	var stash = name + ":" + arg
+	stash = name + ":" + arg
 	holder = honksforpage[stash]
 	if (holder) {
 		honksonpage.prepend(holder)
@@ -238,6 +238,7 @@ function showhonkform(elem, rid, hname) {
 		elem.insertAdjacentElement('afterend', form)
 	}
 	var ridinput = document.getElementById("ridinput")
+	var honknoise = document.getElementById("honknoise")
 	if (rid) {
 		ridinput.value = rid
 		if (hname) {
@@ -251,7 +252,7 @@ function showhonkform(elem, rid, hname) {
 	}
 	var updateinput = document.getElementById("updatexidinput")
 	updateinput.value = ""
-	document.getElementById("honknoise").focus()
+	honknoise.focus()
 	return false
 }
 function cancelhonking() {
