@@ -991,6 +991,8 @@ func submithonk(w http.ResponseWriter, r *http.Request) *Honk {
 	noise = strings.Replace(noise, "\r", "", -1)
 	noise = quickrename(noise, userinfo.UserID)
 	honk.Noise = noise
+	precipitate(honk)
+	noise = honk.Noise
 	translate(honk)
 
 	var convoy string

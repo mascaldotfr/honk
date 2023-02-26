@@ -172,10 +172,7 @@ func replaceimgsand(zap map[string]bool, absolute bool) func(node *html.Node) st
 
 var re_dangerous = regexp.MustCompile("^[a-zA-Z]{2}:")
 
-func translate(honk *Honk) {
-	if honk.Format == "html" {
-		return
-	}
+func precipitate(honk *Honk) {
 	noise := honk.Noise
 	if re_dangerous.MatchString(noise) {
 		idx := strings.Index(noise, "\n")
@@ -188,6 +185,14 @@ func translate(honk *Honk) {
 		}
 	}
 	honk.Precis = markitzero(strings.TrimSpace(honk.Precis))
+	honk.Noise = noise
+}
+
+func translate(honk *Honk) {
+	if honk.Format == "html" {
+		return
+	}
+	noise := honk.Noise
 
 	var marker mz.Marker
 	marker.HashLinker = ontoreplacer
