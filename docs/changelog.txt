@@ -4,8 +4,6 @@ changelog
 
 + Fix double htmlization of subject lines.
 
-- Some existing posts will now have duplicated subjects.
-
 + Remove the wonk support. Fun's over, back to work.
 
 + All inclusive danger zone spoiler alerts.
