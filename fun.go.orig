@@ -183,9 +183,9 @@ func precipitate(honk *Honk) {
 			honk.Precis = noise[:idx]
 			noise = noise[idx+1:]
 		}
-		honk.Precis = markitzero(strings.TrimSpace(honk.Precis))
-		honk.Noise = noise
 	}
+	honk.Precis = markitzero(strings.TrimSpace(honk.Precis))
+	honk.Noise = noise
 }
 
 func translate(honk *Honk) {
