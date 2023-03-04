@@ -1510,7 +1510,7 @@ func unfollowme(user *WhatAbout, who string, name string, j junk.Junk) {
 	}
 }
 
-func followyou(user *WhatAbout, honkerid int64) {
+func followyou(user *WhatAbout, honkerid int64, sync bool) {
 	var url, owner string
 	db := opendatabase()
 	row := db.QueryRow("select xid, owner from honkers where honkerid = ? and userid = ? and flavor in ('unsub', 'peep', 'presub', 'sub')",
@@ -1527,10 +1527,14 @@ func followyou(user *WhatAbout, honkerid int64) {
 		elog.Printf("error updating honker: %s", err)
 		return
 	}
-	go subsub(user, url, owner, folxid)
+	if sync {
+		subsub(user, url, owner, folxid)
+	} else {
+		go subsub(user, url, owner, folxid)
+	}
 
 }
-func unfollowyou(user *WhatAbout, honkerid int64) {
+func unfollowyou(user *WhatAbout, honkerid int64, sync bool) {
 	db := opendatabase()
 	row := db.QueryRow("select xid, owner, folxid from honkers where honkerid = ? and userid = ? and flavor in ('sub')",
 		honkerid, user.ID)
@@ -1546,7 +1550,11 @@ func unfollowyou(user *WhatAbout, honkerid int64) {
 		elog.Printf("error updating honker: %s", err)
 		return
 	}
-	go itakeitallback(user, url, owner, folxid)
+	if sync {
+		itakeitallback(user, url, owner, folxid)
+	} else {
+		go itakeitallback(user, url, owner, folxid)
+	}
 }
 
 func followyou2(user *WhatAbout, j junk.Junk) {

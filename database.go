@@ -762,9 +762,6 @@ func savehonker(user *WhatAbout, url, name, flavor, combos, mj string) (int64, e
 		return 0, err
 	}
 	honkerid, _ := res.LastInsertId()
-	if flavor == "presub" {
-		followyou(user, honkerid)
-	}
 	return honkerid, nil
 }
 
