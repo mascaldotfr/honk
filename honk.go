@@ -272,12 +272,12 @@ func main() {
 		}
 		user, err := butwhatabout(args[1])
 		if err != nil {
-			fmt.Printf("user not found")
+			fmt.Printf("user not found\n")
 			return
 		}
 		honkerid, err := savehonker(user, args[2], "", "presub", "", "{}")
 		if err != nil {
-			fmt.Printf("had some trouble with that: %s", err)
+			fmt.Printf("had some trouble with that: %s\n", err)
 			return
 		}
 		followyou(user, honkerid, true)
@@ -288,14 +288,14 @@ func main() {
 		}
 		user, err := butwhatabout(args[1])
 		if err != nil {
-			fmt.Printf("user not found")
+			fmt.Printf("user not found\n")
 			return
 		}
 		row := db.QueryRow("select honkerid from honkers where xid = ? and userid = ? and flavor in ('sub')", args[2], user.ID)
 		var honkerid int64
 		err = row.Scan(&honkerid)
 		if err != nil {
-			fmt.Printf("sorry couldn't find them")
+			fmt.Printf("sorry couldn't find them\n")
 			return
 		}
 		unfollowyou(user, honkerid, true)
