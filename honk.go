@@ -291,7 +291,7 @@ func main() {
 			fmt.Printf("user not found")
 			return
 		}
-		row := db.QueryRow("select honkerid from honkers where xid = ? and userid = ?", args[2], user.ID)
+		row := db.QueryRow("select honkerid from honkers where xid = ? and userid = ? and flavor in ('sub')", args[2], user.ID)
 		var honkerid int64
 		err = row.Scan(&honkerid)
 		if err != nil {
