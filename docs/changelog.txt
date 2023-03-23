@@ -1,6 +1,6 @@
 changelog
 
-=== next
+=== 0.9.9 Eat the Bugs
 
 + Fix double htmlization of subject lines.
 
