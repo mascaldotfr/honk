@@ -1169,7 +1169,8 @@ func submithonker(w http.ResponseWriter, r *http.Request) *Honker {
 		flavor = "peep"
 	}
 
-	id, err := savehonker(user, url, name, flavor, combos, meta)
+	var err error
+	honkerid, err = savehonker(user, url, name, flavor, combos, meta)
 	if err != nil {
 		http.Error(w, "had some trouble with that: "+err.Error(), http.StatusInternalServerError)
 		return nil
@@ -1178,7 +1179,7 @@ func submithonker(w http.ResponseWriter, r *http.Request) *Honker {
 	if flavor == "presub" {
 		followyou(user, honkerid, false)
 	}
-	h.ID = id
+	h.ID = honkerid
 	return h
 }
 
