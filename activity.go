@@ -1536,12 +1536,15 @@ func followyou(user *WhatAbout, honkerid int64, sync bool) {
 }
 func unfollowyou(user *WhatAbout, honkerid int64, sync bool) {
 	db := opendatabase()
-	row := db.QueryRow("select xid, owner, folxid from honkers where honkerid = ? and userid = ? and flavor in ('sub')",
+	row := db.QueryRow("select xid, owner, folxid, flavor from honkers where honkerid = ? and userid = ? and flavor in ('unsub', 'peep', 'presub', 'sub')",
 		honkerid, user.ID)
-	var url, owner, folxid string
-	err := row.Scan(&url, &owner, &folxid)
+	var url, owner, folxid, flavor string
+	err := row.Scan(&url, &owner, &folxid, &flavor)
 	if err != nil {
 		elog.Printf("can't get honker xid: %s", err)
+		return
+	}
+	if flavor == "peep" {
 		return
 	}
 	ilog.Printf("unsubscribing from %s", url)
