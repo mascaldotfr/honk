@@ -49,6 +49,8 @@ func init() {
 }
 
 var relingo = make(map[string]string)
+var re_convoy = regexp.MustCompile("convoy: ?([^\n]+)")
+var re_convalidate = regexp.MustCompile("^(https?|tag|data):")
 
 func loadLingo() {
 	for _, l := range []string{"honked", "bonked", "honked back", "qonked", "evented"} {
