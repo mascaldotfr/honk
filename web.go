@@ -176,13 +176,9 @@ func inbox(w http.ResponseWriter, r *http.Request) {
 				return
 			case "Question":
 				return
-			case "Note":
-				go xonksaver(user, j, origin)
-				return
 			}
 		}
-		ilog.Printf("unknown Update activity")
-		dumpactivity(j)
+		go xonksaver(user, j, origin)
 	case "Undo":
 		obj, ok := j.GetMap("object")
 		if !ok {
