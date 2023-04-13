@@ -1,3 +1,6 @@
+**Due to my own inactivity on the fediverse, I prefer to close this service and associated repo**
+
+
 # Honk @ thebus.top
 *Text centric fork of honk*
 
